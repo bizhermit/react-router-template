@@ -1,0 +1,38 @@
+{
+  "name": "web-app-template",
+  "version": "0.0.0",
+  "description": "web app template",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "react-router build",
+    "dev": "react-router dev --host",
+    "start": "react-router-serve ./build/server/index.js",
+    "typecheck": "react-router typegen && tsc"
+  },
+  "dependencies": {
+    "@react-router/node": "^7.6.0",
+    "@react-router/serve": "^7.6.0",
+    "isbot": "^5.1.17",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-router": "^7.6.0",
+    "serialize-javascript": "^6.0.2",
+    "tailwind-merge": "^3.3.0"
+  },
+  "devDependencies": {
+    "@react-router/dev": "^7.6.0",
+    "@tailwindcss/vite": "^4.1.6",
+    "@types/node": "^22.15.18",
+    "@types/react": "^19.1.4",
+    "@types/react-dom": "^19.1.5",
+    "@types/serialize-javascript": "^5.0.4",
+    "react-router-devtools": "^5.0.5",
+    "sass-embedded": "^1.87.0",
+    "tailwindcss": "^4.1.6",
+    "typescript": "^5.7.2",
+    "vite": "^5.4.11",
+    "vite-tsconfig-paths": "^5.1.4"
+  }
+}
