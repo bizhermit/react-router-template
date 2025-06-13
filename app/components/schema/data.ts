@@ -1,0 +1,159 @@
+export function getArrayIndex(name: string) {
+  return name.match(/^\[(\d*)\]$/);
+};
+
+export function getArrayIndexOrName(name: string) {
+  const r = getArrayIndex(name);
+  return r ? Number(r[1] || "NaN") : name;
+};
+
+export function splitName(name: string) {
+  return name.split(/\.|(\[\d*\])/).filter(s => s);
+};
+
+type Item = {
+  name: string;
+  value: any;
+};
+
+export class SchemaData {
+
+  private data: Record<string, any>;
+  private callback: (params: { items: Array<Item> }) => void;
+  private bulkQueue: Array<Item> | null;
+
+  constructor(data: typeof this.data | FormData | null | undefined, callback: typeof this.callback) {
+    if (data instanceof FormData) {
+      this.data = {};
+      for (const [k, v] of data.entries()) {
+        const [exist, has] = this._get(k);
+        if (!has) {
+          this._set(k, v);
+          continue;
+        }
+        if (Array.isArray(exist)) {
+          exist.push(v);
+        } else {
+          this._set(k, [exist, v]);
+        }
+      }
+    } else {
+      this.data = data ?? {};
+    }
+    this.callback = callback;
+    this.bulkQueue = null;
+  };
+
+  public _get<V = any>(name: string): [vlaue: V | null | undefined, hasProperty: boolean] {
+    let has = false;
+    const names = splitName(name);
+    let v: any = this.data;
+    for (const n of names) {
+      if (v == null) return [undefined, false];
+      const r = getArrayIndex(n);
+      if (r) {
+        let i = Number(r[1]);
+        if (isNaN(i)) i = 0;
+        has = i in v;
+        v = v[i];
+        continue;
+      }
+      has = n in v;
+      v = v[n];
+    }
+    return [v, has];
+  };
+
+  public get<V = any>(name: string): V | null | undefined {
+    return this._get<V>(name)[0];
+  };
+
+  public hasValue(name: string): boolean {
+    return this.get(name) != null;
+  }
+
+  public hasProperty(name: string): boolean {
+    return this._get(name)[1];
+  };
+
+  public _set(name: string, value: any): boolean {
+    let d = this.data, change = false;
+    const names = splitName(name);
+    for (let i = 0, il = names.length - 1; i < il; i++) {
+      let n: string | number = names[i];
+      const r = getArrayIndex(n);
+      if (r) n = Number(r[1] || "NaN");
+      if (d[n] == null) {
+        d[n] = getArrayIndex(names[i + 1]) ? [] : {};
+        change = true;
+      }
+      d = d[n];
+    }
+    const n = names[names.length - 1];
+    const r = getArrayIndex(n);
+    if (r) {
+      if (!Array.isArray(d)) throw new Error(`set value failed. object is no array. "${name}"`)
+      const i = Number(r[1]);
+      if (isNaN(i)) {
+        d.push(value);
+        return true;
+      }
+      change = !Object.is(d[i], value);
+      d[i] = value;
+    } else {
+      change = !Object.is(d[n], value);
+      d[n] = value;
+    }
+    return change;
+  };
+
+  public set(name: string, value: any): boolean {
+    const change = this._set(name, value);
+    if (change) this.effect([{ name, value }]);
+    return change;
+  };
+
+  public bulkSet(items: Array<{ name: string; value: any }>) {
+    let change = false;
+    const changeItems: typeof items = [];
+    items.forEach(item => {
+      const c = this._set(item.name, item.value);
+      if (c) {
+        changeItems.push(item);
+        change = true;
+      }
+    });
+    if (change) this.effect(changeItems);
+    return change;
+  };
+
+  public bulkPush(name: string, value: any) {
+    if (!this.bulkQueue) this.bulkQueue = [];
+    this.bulkQueue.push({ name, value });
+    return this;
+  };
+
+  public bulkExec() {
+    if (!this.bulkQueue) return false;
+    const ret = this.bulkSet(this.bulkQueue);
+    this.bulkQueue = null;
+    return ret;
+  };
+
+  public getBulkQueueLength() {
+    return this.bulkQueue?.length ?? 0;
+  };
+
+  public hasBulkQueue() {
+    return this.getBulkQueueLength() > 0;
+  };
+
+  private effect(items: Array<{ name: string; value: any; }>) {
+    this.callback({ items });
+  };
+
+  public getData<T = Record<string, any>>() {
+    return this.data as T;
+  };
+
+};
