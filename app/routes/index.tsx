@@ -19,18 +19,18 @@ const text = $str(
 
 const schema = $schema({
   text: $str(),
-  requiredText: $str({
-    required: true,
-  }),
-  dynamicRequiredText: $str({
-    required: () => true,
-  }),
-  customMessageText: $str({
-    required: [true, () => "入力しない場合、あなたの命は保証されません。"],
-  }),
-  customDynamicRequiredText: $str({
-    required: [() => true, () => "入力しなくても命だけは獲らないでいてやる。"],
-  }),
+  // requiredText: $str({
+  //   required: true,
+  // }),
+  // dynamicRequiredText: $str({
+  //   required: () => true,
+  // }),
+  // customMessageText: $str({
+  //   required: [true, () => "入力しない場合、あなたの命は保証されません。"],
+  // }),
+  // customDynamicRequiredText: $str({
+  //   required: [() => true, () => "入力しなくても命だけは獲らないでいてやる。"],
+  // }),
   sourceText: $str({
     required: true,
     source: [
@@ -40,7 +40,7 @@ const schema = $schema({
     ] as const,
   }),
   count: $num(),
-  age: $num({ required: true }),
+  // age: $num({ required: true }),
   generation: $num({
     source: [
       { value: 0, text: "無印" },
@@ -53,10 +53,10 @@ const schema = $schema({
     ] as const,
   }),
   check: $bool(),
-  agreement: $bool({
-    required: true,
-    requiredAsTrue: true,
-  }),
+  // agreement: $bool({
+  //   required: true,
+  //   requiredAsTrue: true,
+  // }),
   numFlag: $bool({
     trueValue: 1 as const,
     falseValue: 0 as const,

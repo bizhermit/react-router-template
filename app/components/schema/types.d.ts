@@ -188,6 +188,84 @@ namespace Schema {
     getSource: (params: { env: Schema.Env }) => Source<TV | FV>;
   };
 
+  type MonthString = `${number}-${number}`;
+  type DateString = `${number}-${number}-${number}`;
+  type TimeHMString = `${number}:${number}`;
+  type TimeHMSString = `${number}:${number}:${number}`;
+  type TimeString = TimeHMString | TimeHMSString;
+  type DateTimeString = `${DateString}T${TimeHMString | TimeHMSString}`;
+  type SplitDateTarget = "Y" | "M" | "D" | "h" | "m" | "s";
+
+  type DateValueString =
+    | MonthString
+    | DateString
+    | DateTimeString
+    ;
+
+  interface DateBaseProps<V extends DateValueString = DateValueString> extends BaseProps {
+    required?: Validation<boolean, V, { date: Date }>;
+    minDate?: Validation<Date | V, V, { minDate: Date; date: Date; }>;
+    maxDate?: Validation<Date | V, { maxDate: Date; date: Date; }>;
+    pair?: Validation<{
+      name: string;
+      position: "before" | "after";
+      same?: boolean;
+    }, V, { pairDate: Date; date: Date; }>;
+  };
+
+  interface MonthProps<V extends MonthString = MonthString> extends DateBaseProps<V> { };
+
+  interface DateProps<V extends DateString = DateString> extends DateBaseProps<V> { };
+
+  interface DateTimeProps<V extends DateTimeString = DateTimeString> extends DateBaseProps<V> {
+    time?: "hm" | "hms";
+    minTime?: Validation<TimeString, V, { minTime: TimeString; date: Date; }>;
+    maxTime?: Validation<TimeString, V, { maxTime: TimeString; date: Date; }>;
+  };
+
+  interface SplitDateProps<V extends number = number> extends BaseProps {
+    required?: Validation<boolean, V, { date: Date }>;
+  };
+
+  interface $BaseDate<V extends DateValueString = DateValueString> {
+    validators: Array<Validator<V>>;
+    required: $ValidationValue<boolean>;
+    minDate: $ValidationValue<Date | V>;
+    maxDate: $ValidationValue<Date | V>;
+    pair: $ValidationValue<{
+      name: string;
+      position: "before" | "after";
+      same?: boolean;
+    }>;
+    splitYear: <Props extends SplitDateProps>(props: Props) => $SplitDate<"Y">;
+    splitMonth: <Props extends SplitDateProps>(props: Props) => $SplitDate<"M">;
+  };
+
+  interface $Month<V extends MonthString = MonthString> extends $BaseDate<V> {
+    type: "month";
+  };
+
+  interface $Date<V extends DateString = DateString> extends $BaseDate<V> {
+    type: "date";
+    splitDay: <Props extends SplitDateProps>(props: Props) => $SplitDate<"D">;
+  };
+
+  interface $DateTime<V extends DateTimeString = DateTimeString> extends $BaseDate<V> {
+    type: "datetime";
+    time: "hm" | "hms";
+    minTime: $ValidationValue<TimeString>;
+    maxTime: $ValidationValue<TimeString>;
+    splitHour: <Props extends SplitDateProps>(props: Props) => $SplitDate<"h">;
+    splitMinute: <Props extends SplitDateProps>(props: Props) => $SplitDate<"m">;
+    splitSecond: <Props extends SplitDateProps>(props: Props) => $SplitDate<"s">;
+  };
+
+  interface $SplitDate<T extends SplitDateTarget, V extends number = number> {
+    type: `sdate-${T}`;
+    validators: Array<Validator<V>>;
+    required: $ValidationValue<boolean>;
+  };
+
   interface FileProps<V extends File | string = File | string> extends BaseProps {
     required?: Validation<boolean, V>;
     accept?: Validation<string, V, { accept: string }>;
@@ -239,6 +317,10 @@ namespace Schema {
     | $String
     | $Numeric
     | $Boolean
+    | $Date
+    | $Month
+    | $DateTime
+    | $SplitDate
     | $File
     | $Array
     | $Struct
@@ -266,6 +348,18 @@ namespace Schema {
       T extends "bool" ? (
         Strict extends true ? RequiredValue<Props["trueValue"] | Props["falseValue"], Props["required"], Optional> :
         BooleanValue | null | undefined
+      ) :
+      T extends "date" ? (
+        Strict extends true ? RequiredValue<DateString, Props["required"], Optional> :
+        DateValueString | Date | null | undefined
+      ) :
+      T extends "month" ? (
+        Strict extends true ? RequiredValue<MonthString, Props["required"], Optional> :
+        DateValueString | Date | null | undefined
+      ) :
+      T extends "datetime" ? (
+        Strict extends true ? RequiredValue<Props["time"] extends "hms" ? `${DateString}T${TimeHMSString}` : `${DateString}T${TimeHMString}`, Props["required"], Optional> :
+        DateValueString | Date | null | undefined
       ) :
       T extends "file" ? (
         Strict extends true ? RequiredValue<File | string, Props["required"], Optional> :
