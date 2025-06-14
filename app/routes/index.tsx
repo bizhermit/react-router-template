@@ -1,7 +1,7 @@
 import { $schema } from "~/components/schema";
 import { $array } from "~/components/schema/array";
 import { $bool } from "~/components/schema/boolean";
-import { $month } from "~/components/schema/date";
+import { $date, $datetime, $month } from "~/components/schema/date";
 import { $file } from "~/components/schema/file";
 import { $num } from "~/components/schema/numeric";
 import { $str } from "~/components/schema/string";
@@ -64,7 +64,12 @@ const schema = $schema({
     required: true,
   }),
   month: $month({
-    // required: true,
+    required: true,
+  }),
+  date: $date(),
+  datetime: $datetime(),
+  datetimeHasSecond: $datetime({
+    time: "hms",
   }),
   file: $file({
     required: true,
@@ -78,6 +83,7 @@ const schema = $schema({
         required: true,
       }),
       age: $num(),
+      birth: $date(),
     },
   }),
   structArray: $array({
@@ -87,6 +93,7 @@ const schema = $schema({
           required: true,
         }),
         age: $num(),
+        birth: $month(),
       },
     }),
   }),

@@ -110,9 +110,14 @@ function splitDate<Props extends Schema.SplitDateProps, T extends Schema.SplitDa
   } as const satisfies Schema.$SplitDate<T>;
 };
 
-export function $month<Props extends Schema.MonthProps>(props?: Props) {
-  const validators: Array<Schema.Validator<Schema.MonthString>> = [];
-
+function common<Props extends Schema.DateBaseProps>(
+  props: Props | undefined,
+  validators: Array<Schema.Validator<Schema.DateValueString>>,
+  options: {
+    pattern: string;
+    beforePairValidation?: () => void;
+  },
+) {
   const [required, getRequiredMessage] = getValidationArray(props?.required);
   const [minDate, getMinDateMessage] = getValidationArray(props?.minDate);
   const [maxDate, getMaxDateMessage] = getValidationArray(props?.maxDate);
@@ -152,7 +157,7 @@ export function $month<Props extends Schema.MonthProps>(props?: Props) {
   if (minDate) {
     const getMessage: Schema.MessageGetter<typeof getMinDateMessage> = getMinDateMessage ?
       getMinDateMessage :
-      (p) => p.env.t(`${formatDate(p.minDate, "yyyy/M")}以降で入力してください。`);
+      (p) => p.env.t(`${formatDate(p.minDate, options.pattern)}以降で入力してください。`);
 
     if (typeof minDate === "function") {
       validators.push((p) => {
@@ -195,7 +200,7 @@ export function $month<Props extends Schema.MonthProps>(props?: Props) {
   if (maxDate) {
     const getMessage: Schema.MessageGetter<typeof getMaxDateMessage> = getMaxDateMessage ?
       getMaxDateMessage :
-      (p) => p.env.t(`${formatDate(p.maxDate, "yyyy/M")}以前で入力してください。`);
+      (p) => p.env.t(`${formatDate(p.maxDate, options.pattern)}以前で入力してください。`);
 
     if (typeof maxDate === "function") {
       validators.push((p) => {
@@ -235,10 +240,12 @@ export function $month<Props extends Schema.MonthProps>(props?: Props) {
     };
   }
 
+  options.beforePairValidation?.();
+
   if (pair) {
     const getMessage: Schema.MessageGetter<typeof getPairMessage> = getPairMessage ?
       getPairMessage :
-      (p) => p.env.t("年月の前後関係が不正です。");
+      (p) => p.env.t("前後関係が不正です。");
 
     if (typeof pair === "function") {
       validators.push((p) => {
@@ -304,6 +311,26 @@ export function $month<Props extends Schema.MonthProps>(props?: Props) {
     }
   }
 
+  return {
+    validators,
+    required,
+    minDate,
+    maxDate,
+    pair,
+  } as const;
+};
+
+export function $month<Props extends Schema.MonthProps>(props?: Props) {
+  const validators: Array<Schema.Validator<Schema.MonthString>> = [];
+
+  const commonProps = common(
+    props as Schema.BaseProps,
+    validators as Array<Schema.Validator<Schema.DateValueString>>,
+    {
+      pattern: "yyyy/M",
+    }
+  );
+
   if (props?.validators) {
     validators.push(...props.validators);
   }
@@ -311,10 +338,10 @@ export function $month<Props extends Schema.MonthProps>(props?: Props) {
   return {
     type: "month",
     validators,
-    required: required as Schema.GetValidationValue<Props, "required">,
-    minDate,
-    maxDate,
-    pair,
+    required: commonProps.required as Schema.GetValidationValue<Props, "required">,
+    minDate: commonProps.minDate as Schema.GetValidationValue<Props, "minDate">,
+    maxDate: commonProps.maxDate as Schema.GetValidationValue<Props, "maxDate">,
+    pair: commonProps.pair,
     splitYear: function (props) {
       return splitDate(props, "sdate-Y");
     },
@@ -322,4 +349,180 @@ export function $month<Props extends Schema.MonthProps>(props?: Props) {
       return splitDate(props, "sdate-M");
     },
   } as const satisfies Schema.$Month;
+};
+
+
+export function $date<Props extends Schema.DateProps>(props?: Props) {
+  const validators: Array<Schema.Validator<Schema.DateString>> = [];
+
+  const commonProps = common(
+    props as Schema.BaseProps,
+    validators as Array<Schema.Validator<Schema.DateValueString>>,
+    {
+      pattern: "yyyy/M/d",
+    }
+  );
+
+  if (props?.validators) {
+    validators.push(...props.validators);
+  }
+
+  return {
+    type: "date",
+    validators,
+    required: commonProps.required as Schema.GetValidationValue<Props, "required">,
+    minDate: commonProps.minDate as Schema.GetValidationValue<Props, "minDate">,
+    maxDate: commonProps.maxDate as Schema.GetValidationValue<Props, "maxDate">,
+    pair: commonProps.pair,
+    splitYear: function (props) {
+      return splitDate(props, "sdate-Y");
+    },
+    splitMonth: function (props) {
+      return splitDate(props, "sdate-M");
+    },
+    splitDay: function (props) {
+      return splitDate(props, "sdate-D");
+    },
+  } as const satisfies Schema.$Date;
+};
+
+function timeToNumber(time: Schema.TimeString | undefined) {
+  if (time == null) return undefined;
+  const [h, m, s] = time.split(":");
+  let num = 0;
+  if (h != null) num += Number(h) * 3600;
+  if (m != null) num += Number(m) * 60;
+  if (s != null) num += Number(s);
+  return num;
+};
+
+export function $datetime<Props extends Schema.DateTimeProps>(props?: Props) {
+  const time = props?.time ?? "hm";
+
+  const validators: Array<Schema.Validator<Schema.DateTimeString>> = [];
+
+  const [minTime, getMinTimeMessage] = getValidationArray(props?.minTime);
+  const [maxTime, getMaxTimeMessage] = getValidationArray(props?.maxTime);
+
+  const commonProps = common(
+    props as Schema.BaseProps,
+    validators as Array<Schema.Validator<Schema.DateValueString>>,
+    {
+      pattern: "yyyy/M/d h:m:s",
+      beforePairValidation: function () {
+        if (minTime) {
+          const getMessage: Schema.MessageGetter<typeof getMinTimeMessage> = getMinTimeMessage ?
+            getMinTimeMessage :
+            (p) => p.env.t(`${p.minTime}以降で入力してください。`);
+
+          if (typeof minTime === "function") {
+            validators.push((p) => {
+              if (p.value == null) return null;
+              const min = minTime(p);
+              const m = timeToNumber(min);
+              if (m == null) throw new Error(`failed to parse time number [${min}]`);
+
+              const timeNum = timeToNumber(p.value.split("T")[1] as Schema.TimeString);
+              if (timeNum == null) throw new Error(`failed to parse time number [${p.value}]`);
+              if (m <= timeNum) return null;
+              return {
+                type: "e",
+                code: "minTime",
+                message: getMessage({ ...p, minTime: min, date: parseDate(p.value)! }),
+              };
+            });
+          } else {
+            const min = timeToNumber(minTime);
+            if (min == null) throw new Error(`failed to parse time number [${minTime}]`);
+
+            validators.push((p) => {
+              if (p.value == null) return null;
+              const timeNum = timeToNumber(p.value.split("T")[1] as Schema.TimeString);
+              if (timeNum == null) throw new Error(`failed to parse time number [${p.value}]`);
+              if (min <= timeNum) return null;
+              return {
+                type: "e",
+                code: "minTime",
+                message: getMessage({ ...p, minTime, date: parseDate(p.value)! }),
+              };
+            });
+          }
+        }
+
+        if (maxTime) {
+          const getMessage: Schema.MessageGetter<typeof getMaxTimeMessage> = getMaxTimeMessage ?
+            getMaxTimeMessage :
+            (p) => p.env.t(`${p.maxTime}以前で入力してください。`);
+
+          if (typeof maxTime === "function") {
+            validators.push((p) => {
+              if (p.value == null) return null;
+              const max = maxTime(p);
+              const m = timeToNumber(max);
+              if (m == null) throw new Error(`failed to parse time number [${max}]`);
+
+              const timeNum = timeToNumber(p.value.split("T")[1] as Schema.TimeString);
+              if (timeNum == null) throw new Error(`failed to parse time number [${p.value}]`);
+              if (timeNum <= m) return null;
+              return {
+                type: "e",
+                code: "minTime",
+                message: getMessage({ ...p, maxTime: max, date: parseDate(p.value)! }),
+              };
+            });
+          } else {
+            const max = timeToNumber(maxTime);
+            if (max == null) throw new Error(`failed to parse time number [${maxTime}]`);
+
+            validators.push((p) => {
+              if (p.value == null) return null;
+              const timeNum = timeToNumber(p.value.split("T")[1] as Schema.TimeString);
+              if (timeNum == null) throw new Error(`failed to parse time number [${p.value}]`);
+              if (timeNum <= max) return null;
+              return {
+                type: "e",
+                code: "minTime",
+                message: getMessage({ ...p, maxTime, date: parseDate(p.value)! }),
+              };
+            });
+          }
+        }
+      },
+    }
+  );
+
+  if (props?.validators) {
+    validators.push(...props.validators);
+  }
+
+  return {
+    type: "datetime",
+    time: time as Exclude<Props, undefined>["time"] extends "hms" ? "hms" : "hm",
+    validators,
+    required: commonProps.required as Schema.GetValidationValue<Props, "required">,
+    minDate: commonProps.minDate as Schema.GetValidationValue<Props, "minDate">,
+    maxDate: commonProps.maxDate as Schema.GetValidationValue<Props, "maxDate">,
+    minTime,
+    maxTime,
+    pair: commonProps.pair,
+    splitYear: function (props) {
+      return splitDate(props, "sdate-Y");
+    },
+    splitMonth: function (props) {
+      return splitDate(props, "sdate-M");
+    },
+    splitDay: function (props) {
+      return splitDate(props, "sdate-D");
+    },
+    splitHour: function (props) {
+      return splitDate(props, "sdate-h");
+    },
+    splitMinute: function (props) {
+      return splitDate(props, "sdate-m");
+    },
+    splitSecond: function (props) {
+      if (time === "hm") throw new Error("split date seconds is not supported.")
+      return splitDate(props, "sdate-s");
+    },
+  } as const satisfies Schema.$DateTime;
 };

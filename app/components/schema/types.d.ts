@@ -259,6 +259,7 @@ namespace Schema {
     time: "hm" | "hms";
     minTime: $ValidationValue<TimeString>;
     maxTime: $ValidationValue<TimeString>;
+    splitDay: <Props extends SplitDateProps>(props: Props) => $SplitDate<"D">;
     splitHour: <Props extends SplitDateProps>(props: Props) => $SplitDate<"h">;
     splitMinute: <Props extends SplitDateProps>(props: Props) => $SplitDate<"m">;
     splitSecond: <Props extends SplitDateProps>(props: Props) => $SplitDate<"s">;
