@@ -368,6 +368,10 @@ namespace Schema {
         Strict extends true ? RequiredValue<Props["time"] extends "hms" ? `${DateString}T${TimeHMSString}` : `${DateString}T${TimeHMString}`, Props["required"], Optional> :
         DateValueString | Date | null | undefined
       ) :
+      T extends `sdate-${SplitDateTarget}` ? (
+        Strict extends true ? RequiredValue<number, Props["required"], Optional> :
+        number | `${number}` | null | undefined
+      ) :
       T extends "file" ? (
         Strict extends true ? RequiredValue<File | string, Props["required"], Optional> :
         File | Blob | string | null | undefined

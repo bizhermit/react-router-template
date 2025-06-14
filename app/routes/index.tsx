@@ -18,6 +18,8 @@ const text = $str(
   }
 );
 
+const birth = $date();
+
 const schema = $schema({
   text: $str(),
   // requiredText: $str({
@@ -71,6 +73,13 @@ const schema = $schema({
   datetimeHasSecond: $datetime({
     time: "hms",
   }),
+  birth_year: birth.splitYear({
+    required: true,
+  }),
+  birth_month: birth.splitMonth({
+    required: true,
+  }),
+  birth_day: birth.splitDay(),
   file: $file({
     required: true,
   }),
