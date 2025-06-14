@@ -173,10 +173,9 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
   const [maxLength, getMaxLengthMessage] = getValidationArray(props?.max);
   const [pattern, getPatternMessage] = getValidationArray(props?.pattern);
 
-
   if (required) {
-    const getMessage: Schema.MessageGetter<Schema.StringProps["required"]> = getRequiredMessage ?
-      (p) => getRequiredMessage(p) :
+    const getMessage: Schema.MessageGetter<typeof getRequiredMessage> = getRequiredMessage ?
+      getRequiredMessage :
       (p) => p.env.t("入力してください。");
 
     if (typeof required === "function") {
@@ -208,8 +207,8 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
   if (props?.source) {
     const source = props.source;
     const sourceValidationMessage = props.sourceValidationMessage;
-    const getMessage: Exclude<Schema.StringProps["sourceValidationMessage"], undefined> = sourceValidationMessage ?
-      (p) => sourceValidationMessage!(p) :
+    const getMessage: Schema.MessageGetter<typeof sourceValidationMessage> = sourceValidationMessage ?
+      sourceValidationMessage :
       (p) => p.env.t("有効な値を設定してください。");
 
     if (typeof source === "function") {
@@ -236,8 +235,8 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
     }
   } else {
     if (length != null) {
-      const getMessage: Schema.MessageGetter<Schema.StringProps["len"]> = getLengthMessage ?
-        (p) => getLengthMessage(p) :
+      const getMessage: Schema.MessageGetter<typeof getLengthMessage> = getLengthMessage ?
+        getLengthMessage :
         (p) => p.env.t(`${p.length}文字で入力してください。`);
 
       if (typeof length === "function") {
@@ -266,8 +265,8 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
       }
     } else {
       if (minLength != null) {
-        const getMessage: Schema.MessageGetter<Schema.StringProps["min"]> = getMinLengthMessage ?
-          (p) => getMinLengthMessage(p) :
+        const getMessage: Schema.MessageGetter<typeof getMinLengthMessage> = getMinLengthMessage ?
+          getMinLengthMessage :
           (p) => p.env.t(`${p.minLength}文字以上で入力してください。`);
 
         if (typeof minLength === "function") {
@@ -297,8 +296,8 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
       }
 
       if (maxLength != null) {
-        const getMessage: Schema.MessageGetter<Schema.StringProps["max"]> = getMaxLengthMessage ?
-          (p) => getMaxLengthMessage(p) :
+        const getMessage: Schema.MessageGetter<typeof getMaxLengthMessage> = getMaxLengthMessage ?
+          getMaxLengthMessage :
           (p) => p.env.t(`${p.maxLength}文字以下で入力してください。`);
 
         if (typeof maxLength === "function") {
@@ -329,8 +328,8 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
     }
 
     if (pattern) {
-      const getMessage: Schema.MessageGetter<Schema.StringProps["pattern"]> = getPatternMessage ?
-        (p) => getPatternMessage(p) :
+      const getMessage: Schema.MessageGetter<typeof getPatternMessage> = getPatternMessage ?
+        getPatternMessage :
         (p) => p.env.t(`正しい書式で入力してください。`);
 
       if (typeof pattern === "function") {
@@ -384,10 +383,10 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
     type: "str",
     source: props?.source as Props["source"],
     validators,
-    required: required as unknown as Schema.ValidationArray<Props["required"]>,
+    required: required as Schema.GetValidationValue<Props["required"]>,
     length,
     minLength,
     maxLength,
     pattern,
-  } as const;
+  } as const satisfies Schema.$String;
 };

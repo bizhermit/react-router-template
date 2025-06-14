@@ -15,8 +15,17 @@ const text = $str({
 const schema = $schema({
   text: $str(),
   requiredText: $str({ required: true }),
+  dynamicRequiredText: $str({
+    required: () => true,
+  }),
+  customMessageText: $str({
+    required: [true, () => "入力しない場合、あなたの命は保証されません。"],
+  }),
+  customDynamicRequiredTExt: $bool({
+    required: [() => true, () => "入力しなくても命だけは獲らないでいてやる。"],
+  }),
   sourceText: $str({
-    required: true,
+    // required: true,
     source: [
       { value: "hoge", text: "HOGE" },
       { value: "fuga", text: "FUGA" },

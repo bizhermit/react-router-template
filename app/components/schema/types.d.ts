@@ -61,21 +61,23 @@ namespace Schema {
   type Validation<T, V, P = {}> =
     | T
     | DynamicValidationValue<T, V>
-    | [T | DynamicValidationValue<T, V>, CustomValidationMessage<V, P>]
+    | [T | DynamicValidationValue<T, V>, CustomValidationMessage<V, P>?]
     ;
 
   type ValidationArray<T extends Validation<any, any>> =
-    T extends [infer V] ? [V] :
-    T extends [infer V, infer M] ? [V, M] :
+    T extends any[] ? T :
     [T]
     ;
 
-  type PickCustomValidationMessageAddonParams<T extends Validation<any, any>> =
-    T extends [any, infer V] ? Omit<Parameters<V>[0], keyof ValidationParams<any>> : never;
+  type PickCustomValidationMessageAddonParams<T extends CustomValidationMessage<any, any> | undefined> =
+    Omit<Parameters<Exclude<T, undefined>>[0], keyof ValidationParams<any>>;
 
-  interface MessageGetter<T extends Validation<any, any>> {
+  interface MessageGetter<T extends CustomValidationMessage<any, any> | undefined> {
     (params: ValidationParams<any> & PickCustomValidationMessageAddonParams<T>): string;
   };
+
+  type $ValidationValue<T> = undefined | T | DynamicValidationValue<T, any>;
+  type GetValidationValue<T extends Validation<any, any>> = ValidationArray<T>[0];
 
   interface SourceItem<V> {
     value: V;
@@ -121,6 +123,17 @@ namespace Schema {
     validators?: Array<Validator<V>>;
   };
 
+  interface $String<V extends string = string> {
+    type: "str";
+    source: Source<V> | DynamicValidationValue<Source<V>, V> | undefined;
+    validators: Array<Validator<V>>;
+    required: $ValidationValue<boolean>;
+    length: $ValidationValue<number>;
+    minLength: $ValidationValue<number>;
+    maxLength: $ValidationValue<number>;
+    pattern: $ValidationValue<RegExp | StrPattern>;
+  };
+
   interface NumericProps<V extends number = number> extends BaseProps {
     required?: Validation<boolean, V>;
     source?: Source<V> | DynamicValidationValue<Source<V>, V>;
@@ -129,6 +142,16 @@ namespace Schema {
     max?: Validation<number, V, { max: number }>;
     float?: Validation<number, V, { float: number; currentFloat: number; }>;
     validators?: Array<Validator<V>>;
+  };
+
+  interface $Numeric<V extends number = number> {
+    type: "num";
+    source: Source<V> | DynamicValidationValue<Source<V>, V> | undefined;
+    validators: Array<Validator<V>>;
+    required: $ValidationValue<boolean>;
+    min: $ValidationValue<number>;
+    max: $ValidationValue<number>;
+    float: $ValidationValue<number>;
   };
 
   type BooleanValue = boolean | number | string;
@@ -146,9 +169,29 @@ namespace Schema {
     validators?: Array<Validator<TV | FV>>;
   };
 
+  interface $Boolean<
+    TV extends BooleanValue = BooleanValue,
+    FV extends BooleanValue = BooleanValue,
+  > {
+    type: "bool";
+    trueValue: TV,
+    falseValue: FV,
+    validators: Array<Validator<TV | FV>>;
+    required: $ValidationValue<boolean>;
+    getSource: (params: { env: Schema.Env }) => Source<TV | FV>;
+  };
+
+  type $Any =
+    | $String
+    | $Numeric
+    | $Boolean
+    ;
+
   type RequiredValue<V, R extends boolean, O extends boolean = false> =
     O extends true ? V | null | undefined :
-    R extends true ? V : V | null | undefined;
+    R extends true ? V :
+    R extends (...args?: any[]) => true ? V :
+    V | null | undefined;
 
   type ValueType<Props extends Record<string, any>, Strict extends boolean = true, Optional extends boolean = false> =
     Props extends { source: Array<{ value: infer V }> } ? (
@@ -156,15 +199,15 @@ namespace Schema {
     ) :
     Props extends { type: infer T } ? (
       T extends "str" ? (
-        Strict extends true ? RequiredValue<string, Props["required"][0], Optional> :
+        Strict extends true ? RequiredValue<string, Props["required"], Optional> :
         string | number | null | undefined
       ) :
       T extends "num" ? (
-        Strict extends true ? RequiredValue<string, Props["required"][0], Optional> :
+        Strict extends true ? RequiredValue<string, Props["required"], Optional> :
         number | `${number}` | null | undefined
       ) :
       T extends "bool" ? (
-        Strict extends true ? RequiredValue<Props["trueValue"] | Props["falseValue"], Props["required"][0], Optional> :
+        Strict extends true ? RequiredValue<Props["trueValue"] | Props["falseValue"], Props["required"], Optional> :
         BooleanValue | null | undefined
       ) :
       any

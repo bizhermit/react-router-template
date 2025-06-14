@@ -9,8 +9,8 @@ export function $num<Props extends Schema.NumericProps>(props?: Props) {
   const [float, getFloatMessage] = getValidationArray(props?.float);
 
   if (required) {
-    const getMessage: Schema.MessageGetter<Schema.NumericProps["required"]> = getRequiredMessage ?
-      (p) => getRequiredMessage(p) :
+    const getMessage: Schema.MessageGetter<typeof getRequiredMessage> = getRequiredMessage ?
+      getRequiredMessage :
       (p) => p.env.t("入力してください。");
 
     if (typeof required === "function") {
@@ -42,8 +42,8 @@ export function $num<Props extends Schema.NumericProps>(props?: Props) {
   if (props?.source) {
     const source = props.source;
     const sourceValidationMessage = props.sourceValidationMessage;
-    const getMessage: Exclude<Schema.NumericProps["sourceValidationMessage"], undefined> = sourceValidationMessage ?
-      (p) => sourceValidationMessage!(p) :
+    const getMessage: Schema.MessageGetter<typeof sourceValidationMessage> = sourceValidationMessage ?
+      sourceValidationMessage :
       (p) => p.env.t("有効な値を設定してください。");
 
     if (typeof source === "function") {
@@ -70,8 +70,8 @@ export function $num<Props extends Schema.NumericProps>(props?: Props) {
     }
   } else {
     if (min != null) {
-      const getMessage: Schema.MessageGetter<Schema.NumericProps["min"]> = getMinMessage ?
-        (p) => getMinMessage(p) :
+      const getMessage: Schema.MessageGetter<typeof getMinMessage> = getMinMessage ?
+        getMinMessage :
         (p) => p.env.t(`${p.min}以上で入力してください。`);
 
       if (typeof min === "function") {
@@ -99,8 +99,8 @@ export function $num<Props extends Schema.NumericProps>(props?: Props) {
     }
 
     if (max != null) {
-      const getMessage: Schema.MessageGetter<Schema.NumericProps["max"]> = getMaxMessage ?
-        (p) => getMaxMessage(p) :
+      const getMessage: Schema.MessageGetter<typeof getMaxMessage> = getMaxMessage ?
+        getMaxMessage :
         (p) => p.env.t(`${p.max}以下で入力してください。`);
 
       if (typeof max === "function") {
@@ -128,8 +128,8 @@ export function $num<Props extends Schema.NumericProps>(props?: Props) {
     }
 
     if (float != null) {
-      const getMessage: Schema.MessageGetter<Schema.NumericProps["float"]> = getFloatMessage ?
-        (p) => getFloatMessage(p) :
+      const getMessage: Schema.MessageGetter<typeof getFloatMessage> = getFloatMessage ?
+        getFloatMessage :
         (p) => p.env.t(`少数第${p.float}以下で入力してください。`);
 
       if (typeof float === "function") {
@@ -169,9 +169,9 @@ export function $num<Props extends Schema.NumericProps>(props?: Props) {
     type: "num",
     source: props?.source as Props["source"],
     validators,
-    required: required as unknown as Schema.ValidationArray<Props["required"]>,
+    required: required as Schema.GetValidationValue<Props["required"]>,
     min,
     max,
     float,
-  } as const;
+  } as const satisfies Schema.$Numeric;
 };

@@ -12,8 +12,8 @@ export function $bool<Props extends Schema.BooleanProps>(props?: Props) {
 
   if (required) {
     const requiredAllowFalse = props?.requiredAllowFalse ?? false;
-    const getMessage: Schema.MessageGetter<Schema.StringProps["required"]> = getRequiredMessage ?
-      (p) => getRequiredMessage(p) :
+    const getMessage: Schema.MessageGetter<typeof getRequiredMessage> = getRequiredMessage ?
+      getRequiredMessage :
       (p) => p.env.t("入力してください。");
 
     if (typeof required === "function") {
@@ -49,7 +49,7 @@ export function $bool<Props extends Schema.BooleanProps>(props?: Props) {
     trueValue,
     falseValue,
     validators,
-    required: required as unknown as Schema.ValidationArray<Props["required"]>,
+    required: required as Schema.GetValidationValue<Props["required"]>,
     getSource: function (params: { env: Schema.Env }) {
       function getText(v: any) {
         if (v == null) return undefined;
@@ -58,13 +58,13 @@ export function $bool<Props extends Schema.BooleanProps>(props?: Props) {
       return [
         {
           value: trueValue,
-          text: getText(props?.trueText) ?? getText(trueValue),
+          text: getText(props?.trueText) ?? getText(trueValue) ?? "",
         },
         {
           value: falseValue,
-          text: getText(props?.falseText) ?? getText(falseValue),
+          text: getText(props?.falseText) ?? getText(falseValue) ?? "",
         },
       ] as const;
     },
-  } as const;
+  } as const satisfies Schema.$Boolean<typeof trueValue, typeof falseValue>;
 };
