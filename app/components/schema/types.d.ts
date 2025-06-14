@@ -188,6 +188,21 @@ namespace Schema {
     getSource: (params: { env: Schema.Env }) => Source<TV | FV>;
   };
 
+  interface FileProps<V extends File | string = File | string> extends BaseProps {
+    required?: Validation<boolean, V>;
+    accept?: Validation<string, V, { accept: string }>;
+    maxSize?: Validation<number, V, { maxSize: number; maxSizeText: string; }>;
+    validators?: Array<Validator<V>>;
+  };
+
+  interface $File<V extends File | string = File | string> {
+    type: "file";
+    validators: Array<Validator<V>>;
+    required: $ValidationValue<boolean>;
+    accept: $ValidationValue<string>;
+    maxSize: $ValidationValue<number>;
+  };
+
   interface ArrayProps<Prop extends $Any = $Any> {
     prop: Prop;
     required?: Validation<boolean, ValueType<Prop>[]>;
@@ -224,6 +239,7 @@ namespace Schema {
     | $String
     | $Numeric
     | $Boolean
+    | $File
     | $Array
     | $Struct
     ;
@@ -250,6 +266,10 @@ namespace Schema {
       T extends "bool" ? (
         Strict extends true ? RequiredValue<Props["trueValue"] | Props["falseValue"], Props["required"], Optional> :
         BooleanValue | null | undefined
+      ) :
+      T extends "file" ? (
+        Strict extends true ? RequiredValue<File | string, Props["required"], Optional> :
+        File | Blob | string | null | undefined
       ) :
       T extends "arr" ? (
         Strict extends true ? RequiredValue<ValueType<Props["prop"], Strict, Optional>[], Props["required"], Optional> :

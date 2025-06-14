@@ -1,6 +1,7 @@
 import { $schema } from "~/components/schema";
 import { $array } from "~/components/schema/array";
 import { $bool } from "~/components/schema/boolean";
+import { $file } from "~/components/schema/file";
 import { $num } from "~/components/schema/numeric";
 import { $str } from "~/components/schema/string";
 import { $struct } from "~/components/schema/struct";
@@ -61,6 +62,9 @@ const schema = $schema({
     falseValue: 0 as const,
     required: true,
   }),
+  file: $file({
+    required: true,
+  }),
   array: $array({
     prop: $num(),
   }),
@@ -81,7 +85,7 @@ const schema = $schema({
         age: $num(),
       },
     }),
-  })
+  }),
 });
 
 type SchemaValue = Schema.SchemaValue<typeof schema>;
