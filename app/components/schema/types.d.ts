@@ -123,7 +123,7 @@ namespace Schema {
 
   interface NumericProps<V extends number = number> extends BaseProps {
     required?: Validation<boolean, V>;
-    source?: Validation<Source<V>, V, { source: Source<V> }>;
+    source?: Source<V> | DynamicValidationValue<Source<V>, V>;
     sourceValidationMessage?: CustomValidationMessage<V, { source: Source<V> }>;
     min?: Validation<number, V, { min: number }>;
     max?: Validation<number, V, { max: number }>;
