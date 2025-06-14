@@ -168,6 +168,13 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
   const validators: Array<Schema.Validator<string>> = [];
 
   const [required, getRequiredMessage] = getValidationArray(props?.required);
+  const [source, getSourceMessage] = getValidationArray(props?.source);
+  const [length, getLengthMessage] = getValidationArray(props?.len);
+  const [minLength, getMinLengthMessage] = getValidationArray(props?.min);
+  const [maxLength, getMaxLengthMessage] = getValidationArray(props?.max);
+  const [pattern, getPatternMessage] = getValidationArray(props?.pattern);
+
+
   if (required) {
     const getMessage: Schema.MessageGetter<Schema.StringProps["required"]> = getRequiredMessage ?
       (p) => getRequiredMessage(p) :
@@ -199,146 +206,171 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
     }
   };
 
-  const [length, getLengthMessage] = getValidationArray(props?.len);
-  const [minLength, getMinLengthMessage] = getValidationArray(props?.min);
-  const [maxLength, getMaxLengthMessage] = getValidationArray(props?.max);
-  if (length != null) {
-    const getMessage: Schema.MessageGetter<Schema.StringProps["len"]> = getLengthMessage ?
-      (p) => getLengthMessage(p) :
-      (p) => p.env.t(`${p.length}文字で入力してください。`);
+  if (source) {
+    const getMessage: Schema.MessageGetter<Schema.StringProps["source"]> = getSourceMessage ?
+      (p) => getSourceMessage(p) :
+      (p) => p.env.t("有効な値を設定してください。");
 
-    if (typeof length === "function") {
+    if (typeof source === "function") {
       validators.push((p) => {
         if (p.value == null || p.value === "") return null;
-        const len = length(p);
-        const cur = getLength(p.value);
-        if (cur === len) return null;
+        const src = source(p);
+        if (src.some(item => item.value === p.value)) return null;
         return {
           type: "e",
-          code: "length",
-          message: getMessage({ ...p, length: len, currentLength: cur }),
+          code: "source",
+          message: getMessage({ ...p, source: src }),
         };
       });
     } else {
       validators.push((p) => {
         if (p.value == null || p.value === "") return null;
-        const cur = getLength(p.value);
-        if (cur === length) return null;
+        if (source.some(item => item.value === p.value)) return null;
         return {
           type: "e",
-          code: "length",
-          message: getMessage({ ...p, length: length, currentLength: cur }),
+          code: "source",
+          message: getMessage({ ...p, source }),
         };
       });
     }
   } else {
-    if (minLength != null) {
-      const getMessage: Schema.MessageGetter<Schema.StringProps["min"]> = getMinLengthMessage ?
-        (p) => getMinLengthMessage(p) :
-        (p) => p.env.t(`${p.minLength}文字以上で入力してください。`);
+    if (length != null) {
+      const getMessage: Schema.MessageGetter<Schema.StringProps["len"]> = getLengthMessage ?
+        (p) => getLengthMessage(p) :
+        (p) => p.env.t(`${p.length}文字で入力してください。`);
 
-      if (typeof minLength === "function") {
+      if (typeof length === "function") {
         validators.push((p) => {
           if (p.value == null || p.value === "") return null;
-          const minLen = minLength(p);
+          const len = length(p);
           const cur = getLength(p.value);
-          if (minLen <= cur) return null;
+          if (cur === len) return null;
           return {
             type: "e",
-            code: "minLength",
-            message: getMessage({ ...p, minLength: minLen, currentLength: cur }),
+            code: "length",
+            message: getMessage({ ...p, length: len, currentLength: cur }),
           };
         });
       } else {
         validators.push((p) => {
           if (p.value == null || p.value === "") return null;
           const cur = getLength(p.value);
-          if (minLength <= cur) return null;
+          if (cur === length) return null;
           return {
             type: "e",
-            code: "minLength",
-            message: getMessage({ ...p, minLength, currentLength: cur }),
+            code: "length",
+            message: getMessage({ ...p, length: length, currentLength: cur }),
           };
         });
       }
-    }
+    } else {
+      if (minLength != null) {
+        const getMessage: Schema.MessageGetter<Schema.StringProps["min"]> = getMinLengthMessage ?
+          (p) => getMinLengthMessage(p) :
+          (p) => p.env.t(`${p.minLength}文字以上で入力してください。`);
 
-    if (maxLength != null) {
-      const getMessage: Schema.MessageGetter<Schema.StringProps["max"]> = getMaxLengthMessage ?
-        (p) => getMaxLengthMessage(p) :
-        (p) => p.env.t(`${p.maxLength}文字以下で入力してください。`);
+        if (typeof minLength === "function") {
+          validators.push((p) => {
+            if (p.value == null || p.value === "") return null;
+            const minLen = minLength(p);
+            const cur = getLength(p.value);
+            if (minLen <= cur) return null;
+            return {
+              type: "e",
+              code: "minLength",
+              message: getMessage({ ...p, minLength: minLen, currentLength: cur }),
+            };
+          });
+        } else {
+          validators.push((p) => {
+            if (p.value == null || p.value === "") return null;
+            const cur = getLength(p.value);
+            if (minLength <= cur) return null;
+            return {
+              type: "e",
+              code: "minLength",
+              message: getMessage({ ...p, minLength, currentLength: cur }),
+            };
+          });
+        }
+      }
 
-      if (typeof maxLength === "function") {
-        validators.push((p) => {
-          if (p.value == null || p.value === "") return null;
-          const maxLen = maxLength(p);
-          const cur = getLength(p.value);
-          if (cur >= maxLen) return null;
-          return {
-            type: "e",
-            code: "maxLength",
-            message: getMessage({ ...p, maxLength: maxLen, currentLength: cur }),
-          };
-        });
-      } else {
-        validators.push((p) => {
-          if (p.value == null || p.value === "") return null;
-          const cur = getLength(p.value);
-          if (cur >= maxLength) return null;
-          return {
-            type: "e",
-            code: "maxLength",
-            message: getMessage({ ...p, maxLength, currentLength: cur }),
-          };
-        });
+      if (maxLength != null) {
+        const getMessage: Schema.MessageGetter<Schema.StringProps["max"]> = getMaxLengthMessage ?
+          (p) => getMaxLengthMessage(p) :
+          (p) => p.env.t(`${p.maxLength}文字以下で入力してください。`);
+
+        if (typeof maxLength === "function") {
+          validators.push((p) => {
+            if (p.value == null || p.value === "") return null;
+            const maxLen = maxLength(p);
+            const cur = getLength(p.value);
+            if (cur >= maxLen) return null;
+            return {
+              type: "e",
+              code: "maxLength",
+              message: getMessage({ ...p, maxLength: maxLen, currentLength: cur }),
+            };
+          });
+        } else {
+          validators.push((p) => {
+            if (p.value == null || p.value === "") return null;
+            const cur = getLength(p.value);
+            if (cur >= maxLength) return null;
+            return {
+              type: "e",
+              code: "maxLength",
+              message: getMessage({ ...p, maxLength, currentLength: cur }),
+            };
+          });
+        }
       }
     }
-  }
 
-  const [pattern, getPatternMessage] = getValidationArray(props?.pattern);
-  if (pattern) {
-    const getMessage: Schema.MessageGetter<Schema.StringProps["pattern"]> = getPatternMessage ?
-      (p) => getPatternMessage(p) :
-      (p) => p.env.t(`正しい書式で入力してください。`);
+    if (pattern) {
+      const getMessage: Schema.MessageGetter<Schema.StringProps["pattern"]> = getPatternMessage ?
+        (p) => getPatternMessage(p) :
+        (p) => p.env.t(`正しい書式で入力してください。`);
 
-    if (typeof pattern === "function") {
-      validators.push((p) => {
-        if (p.value == null || p.value === "") return null;
-        const pat = pattern(p);
-        if (typeof pat === "string") {
-          const check = getStringPatternChecker(pat);
-          if (check(p.value)) return null;
+      if (typeof pattern === "function") {
+        validators.push((p) => {
+          if (p.value == null || p.value === "") return null;
+          const pat = pattern(p);
+          if (typeof pat === "string") {
+            const check = getStringPatternChecker(pat);
+            if (check(p.value)) return null;
+            return {
+              type: "e",
+              code: "pattern",
+              message: getMessage({ ...p, pattern: pat }),
+            }
+          }
+          if (pat.test(p.value)) return null;
           return {
             type: "e",
             code: "pattern",
             message: getMessage({ ...p, pattern: pat }),
-          }
-        }
-        if (pat.test(p.value)) return null;
-        return {
-          type: "e",
-          code: "pattern",
-          message: getMessage({ ...p, pattern: pat }),
-        };
-      });
-    } else {
-      if (typeof pattern === "string") {
-        const check = getStringPatternChecker(pattern);
-        validators.push((p) => {
-          if (p.value == null || p.value === "") return null;
-          if (check(p.value)) return null;
-          return null;
-        });
-      } else {
-        validators.push((p) => {
-          if (p.value == null || p.value === "") return null;
-          if (pattern.test(p.value)) return null;
-          return {
-            type: "e",
-            code: "pattern",
-            message: getMessage({ ...p, pattern }),
           };
         });
+      } else {
+        if (typeof pattern === "string") {
+          const check = getStringPatternChecker(pattern);
+          validators.push((p) => {
+            if (p.value == null || p.value === "") return null;
+            if (check(p.value)) return null;
+            return null;
+          });
+        } else {
+          validators.push((p) => {
+            if (p.value == null || p.value === "") return null;
+            if (pattern.test(p.value)) return null;
+            return {
+              type: "e",
+              code: "pattern",
+              message: getMessage({ ...p, pattern }),
+            };
+          });
+        }
       }
     }
   }

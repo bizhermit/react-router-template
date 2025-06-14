@@ -117,12 +117,21 @@ namespace Schema {
 
   interface StringProps<V extends string = string> extends BaseProps {
     required?: Validation<boolean, V>;
+    source?: Validation<Source<V>, V, { source: Source<V> }>;
     len?: Validation<number, V, { length: number; currentLength: number; }>;
     min?: Validation<number, V, { minLength: number; currentLength: number; }>;
     max?: Validation<number, V, { maxLength: number; currentLength: number; }>;
-    pattern?: Validation<RegExp | StrPattern, V, { pattern: RegExp | StrPattern; }>;
+    pattern?: Validation<RegExp | StrPattern, V, { pattern: RegExp | StrPattern }>;
     validators?: Array<Validator<V>>;
-    source?: Source<V>;
+  };
+
+  interface NumericProps<V extends number = number> extends BaseProps {
+    required?: Validation<boolean, V>;
+    source?: Validation<Source<V>, V, { source: Source<V> }>;
+    min?: Validation<number, V, { min: number }>;
+    max?: Validation<number, V, { max: number }>;
+    float?: Validation<number, V, { float: number; currentFloat: number; }>;
+    validators?: Array<Validator<V>>;
   };
 
   type RequiredValue<V, R extends boolean, O extends boolean = false> =
