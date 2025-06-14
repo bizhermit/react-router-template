@@ -1,4 +1,5 @@
 import { $schema } from "~/components/schema";
+import { $bool } from "~/components/schema/boolean";
 import { $num } from "~/components/schema/numeric";
 import { $str } from "~/components/schema/string";
 
@@ -34,6 +35,16 @@ const schema = $schema({
       { value: 5, text: "SM" },
       { value: 6, text: "新無印" },
     ] as const,
+  }),
+  check: $bool(),
+  agreement: $bool({
+    required: true,
+    requiredAsTrue: true,
+  }),
+  numFlag: $bool({
+    trueValue: 1 as const,
+    falseValue: 0 as const,
+    required: true,
   }),
 });
 

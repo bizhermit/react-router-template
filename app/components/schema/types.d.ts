@@ -131,6 +131,21 @@ namespace Schema {
     validators?: Array<Validator<V>>;
   };
 
+  type BooleanValue = boolean | number | string;
+
+  interface BooleanProps<
+    TV extends BooleanValue = BooleanValue,
+    FV extends BooleanValue = BooleanValue,
+  > extends BaseProps {
+    trueValue?: TV;
+    falseValue?: FV;
+    trueText?: string;
+    falseText?: string;
+    required?: Validation<boolean, TV | FV>;
+    requiredAllowFalse?: boolean;
+    validators?: Array<Validator<TV | FV>>;
+  };
+
   type RequiredValue<V, R extends boolean, O extends boolean = false> =
     O extends true ? V | null | undefined :
     R extends true ? V : V | null | undefined;
@@ -147,6 +162,10 @@ namespace Schema {
       T extends "num" ? (
         Strict extends true ? RequiredValue<string, Props["required"][0], Optional> :
         number | `${number}` | null | undefined
+      ) :
+      T extends "bool" ? (
+        Strict extends true ? RequiredValue<Props["trueValue"] | Props["falseValue"], Props["required"][0], Optional> :
+        BooleanValue | null | undefined
       ) :
       any
     ) :
