@@ -168,7 +168,6 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
   const validators: Array<Schema.Validator<string>> = [];
 
   const [required, getRequiredMessage] = getValidationArray(props?.required);
-  const [source, getSourceMessage] = getValidationArray(props?.source);
   const [length, getLengthMessage] = getValidationArray(props?.len);
   const [minLength, getMinLengthMessage] = getValidationArray(props?.min);
   const [maxLength, getMaxLengthMessage] = getValidationArray(props?.max);
@@ -206,9 +205,11 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
     }
   };
 
-  if (source) {
-    const getMessage: Schema.MessageGetter<Schema.StringProps["source"]> = getSourceMessage ?
-      (p) => getSourceMessage(p) :
+  if (props?.source) {
+    const source = props.source;
+    const sourceValidationMessage = props.sourceValidationMessage;
+    const getMessage: Exclude<Schema.StringProps["sourceValidationMessage"], undefined> = sourceValidationMessage ?
+      (p) => sourceValidationMessage!(p) :
       (p) => p.env.t("有効な値を設定してください。");
 
     if (typeof source === "function") {

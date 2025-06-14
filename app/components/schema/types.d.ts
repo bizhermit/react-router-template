@@ -50,13 +50,8 @@ namespace Schema {
     (params: ValidationParams<V>): Result | null | undefined;
   };
 
-  interface CustomValidationMessageBaseParams<V> {
-    label: string;
-    value: V | null | undefined;
-  };
-
   interface CustomValidationMessage<V, P = {}> {
-    (params: CustomValidationMessageBaseParams<V> & P): string;
+    (params: ValidationParams<V> & P): string;
   };
 
   interface DynamicValidationValue<T, V> {
@@ -76,7 +71,7 @@ namespace Schema {
     ;
 
   type PickCustomValidationMessageAddonParams<T extends Validation<any, any>> =
-    T extends [any, infer V] ? Omit<Parameters<V>[0], keyof CustomValidationMessageBaseParams<any>> : never;
+    T extends [any, infer V] ? Omit<Parameters<V>[0], keyof ValidationParams<any>> : never;
 
   interface MessageGetter<T extends Validation<any, any>> {
     (params: ValidationParams<any> & PickCustomValidationMessageAddonParams<T>): string;
@@ -117,7 +112,8 @@ namespace Schema {
 
   interface StringProps<V extends string = string> extends BaseProps {
     required?: Validation<boolean, V>;
-    source?: Validation<Source<V>, V, { source: Source<V> }>;
+    source?: Source<V> | DynamicValidationValue<Source<V>, V>;
+    sourceValidationMessage?: CustomValidationMessage<V, { source: Source<V> }>;
     len?: Validation<number, V, { length: number; currentLength: number; }>;
     min?: Validation<number, V, { minLength: number; currentLength: number; }>;
     max?: Validation<number, V, { maxLength: number; currentLength: number; }>;
@@ -128,6 +124,7 @@ namespace Schema {
   interface NumericProps<V extends number = number> extends BaseProps {
     required?: Validation<boolean, V>;
     source?: Validation<Source<V>, V, { source: Source<V> }>;
+    sourceValidationMessage?: CustomValidationMessage<V, { source: Source<V> }>;
     min?: Validation<number, V, { min: number }>;
     max?: Validation<number, V, { max: number }>;
     float?: Validation<number, V, { float: number; currentFloat: number; }>;
