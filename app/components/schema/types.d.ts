@@ -74,7 +74,7 @@ namespace Schema {
     T extends [infer V, infer M] ? [V, M] :
     [T]
     ;
-  
+
   type PickCustomValidationMessageAddonParams<T extends Validation<any, any>> =
     T extends [any, infer V] ? Omit<Parameters<V>[0], keyof CustomValidationMessageBaseParams<any>> : never;
 
@@ -130,8 +130,8 @@ namespace Schema {
     R extends true ? V : V | null | undefined;
 
   type ValueType<Props extends Record<string, any>, Strict extends boolean = true, Optional extends boolean = false> =
-    Props extends { source: infer S } ? (
-      S extends { value: infer V }[] ? RequiredValue<V, Props["required"][0], Optional> : never
+    Props extends { source: Array<{ value: infer V }> } ? (
+      RequiredValue<V, Props["required"][0], Optional>
     ) :
     Props extends { type: infer T } ? (
       T extends "str" ? (
@@ -148,4 +148,8 @@ namespace Schema {
 
   type SchemaValue<Props extends Record<string, any>> =
     { -readonly [K in keyof Props]: ValueType<Props[K]> };
+
+  type TolerantSchemaValue<Props extends Record<string, any>> =
+    { [K in keyof Props]: ValueType<Props[K], false> };
+
 };
