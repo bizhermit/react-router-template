@@ -10,7 +10,7 @@ namespace Schema {
   };
 
   interface Result {
-    type: "e" | "i";
+    type: "e" | "w" | "i";
     code: string;
     message: string;
   };
@@ -203,14 +203,15 @@ namespace Schema {
     ;
 
   interface DateBaseProps<V extends DateValueString = DateValueString> extends BaseProps {
-    required?: Validation<boolean, V, { date: Date }>;
+    required?: Validation<boolean, V>;
     minDate?: Validation<Date | V, V, { minDate: Date; date: Date; }>;
-    maxDate?: Validation<Date | V, { maxDate: Date; date: Date; }>;
+    maxDate?: Validation<Date | V, V, { maxDate: Date; date: Date; }>;
     pair?: Validation<{
       name: string;
       position: "before" | "after";
       same?: boolean;
     }, V, { pairDate: Date; date: Date; }>;
+    validators?: Array<Validator<V>>;
   };
 
   interface MonthProps<V extends MonthString = MonthString> extends DateBaseProps<V> { };
@@ -224,7 +225,10 @@ namespace Schema {
   };
 
   interface SplitDateProps<V extends number = number> extends BaseProps {
-    required?: Validation<boolean, V, { date: Date }>;
+    required?: Validation<boolean, V>;
+    min?: Validation<number, V, { min: number }>;
+    max?: Validation<number, V, { max: number }>;
+    validators?: Array<Validator<V>>;
   };
 
   interface $BaseDate<V extends DateValueString = DateValueString> {
@@ -264,6 +268,8 @@ namespace Schema {
     type: `sdate-${T}`;
     validators: Array<Validator<V>>;
     required: $ValidationValue<boolean>;
+    min: $ValidationValue<number>;
+    max: $ValidationValue<number>;
   };
 
   interface FileProps<V extends File | string = File | string> extends BaseProps {

@@ -1,6 +1,7 @@
 import { $schema } from "~/components/schema";
 import { $array } from "~/components/schema/array";
 import { $bool } from "~/components/schema/boolean";
+import { $month } from "~/components/schema/date";
 import { $file } from "~/components/schema/file";
 import { $num } from "~/components/schema/numeric";
 import { $str } from "~/components/schema/string";
@@ -61,6 +62,9 @@ const schema = $schema({
     trueValue: 1 as const,
     falseValue: 0 as const,
     required: true,
+  }),
+  month: $month({
+    // required: true,
   }),
   file: $file({
     required: true,
