@@ -381,9 +381,9 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
 
   return {
     type: "str",
-    source: props?.source as Props["source"],
+    source: props?.source as Schema.GetSource<Props["source"]>,
     validators,
-    required: required as Schema.GetValidationValue<Props["required"]>,
+    required: required as Schema.GetValidationValue<Props, "required">,
     length,
     minLength,
     maxLength,

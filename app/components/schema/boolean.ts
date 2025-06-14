@@ -49,7 +49,7 @@ export function $bool<Props extends Schema.BooleanProps>(props?: Props) {
     trueValue,
     falseValue,
     validators,
-    required: required as Schema.GetValidationValue<Props["required"]>,
+    required: required as Schema.GetValidationValue<Props, "required">,
     getSource: function (params: { env: Schema.Env }) {
       function getText(v: any) {
         if (v == null) return undefined;

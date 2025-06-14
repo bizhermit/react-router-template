@@ -167,9 +167,9 @@ export function $num<Props extends Schema.NumericProps>(props?: Props) {
 
   return {
     type: "num",
-    source: props?.source as Props["source"],
+    source: props?.source as Schema.GetSource<Props["source"]>,
     validators,
-    required: required as Schema.GetValidationValue<Props["required"]>,
+    required: required as Schema.GetValidationValue<Props, "required">,
     min,
     max,
     float,

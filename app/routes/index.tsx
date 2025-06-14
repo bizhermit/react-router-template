@@ -1,31 +1,37 @@
 import { $schema } from "~/components/schema";
+import { $array } from "~/components/schema/array";
 import { $bool } from "~/components/schema/boolean";
 import { $num } from "~/components/schema/numeric";
 import { $str } from "~/components/schema/string";
+import { $struct } from "~/components/schema/struct";
 
-const text = $str({
-  required: true,
-  source: [
-    { value: "hoge", text: "HOGE" },
-    { value: "fuga", text: "FUGA" },
-    { value: "piyo", text: "PIYO" },
-  ],
-});
+const text = $str(
+  {
+    // required: true,
+    // source: [
+    //   { value: "hoge", text: "HOGE" },
+    //   { value: "fuga", text: "FUGA" },
+    //   { value: "piyo", text: "PIYO" },
+    // ],
+  }
+);
 
 const schema = $schema({
   text: $str(),
-  requiredText: $str({ required: true }),
+  requiredText: $str({
+    required: true,
+  }),
   dynamicRequiredText: $str({
     required: () => true,
   }),
   customMessageText: $str({
     required: [true, () => "入力しない場合、あなたの命は保証されません。"],
   }),
-  customDynamicRequiredTExt: $bool({
+  customDynamicRequiredText: $str({
     required: [() => true, () => "入力しなくても命だけは獲らないでいてやる。"],
   }),
   sourceText: $str({
-    // required: true,
+    required: true,
     source: [
       { value: "hoge", text: "HOGE" },
       { value: "fuga", text: "FUGA" },
@@ -55,6 +61,27 @@ const schema = $schema({
     falseValue: 0 as const,
     required: true,
   }),
+  array: $array({
+    prop: $num(),
+  }),
+  struct: $struct({
+    props: {
+      name: $str({
+        required: true,
+      }),
+      age: $num(),
+    },
+  }),
+  structArray: $array({
+    prop: $struct({
+      props: {
+        name: $str({
+          required: true,
+        }),
+        age: $num(),
+      },
+    }),
+  })
 });
 
 type SchemaValue = Schema.SchemaValue<typeof schema>;
