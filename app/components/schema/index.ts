@@ -6,7 +6,7 @@ export function $schema<SchemaProps extends Record<string, any>>(props: SchemaPr
 
 export function parseWithSchema<$Schema extends Record<string, any>>(params: {
   schema: $Schema;
-  data?: Record<string, any>;
+  data: Record<string, any> | null | undefined;
   dep?: Record<string, any>;
   env: Schema.Env;
   createDataItems?: boolean;
@@ -22,11 +22,11 @@ export function parseWithSchema<$Schema extends Record<string, any>>(params: {
     name: string | number;
     parent: Schema.DataItem<Schema.$Struct | Schema.$Array> | undefined;
   }) {
-    const fn = parent?._?.type === "struct" ? `${parent.name[0]}.${name}` :
-      parent?._?.type === "arr" ? `${parent.name[0]}[${name}]` :
+    const fn = parent?._?.type === "struct" ? `${parent.name}.${name}` :
+      parent?._?.type === "arr" ? `${parent.name}[${name}]` :
         `${name}`;
 
-    let [val, has] = data._get(fn);
+    let [val] = data._get(fn);
 
     const label = item.label ? params.env.t(item.label) : "";
 
@@ -64,7 +64,7 @@ export function parseWithSchema<$Schema extends Record<string, any>>(params: {
     if (!params.createDataItems && val == null) return null!;
     
     const dataItem: Schema.DataItem<any> = {
-      name: [fn, name],
+      name: fn,
       label,
       _: item,
     };

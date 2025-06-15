@@ -3,6 +3,7 @@ import { $array } from "~/components/schema/array";
 import { $bool } from "~/components/schema/boolean";
 import { $date, $datetime, $month } from "~/components/schema/date";
 import { $file } from "~/components/schema/file";
+import { useSchema, useSchemaContext } from "~/components/schema/hooks";
 import { $num } from "~/components/schema/numeric";
 import { $str } from "~/components/schema/string";
 import { $struct } from "~/components/schema/struct";
@@ -140,9 +141,28 @@ const submittion = parseWithSchema({
 console.log(performance.now() - start);
 
 export default function Page() {
+  const { SchemaProvider, dataItems } = useSchema({
+    schema,
+  });
+
+  // console.log(dataItems);
+
   return (
-    <div>
-      hoge
-    </div>
+    <SchemaProvider>
+      <div>
+      </div>
+      <Component1 />
+    </SchemaProvider>
   );
 }
+
+function Component1() {
+  const { dataItems } = useSchemaContext<typeof schema>();
+  console.log(dataItems);
+
+  return (
+    <div>
+
+    </div>
+  );
+};

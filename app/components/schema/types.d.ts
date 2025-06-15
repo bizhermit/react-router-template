@@ -369,7 +369,7 @@ namespace Schema {
 
   type DataItem<P extends $Any> = {
     label: string;
-    name: [string, string | number];
+    name: string;
     _: P;
   } & (
       P extends { type: infer T } ? (
