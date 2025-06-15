@@ -387,6 +387,7 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
 
   return {
     type: "str",
+    label: props?.label,
     source: props?.source as Schema.GetSource<Props["source"]>,
     parser: props?.parser ?? STRING_PARSER,
     validators,

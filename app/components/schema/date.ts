@@ -130,6 +130,7 @@ function splitDate<Props extends Schema.SplitDateProps, T extends Schema.SplitDa
   return core.splits[target as keyof typeof core.splits] = {
     type: `sdate-${target}`,
     core,
+    label: splitProps?.label,
     parser: splitProps?.parser ?? SPLIT_DATE_PARSER,
     validators,
     required: required as Schema.GetValidationValue<Props, "required">,
@@ -386,6 +387,7 @@ export function $month<Props extends Schema.MonthProps>(props?: Props) {
   let core: Schema.$Month;
   return core = {
     type: "month",
+    label: props?.label,
     parser: props?.parser ?? MONTH_PARSER,
     validators,
     required: commonProps.required as Schema.GetValidationValue<Props, "required">,
@@ -448,6 +450,7 @@ export function $date<Props extends Schema.DateProps>(props?: Props) {
   let core: Schema.$Date;
   return core = {
     type: "date",
+    label: props?.label,
     parser: props?.parser ?? DATE_PARSER,
     validators,
     required: commonProps.required as Schema.GetValidationValue<Props, "required">,
@@ -630,6 +633,7 @@ export function $datetime<Props extends Schema.DateTimeProps>(props?: Props) {
   return core = {
     type: "datetime",
     time: time as Exclude<Props, undefined>["time"] extends "hms" ? "hms" : "hm",
+    label: props?.label,
     parser: props?.parser ?? (time === "hms" ? DATETIME_HMS_PARSER : DATETIME_HM_PARSER),
     validators,
     required: commonProps.required as Schema.GetValidationValue<Props, "required">,

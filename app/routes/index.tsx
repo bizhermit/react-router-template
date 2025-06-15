@@ -1,4 +1,4 @@
-import { $schema } from "~/components/schema";
+import { $schema, parseWithSchema } from "~/components/schema";
 import { $array } from "~/components/schema/array";
 import { $bool } from "~/components/schema/boolean";
 import { $date, $datetime, $month } from "~/components/schema/date";
@@ -21,7 +21,9 @@ const text = $str(
 const birth = $date();
 
 const schema = $schema({
-  text: $str(),
+  text: $str({
+    pattern: "email",
+  }),
   // requiredText: $str({
   //   required: true,
   // }),
@@ -111,7 +113,31 @@ const schema = $schema({
 type SchemaValue = Schema.SchemaValue<typeof schema>;
 type TolerantSchemaValue = Schema.TolerantSchemaValue<typeof schema>;
 
-console.log(schema);
+const start = performance.now();
+const submittion = parseWithSchema({
+  schema,
+  env: {
+    isServer: true,
+    t: (k) => k,
+  },
+  dep: {},
+  data: {
+    text: "hogefuga",
+    sourceText: "hoge",
+    count: 10,
+    array: [1, 2, 3],
+    structArray: [
+      { name: "hoge" },
+      { age: 2 },
+      { birth: "2025-06-15" },
+    ],
+    struct: {
+
+    },
+  } satisfies TolerantSchemaValue,
+})
+// console.log(submittion);
+console.log(performance.now() - start);
 
 export default function Page() {
   return (

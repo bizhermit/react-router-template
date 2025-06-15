@@ -185,6 +185,7 @@ export function $num<Props extends Schema.NumericProps>(props?: Props) {
 
   return {
     type: "num",
+    label: props?.label,
     parser: props?.parser ?? NUMERIC_PARSER,
     source: props?.source as Schema.GetSource<Props["source"]>,
     validators,

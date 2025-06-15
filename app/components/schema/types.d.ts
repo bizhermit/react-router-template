@@ -133,6 +133,7 @@ namespace Schema {
 
   interface $String<V extends string = string> {
     type: "str";
+    label: string | undefined;
     parser: Parser<V>;
     source: Source<V> | DynamicValidationValue<Source<V>, V> | undefined;
     validators: Array<Validator<V>>;
@@ -156,6 +157,7 @@ namespace Schema {
 
   interface $Numeric<V extends number = number> {
     type: "num";
+    label: string | undefined;
     parser: Parser<V>;
     source: Source<V> | DynamicValidationValue<Source<V>, V> | undefined;
     validators: Array<Validator<V>>;
@@ -186,6 +188,7 @@ namespace Schema {
     FV extends BooleanValue = BooleanValue,
   > {
     type: "bool";
+    label: string | undefined;
     trueValue: TV,
     falseValue: FV,
     parser: Parser<TV | FV>;
@@ -260,11 +263,13 @@ namespace Schema {
 
   interface $Month<V extends MonthString = MonthString> extends $BaseDate<V> {
     type: "month";
+    label: string | undefined;
     splits: DateSplits<"Y" | "M">;
   };
 
   interface $Date<V extends DateString = DateString> extends $BaseDate<V> {
     type: "date";
+    label: string | undefined;
     splits: DateSplits<"Y" | "M" | "D">;
     splitDay: <Props extends SplitDateProps>(props: Props) => $SplitDate<"D">;
   };
@@ -272,6 +277,7 @@ namespace Schema {
   interface $DateTime<V extends DateTimeString = DateTimeString> extends $BaseDate<V> {
     type: "datetime";
     time: "hm" | "hms";
+    label: string | undefined;
     minTime: $ValidationValue<TimeString>;
     maxTime: $ValidationValue<TimeString>;
     splits: DateSplits<"Y" | "M" | "D" | "h" | "m" | "s">;
@@ -281,8 +287,9 @@ namespace Schema {
     splitSecond: <Props extends SplitDateProps>(props: Props) => $SplitDate<"s">;
   };
 
-  interface $SplitDate<T extends SplitDateTarget, V extends number = number> {
+  interface $SplitDate<T extends SplitDateTarget = SplitDateTarget, V extends number = number> {
     type: `sdate-${T}`;
+    label: string | undefined;
     parser: Parser<V>;
     core: $Date | $Month | $DateTime;
     validators: Array<Validator<V>>;
@@ -301,6 +308,7 @@ namespace Schema {
 
   interface $File<V extends File | string = File | string> {
     type: "file";
+    label: string | undefined;
     parser: Parser<V>;
     validators: Array<Validator<V>>;
     required: $ValidationValue<boolean>;
@@ -308,7 +316,7 @@ namespace Schema {
     maxSize: $ValidationValue<number>;
   };
 
-  interface ArrayProps<Prop extends $Any = $Any> {
+  interface ArrayProps<Prop extends $Any = $Any> extends BaseProps {
     prop: Prop;
     parser?: Parser<ValueType<Prop>[]>;
     required?: Validation<boolean, ValueType<Prop>[]>;
@@ -320,6 +328,7 @@ namespace Schema {
 
   interface $Array<Prop extends $Any = $Any> {
     type: "arr";
+    label: string | undefined;
     prop: Prop;
     parser: Parser<ValueType<Prop>[]>;
     validators: Array<Validator<ValueType<Prop>[]>>;
@@ -329,7 +338,7 @@ namespace Schema {
     maxLength: $ValidationValue<number>;
   };
 
-  interface StructProps<Props extends Record<string, $Any> = Record<string, $Any>> {
+  interface StructProps<Props extends Record<string, $Any> = Record<string, $Any>> extends BaseProps {
     props: Props;
     parser?: Parser<SchemaValue<Props>>;
     required?: Validation<boolean, SchemaValue<Props>>;
@@ -338,6 +347,7 @@ namespace Schema {
 
   interface $Struct<Props extends Record<string, $Any> = Record<string, $Any>> {
     type: "struct";
+    label: string | undefined;
     props: Props;
     parser: Parser<SchemaValue<Props>>;
     validators: Array<Validator<SchemaValue<Props>>>;
@@ -356,6 +366,24 @@ namespace Schema {
     | $Array
     | $Struct
     ;
+
+  type DataItem<P extends $Any> = {
+    label: string;
+    name: [string, string | number];
+    _: P;
+  } & (
+      P extends { type: infer T } ? (
+        T extends "struct" ? {
+          dataItems: { [K in keyof P["props"]]: DataItem<P["props"][K]> };
+        } :
+        T extends "arr" ? {
+          generateDataItem: (index: number) => DataItem<P["prop"]>;
+        }: {}
+      ) : never
+    );
+
+  type DataItems<Props extends Record<string, $Any>> =
+    { -readonly [K in keyof Props]: DataItem<Props[K]> };
 
   type RequiredValue<V, R extends boolean | DynamicValidationValue<boolean, any>, O extends boolean = false> =
     O extends true ? V | null | undefined :

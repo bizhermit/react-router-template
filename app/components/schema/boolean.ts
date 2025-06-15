@@ -50,6 +50,7 @@ export function $bool<Props extends Schema.BooleanProps>(props?: Props) {
     type: "bool",
     trueValue,
     falseValue,
+    label: props?.label,
     parser: (props?.parser as Schema.Parser<TrueValue | FalseValue> | undefined) ?? function ({ value, env }) {
       const s = String(value);
       if (s === String(trueValue)) {
