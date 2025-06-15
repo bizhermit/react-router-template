@@ -1,5 +1,23 @@
 import { getValidationArray } from "./utilities";
 
+function NUMERIC_PARSER({ value, env }: Schema.ParserParams): Schema.ParserResult<number> {
+  if (value == null || value === "") {
+    return { value: undefined };
+  }
+  const num = Number(value);
+  if (num == null || isNaN(num)) {
+    return {
+      value: undefined,
+      result: {
+        type: "e",
+        code: "parse",
+        message: env.t("数値に変換できません。"),
+      },
+    };
+  }
+  return { value: num };
+};
+
 export function $num<Props extends Schema.NumericProps>(props?: Props) {
   const validators: Array<Schema.Validator<number>> = [];
 
@@ -167,6 +185,7 @@ export function $num<Props extends Schema.NumericProps>(props?: Props) {
 
   return {
     type: "num",
+    parser: props?.parser ?? NUMERIC_PARSER,
     source: props?.source as Schema.GetSource<Props["source"]>,
     validators,
     required: required as Schema.GetValidationValue<Props, "required">,

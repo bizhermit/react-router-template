@@ -31,7 +31,7 @@ namespace Schema {
 
   interface ParserResult<V> {
     value: V | null | undefined;
-    result: Result | null | undefined;
+    result?: Result | null | undefined;
   };
 
   interface Parser<V> {
@@ -120,6 +120,7 @@ namespace Schema {
     ;
 
   interface StringProps<V extends string = string> extends BaseProps {
+    parser?: Parser<V>;
     required?: Validation<boolean, V>;
     source?: Source<V> | DynamicValidationValue<Source<V>, V>;
     sourceValidationMessage?: CustomValidationMessage<V, { source: Source<V> }>;
@@ -132,6 +133,7 @@ namespace Schema {
 
   interface $String<V extends string = string> {
     type: "str";
+    parser: Parser<V>;
     source: Source<V> | DynamicValidationValue<Source<V>, V> | undefined;
     validators: Array<Validator<V>>;
     required: $ValidationValue<boolean>;
@@ -142,6 +144,7 @@ namespace Schema {
   };
 
   interface NumericProps<V extends number = number> extends BaseProps {
+    parser?: Parser<V>;
     required?: Validation<boolean, V>;
     source?: Source<V> | DynamicValidationValue<Source<V>, V>;
     sourceValidationMessage?: CustomValidationMessage<V, { source: Source<V> }>;
@@ -153,6 +156,7 @@ namespace Schema {
 
   interface $Numeric<V extends number = number> {
     type: "num";
+    parser: Parser<V>;
     source: Source<V> | DynamicValidationValue<Source<V>, V> | undefined;
     validators: Array<Validator<V>>;
     required: $ValidationValue<boolean>;
@@ -171,6 +175,7 @@ namespace Schema {
     falseValue?: FV;
     trueText?: string;
     falseText?: string;
+    parser?: Parser<TV | FV>;
     required?: Validation<boolean, TV | FV>;
     requiredAllowFalse?: boolean;
     validators?: Array<Validator<TV | FV>>;
@@ -183,6 +188,7 @@ namespace Schema {
     type: "bool";
     trueValue: TV,
     falseValue: FV,
+    parser: Parser<TV | FV>;
     validators: Array<Validator<TV | FV>>;
     required: $ValidationValue<boolean>;
     getSource: (params: { env: Schema.Env }) => Source<TV | FV>;
@@ -192,6 +198,8 @@ namespace Schema {
   type DateString = `${number}-${number}-${number}`;
   type TimeHMString = `${number}:${number}`;
   type TimeHMSString = `${number}:${number}:${number}`;
+  type DateTime_HM_String = `${DateString}T${TimeHMString}`;
+  type DateTime_HMS_String = `${DateString}T${TimeHMSString}`;
   type TimeString = TimeHMString | TimeHMSString;
   type DateTimeString = `${DateString}T${TimeHMString | TimeHMSString}`;
   type SplitDateTarget = "Y" | "M" | "D" | "h" | "m" | "s";
@@ -203,6 +211,7 @@ namespace Schema {
     ;
 
   interface DateBaseProps<V extends DateValueString = DateValueString> extends BaseProps {
+    parser?: Parser<V>;
     required?: Validation<boolean, V>;
     minDate?: Validation<Date | V, V, { minDate: Date; date: Date; }>;
     maxDate?: Validation<Date | V, V, { maxDate: Date; date: Date; }>;
@@ -225,6 +234,7 @@ namespace Schema {
   };
 
   interface SplitDateProps<V extends number = number> extends BaseProps {
+    parser?: Parser<V>;
     required?: Validation<boolean, V>;
     min?: Validation<number, V, { min: number }>;
     max?: Validation<number, V, { max: number }>;
@@ -232,6 +242,7 @@ namespace Schema {
   };
 
   interface $BaseDate<V extends DateValueString = DateValueString> {
+    parser: Parser<V>;
     validators: Array<Validator<V>>;
     required: $ValidationValue<boolean>;
     minDate: $ValidationValue<Date | V>;
@@ -272,6 +283,7 @@ namespace Schema {
 
   interface $SplitDate<T extends SplitDateTarget, V extends number = number> {
     type: `sdate-${T}`;
+    parser: Parser<V>;
     core: $Date | $Month | $DateTime;
     validators: Array<Validator<V>>;
     required: $ValidationValue<boolean>;
@@ -280,6 +292,7 @@ namespace Schema {
   };
 
   interface FileProps<V extends File | string = File | string> extends BaseProps {
+    parser?: Parser<V>;
     required?: Validation<boolean, V>;
     accept?: Validation<string, V, { accept: string }>;
     maxSize?: Validation<number, V, { maxSize: number; maxSizeText: string; }>;
@@ -288,6 +301,7 @@ namespace Schema {
 
   interface $File<V extends File | string = File | string> {
     type: "file";
+    parser: Parser<V>;
     validators: Array<Validator<V>>;
     required: $ValidationValue<boolean>;
     accept: $ValidationValue<string>;
@@ -296,6 +310,7 @@ namespace Schema {
 
   interface ArrayProps<Prop extends $Any = $Any> {
     prop: Prop;
+    parser?: Parser<ValueType<Prop>[]>;
     required?: Validation<boolean, ValueType<Prop>[]>;
     len?: Validation<number, ValueType<Prop>[], { length: number; currentLength: number; }>;
     min?: Validation<number, ValueType<Prop>[], { minLength: number; currentLength: number; }>;
@@ -306,6 +321,7 @@ namespace Schema {
   interface $Array<Prop extends $Any = $Any> {
     type: "arr";
     prop: Prop;
+    parser: Parser<ValueType<Prop>[]>;
     validators: Array<Validator<ValueType<Prop>[]>>;
     required: $ValidationValue<boolean>;
     length: $ValidationValue<number>;
@@ -315,6 +331,7 @@ namespace Schema {
 
   interface StructProps<Props extends Record<string, $Any> = Record<string, $Any>> {
     props: Props;
+    parser?: Parser<SchemaValue<Props>>;
     required?: Validation<boolean, SchemaValue<Props>>;
     validators?: Array<Validator<SchemaValue<Props>>>;
   };
@@ -322,6 +339,7 @@ namespace Schema {
   interface $Struct<Props extends Record<string, $Any> = Record<string, $Any>> {
     type: "struct";
     props: Props;
+    parser: Parser<SchemaValue<Props>>;
     validators: Array<Validator<SchemaValue<Props>>>;
     required: $ValidationValue<boolean>;
   };
@@ -371,7 +389,7 @@ namespace Schema {
         DateValueString | Date | null | undefined
       ) :
       T extends "datetime" ? (
-        Strict extends true ? RequiredValue<Props["time"] extends "hms" ? `${DateString}T${TimeHMSString}` : `${DateString}T${TimeHMString}`, Props["required"], Optional> :
+        Strict extends true ? RequiredValue<Props["time"] extends "hms" ? DateTime_HMS_String : DateTime_HM_String, Props["required"], Optional> :
         DateValueString | Date | null | undefined
       ) :
       T extends `sdate-${SplitDateTarget}` ? (

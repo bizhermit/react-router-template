@@ -164,6 +164,12 @@ function getPatternInputProps(pattern: Schema.StringProps["pattern"]): PatternIn
   }
 };
 
+function STRING_PARSER({ value }: Schema.ParserParams): Schema.ParserResult<string> {
+  return {
+    value: (value == null || value === "") ? undefined : typeof value === "string" ? value : String(value),
+  };
+};
+
 export function $str<Props extends Schema.StringProps>(props?: Props) {
   const validators: Array<Schema.Validator<string>> = [];
 
@@ -382,6 +388,7 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
   return {
     type: "str",
     source: props?.source as Schema.GetSource<Props["source"]>,
+    parser: props?.parser ?? STRING_PARSER,
     validators,
     required: required as Schema.GetValidationValue<Props, "required">,
     length,

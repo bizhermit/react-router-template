@@ -1,5 +1,9 @@
 import { getValidationArray } from "./utilities";
 
+function STRUCT_PARSER({ value }: Schema.ParserParams): Schema.ParserResult<Record<string, any>> {
+  return { value };
+};
+
 export function $struct<Props extends Schema.StructProps>(props: Props) {
   const validators: Array<Schema.Validator<Record<string, any>>> = [];
 
@@ -43,6 +47,7 @@ export function $struct<Props extends Schema.StructProps>(props: Props) {
   return {
     type: "struct",
     props: props.props as Props["props"],
+    parser: (props.parser as Schema.Parser<Schema.SchemaValue<Props["props"]>>) ?? STRUCT_PARSER,
     validators,
     required: required as Schema.GetValidationValue<Props, "required">,
   } as const satisfies Schema.$Struct<Props["props"]>;

@@ -1,6 +1,24 @@
 import { formatDate, parseDate } from "../objects/date";
 import { getValidationArray } from "./utilities";
 
+function SPLIT_DATE_PARSER({ value, env }: Schema.ParserParams): Schema.ParserResult<number> {
+  if (value == null || value === "") {
+    return { value: undefined };
+  }
+  const num = Number(value);
+  if (num == null || isNaN(num)) {
+    return {
+      value: undefined,
+      result: {
+        type: "e",
+        code: "parse",
+        message: env.t("数値に変換できません。"),
+      },
+    };
+  }
+  return { value: num };
+};
+
 function splitDate<Props extends Schema.SplitDateProps, T extends Schema.SplitDateTarget>({
   splitProps,
   target,
@@ -112,6 +130,7 @@ function splitDate<Props extends Schema.SplitDateProps, T extends Schema.SplitDa
   return core.splits[target as keyof typeof core.splits] = {
     type: `sdate-${target}`,
     core,
+    parser: splitProps?.parser ?? SPLIT_DATE_PARSER,
     validators,
     required: required as Schema.GetValidationValue<Props, "required">,
     min,
@@ -329,6 +348,24 @@ function common<Props extends Schema.DateBaseProps>(
   } as const;
 };
 
+function MONTH_PARSER({ value, env }: Schema.ParserParams): Schema.ParserResult<Schema.MonthString> {
+  if (value == null || value === "") {
+    return { value: undefined };
+  }
+  const date = parseDate(value);
+  if (date == null) {
+    return {
+      value: undefined,
+      result: {
+        type: "e",
+        code: "parse",
+        message: env.t("年月に変換できません。"),
+      },
+    };
+  }
+  return { value: formatDate(date, "yyyy-MM") as Schema.MonthString };
+};
+
 export function $month<Props extends Schema.MonthProps>(props?: Props) {
   const validators: Array<Schema.Validator<Schema.MonthString>> = [];
 
@@ -347,6 +384,7 @@ export function $month<Props extends Schema.MonthProps>(props?: Props) {
   let core: Schema.$Month;
   return core = {
     type: "month",
+    parser: props?.parser ?? MONTH_PARSER,
     validators,
     required: commonProps.required as Schema.GetValidationValue<Props, "required">,
     minDate: commonProps.minDate as Schema.GetValidationValue<Props, "minDate">,
@@ -370,6 +408,24 @@ export function $month<Props extends Schema.MonthProps>(props?: Props) {
   } as const satisfies Schema.$Month;
 };
 
+function DATE_PARSER({ value, env }: Schema.ParserParams): Schema.ParserResult<Schema.DateString> {
+  if (value == null || value === "") {
+    return { value: undefined };
+  }
+  const date = parseDate(value);
+  if (date == null) {
+    return {
+      value: undefined,
+      result: {
+        type: "e",
+        code: "parse",
+        message: env.t("年月日に変換できません。"),
+      },
+    };
+  }
+  return { value: formatDate(date) as Schema.DateString };
+};
+
 export function $date<Props extends Schema.DateProps>(props?: Props) {
   const validators: Array<Schema.Validator<Schema.DateString>> = [];
 
@@ -388,6 +444,7 @@ export function $date<Props extends Schema.DateProps>(props?: Props) {
   let core: Schema.$Date;
   return core = {
     type: "date",
+    parser: props?.parser ?? DATE_PARSER,
     validators,
     required: commonProps.required as Schema.GetValidationValue<Props, "required">,
     minDate: commonProps.minDate as Schema.GetValidationValue<Props, "minDate">,
@@ -426,6 +483,42 @@ function timeToNumber(time: Schema.TimeString | undefined) {
   if (m != null) num += Number(m) * 60;
   if (s != null) num += Number(s);
   return num;
+};
+
+function DATETIME_HM_PARSER({ value, env }: Schema.ParserParams): Schema.ParserResult<Schema.DateTime_HM_String> {
+  if (value == null || value === "") {
+    return { value: undefined };
+  }
+  const date = parseDate(value);
+  if (date == null) {
+    return {
+      value: undefined,
+      result: {
+        type: "e",
+        code: "parse",
+        message: env.t("日時に変換できません。"),
+      },
+    };
+  }
+  return { value: formatDate(date, "yyyy-MM-ddThh:mm") as Schema.DateTime_HM_String };
+};
+
+function DATETIME_HMS_PARSER({ value, env }: Schema.ParserParams): Schema.ParserResult<Schema.DateTime_HMS_String> {
+if (value == null || value === "") {
+    return { value: undefined };
+  }
+  const date = parseDate(value);
+  if (date == null) {
+    return {
+      value: undefined,
+      result: {
+        type: "e",
+        code: "parse",
+        message: env.t("日時に変換できません。"),
+      },
+    };
+  }
+  return { value: formatDate(date, "yyyy-MM-ddThh:mm:ss") as Schema.DateTime_HMS_String };
 };
 
 export function $datetime<Props extends Schema.DateTimeProps>(props?: Props) {
@@ -531,6 +624,7 @@ export function $datetime<Props extends Schema.DateTimeProps>(props?: Props) {
   return core = {
     type: "datetime",
     time: time as Exclude<Props, undefined>["time"] extends "hms" ? "hms" : "hm",
+    parser: props?.parser ?? (time === "hms" ? DATETIME_HMS_PARSER : DATETIME_HM_PARSER),
     validators,
     required: commonProps.required as Schema.GetValidationValue<Props, "required">,
     minDate: commonProps.minDate as Schema.GetValidationValue<Props, "minDate">,

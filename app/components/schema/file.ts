@@ -1,9 +1,58 @@
+import { convertBase64ToFile, convertBlobToFile, getFileSize10Text } from "../objects/file";
 import { getValidationArray } from "./utilities";
 
 
 function isFile(value: any): value is File {
   return value != null && value instanceof File;
 };
+
+function FILE_PARSER({ value, env }: Schema.ParserParams): Schema.ParserResult<File | string> {
+  if (value == null) return { value };
+  if (value instanceof File) {
+    if (value.size === 0) return { value: undefined };
+    return { value };
+  }
+  if (value instanceof Blob) {
+    try {
+      return { value: convertBlobToFile(value, "") };
+    } catch {
+      return {
+        value: undefined,
+        result: {
+          type: "e",
+          code: "parse",
+          message: env.t("ファイルに変換できません。"),
+        },
+      };
+    }
+  }
+  if (typeof value === "string") {
+    if (value === "") {
+      return { value: undefined };
+    }
+    if (value.match(/^(https?|file):\/\//)) return { value };
+    try {
+      return { value: convertBase64ToFile(value, "") };
+    } catch {
+      return {
+        value: undefined,
+        result: {
+          type: "e",
+          code: "parse",
+          message: env.t("ファイルに変換できません。"),
+        },
+      };
+    }
+  }
+  return {
+    value: undefined,
+    result: {
+      type: "e",
+      code: "parse",
+      message: env.t("ファイルに変換できません。"),
+    },
+  };
+}
 
 export function getAccept(accept: string) {
   const items: Array<{ accept: string; type: "ext" | "group" | "type"; subject: string }> = [];
@@ -39,20 +88,6 @@ export function getAccept(accept: string) {
     });
   }
   return { accept, items } as const;
-};
-
-export function getFileSize2Text(size: number) {
-  if (size < 1024) return `${size}byte`;
-  if (size < 1048576) return `${Math.floor(size / 1024 * 10) / 10}KiB`;
-  if (size < 1073741824) return `${Math.floor(size / 1048576 * 10) / 10}MiB`;
-  return `${Math.floor(size / 1073741824 * 10) / 10}GiB`;
-};
-
-export function getFileSize10Text(size: number) {
-  if (size < 1000) return `${size}B`;
-  if (size < 1000000) return `${Math.floor(size / 1000 * 10) / 10}KB`;
-  if (size < 1000000000) return `${Math.floor(size / 1000000 * 10) / 10}MB`;
-  return `${Math.floor(size / 1000000000 * 10) / 10}GB`;
 };
 
 function getAcceptChecker(accept: string) {
@@ -183,6 +218,7 @@ export function $file<Props extends Schema.FileProps>(props?: Props) {
 
   return {
     type: "file",
+    parser: props?.parser ?? FILE_PARSER,
     validators,
     required: required as Schema.GetValidationValue<Props, "required">,
     accept,

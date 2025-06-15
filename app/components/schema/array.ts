@@ -1,5 +1,15 @@
 import { getValidationArray } from "./utilities";
 
+function ARRAY_PARSER({ value }: Schema.ParserParams): Schema.ParserResult<Array<any>> {
+  if (value == null || value === "") {
+    return { value: undefined };
+  }
+  if (Array.isArray(value)) {
+    return { value };
+  }
+  return { value: [value] };
+};
+
 export function $array<Props extends Schema.ArrayProps>(props: Props) {
   const validators: Array<Schema.Validator<any[]>> = [];
 
@@ -139,6 +149,7 @@ export function $array<Props extends Schema.ArrayProps>(props: Props) {
   return {
     type: "arr",
     prop: props.prop as Props["prop"],
+    parser: props.parser ?? ARRAY_PARSER,
     validators,
     required: required as Schema.GetValidationValue<Props, "required">,
     length,
