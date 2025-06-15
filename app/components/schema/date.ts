@@ -1,12 +1,19 @@
 import { formatDate, parseDate } from "../objects/date";
 import { getValidationArray } from "./utilities";
 
-function splitDate<Props extends Schema.SplitDateProps, T extends Schema.SplitDateTarget>(props: Props | undefined, type: Schema.$SplitDate<T>["type"]) {
+function splitDate<Props extends Schema.SplitDateProps, T extends Schema.SplitDateTarget>({
+  splitProps,
+  type,
+}: {
+  splitProps: Props | undefined;
+  type: Schema.$SplitDate<T>["type"]
+  core: Schema.$Date | Schema.$Month | Schema.$DateTime;
+}) {
   const validators: Array<Schema.Validator<number>> = [];
 
-  const [required, getRequiredMessage] = getValidationArray(props?.required);
-  const [min, getMinMessage] = getValidationArray(props?.min);
-  const [max, getMaxMessage] = getValidationArray(props?.max);
+  const [required, getRequiredMessage] = getValidationArray(splitProps?.required);
+  const [min, getMinMessage] = getValidationArray(splitProps?.min);
+  const [max, getMaxMessage] = getValidationArray(splitProps?.max);
 
   if (required) {
     const getMessage: Schema.MessageGetter<typeof getRequiredMessage> = getRequiredMessage ?
@@ -97,8 +104,8 @@ function splitDate<Props extends Schema.SplitDateProps, T extends Schema.SplitDa
     }
   }
 
-  if (props?.validators) {
-    validators.push(...props.validators);
+  if (splitProps?.validators) {
+    validators.push(...splitProps.validators);
   }
 
   return {
@@ -335,18 +342,27 @@ export function $month<Props extends Schema.MonthProps>(props?: Props) {
     validators.push(...props.validators);
   }
 
-  return {
+  let core: Schema.$Month;
+  return core = {
     type: "month",
     validators,
     required: commonProps.required as Schema.GetValidationValue<Props, "required">,
     minDate: commonProps.minDate as Schema.GetValidationValue<Props, "minDate">,
     maxDate: commonProps.maxDate as Schema.GetValidationValue<Props, "maxDate">,
     pair: commonProps.pair,
-    splitYear: function (props?) {
-      return splitDate(props, "sdate-Y");
+    splitYear: function (splitProps?) {
+      return splitDate({
+        splitProps,
+        type: "sdate-Y",
+        core,
+      });
     },
-    splitMonth: function (props?) {
-      return splitDate(props, "sdate-M");
+    splitMonth: function (splitProps?) {
+      return splitDate({
+        splitProps,
+        type: "sdate-M",
+        core,
+      });
     },
   } as const satisfies Schema.$Month;
 };
@@ -367,21 +383,34 @@ export function $date<Props extends Schema.DateProps>(props?: Props) {
     validators.push(...props.validators);
   }
 
-  return {
+  let core: Schema.$Date;
+  return core = {
     type: "date",
     validators,
     required: commonProps.required as Schema.GetValidationValue<Props, "required">,
     minDate: commonProps.minDate as Schema.GetValidationValue<Props, "minDate">,
     maxDate: commonProps.maxDate as Schema.GetValidationValue<Props, "maxDate">,
     pair: commonProps.pair,
-    splitYear: function (props?) {
-      return splitDate(props, "sdate-Y");
+    splitYear: function (splitProps?) {
+      return splitDate({
+        splitProps,
+        type: "sdate-Y",
+        core,
+      });
     },
-    splitMonth: function (props?) {
-      return splitDate(props, "sdate-M");
+    splitMonth: function (splitProps?) {
+      return splitDate({
+        splitProps,
+        type: "sdate-M",
+        core,
+      });
     },
-    splitDay: function (props?) {
-      return splitDate(props, "sdate-D");
+    splitDay: function (splitProps?) {
+      return splitDate({
+        splitProps,
+        type: "sdate-D",
+        core,
+      });
     },
   } as const satisfies Schema.$Date;
 };
@@ -495,7 +524,8 @@ export function $datetime<Props extends Schema.DateTimeProps>(props?: Props) {
     validators.push(...props.validators);
   }
 
-  return {
+  let core: Schema.$DateTime;
+  return core = {
     type: "datetime",
     time: time as Exclude<Props, undefined>["time"] extends "hms" ? "hms" : "hm",
     validators,
@@ -505,24 +535,48 @@ export function $datetime<Props extends Schema.DateTimeProps>(props?: Props) {
     minTime,
     maxTime,
     pair: commonProps.pair,
-    splitYear: function (props?) {
-      return splitDate(props, "sdate-Y");
+    splitYear: function (splitProps?) {
+      return splitDate({
+        splitProps,
+        type: "sdate-Y",
+        core,
+      });
     },
-    splitMonth: function (props?) {
-      return splitDate(props, "sdate-M");
+    splitMonth: function (splitProps?) {
+      return splitDate({
+        splitProps,
+        type: "sdate-M",
+        core,
+      });
     },
-    splitDay: function (props?) {
-      return splitDate(props, "sdate-D");
+    splitDay: function (splitProps?) {
+      return splitDate({
+        splitProps,
+        type: "sdate-D",
+        core,
+      });
     },
-    splitHour: function (props?) {
-      return splitDate(props, "sdate-h");
+    splitHour: function (splitProps?) {
+      return splitDate({
+        splitProps,
+        type: "sdate-h",
+        core,
+      });
     },
-    splitMinute: function (props?) {
-      return splitDate(props, "sdate-m");
+    splitMinute: function (splitProps?) {
+      return splitDate({
+        splitProps,
+        type: "sdate-m",
+        core,
+      });
     },
-    splitSecond: function (props?) {
+    splitSecond: function (splitProps?) {
       if (time === "hm") throw new Error("split date seconds is not supported.")
-      return splitDate(props, "sdate-s");
+      return splitDate({
+        splitProps,
+        type: "sdate-s",
+        core,
+      });
     },
   } as const satisfies Schema.$DateTime;
 };
