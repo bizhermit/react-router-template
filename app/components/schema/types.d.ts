@@ -245,12 +245,16 @@ namespace Schema {
     splitMonth: <Props extends SplitDateProps>(props: Props) => $SplitDate<"M">;
   };
 
+  type DateSplits<T extends SplitDateTarget> = Partial<Record<T, $SplitDate<T>>>;
+
   interface $Month<V extends MonthString = MonthString> extends $BaseDate<V> {
     type: "month";
+    splits: DateSplits<"Y" | "M">;
   };
 
   interface $Date<V extends DateString = DateString> extends $BaseDate<V> {
     type: "date";
+    splits: DateSplits<"Y" | "M" | "D">;
     splitDay: <Props extends SplitDateProps>(props: Props) => $SplitDate<"D">;
   };
 
@@ -259,6 +263,7 @@ namespace Schema {
     time: "hm" | "hms";
     minTime: $ValidationValue<TimeString>;
     maxTime: $ValidationValue<TimeString>;
+    splits: DateSplits<"Y" | "M" | "D" | "h" | "m" | "s">;
     splitDay: <Props extends SplitDateProps>(props: Props) => $SplitDate<"D">;
     splitHour: <Props extends SplitDateProps>(props: Props) => $SplitDate<"h">;
     splitMinute: <Props extends SplitDateProps>(props: Props) => $SplitDate<"m">;
@@ -267,6 +272,7 @@ namespace Schema {
 
   interface $SplitDate<T extends SplitDateTarget, V extends number = number> {
     type: `sdate-${T}`;
+    core: $Date | $Month | $DateTime;
     validators: Array<Validator<V>>;
     required: $ValidationValue<boolean>;
     min: $ValidationValue<number>;

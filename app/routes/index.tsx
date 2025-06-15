@@ -111,6 +111,8 @@ const schema = $schema({
 type SchemaValue = Schema.SchemaValue<typeof schema>;
 type TolerantSchemaValue = Schema.TolerantSchemaValue<typeof schema>;
 
+console.log(schema);
+
 export default function Page() {
   return (
     <div>
