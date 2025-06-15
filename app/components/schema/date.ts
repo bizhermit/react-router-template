@@ -367,6 +367,8 @@ function MONTH_PARSER({ value, env }: Schema.ParserParams): Schema.ParserResult<
 };
 
 export function $month<Props extends Schema.MonthProps>(props?: Props) {
+  const splits: Schema.$Month["splits"] = {};
+
   const validators: Array<Schema.Validator<Schema.MonthString>> = [];
 
   const commonProps = common(
@@ -390,7 +392,7 @@ export function $month<Props extends Schema.MonthProps>(props?: Props) {
     minDate: commonProps.minDate as Schema.GetValidationValue<Props, "minDate">,
     maxDate: commonProps.maxDate as Schema.GetValidationValue<Props, "maxDate">,
     pair: commonProps.pair,
-    splits: {},
+    splits,
     splitYear: function (splitProps?) {
       return splitDate({
         splitProps,
@@ -427,6 +429,8 @@ function DATE_PARSER({ value, env }: Schema.ParserParams): Schema.ParserResult<S
 };
 
 export function $date<Props extends Schema.DateProps>(props?: Props) {
+  const splits: Schema.$Date["splits"] = {};
+
   const validators: Array<Schema.Validator<Schema.DateString>> = [];
 
   const commonProps = common(
@@ -450,7 +454,7 @@ export function $date<Props extends Schema.DateProps>(props?: Props) {
     minDate: commonProps.minDate as Schema.GetValidationValue<Props, "minDate">,
     maxDate: commonProps.maxDate as Schema.GetValidationValue<Props, "maxDate">,
     pair: commonProps.pair,
-    splits: {},
+    splits,
     splitYear: function (splitProps?) {
       return splitDate({
         splitProps,
@@ -504,7 +508,7 @@ function DATETIME_HM_PARSER({ value, env }: Schema.ParserParams): Schema.ParserR
 };
 
 function DATETIME_HMS_PARSER({ value, env }: Schema.ParserParams): Schema.ParserResult<Schema.DateTime_HMS_String> {
-if (value == null || value === "") {
+  if (value == null || value === "") {
     return { value: undefined };
   }
   const date = parseDate(value);
@@ -523,6 +527,8 @@ if (value == null || value === "") {
 
 export function $datetime<Props extends Schema.DateTimeProps>(props?: Props) {
   const time = props?.time ?? "hm";
+
+  const splits: Schema.$DateTime["splits"] = {};
 
   const validators: Array<Schema.Validator<Schema.DateTimeString>> = [];
 
@@ -632,7 +638,7 @@ export function $datetime<Props extends Schema.DateTimeProps>(props?: Props) {
     minTime,
     maxTime,
     pair: commonProps.pair,
-    splits: {},
+    splits,
     splitYear: function (splitProps?) {
       return splitDate({
         splitProps,
