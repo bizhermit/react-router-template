@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useLayoutEffect, useMemo, useRef, type ReactNode, type RefObject } from "react";
+import { createContext, use, useCallback, useContext, useLayoutEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
 import { SchemaData } from "./data";
 import { parseWithSchema } from ".";
 import { unstable_usePrompt } from "react-router";
@@ -17,8 +17,7 @@ export type SchemaEffectParameters =
   }
   | {
     type: "result";
-    name: string;
-    result: any;
+    items: Array<{ name: string; result: Schema.Result | null | undefined; }>;
   }
   | {
     type: "dep";
@@ -42,6 +41,7 @@ type SchemaContextProps<S extends Record<string, Schema.$Any> = Record<string, S
   ) => (() => void);
   getResult: (name: string) => Schema.Result | null | undefined;
   setResult: (name: string, result: Schema.Result | null | undefined) => boolean;
+  setResults: (items: Array<{ name: string; result: Schema.Result | null | undefined; }>) => boolean;
   isInitialize: RefObject<boolean>;
   isFirstLoad: RefObject<boolean>;
   isValidScripts: RefObject<boolean>;
@@ -55,6 +55,7 @@ export const SchemaContext = createContext<SchemaContextProps>({
   addSubscribe: null!,
   getResult: null!,
   setResult: null!,
+  setResults: null!,
   isInitialize: { current: true },
   isFirstLoad: { current: true },
   isValidScripts: { current: false },
@@ -135,20 +136,37 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
     return results.current[name];
   };
 
-  function setResult(name: string, result: Schema.Result | null | undefined) {
+  function setResultsImpl(items: Array<{ name: string; result: Schema.Result | null | undefined; }>) {
     let change = false;
-    if (result == null) {
-      if (results.current[name]) {
-        change = true;
-        delete results.current[name];
+    items.forEach(({ name, result }) => {
+      if (result == null) {
+        if (results.current[name]) {
+          change = true;
+          delete results.current[name];
+        }
+      } else {
+        const current = results.current[name];
+        change = current == null || current.message !== result.message || current.type !== result.type;
+        results.current[name] = result;
       }
-    } else {
-      const current = results.current[name];
-      change = current == null || current.message !== result.message || current.type !== result.type;
-      results.current[name] = result;
-    }
+    })
+    return change;
+  };
+
+  function setResults(items: Array<{ name: string; result: Schema.Result | null | undefined; }>) {
+    const change = setResultsImpl(items);
     if (change) {
-      const params: SchemaEffectParameters = { type: "result", name, result };
+      const params: SchemaEffectParameters = { type: "result", items };
+      subscribes.current.forEach(f => f(params));
+    }
+    return change;
+  };
+
+
+  function setResult(name: string, result: Schema.Result | null | undefined) {
+    const change = setResultsImpl([{ name, result }]);
+    if (change) {
+      const params: SchemaEffectParameters = { type: "result", items: [{ name, result }] };
       subscribes.current.forEach(f => f(params));
     }
     return change;
@@ -167,6 +185,7 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
           addSubscribe,
           getResult,
           setResult,
+          setResults,
           isInitialize,
           isFirstLoad,
           isValidScripts,
@@ -232,4 +251,95 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
 
 export function useSchemaContext<S extends Record<string, Schema.$Any> = Record<string, Schema.$Any>>() {
   return useContext(SchemaContext) as SchemaContextProps<S>;
+};
+
+export function useSchemaEffect(
+  effect: (params: SchemaEffectParameters) => void,
+  getFormItemMountProps?: () => FormItemMountProps,
+) {
+  const schema = use(SchemaContext);
+  useLayoutEffect(() => {
+    const unmount = schema.addSubscribe(effect, getFormItemMountProps?.());
+    return () => unmount();
+  }, []);
+  return schema;
+};
+
+type SetValue<P extends Schema.$Any> =
+  | Schema.ValueType<P, false>
+  | null
+  | undefined
+  | ((currentValue: Schema.ValueType<P, true> | null | undefined) => Schema.ValueType<P, false>)
+  ;
+
+export function useSchemaValue<D extends Schema.DataItem<Schema.$Any>>(dataItem: D) {
+  const { data, dep, env, setResult } = useSchemaEffect((params) => {
+    switch (params.type) {
+      case "data":
+        setValue(getValue);
+        break;
+      case "value":
+        const item = params.items.find(item => item.name === dataItem.name)
+        if (item) {
+          setValue(item.value);
+        }
+        break;
+      default:
+        break;
+    }
+  });
+
+  const [value, setValue] = useState(getValue());
+
+  function getValue() {
+    return data.current.get(dataItem.name) as Schema.ValueType<D["_"]>;
+  };
+
+  function set(value: SetValue<D["_"]>) {
+    const newValue = typeof value === "function" ? value(getValue()) : value;
+    const parsed = dataItem._.parser({
+      dep: dep.current,
+      env,
+      value: newValue,
+    });
+    data.current.set(dataItem.name, parsed.value);
+    setResult(dataItem.name, parsed.result);
+    return parsed.value as Schema.ValueType<D["_"]>;
+  };
+
+  return [
+    value,
+    set,
+  ] as const;
+};
+
+export function useSchemaResult<D extends Schema.DataItem<Schema.$Any>>(dataItem: D) {
+  const schema = useSchemaEffect((params) => {
+    switch (params.type) {
+      case "data":
+        setResult(params.results[dataItem.name]);
+        break;
+      case "result":
+        const item = params.items.find(item => item.name === dataItem.name);
+        if (item) {
+          setResult(item.result);
+        }
+        break;
+      default:
+        break;
+    }
+  });
+
+  const [result, setResult] = useState(() => {
+    return schema.getResult(dataItem.name);
+  });
+
+  function set(result: Schema.Result | null | undefined) {
+    schema.setResult(dataItem.name, result);
+  };
+
+  return [
+    result,
+    set,
+  ] as const;
 };
