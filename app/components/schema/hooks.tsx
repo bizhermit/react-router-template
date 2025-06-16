@@ -1,4 +1,4 @@
-import { createContext, use, useCallback, useContext, useLayoutEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
+import { createContext, use, useCallback, useContext, useId, useLayoutEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
 import { SchemaData } from "./data";
 import { parseWithSchema } from ".";
 import { unstable_usePrompt } from "react-router";
@@ -10,6 +10,10 @@ export type SchemaEffectParameters =
     data: SchemaData;
     results: Record<string, Schema.Result>;
     dep: Record<string, any>;
+  }
+  | {
+    type: "value-result",
+    items: Array<{ name: string; value: any; result: Schema.Result | null | undefined; }>;
   }
   | {
     type: "value";
@@ -25,12 +29,12 @@ export type SchemaEffectParameters =
   }
   ;
 
-type FormItemMountProps = {
+interface FormItemMountProps {
   id: string;
   name: string;
 };
 
-type SchemaContextProps<S extends Record<string, Schema.$Any> = Record<string, Schema.$Any>> = {
+interface SchemaContextProps<S extends Record<string, Schema.$Any> = Record<string, Schema.$Any>> {
   env: Schema.Env;
   data: RefObject<SchemaData>;
   dep: RefObject<Record<string, any>>;
@@ -42,6 +46,8 @@ type SchemaContextProps<S extends Record<string, Schema.$Any> = Record<string, S
   getResult: (name: string) => Schema.Result | null | undefined;
   setResult: (name: string, result: Schema.Result | null | undefined) => boolean;
   setResults: (items: Array<{ name: string; result: Schema.Result | null | undefined; }>) => boolean;
+  setValueAndResult: (name: string, value: any, result: Schema.Result | null | undefined) => boolean;
+  setValuesAndResults: (items: Array<{ name: string; value: any; result: Schema.Result | null | undefined }>) => boolean;
   isInitialize: RefObject<boolean>;
   isFirstLoad: RefObject<boolean>;
   isValidScripts: RefObject<boolean>;
@@ -56,6 +62,8 @@ export const SchemaContext = createContext<SchemaContextProps>({
   getResult: null!,
   setResult: null!,
   setResults: null!,
+  setValueAndResult: null!,
+  setValuesAndResults: null!,
   isInitialize: { current: true },
   isFirstLoad: { current: true },
   isValidScripts: { current: false },
@@ -63,7 +71,7 @@ export const SchemaContext = createContext<SchemaContextProps>({
 
 const EMPTY_STRUCT = {} as const;
 
-type Props<S extends Record<string, Schema.$Any>> = {
+interface Props<S extends Record<string, Schema.$Any>> {
   schema: S;
   data?: Record<string, any> | null | undefined;
   results?: Record<string, Schema.Result>;
@@ -136,25 +144,28 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
     return results.current[name];
   };
 
-  function setResultsImpl(items: Array<{ name: string; result: Schema.Result | null | undefined; }>) {
+  function setResultImpl(name: string, result: Schema.Result | null | undefined) {
     let change = false;
-    items.forEach(({ name, result }) => {
-      if (result == null) {
-        if (results.current[name]) {
-          change = true;
-          delete results.current[name];
-        }
-      } else {
-        const current = results.current[name];
-        change = current == null || current.message !== result.message || current.type !== result.type;
-        results.current[name] = result;
+    if (result == null) {
+      if (results.current[name]) {
+        change = true;
+        delete results.current[name];
       }
-    })
+    } else {
+      const current = results.current[name];
+      change = current == null || current.message !== result.message || current.type !== result.type;
+      results.current[name] = result;
+    }
     return change;
   };
 
   function setResults(items: Array<{ name: string; result: Schema.Result | null | undefined; }>) {
-    const change = setResultsImpl(items);
+    let change = false;
+    items.forEach(({ name, result }) => {
+      if (setResultImpl(name, result)) {
+        change = true;
+      }
+    });
     if (change) {
       const params: SchemaEffectParameters = { type: "result", items };
       subscribes.current.forEach(f => f(params));
@@ -164,9 +175,44 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
 
 
   function setResult(name: string, result: Schema.Result | null | undefined) {
-    const change = setResultsImpl([{ name, result }]);
+    const change = setResultImpl(name, result);
     if (change) {
       const params: SchemaEffectParameters = { type: "result", items: [{ name, result }] };
+      subscribes.current.forEach(f => f(params));
+    }
+    return change;
+  };
+
+  function setValueAndResultImpl(name: string, value: any, result: Schema.Result | null | undefined) {
+    let change = false;
+    if (bindData.current._set(name, value)) {
+      change = true;
+    }
+    if (setResultImpl(name, result)) {
+      change = true;
+    }
+    return change;
+  };
+
+  function setValuesAndResults(items: Array<{ name: string; value: any; result: Schema.Result | null | undefined; }>) {
+    let change = false;
+    items.forEach(({ name, value, result }) => {
+      if (setValueAndResultImpl(name, value, result)) {
+        change = true;
+      }
+    });
+    if (change) {
+      const params: SchemaEffectParameters = { type: "value-result", items };
+      subscribes.current.forEach(f => f(params));
+    }
+    return change;
+  };
+
+  function setValueAndResult(name: string, value: any, result: Schema.Result | null | undefined) {
+    const items = [{ name, value, result }];
+    const change = setValueAndResultImpl(name, value, result);
+    if (change) {
+      const params: SchemaEffectParameters = { type: "value-result", items };
       subscribes.current.forEach(f => f(params));
     }
     return change;
@@ -186,6 +232,8 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
           getResult,
           setResult,
           setResults,
+          setValueAndResult,
+          setValuesAndResults,
           isInitialize,
           isFirstLoad,
           isValidScripts,
@@ -342,4 +390,296 @@ export function useSchemaResult<D extends Schema.DataItem<Schema.$Any>>(dataItem
     result,
     set,
   ] as const;
+};
+
+interface FieldSetContextProps {
+  disabled: boolean;
+  readOnly: boolean;
+};
+
+export const FieldSetContext = createContext<FieldSetContextProps>({
+  disabled: false,
+  readOnly: false,
+});
+
+export function useFieldSet() {
+  return use(FieldSetContext);
+};
+
+export interface InputWrapProps {
+  hideMessage?: boolean;
+};
+
+export interface SchemaItemProps<D extends Schema.DataItem<Schema.$Any>> extends InputWrapProps {
+  $: D;
+  readOnly?: boolean;
+};
+
+const MODE_PRIORITY = {
+  enabled: 0,
+  readonly: 1,
+  disabled: 2,
+  hidden: 3,
+} satisfies Record<Schema.Mode, number>;
+
+const MODE = {
+  [MODE_PRIORITY.enabled]: "enabled",
+  [MODE_PRIORITY.readonly]: "readonly",
+  [MODE_PRIORITY.disabled]: "disabled",
+  [MODE_PRIORITY.hidden]: "hidden",
+} satisfies Record<number, Schema.Mode>;
+
+export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
+  $,
+  ...props
+}: SchemaItemProps<D>, options: {
+  effect: (params: {
+    value: Schema.ValueType<D["_"]> | null | undefined;
+    result: Schema.Result | null | undefined;
+  }) => void;
+  effectContext?: (params: {
+    data: SchemaData;
+    dep: Record<string, any>;
+    env: Schema.Env;
+  }) => void;
+  watchChildEffect?: (params: SchemaEffectParameters) => void;
+}) {
+  const id = useId();
+  const isEffected = useRef(false);
+
+  const fs = useFieldSet();
+
+  const schema = useSchemaEffect((params) => {
+    switch (params.type) {
+      case "data":
+        isEffected.current = false;
+        const value = getValue();
+        const result = getResult();
+        setValue(value);
+        setResult(result);
+        setMode(getMode);
+        setRequired(getRequired);
+        options.effect({ value, result });
+        options.effectContext?.({
+          data: schema.data.current,
+          dep: schema.dep.current,
+          env: schema.env,
+        });
+        break;
+      case "value-result": {
+        const item = params.items.find(item => item.name === $.name);
+        if (item) {
+          setValue(item.value);
+          setResult(item.result);
+          options.effect(item);
+          isEffected.current = true;
+        } else if (params.items.some(item => $._.refs?.some(ref => ref === item.name))) {
+          setMode(getMode);
+          setRequired(getRequired);
+          options.effectContext?.({
+            data: schema.data.current,
+            dep: schema.dep.current,
+            env: schema.env,
+          });
+          isEffected.current = true;
+        } else {
+          if (options.watchChildEffect) {
+            if (params.items.some(item => item.name.startsWith($.name))) {
+              options.watchChildEffect(params);
+            }
+          }
+        }
+        break;
+      }
+      case "value": {
+        const item = params.items.find(item => item.name === $.name);
+        if (item) {
+          setValue(item.value);
+          const result = validation(item.value);
+          setResult(result);
+          options.effect({ value: item.value, result });
+          isEffected.current = true;
+        } else if (params.items.some(item => $._.refs?.some(ref => ref === item.name))) {
+          const result = validation(getValue());
+          setMode(getMode);
+          setRequired(getRequired);
+          options.effectContext?.({
+            data: schema.data.current,
+            dep: schema.dep.current,
+            env: schema.env,
+          });
+          if (schema.setResult($.name, result)) {
+            isEffected.current = true;
+          }
+        } else {
+          if (options.watchChildEffect) {
+            if (params.items.some(item => item.name.startsWith($.name))) {
+              options.watchChildEffect(params);
+            }
+          }
+        }
+        break;
+      }
+      case "result": {
+        const item = params.items.find(item => item.name === $.name);
+        if (item) {
+          setResult(item.result);
+          isEffected.current = true;
+        }
+        break;
+      }
+      case "dep":
+        setMode(getMode);
+        setRequired(getRequired);
+        options.effectContext?.({
+          data: schema.data.current,
+          dep: schema.dep.current,
+          env: schema.env,
+        });
+        break;
+      default:
+        break;
+    }
+  }, () => {
+    return {
+      id,
+      name: $.name,
+    };
+  });
+
+  function getMode() {
+    let parent = $.parent;
+    const modeParams: Schema.ModeParams = {
+      data: schema.data.current,
+      dep: schema.dep.current,
+      env: schema.env,
+    };
+    let mode: keyof typeof MODE = MODE_PRIORITY[$._.mode?.(modeParams) ?? "enabled"];
+    while (parent) {
+      if (mode === MODE_PRIORITY.hidden) break;
+      mode = Math.max(MODE_PRIORITY[parent._.mode?.(modeParams) ?? "enabled"]);
+      parent = parent.parent;
+    }
+    return MODE[mode];
+  };
+
+  const [mode, setMode] = useState(getMode);
+
+  function getValue() {
+    return schema.data.current.get($.name);
+  };
+
+  const [value, setValue] = useState(getValue);
+
+  function getResult() {
+    if (schema.isInitialize.current) return schema.getResult($.name);
+    let r: Schema.Result | null | undefined;
+    const params: Schema.ValidationParams<any> = {
+      data: schema.data.current,
+      dep: schema.dep.current,
+      env: schema.env,
+      label: $.label,
+      value: getValue(),
+    };
+    for (const vali of $._.validators) {
+      r = vali(params);
+      if (r) return r;
+    }
+    return undefined;
+  };
+
+  const [result, setResult] = useState(getResult);
+
+  function getRequired() {
+    if (typeof $._.required === "function") {
+      return $._.required({
+        data: schema.data.current,
+        dep: schema.dep.current,
+        env: schema.env,
+        label: $.label,
+        value: getValue(),
+      });
+    }
+    return $._.required === true;
+  };
+
+  const [required, setRequired] = useState(getRequired);
+
+  function parse(value: any) {
+    return $._.parser({
+      dep: schema.dep.current,
+      env: schema.env,
+      value,
+    });
+  };
+
+  function validation(value: any) {
+    let r: Schema.Result | null | undefined;
+    const params: Schema.ValidationParams<any> = {
+      data: schema.data.current,
+      dep: schema.dep.current,
+      env: schema.env,
+      label: $.label,
+      value,
+    };
+    for (const vali of $._.validators) {
+      r = vali(params);
+      if (r) break;
+    }
+    return r;
+  };
+
+  useLayoutEffect(() => {
+    setRequired(getRequired);
+    if (!schema.isInitialize.current && result !== schema.getResult($.name)) {
+      schema.setResult($.name, result);
+    }
+    return () => {
+      schema.setResult($.name, undefined);
+    };
+  });
+
+  const isHidden = mode === "hidden";
+  const isDisabled = fs.disabled || mode === "disabled";
+  const isReadOnly = fs.readOnly || mode === "readonly";
+  const isEnabled = !isHidden && !isDisabled && !isReadOnly;
+  const isInvalid = result?.type === "e";
+
+  function set(value: any) {
+    const parsed = parse(value);
+    let r = parsed.result;
+    if (!r) {
+      r = validation(parsed.value);
+    }
+    schema.setValueAndResult($.name, parsed.value, r);
+  };
+
+  return {
+    props,
+    name: $.name,
+    label: $.label,
+    dataItem: $,
+    mode,
+    required,
+    enabled: isEnabled,
+    disabled: isDisabled,
+    readOnly: isReadOnly,
+    hidden: isHidden,
+    getValue,
+    setValue: set,
+    parse,
+    validation,
+    invalid: isInvalid,
+    errormessage: isInvalid && result.message,
+    env: schema.env,
+    validScripts: schema.isValidScripts.current,
+  } as const;
+};
+
+export function useSchemaArray<D extends Schema.DataItem<Schema.$Array>>(dataItem: D, options?: {
+  watchChildValue?: boolean;
+  readOnly?: boolean;
+}) {
+  const key = dataItem._.key;
+
 };

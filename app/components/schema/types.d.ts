@@ -23,6 +23,10 @@ namespace Schema {
     env: Env;
   };
 
+  interface ModeFunction {
+    (params: ModeParams): Mode;
+  };
+
   interface ParserParams {
     value: any;
     dep: Record<string, any>;
@@ -96,7 +100,12 @@ namespace Schema {
   interface BaseProps {
     label?: string;
     refs?: string[];
-    mode?: (params: ModeParams) => Mode;
+    mode?: ModeFunction;
+  };
+
+  interface $Base {
+    mode?: ModeFunction;
+    refs?: string[];
   };
 
   type StrPattern =
@@ -131,7 +140,7 @@ namespace Schema {
     validators?: Array<Validator<V>>;
   };
 
-  interface $String<V extends string = string> {
+  interface $String<V extends string = string> extends $Base {
     type: "str";
     label: string | undefined;
     parser: Parser<V>;
@@ -155,7 +164,7 @@ namespace Schema {
     validators?: Array<Validator<V>>;
   };
 
-  interface $Numeric<V extends number = number> {
+  interface $Numeric<V extends number = number> extends $Base {
     type: "num";
     label: string | undefined;
     parser: Parser<V>;
@@ -186,7 +195,7 @@ namespace Schema {
   interface $Boolean<
     TV extends BooleanValue = BooleanValue,
     FV extends BooleanValue = BooleanValue,
-  > {
+  > extends $Base {
     type: "bool";
     label: string | undefined;
     trueValue: TV,
@@ -244,7 +253,7 @@ namespace Schema {
     validators?: Array<Validator<V>>;
   };
 
-  interface $BaseDate<V extends DateValueString = DateValueString> {
+  interface $BaseDate<V extends DateValueString = DateValueString> extends $Base {
     parser: Parser<V>;
     validators: Array<Validator<V>>;
     required: $ValidationValue<boolean>;
@@ -287,7 +296,7 @@ namespace Schema {
     splitSecond: <Props extends SplitDateProps>(props: Props) => $SplitDate<"s">;
   };
 
-  interface $SplitDate<T extends SplitDateTarget = SplitDateTarget, V extends number = number> {
+  interface $SplitDate<T extends SplitDateTarget = SplitDateTarget, V extends number = number> extends $Base {
     type: `sdate-${T}`;
     label: string | undefined;
     parser: Parser<V>;
@@ -306,7 +315,7 @@ namespace Schema {
     validators?: Array<Validator<V>>;
   };
 
-  interface $File<V extends File | string = File | string> {
+  interface $File<V extends File | string = File | string> extends $Base {
     type: "file";
     label: string | undefined;
     parser: Parser<V>;
@@ -326,10 +335,11 @@ namespace Schema {
     validators?: Array<Validator<ValueType<Prop>[]>>;
   };
 
-  interface $Array<Prop extends $Any = $Any> {
+  interface $Array<Prop extends $Any = $Any> extends $Base {
     type: "arr";
     label: string | undefined;
     prop: Prop;
+    key: string | ((value: Record<string, any>) => string) | undefined;
     parser: Parser<ValueType<Prop>[]>;
     validators: Array<Validator<ValueType<Prop>[]>>;
     required: $ValidationValue<boolean>;
@@ -340,14 +350,16 @@ namespace Schema {
 
   interface StructProps<Props extends Record<string, $Any> = Record<string, $Any>> extends BaseProps {
     props: Props;
+    key?: string | ((value: (SchemaValue<Props> & Record<string, any>) | null | undefined) => string);
     parser?: Parser<SchemaValue<Props>>;
     required?: Validation<boolean, SchemaValue<Props>>;
     validators?: Array<Validator<SchemaValue<Props>>>;
   };
 
-  interface $Struct<Props extends Record<string, $Any> = Record<string, $Any>> {
+  interface $Struct<Props extends Record<string, $Any> = Record<string, $Any>> extends $Base {
     type: "struct";
     label: string | undefined;
+    key: string | ((value: (SchemaValue<Props> & Record<string, any>) | null | undefined) => string) | undefined;
     props: Props;
     parser: Parser<SchemaValue<Props>>;
     validators: Array<Validator<SchemaValue<Props>>>;
@@ -370,6 +382,7 @@ namespace Schema {
   type DataItem<P extends $Any> = {
     label: string;
     name: string;
+    parent?: DataItem<$Struct | $Array>;
     _: P;
   } & (
       P extends { type: infer T } ? (
@@ -378,7 +391,7 @@ namespace Schema {
         } :
         T extends "arr" ? {
           generateDataItem: (index: number) => DataItem<P["prop"]>;
-        }: {}
+        } : {}
       ) : never
     );
 

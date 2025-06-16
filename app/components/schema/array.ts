@@ -11,6 +11,8 @@ function ARRAY_PARSER({ value }: Schema.ParserParams): Schema.ParserResult<Array
 };
 
 export function $array<Props extends Schema.ArrayProps>(props: Props) {
+  const key = props.prop.type === "struct" ? props.prop.key : undefined;
+
   const validators: Array<Schema.Validator<any[]>> = [];
 
   const [required, getRequiredMessage] = getValidationArray(props?.required);
@@ -149,7 +151,10 @@ export function $array<Props extends Schema.ArrayProps>(props: Props) {
   return {
     type: "arr",
     prop: props.prop as Props["prop"],
+    key,
     label: props?.label,
+    mode: props?.mode,
+    refs: props?.refs,
     parser: props.parser ?? ARRAY_PARSER,
     validators,
     required: required as Schema.GetValidationValue<Props, "required">,

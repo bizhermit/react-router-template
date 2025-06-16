@@ -219,6 +219,8 @@ export function $file<Props extends Schema.FileProps>(props?: Props) {
   return {
     type: "file",
     label: props?.label,
+    mode: props?.mode,
+    refs: props?.refs,
     parser: props?.parser ?? FILE_PARSER,
     validators,
     required: required as Schema.GetValidationValue<Props, "required">,

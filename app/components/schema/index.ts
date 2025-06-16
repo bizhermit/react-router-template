@@ -66,6 +66,7 @@ export function parseWithSchema<$Schema extends Record<string, any>>(params: {
     const dataItem: Schema.DataItem<any> = {
       name: fn,
       label,
+      parent,
       _: item,
     };
 

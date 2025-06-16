@@ -47,7 +47,10 @@ export function $struct<Props extends Schema.StructProps>(props: Props) {
   return {
     type: "struct",
     props: props.props as Props["props"],
+    key: props.key,
     label: props?.label,
+    mode: props?.mode,
+    refs: props?.refs,
     parser: (props.parser as Schema.Parser<Schema.SchemaValue<Props["props"]>>) ?? STRUCT_PARSER,
     validators,
     required: required as Schema.GetValidationValue<Props, "required">,
