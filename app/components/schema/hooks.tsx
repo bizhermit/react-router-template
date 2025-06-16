@@ -2,7 +2,7 @@ import { createContext, use, useCallback, useContext, useId, useLayoutEffect, us
 import { SchemaData } from "./data";
 import { parseWithSchema } from ".";
 import { unstable_usePrompt } from "react-router";
-import { clone } from "../objects";
+import { clone, isEmpty } from "../objects";
 
 export type SchemaEffectParameters =
   | {
@@ -345,14 +345,7 @@ export function useSchemaValue<D extends Schema.DataItem<Schema.$Any>>(dataItem:
 
   function set(value: SetValue<D["_"]>) {
     const newValue = typeof value === "function" ? value(getValue()) : value;
-    const parsed = dataItem._.parser({
-      dep: dep.current,
-      env,
-      value: newValue,
-    });
-    data.current.set(dataItem.name, parsed.value);
-    setResult(dataItem.name, parsed.result);
-    return parsed.value as Schema.ValueType<D["_"]>;
+    data.current.set(dataItem.name, newValue);
   };
 
   return [
@@ -429,12 +422,21 @@ const MODE = {
   [MODE_PRIORITY.hidden]: "hidden",
 } satisfies Record<number, Schema.Mode>;
 
+function getDefaultState() {
+  return {
+    enabled: true,
+    disabled: false,
+    readonly: false,
+    hidden: false,
+  } as Record<Schema.Mode, boolean>;
+}
+
 export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
   $,
   ...props
 }: SchemaItemProps<D>, options: {
-  effect: (params: {
-    value: Schema.ValueType<D["_"]> | null | undefined;
+  effect?: (params: {
+    value: Schema.ValueType<D["_"], true, true> | null | undefined;
     result: Schema.Result | null | undefined;
   }) => void;
   effectContext?: (params: {
@@ -459,7 +461,7 @@ export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
         setResult(result);
         setMode(getMode);
         setRequired(getRequired);
-        options.effect({ value, result });
+        options.effect?.({ value, result });
         options.effectContext?.({
           data: schema.data.current,
           dep: schema.dep.current,
@@ -471,7 +473,7 @@ export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
         if (item) {
           setValue(item.value);
           setResult(item.result);
-          options.effect(item);
+          options.effect?.(item);
           isEffected.current = true;
         } else if (params.items.some(item => $._.refs?.some(ref => ref === item.name))) {
           setMode(getMode);
@@ -494,10 +496,10 @@ export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
       case "value": {
         const item = params.items.find(item => item.name === $.name);
         if (item) {
-          setValue(item.value);
-          const result = validation(item.value);
-          setResult(result);
-          options.effect({ value: item.value, result });
+          const submission = effect(item.value);
+          setValue(submission.value);
+          setResult(submission.result);
+          options.effect?.(submission);
           isEffected.current = true;
         } else if (params.items.some(item => $._.refs?.some(ref => ref === item.name))) {
           const result = validation(getValue());
@@ -566,7 +568,7 @@ export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
   const [mode, setMode] = useState(getMode);
 
   function getValue() {
-    return schema.data.current.get($.name);
+    return schema.data.current.get($.name) as Schema.ValueType<D["_"], true, true>;
   };
 
   const [value, setValue] = useState(getValue);
@@ -610,7 +612,10 @@ export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
       dep: schema.dep.current,
       env: schema.env,
       value,
-    });
+    }) as {
+      value: Schema.ValueType<D["_"], true, true>;
+      result: Schema.Result | null | undefined;
+    };
   };
 
   function validation(value: any) {
@@ -629,6 +634,18 @@ export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
     return r;
   };
 
+  function effect(value: any) {
+    const parsed = parse(value);
+    let r = parsed.result;
+    if (!r) {
+      r = validation(parsed.value);
+    }
+    return {
+      value: parsed.value,
+      result: r,
+    } as const;
+  };
+
   useLayoutEffect(() => {
     setRequired(getRequired);
     if (!schema.isInitialize.current && result !== schema.getResult($.name)) {
@@ -639,32 +656,28 @@ export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
     };
   });
 
-  const isHidden = mode === "hidden";
-  const isDisabled = fs.disabled || mode === "disabled";
-  const isReadOnly = fs.readOnly || mode === "readonly";
-  const isEnabled = !isHidden && !isDisabled && !isReadOnly;
+  const stateRef = useRef(getDefaultState());
+  stateRef.current.hidden = mode === "hidden";
+  stateRef.current.disabled = fs.disabled || mode === "disabled";
+  stateRef.current.readonly = fs.readOnly || mode === "readonly";
+  stateRef.current.enabled = !stateRef.current.hidden && !stateRef.current.disabled && !stateRef.current.readonly;
   const isInvalid = result?.type === "e";
 
-  function set(value: any) {
-    const parsed = parse(value);
-    let r = parsed.result;
-    if (!r) {
-      r = validation(parsed.value);
-    }
-    schema.setValueAndResult($.name, parsed.value, r);
+  function set(value: Schema.ValueType<D["_"], false>) {
+    const submission = effect(value);
+    schema.setValueAndResult($.name, submission.value, submission.result);
   };
 
   return {
     props,
     name: $.name,
     label: $.label,
+    value,
+    result,
     dataItem: $,
     mode,
     required,
-    enabled: isEnabled,
-    disabled: isDisabled,
-    readOnly: isReadOnly,
-    hidden: isHidden,
+    state: stateRef,
     getValue,
     setValue: set,
     parse,
@@ -680,6 +693,108 @@ export function useSchemaArray<D extends Schema.DataItem<Schema.$Array>>(dataIte
   watchChildValue?: boolean;
   readOnly?: boolean;
 }) {
-  const key = dataItem._.key;
+  type ArrayType = Exclude<Schema.ValueType<D["_"], true, true>, null | undefined>;
 
+  const schemaItem = useSchemaItem<D>({ $: dataItem, readOnly: options?.readOnly }, {
+    watchChildEffect: options?.watchChildValue ? undefined : () => {
+      setRev(c => c + 1);
+    },
+  });
+
+  const [_, setRev] = useState(0);
+  const [keyRev, setKeyRev] = useState(0);
+
+  function push(
+    value: Partial<ArrayType[number]>,
+    options?: {
+      position?: "first" | "last";
+    }
+  ) {
+    if (!schemaItem.state.current.enabled) return;
+    const arr = schemaItem.getValue() ?? [] as ArrayType;
+    const isFirst = options?.position === "first";
+    schemaItem.setValue((isFirst ? [value, ...arr] : [...arr, value]) as Parameters<typeof schemaItem.setValue>[0]);
+    if (isFirst) setKeyRev(c => c + 1);
+  };
+
+  function bulkPush(
+    values: ArrayType,
+    options?: {
+      position?: "first" | "last";
+    }
+  ) {
+    if (!schemaItem.state.current.enabled) return;
+    const arr = schemaItem.getValue() ?? [];
+    const isFirst = options?.position === "first";
+    schemaItem.setValue((isFirst ? [...values, ...arr] : [...arr, ...values]) as Parameters<typeof schemaItem.setValue>[0]);
+    if (isFirst) setKeyRev(c => c + 1);
+  }
+
+  function remove(index: number) {
+    if (!schemaItem.state.current.enabled) return;
+    const arr = schemaItem.getValue() ?? [] as ArrayType;
+    if (arr == null) return;
+    const isLast = index === (arr.length - 1);
+    const newArr = [...arr];
+    newArr.splice(index, 1);
+    schemaItem.setValue(newArr as Parameters<typeof schemaItem.setValue>[0]);
+    if (!isLast) setKeyRev(c => c + 1);
+  };
+
+  function removeFirst() {
+    if (!schemaItem.state.current.enabled) return;
+    remove(0);
+  };
+
+  function removeLast() {
+    if (!schemaItem.state.current.enabled) return;
+    const arr = schemaItem.getValue();
+    if (arr == null) return;
+    remove(arr.length - 1);
+  };
+
+  function removeAll() {
+    if (!schemaItem.state.current.enabled) return;
+    const arr = schemaItem.getValue();
+    if (arr == null || arr.length === 0) return;
+    schemaItem.setValue([] as any);
+  };
+
+  function map<T>(func: (params: {
+    key: string;
+    value: ArrayType[number];
+    index: number;
+    name: string;
+    dataItem: Schema.DataItem<D["_"]["prop"]>;
+    remove: () => void;
+  }) => T) {
+    return schemaItem.value?.map((value, index) => {
+      const di = dataItem.generateDataItem(index) as Schema.DataItem<D["_"]["prop"]>;
+      const key = typeof dataItem._.key === "function" ?
+        dataItem._.key(value as any) :
+        (value && dataItem._.key) ? (value as Record<string, string>)[dataItem._.key] : `${keyRev}_${index}`;
+      return func({
+        key,
+        value,
+        index,
+        name: di.name,
+        dataItem: di,
+        remove: () => remove(index),
+      });
+    });
+  };
+
+  return {
+    value: schemaItem.value,
+    result: schemaItem.result,
+    mode: schemaItem.mode,
+    isEmpty: schemaItem.value == null || schemaItem.value.length === 0,
+    push,
+    bulkPush,
+    remove,
+    removeFirst,
+    removeLast,
+    removeAll,
+    map,
+  };
 };

@@ -3,7 +3,7 @@ import { $array } from "~/components/schema/array";
 import { $bool } from "~/components/schema/boolean";
 import { $date, $datetime, $month } from "~/components/schema/date";
 import { $file } from "~/components/schema/file";
-import { useSchema, useSchemaContext } from "~/components/schema/hooks";
+import { useSchema, useSchemaArray, useSchemaContext } from "~/components/schema/hooks";
 import { $num } from "~/components/schema/numeric";
 import { $str } from "~/components/schema/string";
 import { $struct } from "~/components/schema/struct";
@@ -160,9 +160,29 @@ function Component1() {
   const { dataItems } = useSchemaContext<typeof schema>();
   console.log(dataItems);
 
+  const array = useSchemaArray(dataItems.structArray);
+
   return (
     <div>
+      <button
+        type="button"
+        onClick={() => {
+          array.push({
+            
+          });
+        }}
+      >
 
+      </button>
+      <ul>
+        {array.map(params => {
+          return (
+            <li key={params.key}>
+              {JSON.stringify(params.value?.age)}
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 };
