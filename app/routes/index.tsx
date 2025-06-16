@@ -164,21 +164,54 @@ function Component1() {
 
   return (
     <div>
-      <button
-        type="button"
-        onClick={() => {
-          array.push({
-            
-          });
-        }}
-      >
-
-      </button>
+      <div className="flex flex-row gap-2">
+        <button
+          type="button"
+          onClick={() => {
+            array.push({
+              name: "hoge"
+            });
+          }}
+        >
+          push last
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            array.push({
+              name: "hogehoge"
+            }, { position: "first" });
+          }}
+        >
+          push first
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            array.bulkPush([
+              { name: "fuga", age: 3 },
+              { name: "piyo" }
+            ])
+          }}
+        >
+          bulk push
+        </button>
+      </div>
       <ul>
         {array.map(params => {
           return (
             <li key={params.key}>
-              {JSON.stringify(params.value?.age)}
+              <span>
+                {JSON.stringify(params.value)}
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  params.remove();
+                }}
+              >
+                delete
+              </button>
             </li>
           );
         })}

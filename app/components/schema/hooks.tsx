@@ -46,6 +46,7 @@ interface SchemaContextProps<S extends Record<string, Schema.$Any> = Record<stri
   getResult: (name: string) => Schema.Result | null | undefined;
   setResult: (name: string, result: Schema.Result | null | undefined) => boolean;
   setResults: (items: Array<{ name: string; result: Schema.Result | null | undefined; }>) => boolean;
+  setValue: (name: string, value: any) => boolean;
   setValueAndResult: (name: string, value: any, result: Schema.Result | null | undefined) => boolean;
   setValuesAndResults: (items: Array<{ name: string; value: any; result: Schema.Result | null | undefined }>) => boolean;
   isInitialize: RefObject<boolean>;
@@ -62,6 +63,7 @@ export const SchemaContext = createContext<SchemaContextProps>({
   getResult: null!,
   setResult: null!,
   setResults: null!,
+  setValue: null!,
   setValueAndResult: null!,
   setValuesAndResults: null!,
   isInitialize: { current: true },
@@ -173,12 +175,19 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
     return change;
   };
 
-
   function setResult(name: string, result: Schema.Result | null | undefined) {
     const change = setResultImpl(name, result);
     if (change) {
       const params: SchemaEffectParameters = { type: "result", items: [{ name, result }] };
       subscribes.current.forEach(f => f(params));
+    }
+    return change;
+  };
+
+  function setValue(name: string, value: any) {
+    let change = false;
+    if (bindData.current._set(name, value)) {
+      change = true;
     }
     return change;
   };
@@ -232,6 +241,7 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
           getResult,
           setResult,
           setResults,
+          setValue,
           setValueAndResult,
           setValuesAndResults,
           isInitialize,
@@ -321,7 +331,7 @@ type SetValue<P extends Schema.$Any> =
   ;
 
 export function useSchemaValue<D extends Schema.DataItem<Schema.$Any>>(dataItem: D) {
-  const { data, dep, env, setResult } = useSchemaEffect((params) => {
+  const schema = useSchemaEffect((params) => {
     switch (params.type) {
       case "data":
         setValue(getValue);
@@ -340,12 +350,12 @@ export function useSchemaValue<D extends Schema.DataItem<Schema.$Any>>(dataItem:
   const [value, setValue] = useState(getValue());
 
   function getValue() {
-    return data.current.get(dataItem.name) as Schema.ValueType<D["_"]>;
+    return schema.data.current.get(dataItem.name) as Schema.ValueType<D["_"]>;
   };
 
   function set(value: SetValue<D["_"]>) {
     const newValue = typeof value === "function" ? value(getValue()) : value;
-    data.current.set(dataItem.name, newValue);
+    schema.setValue(dataItem.name, newValue);
   };
 
   return [
@@ -557,7 +567,7 @@ export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
       env: schema.env,
     };
     let mode: keyof typeof MODE = MODE_PRIORITY[$._.mode?.(modeParams) ?? "enabled"];
-    while (parent) {
+    while (parent?.name) {
       if (mode === MODE_PRIORITY.hidden) break;
       mode = Math.max(MODE_PRIORITY[parent._.mode?.(modeParams) ?? "enabled"]);
       parent = parent.parent;
@@ -718,7 +728,7 @@ export function useSchemaArray<D extends Schema.DataItem<Schema.$Array>>(dataIte
   };
 
   function bulkPush(
-    values: ArrayType,
+    values: Array<Partial<ArrayType[number]>>,
     options?: {
       position?: "first" | "last";
     }
