@@ -1,0 +1,196 @@
+@layer components {
+
+  /* form items */
+  .form-item {
+    @apply align-top relative;
+    @apply inline-flex flex-col flex-nowrap justify-start items-start gap-0.5;
+  }
+
+  .ipt {
+    @apply align-top relative;
+    @apply inline-flex flex-row;
+    @apply min-w-0 max-w-full min-h-input;
+    @apply text-input;
+  }
+
+  .ipt-field {
+    @apply flex-nowrap justify-stretch items-stretch;
+    @apply bg-input-bg border border-transparent rounded-input;
+    transition: border-color 0.2s;
+
+    &:focus-within {
+      @apply outline-2;
+    }
+  }
+
+  .ipt-field-enabled {
+    @apply border-input-bd;
+
+    &:has(:is(input[aria-invalid]:not([type="hidden"]), select[aria-invalid], textarea[aria-invalid])) {
+      @apply text-input-err bg-input-err-bg border-input-err-bd outline-input-err-bd;
+    }
+  }
+
+  .ipt-field-disabled {
+    @apply opacity-disabled;
+  }
+
+  .ipt-group {
+    @apply flex-wrap justify-start items-center;
+  }
+
+  .ipt-msg {
+    @apply relative block max-w-full;
+    @apply text-base text-error;
+  }
+
+  .ipt-main {
+    @apply appearance-none outline-none bg-transparent px-input-pad-x;
+  }
+
+  .ipt-label {
+    @apply align-top;
+    @apply min-w-0 max-w-full min-h-input;
+    @apply inline-flex flex-row flex-nowrap justify-start items-center;
+    @apply rounded-input;
+    @apply select-none;
+
+    &:is(:focus-within, :has(input:enabled:active)) {
+      @apply outline-2;
+    }
+
+    &:has(input[aria-disabled="true"]) {
+      @apply opacity-disabled;
+    }
+
+    &:has(input:enabled:not([type="hidden"])) {
+      @apply cursor-pointer;
+    }
+
+    &:has(input[aria-invalid]) {
+      @apply outline-input-err-bd;
+    }
+  }
+
+  .ipt-point {
+    @apply appearance-none outline-none;
+    @apply relative;
+    @apply w-input h-input;
+    @apply cursor-[inherit];
+
+    &::before {
+      @apply absolute inset-1/5 content-[''];
+      @apply bg-input-bg border border-transparent;
+      transition: border-color 0.2s;
+    }
+
+    &::after {
+      @apply absolute content-[''];
+      @apply opacity-0;
+      @apply transition-opacity duration-75 ease-linear;
+    }
+
+    &:enabled {
+      &::before {
+        @apply border-input-bd;
+      }
+
+      &[aria-invalid] {
+        &::before {
+          @apply bg-input-err-bg border-input-err-bd;
+        }
+      }
+    }
+
+    &:checked {
+      &::after {
+        @apply opacity-100;
+      }
+    }
+  }
+
+  .ipt-label-text {
+    @apply select-none pr-input-pad-x;
+  }
+
+  .ipt-btn {
+    @apply z-0 absolute top-0 right-0 w-input-btn h-full;
+    @apply select-none;
+    @apply bg-input;
+    @apply mask-[var(--image-down)] mask-size-[40%] mask-center mask-no-repeat;
+    @apply transition-transform duration-150 ease-in-out;
+  }
+
+  .ipt-placeholder {
+    @apply z-0 absolute inset-0 w-full;
+    @apply flex flex-row justify-start items-center;
+    @apply pl-input-pad-x pr-input-pad-btn;
+    @apply text-placeholder;
+  }
+
+  .ipt-select {
+    @apply z-[1] pr-input-pad-btn;
+
+    &:enabled {
+      cursor: pointer;
+    }
+
+    &:has(option[value=""][data-notext="false"], option[value=""][data-notext="true"]:not(:checked)) {
+      &+.ipt-placeholder {
+        @apply hidden;
+      }
+    }
+
+    &:open {
+      &~.ipt-btn {
+        @apply rotate-x-180;
+      }
+    }
+  }
+
+  .ipt-radio {
+    &::before {
+      @apply rounded-full;
+    }
+
+    &::after {
+      inset: calc(20% + 5px);
+      @apply bg-input;
+      @apply rounded-full;
+    }
+  }
+
+  .ipt-check {
+    &::before {
+      @apply rounded-input;
+    }
+
+    &::after {
+      @apply inset-1/5 rounded-input;
+      @apply bg-input;
+      @apply mask-[var(--image-check)] mask-contain mask-center mask-no-repeat;
+    }
+  }
+
+  .ipt-file {
+    @apply relative w-full h-full min-h-full z-[1];
+    @apply px-input-pad-x leading-[calc(var(--spacing-input)-2px)];
+    @apply bg-transparent select-none;
+
+    &::file-selector-button {
+      @apply hidden;
+    }
+  }
+
+  .ipt-outer-spin-button {
+    @apply absolute right-0 z-[1];
+    @apply w-input-btn h-full flex flex-col;
+  }
+
+  .ipt-inner-spin-button {
+    @apply w-full flex-1/2;
+    @apply bg-input;
+    @apply mask-size-[40%] mask-no-repeat;
+  }
+
+}

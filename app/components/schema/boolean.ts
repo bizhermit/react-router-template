@@ -50,6 +50,8 @@ export function $bool<Props extends Schema.BooleanProps>(props?: Props) {
     type: "bool",
     trueValue,
     falseValue,
+    trueText: props?.trueText,
+    falseText: props?.falseText,
     label: props?.label,
     mode: props?.mode,
     refs: props?.refs,

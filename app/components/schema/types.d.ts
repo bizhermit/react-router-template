@@ -58,14 +58,21 @@ namespace Schema {
     (params: ValidationParams<V> & P): string;
   };
 
-  interface DynamicValidationValue<T, V> {
-    (params: ValidationParams<V>): T;
+  interface DynamicValidationValueParams {
+    label: string;
+    data: Data;
+    dep: Record<string, any>;
+    env: Env;
+  };
+
+  interface DynamicValidationValue<T> {
+    (params: Schema.DynamicValidationValueParams): T;
   };
 
   type Validation<T, V, P = {}> =
     | T
-    | DynamicValidationValue<T, V>
-    | [T | DynamicValidationValue<T, V>, CustomValidationMessage<V, P>?]
+    | DynamicValidationValue<T>
+    | [T | DynamicValidationValue<T>, CustomValidationMessage<V, P>?]
     ;
 
   type ValidationArray<T extends Validation<any, any>> =
@@ -80,12 +87,12 @@ namespace Schema {
     (params: ValidationParams<any> & PickCustomValidationMessageAddonParams<T>): string;
   };
 
-  type $ValidationValue<T> = undefined | T | DynamicValidationValue<T, any>;
+  type $ValidationValue<T> = undefined | T | DynamicValidationValue<T>;
 
   type GetValidationValue<Props extends any, Key extends keyof Props> =
     Props extends { [K in Key]: infer R } ? ValidationArray<R>[0] : undefined
 
-  type GetSource<T extends Source<any> | DynamicValidationValue<Source<any>, any> | undefined> =
+  type GetSource<T extends Source<any> | DynamicValidationValue<Source<any>> | undefined> =
     T extends Array<any> ? T :
     T extends () => any ? T :
     undefined;
@@ -131,7 +138,7 @@ namespace Schema {
   interface StringProps<V extends string = string> extends BaseProps {
     parser?: Parser<V>;
     required?: Validation<boolean, V>;
-    source?: Source<V> | DynamicValidationValue<Source<V>, V>;
+    source?: Source<V> | DynamicValidationValue<Source<V>>;
     sourceValidationMessage?: CustomValidationMessage<V, { source: Source<V> }>;
     len?: Validation<number, V, { length: number; currentLength: number; }>;
     min?: Validation<number, V, { minLength: number; currentLength: number; }>;
@@ -144,7 +151,7 @@ namespace Schema {
     type: "str";
     label: string | undefined;
     parser: Parser<V>;
-    source: Source<V> | DynamicValidationValue<Source<V>, V> | undefined;
+    source: Source<V> | DynamicValidationValue<Source<V>> | undefined;
     validators: Array<Validator<V>>;
     required: $ValidationValue<boolean>;
     length: $ValidationValue<number>;
@@ -156,7 +163,7 @@ namespace Schema {
   interface NumericProps<V extends number = number> extends BaseProps {
     parser?: Parser<V>;
     required?: Validation<boolean, V>;
-    source?: Source<V> | DynamicValidationValue<Source<V>, V>;
+    source?: Source<V> | DynamicValidationValue<Source<V>>;
     sourceValidationMessage?: CustomValidationMessage<V, { source: Source<V> }>;
     min?: Validation<number, V, { min: number }>;
     max?: Validation<number, V, { max: number }>;
@@ -168,7 +175,7 @@ namespace Schema {
     type: "num";
     label: string | undefined;
     parser: Parser<V>;
-    source: Source<V> | DynamicValidationValue<Source<V>, V> | undefined;
+    source: Source<V> | DynamicValidationValue<Source<V>> | undefined;
     validators: Array<Validator<V>>;
     required: $ValidationValue<boolean>;
     min: $ValidationValue<number>;
@@ -200,6 +207,8 @@ namespace Schema {
     label: string | undefined;
     trueValue: TV,
     falseValue: FV,
+    trueText: string | undefined;
+    falseText: string | undefined;
     parser: Parser<TV | FV>;
     validators: Array<Validator<TV | FV>>;
     required: $ValidationValue<boolean>;
@@ -398,7 +407,7 @@ namespace Schema {
   type DataItems<Props extends Record<string, $Any>> =
     { -readonly [K in keyof Props]: DataItem<Props[K]> };
 
-  type RequiredValue<V, R extends boolean | DynamicValidationValue<boolean, any>, O extends boolean = false> =
+  type RequiredValue<V, R extends boolean | DynamicValidationValue<boolean>, O extends boolean = false> =
     O extends true ? V | null | undefined :
     R extends true ? V :
     R extends (...args?: any[]) => true ? V :
@@ -423,15 +432,15 @@ namespace Schema {
       ) :
       T extends "date" ? (
         Strict extends true ? RequiredValue<DateString, Props["required"], Optional> :
-        DateValueString | Date | null | undefined
+        string | Date | null | undefined
       ) :
       T extends "month" ? (
         Strict extends true ? RequiredValue<MonthString, Props["required"], Optional> :
-        DateValueString | Date | null | undefined
+        string | Date | null | undefined
       ) :
       T extends "datetime" ? (
         Strict extends true ? RequiredValue<Props["time"] extends "hms" ? DateTime_HMS_String : DateTime_HM_String, Props["required"], Optional> :
-        DateValueString | Date | null | undefined
+        string | Date | null | undefined
       ) :
       T extends `sdate-${SplitDateTarget}` ? (
         Strict extends true ? RequiredValue<number, Props["required"], Optional> :

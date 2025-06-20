@@ -301,7 +301,7 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
     SchemaProvider,
     dataItems: dataItems.current,
     getData: function () {
-      return clone(bindData.current);
+      return clone(bindData.current.getData());
     },
   } as const;
 };
@@ -453,6 +453,7 @@ export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
     data: SchemaData;
     dep: Record<string, any>;
     env: Schema.Env;
+    label: string;
   }) => void;
   watchChildEffect?: (params: SchemaEffectParameters) => void;
 }) {
@@ -476,6 +477,7 @@ export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
           data: schema.data.current,
           dep: schema.dep.current,
           env: schema.env,
+          label: $.label,
         });
         break;
       case "value-result": {
@@ -492,6 +494,7 @@ export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
             data: schema.data.current,
             dep: schema.dep.current,
             env: schema.env,
+            label: $.label,
           });
           isEffected.current = true;
         } else {
@@ -519,6 +522,7 @@ export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
             data: schema.data.current,
             dep: schema.dep.current,
             env: schema.env,
+            label: $.label,
           });
           if (schema.setResult($.name, result)) {
             isEffected.current = true;
@@ -547,6 +551,7 @@ export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
           data: schema.data.current,
           dep: schema.dep.current,
           env: schema.env,
+          label: $.label,
         });
         break;
       default:
@@ -609,7 +614,6 @@ export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
         dep: schema.dep.current,
         env: schema.env,
         label: $.label,
-        value: getValue(),
       });
     }
     return $._.required === true;
@@ -670,12 +674,19 @@ export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
   stateRef.current.hidden = mode === "hidden";
   stateRef.current.disabled = fs.disabled || mode === "disabled";
   stateRef.current.readonly = fs.readOnly || mode === "readonly";
-  stateRef.current.enabled = !stateRef.current.hidden && !stateRef.current.disabled && !stateRef.current.readonly;
+  stateRef.current.enabled = !stateRef.current.hidden
+    && !stateRef.current.disabled
+    && !stateRef.current.readonly;
   const isInvalid = result?.type === "e";
 
-  function set(value: Schema.ValueType<D["_"], false>) {
+  function set(value: Schema.ValueType<D["_"], false> | null | undefined) {
     const submission = effect(value);
-    schema.setValueAndResult($.name, submission.value, submission.result);
+    schema.setValueAndResult(
+      $.name,
+      submission.value,
+      submission.result
+    );
+    return submission;
   };
 
   return {
@@ -693,7 +704,9 @@ export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
     parse,
     validation,
     invalid: isInvalid,
-    errormessage: isInvalid && result.message,
+    errormessage: isInvalid ? result.message : undefined,
+    data: schema.data.current,
+    dep: schema.dep.current,
     env: schema.env,
     validScripts: schema.isValidScripts.current,
   } as const;

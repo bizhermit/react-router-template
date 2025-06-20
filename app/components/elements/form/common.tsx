@@ -1,0 +1,145 @@
+import type { HTMLAttributes, ReactNode, RefObject } from "react";
+import { clsx } from "../utilities";
+import { InputMessageSpan } from "./message";
+
+export type InputWrapProps = {
+  hideMessage?: boolean;
+};
+
+type CoreProps = {
+  core?: {
+    classNames?: string;
+    state: RefObject<Record<Schema.Mode, boolean>>;
+    result?: Schema.Result | null | undefined;
+  };
+};
+
+export function InputField({
+  className,
+  hideMessage,
+  core,
+  children,
+  ...props
+}: HTMLAttributes<HTMLDivElement> & InputWrapProps & CoreProps) {
+  if (core?.state.current.hidden) return null;
+
+  return (
+    <>
+      <div
+        {...props}
+        className={clsx(
+          "ipt ipt-field",
+          core?.classNames,
+          core?.state.current.enabled && "ipt-field-enabled",
+          core?.state.current.disabled && "ipt-field-disabled",
+          core?.state.current.readonly && "ipt-field-readonly",
+          className,
+        )}
+      >
+        {children}
+      </div>
+      {!hideMessage && core?.state.current.enabled &&
+        <InputMessageSpan result={core.result} />
+      }
+    </>
+  );
+};
+
+export function InputGroup({
+  className,
+  hideMessage,
+  core,
+  ref,
+  ...props
+}: HTMLAttributes<HTMLDivElement> & InputWrapProps & CoreProps & { ref?: RefObject<HTMLDivElement> }) {
+  if (core?.state.current.hidden) return null;
+  return (
+    <>
+      <div
+        {...props}
+        ref={ref}
+        className={clsx(
+          "ipt ipt-group",
+          core?.classNames,
+          className,
+        )}
+      />
+      {!hideMessage && core?.state.current.enabled &&
+        <InputMessageSpan result={core.result} />
+      }
+    </>
+  );
+};
+
+export function InputLabel({
+  className,
+  hideMessage,
+  core,
+  ...props
+}: HTMLAttributes<HTMLLabelElement> & InputWrapProps & CoreProps) {
+  if (core?.state.current.hidden) return null;
+
+  return (
+    <>
+      <label
+        {...props}
+        className={clsx(
+          "ipt-label",
+          core?.classNames,
+          className,
+        )}
+      />
+      {!hideMessage && core?.state.current.enabled &&
+        <InputMessageSpan result={core.result} />
+      }
+    </>
+  );
+};
+
+export function InputLabelText({
+  children,
+}: { children?: ReactNode }) {
+  if (!children) return;
+  return <span className="ipt-label-text">{children}</span>
+}
+
+export function Placeholder({
+  children,
+}: { children?: string }) {
+  if (!children) return null;
+  return (
+    <div className="ipt-placeholder">
+      <span className="w-full overflow-hidden">
+        {children}
+      </span>
+    </div>
+  );
+};
+
+type FormItemProps = HTMLAttributes<HTMLDivElement> & {
+};
+
+export function FormItem({
+  className,
+  children,
+  ...props
+}: FormItemProps) {
+  return (
+    <div
+      {...props}
+      className={clsx("form-item", className)}
+    >
+      {children}
+    </div>
+  );
+};
+
+export function getValidationValue<T extends Schema.$ValidationValue<any>>(
+  params: Schema.DynamicValidationValueParams,
+  validationValue: T,
+): T extends ((...args: any[]) => infer V) ? V : T  {
+  type V = T extends ((...args: any[]) => infer V) ? V : T;
+  if (validationValue == null) return undefined as V;
+  if (typeof validationValue === "function") return validationValue(params) as V;
+  return validationValue as V;
+};

@@ -696,3 +696,12 @@ export function $datetime<Props extends Schema.DateTimeProps>(props?: Props) {
     },
   } as const satisfies Schema.$DateTime;
 };
+
+export function parseDateString(
+  date: string | Date | null | undefined, 
+  type: "date" | "month" | "datetime",
+  time?: "hms" | "hm",
+) {
+  if (date == null) return undefined;
+  return "2025-11-12";
+};

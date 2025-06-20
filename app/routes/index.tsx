@@ -1,3 +1,4 @@
+import { TextBox } from "~/components/elements/form/text-box";
 import { $schema, parseWithSchema } from "~/components/schema";
 import { $array } from "~/components/schema/array";
 import { $bool } from "~/components/schema/boolean";
@@ -141,7 +142,7 @@ const submittion = parseWithSchema({
 console.log(performance.now() - start);
 
 export default function Page() {
-  const { SchemaProvider, dataItems } = useSchema({
+  const { SchemaProvider, dataItems, getData } = useSchema({
     schema,
   });
 
@@ -151,7 +152,20 @@ export default function Page() {
     <SchemaProvider>
       <div>
       </div>
-      <Component1 />
+      <form
+        noValidate
+        onSubmit={e => {
+          e.stopPropagation();
+          e.preventDefault();
+          console.log(getData());
+        }}
+      >
+        <Component1 />
+        <Component2 />
+        <button type="submit">
+          submit
+        </button>
+      </form>
     </SchemaProvider>
   );
 }
@@ -219,3 +233,13 @@ function Component1() {
     </div>
   );
 };
+
+function Component2() {
+  const { dataItems } = useSchemaContext<typeof schema>();
+
+  return (
+    <div>
+      <TextBox $={dataItems.text} />
+    </div>
+  );
+}
