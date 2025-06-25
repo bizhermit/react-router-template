@@ -5,7 +5,7 @@ export function parseNumber(value: any): [number: number | undefined, succeeded:
     return [value, true];
   }
   const str = String(value).trim();
-  if (str === "") return [undefined, true];
+  if (str === "") return [undefined, false];
   const num = Number(str.replace(/[０-９，．＋－ー]/g, s => {
     switch (s) {
       case '，': return ',';
