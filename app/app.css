@@ -1,19 +1,140 @@
 @import "tailwindcss";
 
+@theme {
+  /* https://tailwindcss.com/docs/theme */
+  /* --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"; */
+
+  --text-xs: 1.2rem;
+  --text-sm: 1.4rem;
+  --text-base: 1.6rem;
+  --text-lg: 1.8rem;
+  --text-xl: 2.0rem;
+
+  --color-bg: #eee;
+  --color-fg: #111;
+
+  /* loadingbar */
+  --spacing-loadingbar1: 25%;
+  --spacing-loadingbar2: 15%;
+
+  /* input */
+  --color-input: #111;
+  --color-input-bg: #fff;
+  --color-input-bd: #000;
+  --color-input-err: #111;
+  --color-input-err-bg: #fdd;
+  --color-input-err-bd: #f00;
+  --color-placeholder: #888;
+  --color-error: #f00;
+  --color-hover: #b8e6fe;
+  --color-active: #b8e6fe;
+  --spacing-input: 3.2rem;
+  --spacing-input-pad-x: calc(var(--spacing-input) / 4);
+  --spacing-input-pad-y: calc(var(--spacing-input) / 12);
+  --spacing-input-pad-btn: calc(var(--spacing-input) * 0.85);
+  --spacing-input-btn: calc(var(--spacing-input) * 0.75);
+  --radius-input: 2px;
+  --opacity-disabled: 0.5;
+  --image-check: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M20 50 L40 70 L80 30" stroke="currentColor" stroke-width="0.75rem" fill="none" stroke-linecap="round" /></svg>');
+  --image-down: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M10,32.5l40,40 40,-40" stroke="currentColor" stroke-width="0.75rem" fill="none" stroke-linecap="round" /></svg>');
+  --image-up: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M10,67.5l40,-40 40,40' stroke='currentColor' stroke-width='0.75rem' fill='none' stroke-linecap='round'/></svg>");
+}
+
 :root {
   @media (prefers-color-scheme: dark) {
     color-scheme: dark;
+
+    --color-bg: #2c2c2c;
+    --color-fg: #ddd;
+    --color-input: #ddd;
+    --color-input-bg: #222;
+    --color-input-err: #ddd;
+    --color-input-err-bg: #322;
+    --color-input-err-bd: #f57;
+    --color-error: #f57;
+    --color-input-bd: #ccc;
+    --color-hover: #024a70;
+    --color-active: #024a70;
   }
 }
 
 @layer base {
 
   html {
+    @apply bg-bg text-fg;
     font-size: 62.5%;
+
+    @media (prefers-color-scheme: dark) {
+      color-scheme: dark;
+    }
   }
 
   body {
     font-size: 1.6rem;
   }
 
+  ::placeholder {
+    color: var(--color-placeholder);
+  }
+
 }
+
+
+@layer components {
+  .loading-bar {
+    @apply fixed top-0 left-0 w-full h-1 z-[9999] overflow-hidden bg-transparent;
+
+    &::before,
+    &::after {
+      @apply absolute content-[""] h-full top-0;
+      @apply bg-blue-500;
+      
+      animation-timing-function: ease-in-out;
+      animation-duration: 3s;
+      animation-iteration-count: infinite;
+      animation-direction: normal;
+    }
+
+    &::before {
+      @apply w-loadingbar1 -left-loadingbar1;
+      animation-name: loadingBar1;
+    }
+
+    &::after {
+      @apply w-loadingbar2 -left-loadingbar2;
+      animation-name: loadingBar2;
+      animation-delay: 1.2s;
+    }
+  }
+
+}
+
+@keyframes loadingBar1 {
+  0% {
+    left: calc(var(--spacing-loadingbar1) * -1);
+  }
+
+  70% {
+    left: calc(var(--spacing-loadingbar1) + 100%);
+  }
+
+  100% {
+    left: calc(var(--spacing-loadingbar1) + 100%);
+  }
+}
+
+@keyframes loadingBar2 {
+  0% {
+    left: calc(var(--spacing-loadingbar2) * -1);
+  }
+
+  70% {
+    left: calc(var(--spacing-loadingbar2) + 100%);
+  }
+
+  100% {
+    left: calc(var(--spacing-loadingbar2) + 100%);
+  }
+}
+
+@import "./components/elements/form/style.css";

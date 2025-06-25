@@ -128,7 +128,7 @@ export function parseWithSchema<$Schema extends Record<string, any>>(params: {
     data: data.getData(),
     hasError: Object.keys(results).some(k => results[k].type === "e"),
     results,
-    dataItems,
+    dataItems: params.createDataItems ? dataItems : undefined,
   } as ({
     hasError: true;
     data: Schema.SchemaValue<$Schema, true>;

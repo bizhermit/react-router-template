@@ -101,7 +101,7 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
             hidden={required}
             data-notext={isEmpty(emptyText)}
           >
-            {emptyText || "\u00a0"}
+            {emptyText || "\u200B"}
           </option>
           {
             source.map(item => {

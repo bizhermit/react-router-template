@@ -12,10 +12,6 @@ export type NumericBoxProps<D extends Schema.DataItem<Schema.$Numeric>> = InputW
 const UP_DOWN_ROOP_WAIT = 500;
 const UP_DOWN_INTERVAL = 50;
 
-function optimizeValue(value: string) {
-  return (value || "").replace(/[０-９，．]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
-};
-
 function preventParse(result: Schema.Result | null | undefined) {
   return result?.type === "e" && (
     result.code === "parse" ||
@@ -30,6 +26,8 @@ export function NumericBox<D extends Schema.DataItem<Schema.$Numeric>>({
 }: NumericBoxProps<D>) {
   const ref = useRef<HTMLInputElement>(null!);
   const $step = Math.abs(step || 1);
+
+  const isComposing = useRef(false);
 
   const {
     name,
@@ -60,7 +58,7 @@ export function NumericBox<D extends Schema.DataItem<Schema.$Numeric>>({
         }
         return format(value);
       })();
-      if (ref.current.value !== sv) ref.current.value = sv;
+      if (!isComposing.current && ref.current.value !== sv) ref.current.value = sv;
     },
     effectContext: function() {
       setMin(getMin);
@@ -98,25 +96,15 @@ export function NumericBox<D extends Schema.DataItem<Schema.$Numeric>>({
     } as const;
   }, [float]);
 
-  const [isComposing, setComposing] = useState(false);
-
-  function setParsedValue(str: string) {
-    const num = parse(str);
-    if (num == null) {
-      setValue(null);
-    } else if (!isNaN(num)) {
-      setValue(num);
-    }
-  };
-
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
     if (!state.current.enabled) return;
     const rawValue = e.currentTarget.value;
-    setParsedValue(isComposing ? rawValue : optimizeValue(rawValue))
+    setValue(rawValue as `${number}`);
   };
 
   function handleFocus(e: FocusEvent<HTMLInputElement>) {
     if (!state.current.enabled) return;
+    if (preventParse(result)) return;
     const num = parse(getValue());
     e.currentTarget.value = num == null || isNaN(num) ? "" : String(num);
   };
@@ -128,17 +116,11 @@ export function NumericBox<D extends Schema.DataItem<Schema.$Numeric>>({
   };
 
   function handleCompositionStart(e: CompositionEvent<HTMLInputElement>) {
-    setComposing(true);
+    isComposing.current = true;
   };
 
   function handleCompositionEnd(e: CompositionEvent<HTMLInputElement>) {
-    setComposing(false);
-    const rawValue = ref.current.value;
-    const value = optimizeValue(rawValue);
-    if (value !== rawValue) {
-      ref.current.value = value;
-      setParsedValue(value);
-    }
+    isComposing.current = false;
   };
 
   function format(value: any) {
@@ -187,6 +169,11 @@ export function NumericBox<D extends Schema.DataItem<Schema.$Numeric>>({
         if (state.current.enabled) {
           decrement();
           e.preventDefault();
+        }
+        break;
+      case "Enter":
+        if (!isComposing.current) {
+          ref.current.value = String(value ?? "");
         }
         break;
       default: break;

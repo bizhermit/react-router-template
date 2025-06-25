@@ -126,7 +126,7 @@ export function FileBox<D extends Schema.DataItem<Schema.$File>>({
           className={clsx(
             "ipt-file",
             state.current.enabled && "cursor-pointer",
-            validScripts && !!placeholder && "absolute opacity-0",
+            validScripts && placeholder && "absolute opacity-0",
           )}
           ref={ref}
           type="file"

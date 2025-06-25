@@ -30,12 +30,20 @@ export function InputField({
         className={clsx(
           "ipt ipt-field",
           core?.classNames,
-          core?.state.current.enabled && "ipt-field-enabled",
-          core?.state.current.disabled && "ipt-field-disabled",
-          core?.state.current.readonly && "ipt-field-readonly",
           className,
         )}
       >
+        <fieldset
+          aria-hidden
+          className={clsx(
+            "ipt-field-appearance",
+            core?.state.current.enabled && "ipt-field-enabled",
+            core?.state.current.disabled && "ipt-field-disabled",
+            core?.state.current.readonly && "ipt-field-readonly",
+          )}
+        >
+          <legend>{"\u200B"}</legend>
+        </fieldset>
         {children}
       </div>
       {!hideMessage && core?.state.current.enabled &&
@@ -137,7 +145,7 @@ export function FormItem({
 export function getValidationValue<T extends Schema.$ValidationValue<any>>(
   params: Schema.DynamicValidationValueParams,
   validationValue: T,
-): T extends ((...args: any[]) => infer V) ? V : T  {
+): T extends ((...args: any[]) => infer V) ? V : T {
   type V = T extends ((...args: any[]) => infer V) ? V : T;
   if (validationValue == null) return undefined as V;
   if (typeof validationValue === "function") return validationValue(params) as V;

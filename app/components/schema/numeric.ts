@@ -4,7 +4,24 @@ function NUMERIC_PARSER({ value, env }: Schema.ParserParams): Schema.ParserResul
   if (value == null || value === "") {
     return { value: undefined };
   }
-  const num = Number(value);
+  if (typeof value === "number") {
+    if (isNaN(value)) {
+      return { value: undefined };
+    }
+    return { value };
+  }
+  const num = Number(String(value ?? "").replace(/[０-９，．＋－ー]/g, s => {
+    switch (s) {
+      case '，': return ',';
+      case '．': return '.';
+      case '＋': return '+';
+      case "ー":
+      case '－':
+        return '-';
+      default:
+        return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
+    }
+  }));
   if (num == null || isNaN(num)) {
     return {
       value: undefined,

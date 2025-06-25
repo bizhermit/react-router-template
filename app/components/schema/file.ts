@@ -120,7 +120,7 @@ export function $file<Props extends Schema.FileProps>(props?: Props) {
   if (required) {
     const getMessage: Schema.MessageGetter<typeof getRequiredMessage> = getRequiredMessage ?
       getRequiredMessage :
-      (p) => p.env.t("入力してください。");
+      (p) => p.env.t("選択してください。");
 
     if (typeof required === "function") {
       validators.push((p) => {

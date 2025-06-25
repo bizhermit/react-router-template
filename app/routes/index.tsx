@@ -1,3 +1,11 @@
+import { CheckBox } from "~/components/elements/form/check-box";
+import { FormItem } from "~/components/elements/form/common";
+import { DateBox } from "~/components/elements/form/date-box";
+import { FileBox } from "~/components/elements/form/file-box";
+import { NumericBox } from "~/components/elements/form/numeric-box";
+import { RadioButtons } from "~/components/elements/form/radio-buttons";
+import { SelectBox } from "~/components/elements/form/select-box";
+import { TextArea } from "~/components/elements/form/text-area";
 import { TextBox } from "~/components/elements/form/text-box";
 import { $schema, parseWithSchema } from "~/components/schema";
 import { $array } from "~/components/schema/array";
@@ -8,6 +16,8 @@ import { useSchema, useSchemaArray, useSchemaContext } from "~/components/schema
 import { $num } from "~/components/schema/numeric";
 import { $str } from "~/components/schema/string";
 import { $struct } from "~/components/schema/struct";
+import type { Route } from "./+types";
+import { data, useFetcher } from "react-router";
 
 const text = $str(
   {
@@ -24,6 +34,8 @@ const birth = $date();
 
 const schema = $schema({
   text: $str({
+    required: true,
+    min: 4,
     pattern: "email",
   }),
   // requiredText: $str({
@@ -32,9 +44,9 @@ const schema = $schema({
   // dynamicRequiredText: $str({
   //   required: () => true,
   // }),
-  // customMessageText: $str({
-  //   required: [true, () => "入力しない場合、あなたの命は保証されません。"],
-  // }),
+  customMessageText: $str({
+    required: [true, () => "入力しない場合、あなたの命は保証されません。"],
+  }),
   // customDynamicRequiredText: $str({
   //   required: [() => true, () => "入力しなくても命だけは獲らないでいてやる。"],
   // }),
@@ -112,38 +124,71 @@ const schema = $schema({
   }),
 });
 
-type SchemaValue = Schema.SchemaValue<typeof schema>;
-type TolerantSchemaValue = Schema.TolerantSchemaValue<typeof schema>;
+// type SchemaValue = Schema.SchemaValue<typeof schema>;
+// type TolerantSchemaValue = Schema.TolerantSchemaValue<typeof schema>;
 
-const start = performance.now();
-const submittion = parseWithSchema({
-  schema,
-  env: {
-    isServer: true,
-    t: (k) => k,
-  },
-  dep: {},
-  data: {
-    text: "hogefuga",
-    sourceText: "hoge",
-    count: 10,
-    array: [1, 2, 3],
-    structArray: [
-      { name: "hoge" },
-      { age: 2 },
-      { birth: "2025-06-15" },
-    ],
-    struct: {
+// const start = performance.now();
+// const submittion = parseWithSchema({
+//   schema,
+//   env: {
+//     isServer: true,
+//     t: (k) => k,
+//   },
+//   dep: {},
+//   data: {
+//     text: "hogefuga",
+//     sourceText: "hoge",
+//     count: 10,
+//     array: [1, 2, 3],
+//     structArray: [
+//       { name: "hoge" },
+//       { age: 2 },
+//       { birth: "2025-06-15" },
+//     ],
+//     struct: {
 
-    },
-  } satisfies TolerantSchemaValue,
-})
+//     },
+//   } satisfies TolerantSchemaValue,
+// })
 // console.log(submittion);
-console.log(performance.now() - start);
+// console.log(performance.now() - start);
 
-export default function Page() {
-  const { SchemaProvider, dataItems, getData } = useSchema({
+export async function action(args: Route.ActionArgs) {
+  console.log("-----------------");
+  const start = performance.now();
+
+  const formData = await args.request.formData();
+  const submittion = parseWithSchema({
+    data: formData,
+    env: {
+      isServer: true,
+      t: (k) => k,
+    },
     schema,
+  });
+  console.log(submittion);
+  console.log(performance.now() - start);
+  console.log("-----------------");
+
+  return data({
+    data: submittion.data,
+    results: submittion.results,
+  });
+};
+
+export default function Page(props: Route.ComponentProps) {
+  const fetcher = useFetcher();
+
+  const { SchemaProvider, getData } = useSchema({
+    schema,
+    data: fetcher.data ? fetcher.data.data :
+      props.actionData ? props.actionData.data :
+        // props.loaderData ? props.loaderData.data :
+        undefined,
+    results: fetcher.data ? fetcher.data.results :
+      props.actionData ? props.actionData.results :
+        // props.loaderData ? props.loaderData.results :
+        undefined,
   });
 
   // console.log(dataItems);
@@ -152,11 +197,13 @@ export default function Page() {
     <SchemaProvider>
       <div>
       </div>
-      <form
+      <fetcher.Form
+        method="post"
+        encType="multipart/form-data"
         noValidate
         onSubmit={e => {
-          e.stopPropagation();
-          e.preventDefault();
+          // e.stopPropagation();
+          // e.preventDefault();
           console.log(getData());
         }}
       >
@@ -165,14 +212,13 @@ export default function Page() {
         <button type="submit">
           submit
         </button>
-      </form>
+      </fetcher.Form>
     </SchemaProvider>
   );
 }
 
 function Component1() {
   const { dataItems } = useSchemaContext<typeof schema>();
-  console.log(dataItems);
 
   const array = useSchemaArray(dataItems.structArray);
 
@@ -238,8 +284,71 @@ function Component2() {
   const { dataItems } = useSchemaContext<typeof schema>();
 
   return (
-    <div>
-      <TextBox $={dataItems.text} />
+    <div className="flex flex-row flex-wrap gap-2">
+      <FormItem>
+        <TextBox
+          $={dataItems.text}
+          placeholder="テキスト"
+        />
+      </FormItem>
+      <FormItem>
+        <NumericBox
+          $={dataItems.count}
+          placeholder="数値"
+        />
+      </FormItem>
+      <FormItem>
+        <SelectBox
+          $={dataItems.generation}
+          placeholder="世代"
+        />
+      </FormItem>
+      <FormItem>
+        <CheckBox
+          $={dataItems.check}
+        >
+          Check
+        </CheckBox>
+      </FormItem>
+      <FormItem>
+        <CheckBox
+          $={dataItems.numFlag}
+        >
+          Check(Num)
+        </CheckBox>
+      </FormItem>
+      <FormItem>
+        <RadioButtons
+          $={dataItems.sourceText}
+        />
+      </FormItem>
+      <FormItem>
+        <DateBox
+          $={dataItems.date}
+        />
+      </FormItem>
+      <FormItem>
+        <DateBox
+          $={dataItems.month}
+        />
+      </FormItem>
+      <FormItem>
+        <DateBox
+          $={dataItems.datetime}
+        />
+      </FormItem>
+      <FormItem>
+        <TextArea
+          $={dataItems.customMessageText}
+        />
+      </FormItem>
+      <FormItem>
+        <FileBox
+          $={dataItems.file}
+          placeholder="ファイルを選択してください。"
+          viewMode="image"
+        />
+      </FormItem>
     </div>
   );
-}
+};

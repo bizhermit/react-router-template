@@ -1,86 +1,137 @@
 @layer components {
 
   /* form items */
+
   .form-item {
-    @apply align-top relative;
-    @apply inline-flex flex-col flex-nowrap justify-start items-start gap-0.5;
+    position: relative;
+    vertical-align: top;
+    display: inline-flex;
+    flex-flow: column nowrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 0;
   }
 
   .ipt {
-    @apply align-top relative;
-    @apply inline-flex flex-row;
-    @apply min-w-0 max-w-full min-h-input;
-    @apply text-input;
+    position: relative;
+    vertical-align: top;
+    display: inline-flex;
+    flex-direction: row;
+    min-width: var(--spacing-input);
+    max-width: 100%;
+    min-height: var(--spacing-input);
+    color: var(--color-input);
   }
 
   .ipt-field {
-    @apply flex-nowrap justify-stretch items-stretch;
-    @apply bg-input-bg border border-transparent rounded-input;
-    transition: border-color 0.2s;
+    flex-wrap: nowrap;
+    justify-content: stretch;
+    align-items: stretch;
 
     &:focus-within {
-      @apply outline-2;
+      >.ipt-field-appearance {
+        border-width: 2px;
+      }
+    }
+
+    &:has(:is(input[aria-invalid="true"]:not([type="hidden"]), select[aria-invalid="true"], textarea[aria-invalid="true"])) {
+      color: var(--color-input-err);
+
+      >.ipt-field-appearance {
+        background-color: var(--color-input-err-bg);
+        border-color: var(--color-input-err-bd);
+      }
     }
   }
 
-  .ipt-field-enabled {
-    @apply border-input-bd;
+  .ipt-field-appearance {
+    position: absolute;
+    inset: 0;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: var(--radius-input);
+    pointer-events: none;
+    z-index: -1;
+    line-height: 1.2rem;
+    margin-top: -0.6rem;
+    transition: background-color 0.2s, border-color 0.2s;
+  }
 
-    &:has(:is(input[aria-invalid]:not([type="hidden"]), select[aria-invalid], textarea[aria-invalid])) {
-      @apply text-input-err bg-input-err-bg border-input-err-bd outline-input-err-bd;
-    }
+  :is(.ipt-field-enabled, .ipt-field-readonly) {
+    background-color: var(--color-input-bg);
+    border-color: var(--color-input-bd);
   }
 
   .ipt-field-disabled {
-    @apply opacity-disabled;
+    opacity: var(--opacity-disabled);
   }
 
   .ipt-group {
-    @apply flex-wrap justify-start items-center;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
   }
 
   .ipt-msg {
-    @apply relative block max-w-full;
-    @apply text-base text-error;
+    position: relative;
+    display: block;
+    min-width: 0;
+    max-width: 100%;
+    color: var(--color-error);
   }
 
   .ipt-main {
-    @apply appearance-none outline-none bg-transparent px-input-pad-x;
+    -webkit-appearance: none;
+    appearance: none;
+    outline: none;
+    background-color: transparent;
+    padding-inline: var(--spacing-input-pad-x);
   }
 
   .ipt-label {
-    @apply align-top;
-    @apply min-w-0 max-w-full min-h-input;
-    @apply inline-flex flex-row flex-nowrap justify-start items-center;
-    @apply rounded-input;
-    @apply select-none;
+    vertical-align: top;
+    min-width: 0;
+    max-width: 100%;
+    min-height: var(--spacing-input);
+    display: inline-flex;
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+    align-items: center;
+    border-radius: var(--radius-input);
+    user-select: none;
 
     &:is(:focus-within, :has(input:enabled:active)) {
-      @apply outline-2;
+      outline: 2px solid;
     }
 
     &:has(input[aria-disabled="true"]) {
-      @apply opacity-disabled;
+      opacity: var(--opacity-disabled);
     }
 
     &:has(input:enabled:not([type="hidden"])) {
-      @apply cursor-pointer;
+      cursor: pointer;
     }
 
-    &:has(input[aria-invalid]) {
-      @apply outline-input-err-bd;
+    &:has(input[aria-invalid="true"]) {
+      outline-color: var(--color-input-err-bd);
     }
   }
 
   .ipt-point {
-    @apply appearance-none outline-none;
-    @apply relative;
-    @apply w-input h-input;
-    @apply cursor-[inherit];
+    -webkit-appearance: none;
+    appearance: none;
+    outline: none;
+    position: relative;
+    width: var(--spacing-input);
+    height: var(--spacing-input);
+    cursor: inherit;
 
     &::before {
-      @apply absolute inset-1/5 content-[''];
-      @apply bg-input-bg border border-transparent;
+      position: absolute;
+      inset: 20%;
+      content: "";
+      background-color: var(--color-input-bg);
+      border: 1px solid transparent;
       transition: border-color 0.2s;
     }
 
@@ -92,44 +143,59 @@
 
     &:enabled {
       &::before {
-        @apply border-input-bd;
+        border-color: var(--color-input-bd);
       }
 
-      &[aria-invalid] {
+      &[aria-invalid="true"] {
         &::before {
-          @apply bg-input-err-bg border-input-err-bd;
+          background-color: var(--color-input-err-bg);
+          border-color: var(--color-input-err-bd);
         }
       }
     }
 
     &:checked {
       &::after {
-        @apply opacity-100;
+        opacity: 1;
       }
     }
   }
 
   .ipt-label-text {
-    @apply select-none pr-input-pad-x;
+    user-select: none;
+    padding-right: var(--spacing-input-pad-x);
   }
 
   .ipt-btn {
-    @apply z-0 absolute top-0 right-0 w-input-btn h-full;
-    @apply select-none;
-    @apply bg-input;
-    @apply mask-[var(--image-down)] mask-size-[40%] mask-center mask-no-repeat;
-    @apply transition-transform duration-150 ease-in-out;
+    z-index: 0;
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: var(--spacing-input-btn);
+    height: 100%;
+    user-select: none;
+    background-color: var(--color-input);
+    mask: var(--image-down) center / 40% no-repeat;
+    transition: transform 0.2s;
   }
 
   .ipt-placeholder {
-    @apply z-0 absolute inset-0 w-full;
-    @apply flex flex-row justify-start items-center;
-    @apply pl-input-pad-x pr-input-pad-btn;
-    @apply text-placeholder;
+    z-index: 0;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+    align-items: center;
+    padding-left: var(--spacing-input-pad-x);
+    padding-right: var(--spacing-input-pad-btn);
+    color: var(--color-placeholder);
   }
 
   .ipt-select {
-    @apply z-[1] pr-input-pad-btn;
+    z-index: 1;
+    padding-right: var(--spacing-input-pad-btn);
 
     &:enabled {
       cursor: pointer;
@@ -137,60 +203,74 @@
 
     &:has(option[value=""][data-notext="false"], option[value=""][data-notext="true"]:not(:checked)) {
       &+.ipt-placeholder {
-        @apply hidden;
+        display: none;
       }
     }
 
     &:open {
       &~.ipt-btn {
-        @apply rotate-x-180;
+        transform: rotateX(180deg);
       }
     }
   }
 
   .ipt-radio {
     &::before {
-      @apply rounded-full;
+      border-radius: 9999px;
     }
 
     &::after {
       inset: calc(20% + 5px);
-      @apply bg-input;
-      @apply rounded-full;
+      background-color: var(--color-input);
+      border-radius: 9999px;
     }
   }
 
   .ipt-check {
     &::before {
-      @apply rounded-input;
+      border-radius: var(--radius-input);
     }
 
     &::after {
-      @apply inset-1/5 rounded-input;
-      @apply bg-input;
-      @apply mask-[var(--image-check)] mask-contain mask-center mask-no-repeat;
+      inset: 20%;
+      border-radius: var(--radius-input);
+      background-color: var(--color-input);
+      mask: var(--image-check) center / contain no-repeat;
     }
   }
 
   .ipt-file {
-    @apply relative w-full h-full min-h-full z-[1];
-    @apply px-input-pad-x leading-[calc(var(--spacing-input)-2px)];
-    @apply bg-transparent select-none;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+    z-index: 1;
+    padding-inline: var(--spacing-input-pad-x);
+    line-height: calc(var(--spacing-input) - 2px);
+    background-color: transparent;
+    user-select: none;
 
     &::file-selector-button {
-      @apply hidden;
+      display: none;
     }
   }
 
   .ipt-outer-spin-button {
-    @apply absolute right-0 z-[1];
-    @apply w-input-btn h-full flex flex-col;
+    position: absolute;
+    right: 0;
+    z-index: 1;
+    width: var(--spacing-input-btn);
+    height: 100%;
+    display: flex;
+    flex-flow: column nowrap;
   }
 
   .ipt-inner-spin-button {
-    @apply w-full flex-1/2;
-    @apply bg-input;
-    @apply mask-size-[40%] mask-no-repeat;
+    width: 100%;
+    flex: 1 1 0rem;
+    background-color: var(--color-input);
+    mask-size: 40%;
+    mask-repeat: no-repeat;
   }
 
 }

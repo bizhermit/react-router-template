@@ -668,7 +668,7 @@ export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
     return () => {
       schema.setResult($.name, undefined);
     };
-  });
+  }, []);
 
   const stateRef = useRef(getDefaultState());
   stateRef.current.hidden = mode === "hidden";
