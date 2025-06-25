@@ -2,7 +2,7 @@ import { CheckBox } from "~/components/elements/form/check-box";
 import { FormItem } from "~/components/elements/form/common";
 import { DateBox } from "~/components/elements/form/date-box";
 import { FileBox } from "~/components/elements/form/file-box";
-import { NumericBox } from "~/components/elements/form/numeric-box";
+import { NumberBox } from "~/components/elements/form/number-box";
 import { RadioButtons } from "~/components/elements/form/radio-buttons";
 import { SelectBox } from "~/components/elements/form/select-box";
 import { TextArea } from "~/components/elements/form/text-area";
@@ -13,7 +13,7 @@ import { $bool } from "~/components/schema/boolean";
 import { $date, $datetime, $month } from "~/components/schema/date";
 import { $file } from "~/components/schema/file";
 import { useSchema, useSchemaArray, useSchemaContext } from "~/components/schema/hooks";
-import { $num } from "~/components/schema/numeric";
+import { $num } from "~/components/schema/number";
 import { $str } from "~/components/schema/string";
 import { $struct } from "~/components/schema/struct";
 import type { Route } from "./+types";
@@ -292,7 +292,7 @@ function Component2() {
         />
       </FormItem>
       <FormItem>
-        <NumericBox
+        <NumberBox
           $={dataItems.count}
           placeholder="数値"
         />

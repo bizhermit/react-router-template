@@ -3,7 +3,7 @@ import { getValidationValue, InputField, type InputWrapProps } from "./common";
 import { clsx } from "../utilities";
 import { useSchemaItem } from "~/components/schema/hooks";
 
-export type NumericBoxProps<D extends Schema.DataItem<Schema.$Numeric>> = InputWrapProps & {
+export type NumberBoxProps<D extends Schema.DataItem<Schema.$Number>> = InputWrapProps & {
   $: D;
   placeholder?: string;
   step?: number;
@@ -19,11 +19,11 @@ function preventParse(result: Schema.Result | null | undefined) {
   );
 };
 
-export function NumericBox<D extends Schema.DataItem<Schema.$Numeric>>({
+export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
   placeholder,
   step,
   ...$props
-}: NumericBoxProps<D>) {
+}: NumberBoxProps<D>) {
   const ref = useRef<HTMLInputElement>(null!);
   const $step = Math.abs(step || 1);
 
@@ -46,7 +46,7 @@ export function NumericBox<D extends Schema.DataItem<Schema.$Numeric>>({
     dep,
     env,
     props,
-  } = useSchemaItem<Schema.DataItem<Schema.$Numeric>>($props, {
+  } = useSchemaItem<Schema.DataItem<Schema.$Number>>($props, {
     effect: function ({ value, result }) {
       if (!ref.current) return;
       if (preventParse(result)) return;

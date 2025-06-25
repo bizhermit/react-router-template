@@ -5,7 +5,7 @@ import { clsx } from "../utilities";
 import { useSchemaItem } from "~/components/schema/hooks";
 import { isEmpty } from "~/components/objects";
 
-type SelectBoxSchemaProps = Schema.$String | Schema.$Numeric | Schema.$Boolean;
+type SelectBoxSchemaProps = Schema.$String | Schema.$Number | Schema.$Boolean;
 
 export type SelectBoxProps<D extends Schema.DataItem<SelectBoxSchemaProps>> = InputWrapProps & {
   $: D;

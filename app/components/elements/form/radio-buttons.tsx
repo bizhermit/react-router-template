@@ -3,7 +3,7 @@ import { getValidationValue, InputGroup, InputLabel, InputLabelText, type InputW
 import { getBooleanSource } from "./utilities";
 import { useSchemaItem } from "~/components/schema/hooks";
 
-type RadioButtonsSchemaProps = Schema.$String | Schema.$Numeric | Schema.$Boolean;
+type RadioButtonsSchemaProps = Schema.$String | Schema.$Number | Schema.$Boolean;
 
 export type RadioButtonsProps<D extends Schema.DataItem<RadioButtonsSchemaProps>> = InputWrapProps & {
   $: D;

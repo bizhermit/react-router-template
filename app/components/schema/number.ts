@@ -1,41 +1,20 @@
+import { parseNumber } from "../objects/numeric";
 import { getValidationArray } from "./utilities";
 
-function NUMERIC_PARSER({ value, env }: Schema.ParserParams): Schema.ParserResult<number> {
-  if (value == null || value === "") {
-    return { value: undefined };
-  }
-  if (typeof value === "number") {
-    if (isNaN(value)) {
-      return { value: undefined };
-    }
-    return { value };
-  }
-  const num = Number(String(value ?? "").replace(/[０-９，．＋－ー]/g, s => {
-    switch (s) {
-      case '，': return ',';
-      case '．': return '.';
-      case '＋': return '+';
-      case "ー":
-      case '－':
-        return '-';
-      default:
-        return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
-    }
-  }));
-  if (num == null || isNaN(num)) {
-    return {
-      value: undefined,
-      result: {
-        type: "e",
-        code: "parse",
-        message: env.t("数値に変換できません。"),
-      },
-    };
-  }
-  return { value: num };
+function NUMBER_PARSER({ value, env }: Schema.ParserParams): Schema.ParserResult<number> {
+  const [num, succeeded] = parseNumber(value);
+  if (succeeded) return { value: num };
+  return {
+    value: num,
+    result: {
+      type: "e",
+      code: "parse",
+      message: env.t("数値に変換できません。"),
+    },
+  };
 };
 
-export function $num<Props extends Schema.NumericProps>(props?: Props) {
+export function $num<Props extends Schema.NumberProps>(props?: Props) {
   const validators: Array<Schema.Validator<number>> = [];
 
   const [required, getRequiredMessage] = getValidationArray(props?.required);
@@ -205,12 +184,12 @@ export function $num<Props extends Schema.NumericProps>(props?: Props) {
     label: props?.label,
     mode: props?.mode,
     refs: props?.refs,
-    parser: props?.parser ?? NUMERIC_PARSER,
+    parser: props?.parser ?? NUMBER_PARSER,
     source: props?.source as Schema.GetSource<Props["source"]>,
     validators,
     required: required as Schema.GetValidationValue<Props, "required">,
     min,
     max,
     float,
-  } as const satisfies Schema.$Numeric;
+  } as const satisfies Schema.$Number;
 };

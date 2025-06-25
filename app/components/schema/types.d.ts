@@ -160,7 +160,7 @@ namespace Schema {
     pattern: $ValidationValue<RegExp | StrPattern>;
   };
 
-  interface NumericProps<V extends number = number> extends BaseProps {
+  interface NumberProps<V extends number = number> extends BaseProps {
     parser?: Parser<V>;
     required?: Validation<boolean, V>;
     source?: Source<V> | DynamicValidationValue<Source<V>>;
@@ -171,7 +171,7 @@ namespace Schema {
     validators?: Array<Validator<V>>;
   };
 
-  interface $Numeric<V extends number = number> extends $Base {
+  interface $Number<V extends number = number> extends $Base {
     type: "num";
     label: string | undefined;
     parser: Parser<V>;
@@ -377,7 +377,7 @@ namespace Schema {
 
   type $Any =
     | $String
-    | $Numeric
+    | $Number
     | $Boolean
     | $Date
     | $Month
