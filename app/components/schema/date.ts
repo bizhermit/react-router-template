@@ -138,6 +138,7 @@ function splitDate<Props extends Schema.SplitDateProps, T extends Schema.SplitDa
     required: required as Schema.GetValidationValue<Props, "required">,
     min,
     max,
+    _core: null!,
   } as const satisfies Schema.$SplitDate<T>;
 };
 
@@ -399,6 +400,7 @@ export function $month<Props extends Schema.MonthProps>(props?: Props) {
     maxDate: commonProps.maxDate as Schema.GetValidationValue<Props, "maxDate">,
     pair: commonProps.pair,
     splits,
+    _splits: {},
     splitYear: function (splitProps?) {
       return splitDate({
         splitProps,
@@ -464,6 +466,7 @@ export function $date<Props extends Schema.DateProps>(props?: Props) {
     maxDate: commonProps.maxDate as Schema.GetValidationValue<Props, "maxDate">,
     pair: commonProps.pair,
     splits,
+    _splits: {},
     splitYear: function (splitProps?) {
       return splitDate({
         splitProps,
@@ -651,6 +654,7 @@ export function $datetime<Props extends Schema.DateTimeProps>(props?: Props) {
     maxTime,
     pair: commonProps.pair,
     splits,
+    _splits: {},
     splitYear: function (splitProps?) {
       return splitDate({
         splitProps,

@@ -18,6 +18,7 @@ import { $str } from "~/components/schema/string";
 import { $struct } from "~/components/schema/struct";
 import type { Route } from "./+types";
 import { data, useFetcher } from "react-router";
+import { DateSelectBox } from "~/components/elements/form/date-select-box";
 
 const text = $str(
   {
@@ -335,6 +336,11 @@ function Component2() {
       <FormItem>
         <DateBox
           $={dataItems.datetime}
+        />
+      </FormItem>
+      <FormItem>
+        <DateSelectBox
+          $={dataItems.birth_year}
         />
       </FormItem>
       <FormItem>

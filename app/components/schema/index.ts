@@ -22,55 +22,108 @@ export function parseWithSchema<$Schema extends Record<string, any>>(params: {
     name: string | number;
     parent: Schema.DataItem<Schema.$Struct | Schema.$Array> | undefined;
   }) {
-    const fn = parent?._?.type === "struct" ? `${parent.name}.${name}` :
-      parent?._?.type === "arr" ? `${parent.name}[${name}]` :
-        `${name}`;
-
-    let [val] = data._get(fn);
-
+    let fn = undefined, val: any = undefined;
     const label = item.label ? params.env.t(item.label) : "";
 
-    let result: Schema.Result | null | undefined = undefined;
+    if (name != null) {
+      fn = parent?._?.type === "struct" ? `${parent.name}.${name}` :
+        parent?._?.type === "arr" ? `${parent.name}[${name}]` :
+          `${name}`;
 
-    const parsed = item.parser({
-      value: val,
-      dep,
-      env: params.env,
-    });
-    result = parsed.result;
+      val = data._get(fn)[0];
 
-    if (val !== parsed.value) {
-      data._set(fn, val = parsed.value);
-    }
+      let result: Schema.Result | null | undefined = undefined;
 
-    if (result?.type !== "e") {
-      validations?.push(() => {
-        const validationParams: Schema.ValidationParams<any> = {
-          data,
-          dep,
-          env: params.env,
-          label,
-          value: val,
-        };
-        let r: Schema.Result | undefined | null = undefined;
-        for (const vali of item.validators) {
-          r = vali(validationParams);
-          if (r) break;
-        }
-        if (r) results[fn] = r;
+      const parsed = item.parser({
+        value: val,
+        dep,
+        env: params.env,
       });
+      result = parsed.result;
+
+      if (val !== parsed.value) {
+        data._set(fn, val = parsed.value);
+      }
+
+      if (result?.type !== "e") {
+        validations?.push(() => {
+          const validationParams: Schema.ValidationParams<any> = {
+            data,
+            dep,
+            env: params.env,
+            label,
+            value: val,
+          };
+          let r: Schema.Result | undefined | null = undefined;
+          for (const vali of item.validators) {
+            r = vali(validationParams);
+            if (r) break;
+          }
+          if (r) results[fn!] = r;
+        });
+      }
+
+      if (!params.createDataItems && val == null) return null!;
     }
 
-    if (!params.createDataItems && val == null) return null!;
-    
-    const dataItem: Schema.DataItem<any> = {
-      name: fn,
-      label,
-      parent,
-      _: item,
-    };
+    const dataItem: Schema.DataItem<any> = (() => {
+      switch (item.type) {
+        case "date":
+        case "month":
+        case "datetime": {
+          const splitKey = Object.keys(item._splits)[0] as Schema.SplitDateTarget | undefined;
+          if (splitKey) {
+            const di = item._splits[splitKey]!.core;
+            di.name = fn!;
+            di.parent = parent;
+            return di;
+          }
+        }
+        default:
+          return {
+            name: fn!,
+            label,
+            parent,
+            _: item,
+          };
+      }
+    })();
 
     switch (item.type) {
+      case "date":
+      case "month":
+      case "datetime": {
+        (dataItem as Schema.DataItem<Schema.$DateTime>).splits = {};
+        for (const k in item._splits) {
+          const splitDateDataItem = item._splits[k as Schema.SplitDateTarget]!;
+          splitDateDataItem.core = dataItem as Schema.DataItem<Schema.$DateTime>;
+          (dataItem as Schema.DataItem<Schema.$DateTime>).splits[k as Schema.SplitDateTarget] = splitDateDataItem;
+        }
+        break;
+      }
+      case "sdate-Y":
+      case "sdate-M":
+      case "sdate-D":
+      case "sdate-h":
+      case "sdate-m":
+      case "sdate-s": {
+        let dateDataItem = item._core as Schema.DataItem<Schema.$DateTime> | undefined;
+        if (dateDataItem == null) {
+          dateDataItem = parseItem({
+            item: item.core,
+            name: null!,
+            parent,
+          }) as Schema.DataItem<Schema.$DateTime>;
+          for (const k in item.core.splits) {
+            const splitDateProps = (item.core as Schema.$DateTime).splits[k as Schema.SplitDateTarget];
+            splitDateProps!._core = dateDataItem;
+          }
+        }
+        const target = item.type.replace("sdate-", "") as Schema.SplitDateTarget;
+        dateDataItem.splits[target] = dataItem as Schema.DataItem<Schema.$SplitDate>;
+        (dataItem as Schema.DataItem<Schema.$SplitDate>).core = dateDataItem;
+        break;
+      }
       case "arr":
         (dataItem as Schema.DataItem<Schema.$Array>).generateDataItem = function (index) {
           return parseItem({

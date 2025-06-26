@@ -283,12 +283,14 @@ namespace Schema {
     type: "month";
     label: string | undefined;
     splits: DateSplits<"Y" | "M">;
+    _splits: Partial<Record<SplitDateTarget, DataItem<$SplitDate>>>;
   };
 
   interface $Date<V extends DateString = DateString> extends $BaseDate<V> {
     type: "date";
     label: string | undefined;
     splits: DateSplits<"Y" | "M" | "D">;
+    _splits: Partial<Record<SplitDateTarget, DataItem<$SplitDate>>>;
     splitDay: <Props extends SplitDateProps>(props: Props) => $SplitDate<"D">;
   };
 
@@ -299,6 +301,7 @@ namespace Schema {
     minTime: $ValidationValue<TimeString>;
     maxTime: $ValidationValue<TimeString>;
     splits: DateSplits<"Y" | "M" | "D" | "h" | "m" | "s">;
+    _splits: Partial<Record<SplitDateTarget, DataItem<$SplitDate>>>;
     splitDay: <Props extends SplitDateProps>(props: Props) => $SplitDate<"D">;
     splitHour: <Props extends SplitDateProps>(props: Props) => $SplitDate<"h">;
     splitMinute: <Props extends SplitDateProps>(props: Props) => $SplitDate<"m">;
@@ -310,6 +313,7 @@ namespace Schema {
     label: string | undefined;
     parser: Parser<V>;
     core: $Date | $Month | $DateTime;
+    _core: DataItem<$Date | $Month | $DateTime>;
     validators: Array<Validator<V>>;
     required: $ValidationValue<boolean>;
     min: $ValidationValue<number>;
@@ -400,6 +404,12 @@ namespace Schema {
         } :
         T extends "arr" ? {
           generateDataItem: (index: number) => DataItem<P["prop"]>;
+        } :
+        T extends "date" | "month" | "datetime" ? {
+          splits: Partial<Record<SplitDateTarget, DataItem<$SplitDate>>>;
+        } :
+        T extends `sdate-${SplitDateTarget}` ? {
+          core: DataItem<$Date | $Month | $DateTime>;
         } : {}
       ) : never
     );
