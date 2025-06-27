@@ -19,6 +19,7 @@ import { $struct } from "~/components/schema/struct";
 import type { Route } from "./+types";
 import { data, useFetcher } from "react-router";
 import { DateSelectBox } from "~/components/elements/form/date-select-box";
+import { useState } from "react";
 
 const text = $str(
   {
@@ -41,9 +42,9 @@ const schema = $schema({
     min: 4,
     pattern: "email",
   }),
-  // requiredText: $str({
-  //   required: true,
-  // }),
+  requiredText: $str({
+    required: true,
+  }),
   // dynamicRequiredText: $str({
   //   required: () => true,
   // }),
@@ -307,6 +308,7 @@ function Component2() {
           placeholder="世代"
         />
       </FormItem>
+      <DynamicSelectBoxComponent />
       <FormItem>
         <CheckBox
           $={dataItems.check}
@@ -356,6 +358,42 @@ function Component2() {
           $={dataItems.file}
           placeholder="ファイルを選択してください。"
           viewMode="image"
+        />
+      </FormItem>
+    </div>
+  );
+};
+
+function DynamicSelectBoxComponent() {
+  const { dataItems } = useSchemaContext<typeof schema>();
+
+  const [count, setCount] = useState(0);
+  const [source, setSource] = useState<Schema.Source<string>>([
+    { value: "hoge", text: "HOGE" },
+    { value: "fuga", text: "FUGA" },
+    { value: "piyo", text: "PIYO" },
+  ]);
+
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={() => {
+          const c = count + 1;
+          setCount(c);
+          setSource([
+            { value: "hoge", text: `HOGE - ${c}` },
+            { value: "fuga", text: `FUGA - ${c}` },
+            { value: "piyo", text: `PIYO - ${c}` },
+          ]);
+        }}
+      >
+        countup {count}
+      </button>
+      <FormItem>
+        <SelectBox
+          $={dataItems.requiredText}
+          source={source}
         />
       </FormItem>
     </div>

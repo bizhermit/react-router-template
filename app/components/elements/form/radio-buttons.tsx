@@ -1,4 +1,4 @@
-import { useRef, useState, type ChangeEvent, type MouseEvent } from "react";
+import { useEffect, useRef, useState, type ChangeEvent, type MouseEvent } from "react";
 import { getValidationValue, InputGroup, InputLabel, InputLabelText, type InputWrapProps } from "./common";
 import { getBooleanSource } from "./utilities";
 import { useSchemaItem } from "~/components/schema/hooks";
@@ -7,9 +7,11 @@ type RadioButtonsSchemaProps = Schema.$String | Schema.$Number | Schema.$Boolean
 
 export type RadioButtonsProps<D extends Schema.DataItem<RadioButtonsSchemaProps>> = InputWrapProps & {
   $: D;
+  source?: Schema.Source<Schema.ValueType<D["_"]>>;
 };
 
 export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>({
+  source: propsSource,
   ...$props
 }: RadioButtonsProps<D>) {
   const ref = useRef<HTMLDivElement>(null!);
@@ -43,13 +45,14 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
       }
     },
     effectContext: function (p) {
-      if ("source" in dataItem._) {
+      if (propsSource == null && "source" in dataItem._) {
         setSource(getValidationValue(p, dataItem._.source) ?? []);
       }
     },
   });
 
   const [source, setSource] = useState<Schema.Source<any>>(() => {
+    if (propsSource) return propsSource;
     if ("source" in dataItem._) {
       return getValidationValue({
         data,
@@ -78,6 +81,12 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
     e.currentTarget.checked = false;
     setValue(undefined);
   };
+
+  useEffect(() => {
+    if (propsSource) {
+      setSource(propsSource);
+    }
+  }, [propsSource]);
 
   return (
     <InputGroup

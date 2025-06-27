@@ -1,4 +1,4 @@
-import { useRef, useState, type ChangeEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ChangeEvent, type ReactNode } from "react";
 import { getValidationValue, InputField, Placeholder, type InputWrapProps } from "./common";
 import { getBooleanSource } from "./utilities";
 import { clsx, ZERO_WIDTH_SPACE } from "../utilities";
@@ -11,6 +11,7 @@ export type SelectBoxProps<D extends Schema.DataItem<SelectBoxSchemaProps>> = In
   $: D;
   placeholder?: string;
   emptyText?: string;
+  source?: Schema.Source<Schema.ValueType<D["_"]>>;
   children?: ReactNode;
 };
 
@@ -18,6 +19,7 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
   placeholder,
   emptyText,
   children,
+  source: propsSource,
   ...$props
 }: SelectBoxProps<D>) {
   const ref = useRef<HTMLSelectElement>(null!);
@@ -44,13 +46,14 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
       if (ref.current.value !== sv) ref.current.value = sv;
     },
     effectContext: function(p) {
-      if ("source" in dataItem._) {
+      if (propsSource == null && "source" in dataItem._) {
         setSource(getValidationValue(p, dataItem._.source) ?? []);
       }
     },
   });
 
   const [source, setSource] = useState<Schema.Source<any>>(() => {
+    if (propsSource) return propsSource;
     if ("source" in dataItem._) {
       return getValidationValue({
         data,
@@ -72,6 +75,12 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
     if (!state.current.enabled) return;
     setValue(e.target.value);
   };
+
+  useEffect(() => {
+    if (propsSource) {
+      setSource(propsSource);
+    }
+  }, [propsSource]);
 
   return (
     <InputField
