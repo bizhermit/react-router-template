@@ -31,7 +31,9 @@ const text = $str(
   }
 );
 
-const birth = $date();
+const birth = $date({
+  required: true,
+});
 
 const schema = $schema({
   text: $str({
@@ -96,7 +98,8 @@ const schema = $schema({
   birth_month: birth.splitMonth({
     required: true,
   }),
-  birth_day: birth.splitDay(),
+  birth_day: birth.splitDay({
+  }),
   file: $file({
     required: true,
   }),

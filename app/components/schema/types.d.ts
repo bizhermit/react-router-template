@@ -43,7 +43,7 @@ namespace Schema {
   };
 
   interface ValidationParams<V> {
-    label: string;
+    label: string | undefined;
     value: V | null | undefined;
     data: Data;
     dep: Record<string, any>;
@@ -59,7 +59,7 @@ namespace Schema {
   };
 
   interface DynamicValidationValueParams {
-    label: string;
+    label: string | undefined;
     data: Data;
     dep: Record<string, any>;
     env: Env;
@@ -259,6 +259,7 @@ namespace Schema {
     required?: Validation<boolean, V>;
     min?: Validation<number, V, { min: number }>;
     max?: Validation<number, V, { max: number }>;
+    step?: number;
     validators?: Array<Validator<V>>;
   };
 
@@ -273,6 +274,7 @@ namespace Schema {
       position: "before" | "after";
       same?: boolean;
     }>;
+    formatPattern: string;
     splitYear: <Props extends SplitDateProps>(props: Props) => $SplitDate<"Y">;
     splitMonth: <Props extends SplitDateProps>(props: Props) => $SplitDate<"M">;
   };
@@ -318,6 +320,7 @@ namespace Schema {
     required: $ValidationValue<boolean>;
     min: $ValidationValue<number>;
     max: $ValidationValue<number>;
+    step: number;
   };
 
   interface FileProps<V extends File | string = File | string> extends BaseProps {
@@ -393,7 +396,7 @@ namespace Schema {
     ;
 
   type DataItem<P extends $Any> = {
-    label: string;
+    label: string | undefined;
     name: string;
     parent?: DataItem<$Struct | $Array>;
     _: P;

@@ -23,7 +23,7 @@ export function parseWithSchema<$Schema extends Record<string, any>>(params: {
     parent: Schema.DataItem<Schema.$Struct | Schema.$Array> | undefined;
   }) {
     let fn = undefined, val: any = undefined;
-    const label = item.label ? params.env.t(item.label) : "";
+    const label = item.label ? params.env.t(item.label) : undefined;
 
     if (name != null) {
       fn = parent?._?.type === "struct" ? `${parent.name}.${name}` :

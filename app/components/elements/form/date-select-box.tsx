@@ -1,8 +1,9 @@
-import { useId, useMemo, useRef, type ChangeEvent, type ReactNode } from "react";
-import { InputField, InputGroup, Placeholder, type InputWrapProps } from "./common";
-import { parseDate } from "~/components/objects/date";
-import { clsx } from "../utilities";
-import { useSchemaEffect, useSchemaItem } from "~/components/schema/hooks";
+import { useId, useLayoutEffect, useMemo, useRef, useState, type ChangeEvent, type Dispatch, type ReactNode, type RefObject, type SetStateAction } from "react";
+import { getValidationValue, InputField, InputGroup, Placeholder, type InputWrapProps } from "./common";
+import { formatDate, parseDate } from "~/components/objects/date";
+import { clsx, ZERO_WIDTH_SPACE } from "../utilities";
+import { getDefaultState, getSchemaItemMode, getSchemaItemRequired, getSchemaItemResult, MODE, MODE_PRIORITY, parseSchemaItemValue, schemaItemEffect, schemaItemValidation, useFieldSet, useSchemaEffect, useSchemaItem, type SchemaEffectParams_Result, type SchemaEffectParams_ValueResult } from "~/components/schema/hooks";
+import { parseTimeNums, parseTypedDate } from "~/components/schema/date";
 
 export type DateSelectBoxProps<D extends Schema.DataItem<Schema.$SplitDate>> = InputWrapProps & {
   $: D;
@@ -17,14 +18,17 @@ function SepSpan(props: { children: ReactNode }) {
 };
 
 export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
-  $,
+  $: _$,
   placeholder,
   ...props
 }: DateSelectBoxProps<P>) {
   const id = useId();
+  const isEffected = useRef(false);
+
+  const fs = useFieldSet();
   const ref = useRef<HTMLDivElement>(null!);
 
-  const $date = $.core;
+  const $date = _$.core as Schema.DataItem<Schema.$DateTime>;
   const $year = $date.splits.Y;
   const $month = $date.splits.M;
   const $day = $date.splits.D;
@@ -32,17 +36,167 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
   const $minute = $date.splits.m;
   const $second = $date.splits.s;
 
+  const type = $date._.type as (Schema.$Date["type"] | Schema.$Month["type"] | Schema.$DateTime["type"]);
+  const time = $date._.time;
+
   const schema = useSchemaEffect((params) => {
     switch (params.type) {
       case "data":
+        isEffected.current = false;
+        setValue(getValue);
+        setYearValue(getYearValue);
+        setMonthValue(getMonthValue);
+        setDayValue(getDayValue);
+        setHourValue(getHourValue);
+        setMinuteValue(getMinuteValue);
+        setSecondValue(getSecondValue);
+        setResult(getResult);
+        setYearResult(getYearResult);
+        setMonthResult(getMonthResult);
+        setDayResult(getDayResult);
+        setHourResult(getHourResult);
+        setMinuteResult(getMinuteResult);
+        setSecondResult(getSecondResult);
+        setMode(getMode);
+        setYearMode(getYearMode);
+        setMonthMode(getMonthMode);
+        setDayMode(getDayMode);
+        setHourMode(getHourMode);
+        setMinuteMode(getMinuteMode);
+        setSecondMode(getSecondMode);
+        setRequired(getRequired);
+        setYearRequired(getYearRequired);
+        setMonthRequired(getMonthRequired);
+        setDayRequired(getDayRequired);
+        setHourRequired(getHourRequired);
+        setMinuteRequired(getMinuteRequired);
+        setSecondRequired(getSecondRequired);
+        setMin(getMin);
+        setMax(getMax);
+        setMinTime(getMinTime);
+        setMaxTime(getMaxTime);
         break;
       case "value-result":
+      case "value": {
+        function update(
+          $: Schema.DataItem<Schema.$Any> | undefined,
+          valueSetter: Dispatch<SetStateAction<any>>,
+          resultSetter: Dispatch<SetStateAction<any>>,
+        ) {
+          if (!$?.name) return false;
+          const item = (params as SchemaEffectParams_ValueResult).items.find(item => item.name === $.name);
+          if (!item) return false;
+          if (params.type === "value-result") {
+            valueSetter(item.value);
+            resultSetter(item.result);
+          } else {
+            const submission = schemaItemEffect($, schema, item.value);
+            valueSetter(submission.value);
+            resultSetter(submission.result);
+          }
+          isEffected.current = true;
+          return true;
+        }
+        update($date, setValue, setResult);
+        update($year, setYearValue, setYearResult);
+        update($month, setMonthValue, setMonthResult);
+        update($day, setDayValue, setDayResult);
+        update($hour, setHourValue, setHourResult);
+        update($minute, setMinuteValue, setMinuteResult);
+        update($second, setSecondValue, setSecondResult);
+
+        const results: Array<{ name: string, result: Schema.Result | null | undefined }> = [];
+        function updateWithRefs(
+          $: Schema.DataItem<Schema.$Any> | undefined,
+          valueGetter: () => any,
+          callback: () => void,
+        ) {
+          if (!$) return false;
+          if ((params as SchemaEffectParams_ValueResult).items.some(item => $._.refs?.some(ref => ref === item.name))) {
+            callback();
+            const result = schemaItemValidation($, schema, valueGetter);
+            if ($.name) results.push({ name: $.name, result });
+            else setResult(result);
+            return true;
+          }
+          return false;
+        }
+        updateWithRefs($date, getValue, () => {
+          setMode(getMode);
+          setRequired(getRequired);
+          setMin(getMin);
+          setMax(getMax);
+          setMinTime(getMinTime);
+          setMaxTime(getMaxTime);
+        });
+        updateWithRefs($year, getYearValue, () => {
+          setYearMode(getYearMode);
+          setYearRequired(getYearRequired);
+        });
+        updateWithRefs($month, getMonthValue, () => {
+          setMonthMode(getMonthMode);
+          setMonthRequired(getMonthRequired);
+        });
+        updateWithRefs($day, getDayValue, () => {
+          setDayMode(getDayMode);
+          setDayRequired(getDayRequired);
+        });
+        updateWithRefs($hour, getHourValue, () => {
+          setHourMode(getHourMode);
+          setHourRequired(getHourRequired);
+        });
+        updateWithRefs($minute, getMinuteValue, () => {
+          setMinuteMode(getMinuteMode);
+          setMinuteRequired(getMinuteRequired);
+        });
+        updateWithRefs($second, getSecondValue, () => {
+          setSecondMode(getSecondMode);
+          setSecondRequired(getSecondRequired);
+        });
+        if (schema.setResults(results)) {
+          isEffected.current = true;
+        }
+      }
+      case "result": {
+        function update(
+          $: Schema.DataItem<Schema.$Any> | undefined,
+          resultSetter: Dispatch<SetStateAction<any>>,
+        ) {
+          if (!$?.name) return false;
+          const item = (params as SchemaEffectParams_Result).items.find(item => item.name === $.name);
+          if (!item) return false;
+          resultSetter(item.result);
+          isEffected.current = true;
+          return true;
+        }
+        update($date, setResult);
+        update($year, setYearResult);
+        update($month, setMonthResult);
+        update($day, setDayResult);
+        update($hour, setHourResult);
+        update($minute, setMinuteResult);
+        update($second, setSecondResult);
         break;
-      case "value":
-        break;
-      case "result":
-        break;
+      }
       case "dep":
+        setMode(getMode);
+        setYearMode(getYearMode);
+        setMonthMode(getMonthMode);
+        setDayMode(getDayMode);
+        setHourMode(getHourMode);
+        setMinuteMode(getMinuteMode);
+        setSecondMode(getSecondMode);
+        setRequired(getRequired);
+        setYearRequired(getYearRequired);
+        setMonthRequired(getMonthRequired);
+        setDayRequired(getDayRequired);
+        setHourRequired(getHourRequired);
+        setMinuteRequired(getMinuteRequired);
+        setSecondRequired(getSecondRequired);
+        setMin(getMin);
+        setMax(getMax);
+        setMinTime(getMinTime);
+        setMaxTime(getMaxTime);
         break;
     }
   }, () => {
@@ -52,627 +206,803 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
     };
   });
 
+  const isValidScripts = schema.isValidScripts.current;
+
+  function getModeImpl($: Schema.DataItem<Schema.$Any> | undefined): Schema.Mode {
+    if (!$) return "hidden";
+    return getSchemaItemMode($, schema);
+  };
+
+  function getMode() {
+    return getModeImpl($date);
+  };
+
+  const [mode, setMode] = useState(getMode);
+
+  function getYearMode() {
+    return getModeImpl($year);
+  };
+
+  const [yearMode, setYearMode] = useState(getYearMode);
+
+  function getMonthMode() {
+    return getModeImpl($month);
+  };
+
+  const [monthMode, setMonthMode] = useState(getMonthMode);
+
+  function getDayMode() {
+    return getModeImpl($day);
+  };
+
+  const [dayMode, setDayMode] = useState(getDayMode);
+
+  function getHourMode() {
+    return getModeImpl($hour);
+  };
+
+  const [hourMode, setHourMode] = useState(getHourMode);
+
+  function getMinuteMode() {
+    return getModeImpl($minute);
+  };
+
+  const [minuteMode, setMinuteMode] = useState(getMinuteMode);
+
+  function getSecondMode() {
+    return getModeImpl($second);
+  };
+
+  const [secondMode, setSecondMode] = useState(getSecondMode);
+
+  function joinSplitTypedDate(values: Record<Schema.SplitDateTarget, number | undefined>) {
+    if (values.Y == null || values.M == null) return undefined;
+    switch (type) {
+      case "date":
+        if (values.D == null) return undefined;
+        return parseDate(`${values.Y}-${values.M}-${values.D}`);
+      case "month":
+        return parseDate(`${values.Y}-${values.M}`);
+      default:
+        if (values.D == null || values.h == null || values.m == null) return undefined;
+        switch (time) {
+          case "hm":
+            return parseDate(`${values.Y}-${values.M}-${values.D}T${values.h}:${values.m}`);
+          default:
+            if (values.s == null) return undefined;
+            return parseDate(`${values.Y}-${values.M}-${values.D}T${values.h}:${values.m}:${values.s}`);
+        }
+    }
+  };
+
+  function parseTypedValue(values: Record<Schema.SplitDateTarget, number | undefined>) {
+    return formatDate(joinSplitTypedDate(values), $date._.formatPattern) as Schema.DateValueString | null | undefined;
+  };
+
+  function getValue() {
+    return parseTypedValue({
+      Y: getYearValue(),
+      M: getMonthValue(),
+      D: getDayValue(),
+      h: getHourValue(),
+      m: getMinuteValue(),
+      s: getSecondValue(),
+    });
+  };
+
+  const [value, setValue] = useState(getValue);
+
+  function getYearValue() {
+    if (!$year) return undefined;
+    return schema.data.current.get($year.name);
+  };
+
+  const [yearValue, setYearValue] = useState<number | undefined>(getYearValue);
+
+  function getMonthValue() {
+    if (!$month) return undefined;
+    return schema.data.current.get($month.name);
+  };
+
+  const [monthValue, setMonthValue] = useState<number | undefined>(getMonthValue);
+
+  function getDayValue() {
+    if (!$day) return undefined;
+    return schema.data.current.get($day.name);
+  };
+
+  const [dayValue, setDayValue] = useState<number | undefined>(getDayValue);
+
+  function getHourValue() {
+    if (!$hour) return undefined;
+    return schema.data.current.get($hour.name);
+  };
+
+  const [hourValue, setHourValue] = useState<number | undefined>(getHourValue);
+
+  function getMinuteValue() {
+    if (!$minute) return undefined;
+    return schema.data.current.get($minute.name);
+  };
+
+  const [minuteValue, setMinuteValue] = useState<number | undefined>(getMinuteValue);
+
+  function getSecondValue() {
+    if (!$second) return undefined;
+    return schema.data.current.get($second.name);
+  };
+
+  const [secondValue, setSecondValue] = useState<number | undefined>(getSecondValue);
+
+  function getResultImpl($: Schema.DataItem<Schema.$Any> | undefined, getter: () => any) {
+    if (!$) return undefined;
+    return getSchemaItemResult($, schema, getter);
+  };
+
+  function getResult() {
+    return getResultImpl($date, getValue);
+  };
+
+  const [result, setResult] = useState(getResult);
+
+  function getYearResult() {
+    return getResultImpl($year, getYearValue);
+  };
+
+  const [yearResult, setYearResult] = useState(getYearResult);
+
+  function getMonthResult() {
+    return getResultImpl($month, getMonthValue);
+  };
+
+  const [monthResult, setMonthResult] = useState(getMonthResult);
+
+  function getDayResult() {
+    return getResultImpl($day, getDayValue);
+  };
+
+  const [dayResult, setDayResult] = useState(getDayResult);
+
+  function getHourResult() {
+    return getResultImpl($hour, getHourValue);
+  };
+
+  const [hourResult, setHourResult] = useState(getHourResult);
+
+  function getMinuteResult() {
+    return getResultImpl($minute, getMinuteValue);
+  };
+
+  const [minuteResult, setMinuteResult] = useState(getMinuteResult);
+
+  function getSecondResult() {
+    return getResultImpl($second, getSecondValue);
+  };
+
+  const [secondResult, setSecondResult] = useState(getSecondResult);
+
+  function getRequiredImpl($: Schema.DataItem<Schema.$Any> | undefined) {
+    if (!$) return false;
+    return getSchemaItemRequired($, schema);
+  };
+
+  function getRequired() {
+    return getRequiredImpl($date);
+  };
+
+  const [required, setRequired] = useState(getRequired);
+
+  function getYearRequired() {
+    return getRequiredImpl($year);
+  };
+
+  const [yearRequired, setYearRequired] = useState(getYearRequired);
+
+  function getMonthRequired() {
+    return getRequiredImpl($month);
+  };
+
+  const [monthRequired, setMonthRequired] = useState(getMonthRequired);
+
+  function getDayRequired() {
+    return getRequiredImpl($day);
+  };
+
+  const [dayRequired, setDayRequired] = useState(getDayRequired);
+
+  function getHourRequired() {
+    return getRequiredImpl($hour);
+  };
+
+  const [hourRequired, setHourRequired] = useState(getHourRequired);
+
+  function getMinuteRequired() {
+    return getRequiredImpl($minute);
+  };
+
+  const [minuteRequired, setMinuteRequired] = useState(getMinuteRequired);
+
+  function getSecondRequired() {
+    return getRequiredImpl($second);
+  };
+
+  const [secondRequired, setSecondRequired] = useState(getSecondRequired);
+
+  function getMin() {
+    return parseTypedDate(
+      getValidationValue({
+        data: schema.data.current,
+        dep: schema.dep.current,
+        env: schema.env,
+        label: $date.label,
+      }, $date._.minDate),
+      type,
+      time,
+    ) ?? DEFAULT_MIN_DATE;
+  };
+
+  const [min, setMin] = useState(getMin);
+
+  function getMax() {
+    return parseTypedDate(
+      getValidationValue({
+        data: schema.data.current,
+        dep: schema.dep.current,
+        env: schema.env,
+        label: $date.label,
+      }, $date._.maxDate),
+      type,
+      time,
+    ) ?? DEFAULT_MAX_DATE;
+  };
+
+  const [max, setMax] = useState(getMax);
+
+  function getMinTime() {
+    return parseTimeNums(
+      getValidationValue({
+        data: schema.data.current,
+        dep: schema.dep.current,
+        env: schema.env,
+        label: $date.label,
+      }, $date._.minTime)
+    );
+  };
+
+  const [minTime, setMinTime] = useState(getMinTime);
+
+  function getMaxTime() {
+    return parseTimeNums(
+      getValidationValue({
+        data: schema.data.current,
+        dep: schema.dep.current,
+        env: schema.env,
+        label: $date.label,
+      }, $date._.maxTime)
+    );
+  };
+
+  const [maxTime, setMaxTime] = useState(getMaxTime);
+
+  const optionMinYear = min.getFullYear();
+  const optionMaxYear = max.getFullYear();
+
+  const yearOptions = useMemo(() => {
+    const options: Array<ReactNode> = [];
+    for (let i = optionMinYear; i <= optionMaxYear; i++) {
+      options.push(
+        <option
+          key={i}
+          value={i}
+        >
+          {i}
+        </option>
+      );
+    }
+    return options;
+  }, [
+    optionMinYear,
+    optionMaxYear,
+  ]);
+
+  let optionMinMonth = 0, optionMaxMonth = 11;
+  if (isValidScripts) {
+    if (min.getFullYear() === max.getFullYear()) {
+      optionMinMonth = min.getMonth();
+      optionMaxMonth = max.getMonth();
+    }
+    if (yearValue != null) {
+      if (min.getFullYear() === yearValue) {
+        optionMinMonth = min.getMonth();
+      }
+      if (max.getFullYear() === yearValue) {
+        optionMaxMonth = max.getMonth();
+      }
+    }
+  }
+
+  const monthOptions = useMemo(() => {
+    const options: Array<ReactNode> = [];
+    for (let i = optionMinMonth; i <= optionMaxMonth; i++) {
+      options.push(
+        <option
+          key={i}
+          value={i + 1}
+        >
+          {i + 1}
+        </option>
+      );
+    }
+    return options;
+  }, [
+    optionMinMonth,
+    optionMaxMonth,
+  ]);
+
+  let optionMinDay = 1, optionMaxDay = 31;
+  if (type !== "month" && isValidScripts) {
+    if ((min.getMonth() + 1) === monthValue && min.getFullYear() === yearValue) {
+      optionMinDay = min.getDate();
+    }
+    if ((max.getMonth() + 1) === monthValue && max.getFullYear() === yearValue) {
+      optionMaxDay = max.getDate();
+    }
+    if (yearValue != null && monthValue != null) {
+      optionMaxDay = Math.min(optionMaxDay, new Date(yearValue, monthValue, 0).getDate());
+    }
+  }
+
+  const dayOptions = useMemo(() => {
+    const options: Array<ReactNode> = [];
+    if (type === "month") return options;
+    for (let i = optionMinDay; i <= optionMaxDay; i++) {
+      options.push(
+        <option
+          key={i}
+          value={i}
+        >
+          {i}
+        </option>
+      );
+    }
+    return options;
+  }, [
+    optionMinDay,
+    optionMaxDay,
+  ]);
+
+
+  let optionMinHour = 0, optionMaxHour = 23;
+  if (type === "datetime" && isValidScripts) {
+    if (yearValue != null
+      && monthValue != null
+      && dayValue != null
+    ) {
+      if (min.getDate() === dayValue
+        && (min.getMonth() + 1) === monthValue
+        && min.getFullYear() === yearValue
+      ) {
+        optionMinHour = min.getHours();
+      }
+      if (max.getDate() === dayValue
+        && (max.getMonth() + 1) === monthValue
+        && max.getFullYear() === yearValue
+      ) {
+        optionMaxHour = max.getHours();
+      }
+    }
+    optionMinHour = Math.max(optionMinHour, minTime.h);
+    optionMaxHour = Math.min(optionMaxHour, maxTime.h);
+  }
+
+  const hourOptions = useMemo(() => {
+    const options: Array<ReactNode> = [];
+    if (type !== "datetime") return options;
+    const step = $hour?._.step ?? 1;
+    for (let i = optionMinHour; i <= optionMaxHour; i += step) {
+      options.push(
+        <option
+          key={i}
+          value={i}
+        >
+          {`0${i}`.slice(-2)}
+        </option>
+      );
+    }
+    return options;
+  }, [
+    optionMinHour,
+    optionMaxHour,
+  ]);
+
+  let optionMinMinute = 0, optionMaxMinute = 59;
+  if (type === "datetime" && isValidScripts) {
+    if (yearValue != null
+      && monthValue != null
+      && dayValue != null
+      && hourValue != null
+    ) {
+      if (min.getHours() === hourValue
+        && min.getDate() === dayValue
+        && (min.getMonth() + 1) === monthValue
+        && min.getFullYear() === yearValue
+      ) {
+        optionMinMinute = min.getMinutes();
+      }
+      if (max.getHours() === hourValue
+        && max.getDate() === dayValue
+        && (max.getMonth() + 1) === monthValue
+        && max.getFullYear() === yearValue
+      ) {
+        optionMaxMinute = max.getMinutes();
+      }
+    }
+    optionMinMinute = Math.max(optionMinMinute, minTime.m);
+    optionMaxMinute = Math.min(optionMaxMinute, maxTime.m);
+  }
+
+  const minuteOptions = useMemo(() => {
+    const options: Array<ReactNode> = [];
+    if (type !== "datetime") return options;
+    const step = $minute?._.step ?? 1;
+    for (let i = optionMinMinute; i <= optionMaxMinute; i += step) {
+      options.push(
+        <option
+          key={i}
+          value={i}
+        >
+          {`0${i}`.slice(-2)}
+        </option>
+      );
+    }
+    return options;
+  }, [
+    optionMinMinute,
+    optionMaxMinute,
+  ]);
+
+  let optionMinSecond = 0, optionMaxSecond = 59;
+  if (type === "datetime" && time === "hms" && isValidScripts) {
+    if (minuteValue !== null
+      && yearValue != null
+      && monthValue != null
+      && dayValue != null
+      && hourValue != null
+    ) {
+      if (min.getMinutes() === minuteValue
+        && min.getHours() === hourValue
+        && min.getDate() === dayValue
+        && (min.getMonth() + 1) === monthValue
+        && min.getFullYear() === yearValue
+      ) {
+        optionMinSecond = min.getSeconds();
+      }
+      if (max.getMinutes() === minuteValue
+        && max.getHours() === hourValue
+        && max.getDate() === dayValue
+        && (max.getMonth() + 1) === monthValue
+        && max.getFullYear() === yearValue
+      ) {
+        optionMaxSecond = max.getSeconds();
+      }
+    }
+    optionMinSecond = Math.max(optionMinSecond, minTime.s);
+    optionMaxSecond = Math.min(optionMaxSecond, maxTime.s);
+  }
+
+  const secondOptions = useMemo(() => {
+    const options: Array<ReactNode> = [];
+    if (type !== "datetime" || time !== "hms") return options;
+    const step = $second?._.step ?? 1;
+    for (let i = optionMinSecond; i <= optionMaxSecond; i += step) {
+      options.push(
+        <option
+          key={i}
+          value={i}
+        >
+          {i}
+        </option>
+      );
+    }
+    return options;
+  }, [
+    optionMinSecond,
+    optionMaxSecond,
+  ]);
+
+  useLayoutEffect(() => {
+    setRequired(getRequired);
+    setYearRequired(getYearRequired);
+    setMonthRequired(getMonthRequired);
+    setDayRequired(getDayRequired);
+    setHourRequired(getHourRequired);
+    setMinuteRequired(getMinuteRequired);
+    setSecondRequired(getSecondRequired);
+    if (!schema.isInitialize.current) {
+      const updateResults: Parameters<typeof schema.setResults>[0] = [];
+      function resetResult($: Schema.DataItem<Schema.$Any> | undefined, r: Schema.Result | null | undefined) {
+        if (!$?.name) return;
+        if (r !== schema.getResult($.name)) {
+          updateResults.push({ name: $.name, result: r });
+        }
+      };
+      resetResult($date, result);
+      resetResult($year, yearResult);
+      resetResult($month, monthResult);
+      resetResult($day, dayResult);
+      resetResult($hour, hourResult);
+      resetResult($minute, minuteResult);
+      resetResult($second, secondResult);
+      schema.setResults(updateResults);
+    }
+    return () => {
+      const updateResults: Parameters<typeof schema.setResults>[0] = [];
+      function clearResult($: Schema.DataItem<Schema.$Any> | undefined) {
+        if (!$?.name) return;
+        updateResults.push({ name: $.name, result: undefined });
+      }
+      clearResult($date);
+      clearResult($year);
+      clearResult($month);
+      clearResult($day);
+      clearResult($hour);
+      clearResult($minute);
+      clearResult($second);
+      schema.setResults(updateResults);
+    };
+  }, []);
+
+  const state = useRef(getDefaultState());
+  state.current.hidden = mode === "hidden";
+  state.current.disabled = fs.disabled || mode === "disabled";
+  state.current.readonly = fs.readOnly || mode === "readonly";
+  state.current.enabled = !state.current.hidden
+    && !state.current.disabled
+    && !state.current.readonly;
+
+  function mergeState(targetState: RefObject<Record<Schema.Mode, boolean>>, targetMode: Schema.Mode) {
+    targetState.current.hidden = state.current.hidden || targetMode === "hidden";
+    targetState.current.disabled = state.current.disabled || targetMode === "disabled";
+    targetState.current.readonly = state.current.readonly || targetMode === "readonly";
+    targetState.current.enabled = !targetState.current.hidden
+      && !targetState.current.disabled
+      && !targetState.current.readonly;
+  };
+
+  function handleChangeImpl($: Schema.DataItem<Schema.$Any> | undefined, v: string) {
+    if (!$) return;
+    const submission = schemaItemEffect($, schema, v);
+    const dateValue = parseTypedValue({
+      Y: yearValue,
+      M: monthValue,
+      D: dayValue,
+      h: hourValue,
+      m: minuteValue,
+      s: secondValue,
+    });
+    const dateSubmission = schemaItemEffect($date, schema, dateValue);
+    if ($date.name) {
+      schema.setValuesAndResults([
+        { name: $.name, value: submission.value, result: submission.result },
+        { name: $date.name, value: dateSubmission.value, result: dateSubmission.result },
+      ]);
+    } else {
+      schema.setValuesAndResults([
+        { name: $.name, value: submission.value, result: submission.result },
+      ]);
+      setValue(dateSubmission.value);
+      setResult(dateSubmission.result);
+    }
+  };
+
+  function handleYearChange(e: ChangeEvent<HTMLSelectElement>) {
+    handleChangeImpl($year, e.target.value);
+  };
+
+  function handleMonthChange(e: ChangeEvent<HTMLSelectElement>) {
+    handleChangeImpl($month, e.target.value);
+  };
+
+  function handleDayChange(e: ChangeEvent<HTMLSelectElement>) {
+    handleChangeImpl($day, e.target.value);
+  };
+
+  function handleHourChange(e: ChangeEvent<HTMLSelectElement>) {
+    handleChangeImpl($hour, e.target.value);
+  };
+
+  function handleMinuteChange(e: ChangeEvent<HTMLSelectElement>) {
+    handleChangeImpl($minute, e.target.value);
+  };
+
+  function handleSecondChange(e: ChangeEvent<HTMLSelectElement>) {
+    handleChangeImpl($second, e.target.value);
+  };
+
+  console.log([result, yearResult, monthResult, dayResult, hourResult, minuteResult, secondResult]);
+
   return (
     <InputGroup
+      {...props}
       ref={ref}
+      core={{
+        state,
+      }}
     >
+      {$date.name &&
+        <input
+          type="hidden"
+          name={$date.name}
+          value={value ?? ""}
+        />
+      }
+      <SplittedSelect
+        mergeState={mergeState}
+        $={$year}
+        mode={yearMode}
+        required={yearRequired}
+        value={yearValue}
+        onChange={handleYearChange}
+        result={yearResult}
+        placeholder={placeholder?.[0]}
+      >
+        {yearOptions}
+      </SplittedSelect>
+      <SepSpan>/</SepSpan>
+      <SplittedSelect
+        mergeState={mergeState}
+        $={$month}
+        mode={monthMode}
+        required={monthRequired}
+        value={monthValue}
+        onChange={handleMonthChange}
+        result={monthResult}
+        placeholder={placeholder?.[1]}
+      >
+        {monthOptions}
+      </SplittedSelect>
+      {type !== "month" &&
+        <>
+          <SepSpan>/</SepSpan>
+          <SplittedSelect
+            mergeState={mergeState}
+            $={$day}
+            mode={dayMode}
+            required={dayRequired}
+            value={dayValue}
+            onChange={handleDayChange}
+            result={dayResult}
+            placeholder={placeholder?.[2]}
+          >
+            {dayOptions}
+          </SplittedSelect>
+        </>
+      }
+      {type === "datetime" &&
+        <>
+          <SepSpan>&nbsp;</SepSpan>
+          <SplittedSelect
+            mergeState={mergeState}
+            $={$hour}
+            mode={hourMode}
+            required={hourRequired}
+            value={hourValue}
+            onChange={handleHourChange}
+            result={hourResult}
+            placeholder={placeholder?.[3]}
+          >
+            {hourOptions}
+          </SplittedSelect>
+          <SepSpan>:</SepSpan>
+          <SplittedSelect
+            mergeState={mergeState}
+            $={$minute}
+            mode={minuteMode}
+            required={minuteRequired}
+            value={minuteValue}
+            onChange={handleMinuteChange}
+            result={minuteResult}
+            placeholder={placeholder?.[4]}
+          >
+            {minuteOptions}
+          </SplittedSelect>
+          {time === "hms" &&
+            <>
+              <SepSpan>:</SepSpan>
+              <SplittedSelect
+                mergeState={mergeState}
+                $={$second}
+                mode={secondMode}
+                required={secondRequired}
+                value={secondValue}
+                onChange={handleSecondChange}
+                result={secondResult}
+                placeholder={placeholder?.[5]}
+              >
+                {dayOptions}
+              </SplittedSelect>
+            </>
+          }
+        </>
+      }
     </InputGroup>
   );
-  // function updateValue(name: string, value: number | null | undefined) {
-  //   const elem = ref.current.querySelector(`select[name=${name}]`);
-  //   if (!elem) return;
-  //   (elem as HTMLSelectElement).value = value == null ? "" : String(value);
-  // };
+};
 
-  // const {
-  //   name,
-  //   dataItem,
-  //   state,
-  //   required,
-  //   value,
-  //   setValue,
-  //   result,
-  //   label,
-  //   invalid,
-  //   errormessage,
-  //   validScripts,
-  //   props,
-  // } = useSchemaItem<Schema.DataItem<Schema.$SplitDate>>($props, {
-  //   effect: function ({ value }) {
-  //     if (!ref.current) return;
-  //     updateValue(names.year, value?.Y);
-  //     updateValue(names.month, value?.M);
-  //     updateValue(names.date, value?.D);
-  //     updateValue(names.hour, value?.h);
-  //     updateValue(names.minute, value?.m);
-  //     updateValue(names.second, value?.s);
-  //   },
-  // });
+interface SplittedSelectProps {
+  mergeState: (targetState: RefObject<Record<Schema.Mode, boolean>>, targetMode: Schema.Mode) => void;
+  $: Schema.DataItem<Schema.$SplitDate> | undefined;
+  mode: Schema.Mode;
+  required: boolean;
+  value: number | null | undefined;
+  onChange: (e: ChangeEvent<HTMLSelectElement>) => void;
+  result: Schema.Result | null | undefined;
+  placeholder: string | undefined;
+  children: ReactNode;
+};
 
-  // const {} = dataItem._.core.splits;
-  // const type = dataItem._.type;
-  // const time = dataItem._.time || "minute";
-  // const names = getSplitDateNames(name);
-  // const split = typeof dataItem.split === "object" ? dataItem.split : undefined;
+function SplittedSelect({
+  mergeState,
+  $,
+  mode,
+  required,
+  value,
+  onChange,
+  result,
+  placeholder,
+  children,
+}: SplittedSelectProps) {
+  const state = useRef(getDefaultState());
+  mergeState(state, mode);
 
-  // const min = useMemo(() => {
-  //   try {
-  //     return parseDate(dataItem.min?.[0]?.()) ?? DEFAULT_MIN_DATE;
-  //   } catch {
-  //     return DEFAULT_MIN_DATE;
-  //   }
-  // }, [dataItem.min]);
+  function handleChange(e: ChangeEvent<HTMLSelectElement>) {
+    if (!state.current.enabled || !$) return;
+    onChange(e);
+  };
 
-  // const max = useMemo(() => {
-  //   try {
-  //     return parseDate(dataItem.max?.[0]?.()) ?? DEFAULT_MAX_DATE;
-  //   } catch {
-  //     return DEFAULT_MAX_DATE;
-  //   }
-  // }, [dataItem.max]);
-
-  // const minTime = useMemo(() => {
-  //   return parseTimeNums(dataItem.minTime?.[0]?.());
-  // }, [dataItem.minTime]);
-
-  // const maxTime = useMemo(() => {
-  //   return parseTimeNums(dataItem.maxTime?.[0]?.(), { h: 23, m: 59, s: 59 });
-  // }, [dataItem.maxTime]);
-
-  // function handleChange(key: keyof Exclude<typeof value, null | undefined>, v: string) {
-  //   const newValue = {
-  //     ...value,
-  //     [key]: v ? Number(v) : undefined,
-  //   };
-  //   setValue(newValue);
-  // };
-
-  // function handleChangeYear(e: ChangeEvent<HTMLSelectElement>) {
-  //   handleChange("Y", e.target.value);
-  // };
-
-  // function handleChangeMonth(e: ChangeEvent<HTMLSelectElement>) {
-  //   handleChange("M", e.target.value);
-  // };
-
-  // function handleChangeDay(e: ChangeEvent<HTMLSelectElement>) {
-  //   handleChange("D", e.target.value);
-  // };
-
-  // function handleChangeHour(e: ChangeEvent<HTMLSelectElement>) {
-  //   handleChange("h", e.target.value);
-  // };
-
-  // function handleChangeMinute(e: ChangeEvent<HTMLSelectElement>) {
-  //   handleChange("m", e.target.value);
-  // };
-
-  // function handleChangeSecond(e: ChangeEvent<HTMLSelectElement>) {
-  //   handleChange("s", e.target.value);
-  // };
-
-  // const yearOptions = useMemo(() => {
-  //   const options: Array<ReactNode> = [];
-  //   const minY = min.getFullYear();
-  //   const maxY = max.getFullYear();
-  //   for (let i = minY; i <= maxY; i++) {
-  //     options.push(
-  //       <option
-  //         key={i}
-  //         value={i}
-  //       >
-  //         {i}
-  //       </option>
-  //     );
-  //   }
-  //   return options;
-  // }, [
-  //   validScripts,
-  //   min,
-  //   max,
-  // ]);
-
-  // const monthOptions = useMemo(() => {
-  //   const options: Array<ReactNode> = [];
-  //   let minM = 0, maxM = 11;
-  //   if (min.getFullYear() === max.getFullYear()) {
-  //     minM = min.getMonth();
-  //     maxM = max.getMonth();
-  //   }
-  //   if (validScripts && value?.Y) {
-  //     if (min.getFullYear() === value.Y) {
-  //       minM = min.getMonth();
-  //     }
-  //     if (max.getFullYear() === value.Y) {
-  //       maxM = max.getMonth();
-  //     }
-  //   }
-  //   for (let i = minM; i <= maxM; i++) {
-  //     options.push(
-  //       <option
-  //         key={i}
-  //         value={i + 1}
-  //       >
-  //         {i + 1}
-  //       </option>
-  //     )
-  //   }
-  //   return options;
-  // }, [
-  //   validScripts,
-  //   min,
-  //   max,
-  //   value?.Y,
-  // ]);
-
-  // const dayOptions = useMemo(() => {
-  //   const options: Array<ReactNode> = [];
-  //   if (dataItem.type === "month") return options;
-  //   let minD = 1, maxD = 31;
-  //   if (validScripts) {
-  //     if ((min.getMonth() + 1) === value?.M && min.getFullYear() === value.Y) {
-  //       minD = min.getDate();
-  //     }
-  //     if ((max.getMonth() + 1) === value?.M && max.getFullYear() === value.Y) {
-  //       maxD = max.getDate();
-  //     }
-  //     if (value?.Y != null && value.M != null) {
-  //       maxD = Math.min(maxD, new Date(value.Y, value.M, 0).getDate());
-  //     }
-  //   }
-  //   for (let i = minD; i <= maxD; i++) {
-  //     options.push(
-  //       <option
-  //         key={i}
-  //         value={i}
-  //       >
-  //         {i}
-  //       </option>
-  //     );
-  //   }
-  //   return options;
-  // }, [
-  //   validScripts,
-  //   min,
-  //   max,
-  //   value?.Y,
-  //   value?.M,
-  // ]);
-
-  // const hourOptions = useMemo(() => {
-  //   const options: Array<ReactNode> = [];
-  //   if (dataItem.type !== "datetime") return options;
-  //   let minH = 0, maxH = 23, step = 1;
-  //   if (validScripts) {
-  //     if (value?.Y != null && value.M != null && value.D != null) {
-  //       if (min.getDate() === value.D && (min.getMonth() + 1) === value.M && min.getFullYear() === value.Y) {
-  //         minH = min.getHours();
-  //       }
-  //       if (max.getDate() === value.D && (max.getMonth() + 1) === value.M && max.getFullYear() === value.Y) {
-  //         maxH = max.getHours();
-  //       }
-  //     }
-  //   }
-  //   minH = Math.max(minH, minTime.h);
-  //   maxH = Math.min(maxH, maxTime.h);
-  //   if (time === "hour") {
-  //     step = Math.ceil(dataItem.step || 1);
-  //   }
-  //   for (let i = minH; i <= maxH; i += step) {
-  //     options.push(
-  //       <option
-  //         key={i}
-  //         value={i}
-  //       >
-  //         {`0${i}`.slice(-2)}
-  //       </option>
-  //     );
-  //   }
-  //   return options;
-  // }, [
-  //   validScripts,
-  //   min,
-  //   max,
-  //   value?.Y,
-  //   value?.M,
-  //   value?.D,
-  // ]);
-
-  // const minuteOptions = useMemo(() => {
-  //   const options: Array<ReactNode> = [];
-  //   if (dataItem.type !== "datetime" || time === "hour") return options;
-  //   let minM = 0, maxM = 59, step = 1;
-  //   if (validScripts) {
-  //     if (value?.Y != null && value.M != null && value.D != null) {
-  //       if (min.getHours() === value.h && min.getDate() === value.D && (min.getMonth() + 1) === value.M && min.getFullYear() === value.Y) {
-  //         minM = min.getMinutes();
-  //       }
-  //       if (max.getHours() === value.h && max.getDate() === value.D && (max.getMonth() + 1) === value.M && max.getFullYear() === value.Y) {
-  //         maxM = max.getMinutes();
-  //       }
-  //     }
-  //     if (minTime.h === value?.h) {
-  //       minM = Math.max(minM, minTime.m);
-  //     }
-  //     if (maxTime.h === value?.h) {
-  //       maxM = Math.min(maxM, maxTime.m);
-  //     }
-  //   }
-  //   if (time === "minute") {
-  //     step = Math.ceil(dataItem.step || 1);
-  //   }
-  //   for (let i = minM; i <= maxM; i += step) {
-  //     options.push(
-  //       <option
-  //         key={i}
-  //         value={i}
-  //       >
-  //         {`0${i}`.slice(-2)}
-  //       </option>
-  //     );
-  //   }
-  //   return options;
-  // }, [
-  //   validScripts,
-  //   min,
-  //   max,
-  //   value?.Y,
-  //   value?.M,
-  //   value?.D,
-  //   value?.h,
-  // ]);
-
-  // const secondOptions = useMemo(() => {
-  //   const options: Array<ReactNode> = [];
-  //   if (dataItem.type !== "datetime" || time !== "second") return options;
-  //   let minS = 0, maxS = 59, step = 1;
-  //   if (validScripts) {
-  //     if (value?.Y != null && value.M != null && value.D != null) {
-  //       if (min.getMinutes() === value.m && min.getHours() === value.h && min.getDate() === value.D && (min.getMonth() + 1) === value.M && min.getFullYear() === value.Y) {
-  //         minS = min.getSeconds();
-  //       }
-  //       if (max.getMinutes() === value.m && max.getHours() === value.h && max.getDate() === value.D && (max.getMonth() + 1) === value.M && max.getFullYear() === value.Y) {
-  //         maxS = max.getSeconds();
-  //       }
-  //     }
-  //     if (minTime.m === value?.m && minTime.h === value.h) {
-  //       minS = Math.max(minS, minTime.s);
-  //     }
-  //     if (maxTime.m === value?.m && maxTime.h === value.h) {
-  //       maxS = Math.min(maxS, maxTime.s);
-  //     }
-  //   }
-  //   if (time === "second") {
-  //     step = Math.ceil(dataItem.step || 1);
-  //   }
-  //   for (let i = minS; i <= maxS; i += step) {
-  //     options.push(
-  //       <option
-  //         key={i}
-  //         value={i}
-  //       >
-  //         {`0${i}`.slice(-2)}
-  //       </option>
-  //     );
-  //   }
-  //   return options;
-  // }, [
-  //   validScripts,
-  //   min,
-  //   max,
-  //   value?.Y,
-  //   value?.M,
-  //   value?.D,
-  //   value?.h,
-  //   value?.m,
-  // ]);
-
-  // const isReadOnly = !state.current.disabled && state.current.readonly;
-
-  // return (
-  //   <InputGroup
-  //     {...props}
-  //     ref={ref}
-  //     core={{
-  //       state,
-  //       result,
-  //     }}
-  //   >
-  //     <InputField
-  //       core={{
-  //         state: {
-  //           current: {
-  //             ...state.current,
-  //             disabled: state.current.disabled || split?.Y?.disabled,
-  //             readonly: state.current.readonly || split?.Y?.readOnly,
-  //           },
-  //         },
-  //       }}
-  //     >
-  //       <select
-  //         className="ipt-main ipt-select"
-  //         name={names.year}
-  //         required={required || !!split?.Y?.required}
-  //         disabled={!state.current.enabled || split?.Y?.readOnly || split?.Y?.disabled}
-  //         aria-disabled={state.current.disabled || split?.Y?.disabled}
-  //         aria-readonly={state.current.readonly || split?.Y?.readOnly}
-  //         defaultValue={value?.Y || undefined}
-  //         onChange={handleChangeYear}
-  //         aria-label={label}
-  //         aria-invalid={invalid}
-  //         aria-errormessage={errormessage}
-  //       >
-  //         <option
-  //           value=""
-  //           data-notext="true"
-  //         >
-  //           &nbsp;
-  //         </option>
-  //         {yearOptions}
-  //       </select>
-  //       <Placeholder>{placeholder?.[0]}</Placeholder>
-  //       <div
-  //         className={clsx(
-  //           "ipt-btn",
-  //           !state.current.enabled && "opacity-0"
-  //         )}
-  //       />
-  //       {(isReadOnly && !split?.Y?.disabled && split?.Y?.readOnly) &&
-  //         <input
-  //           type="hidden"
-  //           name={names.year}
-  //           value={value?.Y || undefined}
-  //         />
-  //       }
-  //     </InputField>
-  //     <SepSpan>/</SepSpan>
-  //     <InputField
-  //       core={{
-  //         disabled: state.current.disabled || split?.M?.disabled,
-  //         readOnly: state.current.readonly || split?.M?.readOnly,
-  //       }}
-  //     >
-  //       <select
-  //         className="ipt-main ipt-select"
-  //         name={names.month}
-  //         required={required || !!split?.M?.required}
-  //         disabled={!state.current.enabled || split?.M?.readOnly || split?.M?.disabled}
-  //         aria-disabled={state.current.disabled || split?.M?.disabled}
-  //         aria-readonly={state.current.readonly || split?.M?.readOnly}
-  //         defaultValue={value?.M || undefined}
-  //         onChange={handleChangeMonth}
-  //         aria-label={label}
-  //         aria-invalid={invalid}
-  //         aria-errormessage={errormessage}
-  //       >
-  //         <option
-  //           value=""
-  //           data-notext="true"
-  //         >
-  //           &nbsp;
-  //         </option>
-  //         {monthOptions}
-  //       </select>
-  //       <Placeholder>{placeholder?.[1]}</Placeholder>
-  //       <div
-  //         className={clsx(
-  //           "ipt-btn",
-  //           !state.current.enabled && "opacity-0"
-  //         )}
-  //       />
-  //       {(isReadOnly && !split?.M?.disabled && split?.M?.readOnly) &&
-  //         <input
-  //           type="hidden"
-  //           name={names.month}
-  //           value={value?.M || undefined}
-  //         />
-  //       }
-  //     </InputField>
-  //     {dataItem.type !== "month" &&
-  //       <>
-  //         <SepSpan>/</SepSpan>
-  //         <InputField
-  //           core={{
-  //             disabled: state.current.disabled || split?.D?.disabled,
-  //             readOnly: state.current.readonly || split?.D?.readOnly,
-  //           }}
-  //         >
-  //           <select
-  //             className="ipt-main ipt-select"
-  //             name={names.date}
-  //             required={required || !!split?.D?.required}
-  //             disabled={!state.current.enabled || split?.D?.readOnly || split?.D?.disabled}
-  //             aria-disabled={state.current.disabled || split?.D?.disabled}
-  //             aria-readonly={state.current.readonly || split?.D?.readOnly}
-  //             defaultValue={value?.D || undefined}
-  //             onChange={handleChangeDay}
-  //             aria-label={label}
-  //             aria-invalid={invalid}
-  //             aria-errormessage={errormessage}
-  //           >
-  //             <option
-  //               value=""
-  //               data-notext="true"
-  //             >
-  //               &nbsp;
-  //             </option>
-  //             {dayOptions}
-  //           </select>
-  //           <Placeholder>{placeholder?.[2]}</Placeholder>
-  //           <div
-  //             className={clsx(
-  //               "ipt-btn",
-  //               !state.current.enabled && "opacity-0"
-  //             )}
-  //           />
-  //           {(isReadOnly && !split?.D?.disabled && split?.D?.readOnly) &&
-  //             <input
-  //               type="hidden"
-  //               name={names.date}
-  //               value={value?.D || undefined}
-  //             />
-  //           }
-  //         </InputField>
-  //         {dataItem.type === "datetime" &&
-  //           <>
-  //             <SepSpan>&nbsp;</SepSpan>
-  //             <InputField
-  //               core={{
-  //                 state: {
-  //                   current: {
-  //                     ...state.current,
-  //                     disabled: state.current.disabled || split?.h?.disabled,
-  //                     readonly: state.current.readonly || split?.h?.readOnly,
-  //                   },
-  //                 },
-  //               }}
-  //             >
-  //               <select
-  //                 className="ipt-main ipt-select"
-  //                 name={names.hour}
-  //                 required={required || !!split?.h?.required}
-  //                 disabled={!state.current.enabled || split?.h?.readOnly || split?.h?.disabled}
-  //                 aria-disabled={state.current.disabled || split?.h?.disabled}
-  //                 aria-readonly={state.current.readonly || split?.h?.readOnly}
-  //                 defaultValue={value?.h || undefined}
-  //                 onChange={handleChangeHour}
-  //                 aria-label={label}
-  //                 aria-invalid={invalid}
-  //                 aria-errormessage={errormessage}
-  //               >
-  //                 <option
-  //                   value=""
-  //                   data-notext="true"
-  //                 >
-  //                   &nbsp;
-  //                 </option>
-  //                 {hourOptions}
-  //               </select>
-  //               <Placeholder>{placeholder?.[3]}</Placeholder>
-  //               <div
-  //                 className={clsx(
-  //                   "ipt-btn",
-  //                   !state.current.enabled && "opacity-0"
-  //                 )}
-  //               />
-  //               {(isReadOnly && !split?.h?.disabled && split?.h?.readOnly) &&
-  //                 <input
-  //                   type="hidden"
-  //                   name={names.hour}
-  //                   value={value?.h || undefined}
-  //                 />
-  //               }
-  //             </InputField>
-  //             <SepSpan>:</SepSpan>
-  //             {time === "hour" ?
-  //               <span>00</span>
-  //               :
-  //               <>
-  //                 <InputField
-  //                   core={{
-  //                     state: {
-  //                       current: {
-  //                         ...state.current,
-  //                         disabled: state.current.disabled || split?.m?.disabled,
-  //                         readonly: state.current.readonly || split?.m?.readOnly,
-  //                       },
-  //                     },
-  //                   }}
-  //                 >
-  //                   <select
-  //                     className="ipt-main ipt-select"
-  //                     name={names.minute}
-  //                     required={required || !!split?.m?.required}
-  //                     disabled={!state.current.enabled || split?.m?.readOnly || split?.m?.disabled}
-  //                     aria-disabled={state.current.disabled || split?.m?.disabled}
-  //                     aria-readonly={state.current.readonly || split?.m?.readOnly}
-  //                     defaultValue={value?.m || undefined}
-  //                     onChange={handleChangeMinute}
-  //                     aria-label={label}
-  //                     aria-invalid={invalid}
-  //                     aria-errormessage={errormessage}
-  //                   >
-  //                     <option
-  //                       value=""
-  //                       data-notext="true"
-  //                     >
-  //                       &nbsp;
-  //                     </option>
-  //                     {minuteOptions}
-  //                   </select>
-  //                   <Placeholder>{placeholder?.[4]}</Placeholder>
-  //                   <div
-  //                     className={clsx(
-  //                       "ipt-btn",
-  //                       !state.current.enabled && "opacity-0"
-  //                     )}
-  //                   />
-  //                   {(isReadOnly && !split?.m?.disabled && split?.m?.readOnly) &&
-  //                     <input
-  //                       type="hidden"
-  //                       name={names.month}
-  //                       value={value?.m || undefined}
-  //                     />
-  //                   }
-  //                 </InputField>
-  //                 {time === "second" &&
-  //                   <>
-  //                     <SepSpan>:</SepSpan>
-  //                     <InputField
-  //                       core={{
-  //                         state: {
-  //                           current: {
-  //                             ...state.current,
-  //                             disabled: state.current.disabled || split?.s?.disabled,
-  //                             readonly: state.current.readonly || split?.s?.readOnly,
-  //                           },
-  //                         },
-  //                       }}
-  //                     >
-  //                       <select
-  //                         className="ipt-main ipt-select"
-  //                         name={names.second}
-  //                         required={required || !!split?.s?.required}
-  //                         disabled={!state.current.enabled || split?.s?.readOnly || split?.s?.disabled}
-  //                         aria-disabled={state.current.disabled || split?.s?.disabled}
-  //                         aria-readonly={state.current.readonly || split?.s?.readOnly}
-  //                         defaultValue={value?.s || undefined}
-  //                         onChange={handleChangeSecond}
-  //                         aria-label={label}
-  //                         aria-invalid={invalid}
-  //                         aria-errormessage={errormessage}
-  //                       >
-  //                         <option
-  //                           value=""
-  //                           data-notext="true"
-  //                         >
-  //                           &nbsp;
-  //                         </option>
-  //                         {secondOptions}
-  //                       </select>
-  //                       <Placeholder>{placeholder?.[5]}</Placeholder>
-  //                       <div
-  //                         className={clsx(
-  //                           "ipt-btn",
-  //                           !state.current.enabled && "opacity-0"
-  //                         )}
-  //                       />
-  //                       {(isReadOnly && !split?.s?.disabled && split?.s?.readOnly) &&
-  //                         <input
-  //                           type="hidden"
-  //                           name={names.second}
-  //                           value={value?.s || undefined}
-  //                         />
-  //                       }
-  //                     </InputField>
-  //                   </>
-  //                 }
-  //               </>
-  //             }
-  //           </>
-  //         }
-  //       </>
-  //     }
-  //   </InputGroup>
-  // );
+  return (
+    <InputField
+      core={{
+        state,
+        result,
+      }}
+      hideMessage
+    >
+      <select
+        className="ipt-main ipt-select"
+        name={$?.name}
+        required={required}
+        disabled={!state.current.enabled}
+        aria-disabled={state.current.disabled}
+        aria-readonly={state.current.readonly}
+        defaultValue={value ?? ""}
+        aria-label={$?.label}
+        aria-invalid={result?.type === "e"}
+        aria-errormessage={result?.type === "e" ? result.message : undefined}
+        onChange={handleChange}
+      >
+        <option
+          value=""
+          data-notext="true"
+        >
+          {ZERO_WIDTH_SPACE}
+        </option>
+        {children}
+      </select>
+      <Placeholder>{placeholder}</Placeholder>
+      <div
+        className={clsx(
+          "ipt-btn",
+          !state.current.enabled && "opacity-0"
+        )}
+      />
+      {state.current.readonly && $?.name &&
+        <input
+          type="hidden"
+          name={$?.name}
+          value={value ?? ""}
+        />
+      }
+    </InputField>
+  )
 };

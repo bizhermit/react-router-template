@@ -2,31 +2,41 @@ import { createContext, use, useCallback, useContext, useId, useLayoutEffect, us
 import { SchemaData } from "./data";
 import { parseWithSchema } from ".";
 import { unstable_usePrompt } from "react-router";
-import { clone, isEmpty } from "../objects";
+import { clone } from "../objects";
 
-export type SchemaEffectParameters =
-  | {
-    type: "data";
-    data: SchemaData;
-    results: Record<string, Schema.Result>;
-    dep: Record<string, any>;
-  }
-  | {
-    type: "value-result",
-    items: Array<{ name: string; value: any; result: Schema.Result | null | undefined; }>;
-  }
-  | {
-    type: "value";
-    items: Array<{ name: string; value: any; }>;
-  }
-  | {
-    type: "result";
-    items: Array<{ name: string; result: Schema.Result | null | undefined; }>;
-  }
-  | {
-    type: "dep";
-    dep: Record<string, any>;
-  }
+export interface SchemaEffectParams_Data {
+  type: "data";
+  data: SchemaData;
+  results: Record<string, Schema.Result>;
+  dep: Record<string, any>;
+};
+
+export interface SchemaEffectParams_ValueResult {
+  type: "value-result",
+  items: Array<{ name: string; value: any; result: Schema.Result | null | undefined; }>;
+};
+
+export interface SchemaEffectParams_Value {
+  type: "value";
+  items: Array<{ name: string; value: any; }>;
+};
+
+export interface SchemaEffectParams_Result {
+  type: "result";
+  items: Array<{ name: string; result: Schema.Result | null | undefined; }>;
+};
+
+export interface SchemaEffectParams_Dep {
+  type: "dep";
+  dep: Record<string, any>;
+};
+
+export type SchemaEffectParams =
+  | SchemaEffectParams_Data
+  | SchemaEffectParams_ValueResult
+  | SchemaEffectParams_Value
+  | SchemaEffectParams_Result
+  | SchemaEffectParams_Dep
   ;
 
 interface FormItemMountProps {
@@ -40,7 +50,7 @@ interface SchemaContextProps<S extends Record<string, Schema.$Any> = Record<stri
   dep: RefObject<Record<string, any>>;
   dataItems: Schema.DataItems<S>;
   addSubscribe: (
-    effect: (params: SchemaEffectParameters) => void,
+    effect: (params: SchemaEffectParams) => void,
     formItem?: FormItemMountProps
   ) => (() => void);
   getResult: (name: string) => Schema.Result | null | undefined;
@@ -92,7 +102,7 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
   const isValidScripts = useRef(false);
   const isEffected = useRef(false);
 
-  const subscribes = useRef<Array<(params: SchemaEffectParameters) => void>>([]);
+  const subscribes = useRef<Array<(params: SchemaEffectParams) => void>>([]);
   const results = useRef<Record<string, Schema.Result>>({});
   const bindData = useRef<SchemaData>(null!);
   const dep = useRef(props.dep ?? EMPTY_STRUCT);
@@ -123,13 +133,13 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
     }
     bindData.current = new SchemaData(submission.data, ({ items }) => {
       isEffected.current = true;
-      const params: SchemaEffectParameters = { type: "value", items };
+      const params: SchemaEffectParams = { type: "value", items };
       subscribes.current.forEach(f => f(params));
     });
   }, [props.data]);
 
   const addSubscribe = useCallback((
-    effect: (params: SchemaEffectParameters) => void,
+    effect: (params: SchemaEffectParams) => void,
     formItem?: FormItemMountProps
   ) => {
     subscribes.current.push(effect);
@@ -169,7 +179,7 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
       }
     });
     if (change) {
-      const params: SchemaEffectParameters = { type: "result", items };
+      const params: SchemaEffectParams = { type: "result", items };
       subscribes.current.forEach(f => f(params));
     }
     return change;
@@ -178,7 +188,7 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
   function setResult(name: string, result: Schema.Result | null | undefined) {
     const change = setResultImpl(name, result);
     if (change) {
-      const params: SchemaEffectParameters = { type: "result", items: [{ name, result }] };
+      const params: SchemaEffectParams = { type: "result", items: [{ name, result }] };
       subscribes.current.forEach(f => f(params));
     }
     return change;
@@ -211,7 +221,7 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
       }
     });
     if (change) {
-      const params: SchemaEffectParameters = { type: "value-result", items };
+      const params: SchemaEffectParams = { type: "value-result", items };
       subscribes.current.forEach(f => f(params));
     }
     return change;
@@ -221,7 +231,7 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
     const items = [{ name, value, result }];
     const change = setValueAndResultImpl(name, value, result);
     if (change) {
-      const params: SchemaEffectParameters = { type: "value-result", items };
+      const params: SchemaEffectParams = { type: "value-result", items };
       subscribes.current.forEach(f => f(params));
     }
     return change;
@@ -259,7 +269,7 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
     const newDep = props.dep ?? EMPTY_STRUCT;
     if (dep.current === (newDep)) return;
     dep.current = newDep;
-    const params: SchemaEffectParameters = { type: "dep", dep: newDep };
+    const params: SchemaEffectParams = { type: "dep", dep: newDep };
     subscribes.current.forEach(f => f(params));
   }, [props.dep]);
 
@@ -267,7 +277,7 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
     if (isFirstLoad.current) {
       isFirstLoad.current = false;
     } else {
-      const params: SchemaEffectParameters = {
+      const params: SchemaEffectParams = {
         type: "data",
         data: bindData.current,
         results: results.current,
@@ -306,13 +316,12 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
   } as const;
 };
 
-
 export function useSchemaContext<S extends Record<string, Schema.$Any> = Record<string, Schema.$Any>>() {
   return useContext(SchemaContext) as SchemaContextProps<S>;
 };
 
 export function useSchemaEffect(
-  effect: (params: SchemaEffectParameters) => void,
+  effect: (params: SchemaEffectParams) => void,
   getFormItemMountProps?: () => FormItemMountProps,
 ) {
   const schema = use(SchemaContext);
@@ -418,28 +427,136 @@ export interface SchemaItemProps<D extends Schema.DataItem<Schema.$Any>> extends
   readOnly?: boolean;
 };
 
-const MODE_PRIORITY = {
+export const MODE_PRIORITY = {
   enabled: 0,
   readonly: 1,
   disabled: 2,
   hidden: 3,
 } satisfies Record<Schema.Mode, number>;
 
-const MODE = {
+export const MODE = {
   [MODE_PRIORITY.enabled]: "enabled",
   [MODE_PRIORITY.readonly]: "readonly",
   [MODE_PRIORITY.disabled]: "disabled",
   [MODE_PRIORITY.hidden]: "hidden",
 } satisfies Record<number, Schema.Mode>;
 
-function getDefaultState() {
+export function getDefaultState() {
   return {
     enabled: true,
     disabled: false,
     readonly: false,
     hidden: false,
   } as Record<Schema.Mode, boolean>;
-}
+};
+
+type SchemaEffectHookParams = ReturnType<typeof useSchemaEffect>;
+
+export function getSchemaItemMode($: Schema.DataItem<Schema.$Any>, schema: SchemaEffectHookParams) {
+  let parent = $.parent;
+  const modeParams: Schema.ModeParams = {
+    data: schema.data.current,
+    dep: schema.dep.current,
+    env: schema.env,
+  };
+  let mode: keyof typeof MODE = MODE_PRIORITY[$._.mode?.(modeParams) ?? "enabled"];
+  while (parent?.name) {
+    if (mode === MODE_PRIORITY.hidden) break;
+    mode = Math.max(MODE_PRIORITY[parent._.mode?.(modeParams) ?? "enabled"]);
+    parent = parent.parent;
+  }
+  return MODE[mode];
+};
+
+export function getSchemaItemRequired(
+  $: Schema.DataItem<Schema.$Any>,
+  schema: SchemaEffectHookParams,
+) {
+  if (typeof $._.required === "function") {
+    return $._.required({
+      data: schema.data.current,
+      dep: schema.dep.current,
+      env: schema.env,
+      label: $.label,
+    });
+  }
+  return $._.required === true;
+};
+
+export function getSchemaItemResult(
+  $: Schema.DataItem<Schema.$Any>,
+  schema: ReturnType<typeof useSchemaEffect>,
+  getValue: () => any,
+) {
+  if (schema.isInitialize.current) {
+    if (!$.name) return undefined;
+    return schema.getResult($.name);
+  }
+  let r: Schema.Result | null | undefined;
+  const params: Schema.ValidationParams<any> = {
+    data: schema.data.current,
+    dep: schema.dep.current,
+    env: schema.env,
+    label: $.label,
+    value: getValue(),
+  };
+  for (const vali of $._.validators) {
+    r = vali(params);
+    if (r) return r;
+  }
+  return undefined;
+};
+
+export function parseSchemaItemValue<D extends Schema.DataItem<Schema.$Any>>(
+  $: D,
+  schema: SchemaEffectHookParams,
+  value: any,
+) {
+  return $._.parser({
+    dep: schema.dep.current,
+    env: schema.env,
+    value,
+  }) as {
+    value: Schema.ValueType<D["_"], true, true>;
+    result: Schema.Result | null | undefined;
+  };
+};
+
+export function schemaItemValidation<D extends Schema.DataItem<Schema.$Any>>(
+  $: D,
+  schema: SchemaEffectHookParams,
+  value: any,
+) {
+  let r: Schema.Result | null | undefined;
+  const params: Schema.ValidationParams<any> = {
+    data: schema.data.current,
+    dep: schema.dep.current,
+    env: schema.env,
+    label: $.label,
+    value,
+  };
+  for (const vali of $._.validators) {
+    r = vali(params);
+    if (r) break;
+  }
+  return r;
+};
+
+export function schemaItemEffect<D extends Schema.DataItem<Schema.$Any>>(
+  $: D,
+  schema: SchemaEffectHookParams,
+  value: any,
+) {
+  const parsed = parseSchemaItemValue($, schema, value);
+  let r = parsed.result;
+  if (!r) {
+    r = schemaItemValidation($, schema, parsed.value);
+  }
+  return {
+    value: parsed.value,
+    result: r,
+  } as const;
+};
 
 export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
   $,
@@ -453,9 +570,9 @@ export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
     data: SchemaData;
     dep: Record<string, any>;
     env: Schema.Env;
-    label: string;
+    label: string | undefined;
   }) => void;
-  watchChildEffect?: (params: SchemaEffectParameters) => void;
+  watchChildEffect?: (params: SchemaEffectParams) => void;
 }) {
   const id = useId();
   const isEffected = useRef(false);
@@ -480,41 +597,23 @@ export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
           label: $.label,
         });
         break;
-      case "value-result": {
-        const item = params.items.find(item => item.name === $.name);
-        if (item) {
-          setValue(item.value);
-          setResult(item.result);
-          options.effect?.(item);
-          isEffected.current = true;
-        } else if (params.items.some(item => $._.refs?.some(ref => ref === item.name))) {
-          setMode(getMode);
-          setRequired(getRequired);
-          options.effectContext?.({
-            data: schema.data.current,
-            dep: schema.dep.current,
-            env: schema.env,
-            label: $.label,
-          });
-          isEffected.current = true;
-        } else {
-          if (options.watchChildEffect) {
-            if (params.items.some(item => item.name.startsWith($.name))) {
-              options.watchChildEffect(params);
-            }
-          }
-        }
-        break;
-      }
+      case "value-result":
       case "value": {
-        const item = params.items.find(item => item.name === $.name);
+        const item = (params as SchemaEffectParams_ValueResult).items.find(item => item.name === $.name);
         if (item) {
-          const submission = effect(item.value);
-          setValue(submission.value);
-          setResult(submission.result);
-          options.effect?.(submission);
+          if (params.type === "value-result") {
+            setValue(item.value);
+            setResult(item.result);
+            options.effect?.(item);
+          } else {
+            const submission = effect(item.value);
+            setValue(submission.value);
+            setResult(submission.result);
+            options.effect?.(submission);
+          }
           isEffected.current = true;
-        } else if (params.items.some(item => $._.refs?.some(ref => ref === item.name))) {
+        }
+        if (params.items.some(item => $._.refs?.some(ref => ref === item.name))) {
           const result = validation(getValue());
           setMode(getMode);
           setRequired(getRequired);
@@ -527,11 +626,10 @@ export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
           if (schema.setResult($.name, result)) {
             isEffected.current = true;
           }
-        } else {
-          if (options.watchChildEffect) {
-            if (params.items.some(item => item.name.startsWith($.name))) {
-              options.watchChildEffect(params);
-            }
+        }
+        if (options.watchChildEffect) {
+          if (params.items.some(item => item.name.startsWith($.name))) {
+            options.watchChildEffect(params);
           }
         }
         break;
@@ -565,19 +663,7 @@ export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
   });
 
   function getMode() {
-    let parent = $.parent;
-    const modeParams: Schema.ModeParams = {
-      data: schema.data.current,
-      dep: schema.dep.current,
-      env: schema.env,
-    };
-    let mode: keyof typeof MODE = MODE_PRIORITY[$._.mode?.(modeParams) ?? "enabled"];
-    while (parent?.name) {
-      if (mode === MODE_PRIORITY.hidden) break;
-      mode = Math.max(MODE_PRIORITY[parent._.mode?.(modeParams) ?? "enabled"]);
-      parent = parent.parent;
-    }
-    return MODE[mode];
+    return getSchemaItemMode($, schema);
   };
 
   const [mode, setMode] = useState(getMode);
@@ -589,75 +675,27 @@ export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
   const [value, setValue] = useState(getValue);
 
   function getResult() {
-    if (schema.isInitialize.current) return schema.getResult($.name);
-    let r: Schema.Result | null | undefined;
-    const params: Schema.ValidationParams<any> = {
-      data: schema.data.current,
-      dep: schema.dep.current,
-      env: schema.env,
-      label: $.label,
-      value: getValue(),
-    };
-    for (const vali of $._.validators) {
-      r = vali(params);
-      if (r) return r;
-    }
-    return undefined;
+    return getSchemaItemResult($, schema, getValue);
   };
 
   const [result, setResult] = useState(getResult);
 
   function getRequired() {
-    if (typeof $._.required === "function") {
-      return $._.required({
-        data: schema.data.current,
-        dep: schema.dep.current,
-        env: schema.env,
-        label: $.label,
-      });
-    }
-    return $._.required === true;
+    return getSchemaItemRequired($, schema);
   };
 
   const [required, setRequired] = useState(getRequired);
 
   function parse(value: any) {
-    return $._.parser({
-      dep: schema.dep.current,
-      env: schema.env,
-      value,
-    }) as {
-      value: Schema.ValueType<D["_"], true, true>;
-      result: Schema.Result | null | undefined;
-    };
+    return parseSchemaItemValue($, schema, value);
   };
 
   function validation(value: any) {
-    let r: Schema.Result | null | undefined;
-    const params: Schema.ValidationParams<any> = {
-      data: schema.data.current,
-      dep: schema.dep.current,
-      env: schema.env,
-      label: $.label,
-      value,
-    };
-    for (const vali of $._.validators) {
-      r = vali(params);
-      if (r) break;
-    }
-    return r;
+    return schemaItemValidation($, schema, value);
   };
 
   function effect(value: any) {
-    const parsed = parse(value);
-    let r = parsed.result;
-    if (!r) {
-      r = validation(parsed.value);
-    }
-    return {
-      value: parsed.value,
-      result: r,
-    } as const;
+    return schemaItemEffect($, schema, value);
   };
 
   useLayoutEffect(() => {

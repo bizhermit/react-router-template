@@ -1,22 +1,18 @@
 import { formatDate, parseDate } from "../objects/date";
+import { parseNumber } from "../objects/numeric";
 import { getValidationArray } from "./utilities";
 
 function SPLIT_DATE_PARSER({ value, env }: Schema.ParserParams): Schema.ParserResult<number> {
-  if (value == null || value === "") {
-    return { value: undefined };
-  }
-  const num = Number(value);
-  if (num == null || isNaN(num)) {
-    return {
-      value: undefined,
-      result: {
-        type: "e",
-        code: "parse",
-        message: env.t("数値に変換できません。"),
-      },
-    };
-  }
-  return { value: num };
+ const [num, succeeded] = parseNumber(value);
+   if (succeeded) return { value: num };
+   return {
+     value: num,
+     result: {
+       type: "e",
+       code: "parse",
+       message: env.t("数値に変換できません。"),
+     },
+   };
 };
 
 function splitDate<Props extends Schema.SplitDateProps, T extends Schema.SplitDateTarget>({
@@ -138,6 +134,7 @@ function splitDate<Props extends Schema.SplitDateProps, T extends Schema.SplitDa
     required: required as Schema.GetValidationValue<Props, "required">,
     min,
     max,
+    step: splitProps?.step ?? 1,
     _core: null!,
   } as const satisfies Schema.$SplitDate<T>;
 };
@@ -401,6 +398,7 @@ export function $month<Props extends Schema.MonthProps>(props?: Props) {
     pair: commonProps.pair,
     splits,
     _splits: {},
+    formatPattern: "yyyy-MM",
     splitYear: function (splitProps?) {
       return splitDate({
         splitProps,
@@ -467,6 +465,7 @@ export function $date<Props extends Schema.DateProps>(props?: Props) {
     pair: commonProps.pair,
     splits,
     _splits: {},
+    formatPattern: "yyyy-MM-dd",
     splitYear: function (splitProps?) {
       return splitDate({
         splitProps,
@@ -655,6 +654,7 @@ export function $datetime<Props extends Schema.DateTimeProps>(props?: Props) {
     pair: commonProps.pair,
     splits,
     _splits: {},
+    formatPattern: `yyyy-MM-ddThh:mm${time === "hms" ? `:ss` : ""}`,
     splitYear: function (splitProps?) {
       return splitDate({
         splitProps,
@@ -701,11 +701,28 @@ export function $datetime<Props extends Schema.DateTimeProps>(props?: Props) {
   } as const satisfies Schema.$DateTime;
 };
 
-export function parseDateString(
-  date: string | Date | null | undefined, 
+export function parseTypedDate(
+  date: string | Date | null | undefined,
   type: "date" | "month" | "datetime",
   time?: "hms" | "hm",
 ) {
-  if (date == null) return undefined;
-  return "2025-11-12";
+  return parseDate(parseTypedDateString(date, type, time));
+};
+
+export function parseTypedDateString(
+  date: string | Date | null | undefined,
+  type: "date" | "month" | "datetime",
+  time?: "hms" | "hm",
+) {
+  return formatDate(date, type === "month" ? "yyyy-MM" : type === "date" ? "yyyy-MM-dd" : time === "hm" ? "yyyy-MM-ddThh:mm" : "yyyy-MM-ddThh:mm:ss");
+};
+
+export function parseTimeNums(value: Schema.TimeString | null | undefined, defaultNums = { h: 0, m: 0, s: 0 }) {
+  if (value == null) return defaultNums;
+  const [h, m, s] = value.split(":");
+  return {
+    h: h == null ? defaultNums.h : Number(h),
+    m: m == null ? defaultNums.m : Number(m),
+    s: s == null ? defaultNums.s : Number(s),
+  };
 };

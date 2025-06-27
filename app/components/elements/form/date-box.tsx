@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { getValidationValue, InputField, type InputWrapProps } from "./common";
 import { useSchemaItem, type SchemaItemProps } from "~/components/schema/hooks";
-import { parseDateString } from "~/components/schema/date";
+import { parseTypedDateString } from "~/components/schema/date";
 
 type DateBoxSchemaProps = Schema.$Date | Schema.$Month | Schema.$DateTime;
 
@@ -44,22 +44,23 @@ export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
   });
 
   const type = dataItem._.type;
+  const time = (dataItem._ as Schema.$DateTime).time;
 
   function getMin() {
-    return parseDateString(
+    return parseTypedDateString(
       getValidationValue({ data, dep, env, label: dataItem.label }, dataItem._.minDate),
       type,
-      type === "datetime" ? dataItem._.time : undefined,
+      time,
     );
   };
 
   const [min, setMin] = useState(getMin);
 
   function getMax() {
-    return parseDateString(
+    return parseTypedDateString(
       getValidationValue({ data, dep, env, label: dataItem.label }, dataItem._.maxDate),
       type,
-      type === "datetime" ? dataItem._.time : undefined,
+      time,
     );
   };
 
@@ -82,10 +83,10 @@ export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
   };
 
   const defaultValue = useMemo(() => {
-    return parseDateString(
+    return parseTypedDateString(
       value,
       type,
-      type === "datetime" ? dataItem._.time : undefined,
+      time,
     );
   }, []);
 

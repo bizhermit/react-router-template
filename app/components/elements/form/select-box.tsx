@@ -1,7 +1,7 @@
 import { useRef, useState, type ChangeEvent, type ReactNode } from "react";
 import { getValidationValue, InputField, Placeholder, type InputWrapProps } from "./common";
 import { getBooleanSource } from "./utilities";
-import { clsx } from "../utilities";
+import { clsx, ZERO_WIDTH_SPACE } from "../utilities";
 import { useSchemaItem } from "~/components/schema/hooks";
 import { isEmpty } from "~/components/objects";
 
@@ -101,7 +101,7 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
             hidden={required}
             data-notext={isEmpty(emptyText)}
           >
-            {emptyText || "\u200B"}
+            {emptyText || ZERO_WIDTH_SPACE}
           </option>
           {
             source.map(item => {

@@ -1,5 +1,5 @@
 import type { HTMLAttributes, ReactNode, RefObject } from "react";
-import { clsx } from "../utilities";
+import { clsx, ZERO_WIDTH_SPACE } from "../utilities";
 import { InputMessageSpan } from "./message";
 
 export type InputWrapProps = {
@@ -42,7 +42,7 @@ export function InputField({
             core?.state.current.readonly && "ipt-field-readonly",
           )}
         >
-          <legend>{"\u200B"}</legend>
+          <legend>{ZERO_WIDTH_SPACE}</legend>
         </fieldset>
         {children}
       </div>
