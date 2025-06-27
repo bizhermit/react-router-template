@@ -32,7 +32,7 @@ const text = $str(
 );
 
 const birth = $date({
-  required: true,
+  // required: true,
 });
 
 const schema = $schema({

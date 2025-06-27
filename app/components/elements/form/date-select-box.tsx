@@ -17,6 +17,33 @@ function SepSpan(props: { children: ReactNode }) {
   return <span className="px-2">{props.children}</span>
 };
 
+function selectBoxDisplayResult(
+  t: Schema.Env["t"],
+  r: Schema.Result | null | undefined,
+  Y: Schema.Result | null | undefined,
+  M: Schema.Result | null | undefined,
+  D: Schema.Result | null | undefined,
+  h: Schema.Result | null | undefined,
+  m: Schema.Result | null | undefined,
+  s: Schema.Result | null | undefined
+): Schema.Result | null | undefined {
+  const req: Array<Schema.SplitDateTarget> = [];
+  if (Y?.code === "required") req.push("Y");
+  if (M?.code === "required") req.push("M")
+  if (D?.code === "required") req.push("D");
+  if (h?.code === "required") req.push("h");
+  if (m?.code === "required") req.push("m");
+  if (s?.code === "required") req.push("s");
+  if (req.length > 0) {
+    return {
+      type: "e",
+      message: t(`入力してください（${req.join(",")}）。`),
+      code: "split-required",
+    };
+  }
+  return Y ?? M ?? D ?? h ?? m ?? s ?? r;
+};
+
 export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
   $: _$,
   placeholder,
@@ -819,7 +846,16 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
     handleChangeImpl($second, e.target.value);
   };
 
-  console.log([result, yearResult, monthResult, dayResult, hourResult, minuteResult, secondResult]);
+  const dispayResult = selectBoxDisplayResult(
+    schema.env.t,
+    result,
+    yearResult,
+    monthResult,
+    dayResult,
+    hourResult,
+    minuteResult,
+    secondResult,
+  );
 
   return (
     <InputGroup
@@ -827,6 +863,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
       ref={ref}
       core={{
         state,
+        result: dispayResult,
       }}
     >
       {$date.name &&
@@ -838,6 +875,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
       }
       <SplittedSelect
         mergeState={mergeState}
+        coreResult={result}
         $={$year}
         mode={yearMode}
         required={yearRequired}
@@ -851,6 +889,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
       <SepSpan>/</SepSpan>
       <SplittedSelect
         mergeState={mergeState}
+        coreResult={result}
         $={$month}
         mode={monthMode}
         required={monthRequired}
@@ -866,6 +905,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
           <SepSpan>/</SepSpan>
           <SplittedSelect
             mergeState={mergeState}
+            coreResult={result}
             $={$day}
             mode={dayMode}
             required={dayRequired}
@@ -883,6 +923,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
           <SepSpan>&nbsp;</SepSpan>
           <SplittedSelect
             mergeState={mergeState}
+            coreResult={result}
             $={$hour}
             mode={hourMode}
             required={hourRequired}
@@ -896,6 +937,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
           <SepSpan>:</SepSpan>
           <SplittedSelect
             mergeState={mergeState}
+            coreResult={result}
             $={$minute}
             mode={minuteMode}
             required={minuteRequired}
@@ -911,6 +953,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
               <SepSpan>:</SepSpan>
               <SplittedSelect
                 mergeState={mergeState}
+                coreResult={result}
                 $={$second}
                 mode={secondMode}
                 required={secondRequired}
@@ -931,6 +974,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
 
 interface SplittedSelectProps {
   mergeState: (targetState: RefObject<Record<Schema.Mode, boolean>>, targetMode: Schema.Mode) => void;
+  coreResult: Schema.Result | null | undefined;
   $: Schema.DataItem<Schema.$SplitDate> | undefined;
   mode: Schema.Mode;
   required: boolean;
@@ -943,6 +987,7 @@ interface SplittedSelectProps {
 
 function SplittedSelect({
   mergeState,
+  coreResult,
   $,
   mode,
   required,
@@ -959,6 +1004,8 @@ function SplittedSelect({
     if (!state.current.enabled || !$) return;
     onChange(e);
   };
+
+  const isInvalid = result?.type === "e" || coreResult?.type === "e";
 
   return (
     <InputField
@@ -977,7 +1024,7 @@ function SplittedSelect({
         aria-readonly={state.current.readonly}
         defaultValue={value ?? ""}
         aria-label={$?.label}
-        aria-invalid={result?.type === "e"}
+        aria-invalid={isInvalid}
         aria-errormessage={result?.type === "e" ? result.message : undefined}
         onChange={handleChange}
       >
