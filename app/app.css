@@ -61,7 +61,8 @@
 @layer base {
 
   html {
-    @apply bg-bg text-fg;
+    background-color: var(--color-bg);
+    color: var(--color-fg);
     font-size: 62.5%;
 
     @media (prefers-color-scheme: dark) {
@@ -71,6 +72,11 @@
 
   body {
     font-size: 1.6rem;
+  }
+
+  option {
+    border-radius: none;
+    background-color: var(--color-input-bg);
   }
 
   ::placeholder {
