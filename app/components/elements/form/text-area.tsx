@@ -3,14 +3,27 @@ import { getValidationValue, InputField, type InputWrapProps } from "./common";
 import { clsx } from "../utilities";
 import { useSchemaItem } from "~/components/schema/hooks";
 
+type Resize = "none" | "vertical" | "horizontal" | "both";
+
 export type TextAreaProps<D extends Schema.DataItem<Schema.$String>> = InputWrapProps & {
   $: D;
   placeholder?: string;
-  resize?: "none" | "vertical" | "horizontal" | "both";
+  rows?: number;
+  resize?: Resize;
+};
+
+function getResizeClassName(resize: Resize | undefined) {
+  switch (resize) {
+    case "none": return "resize-none";
+    case "vertical": return "resize-x";
+    case "horizontal": return "resize-y";
+    default: return "resize";
+  }
 };
 
 export function TextArea<D extends Schema.DataItem<Schema.$String>>({
   placeholder,
+  rows,
   resize,
   ...$props
 }: TextAreaProps<D>) {
@@ -74,14 +87,7 @@ export function TextArea<D extends Schema.DataItem<Schema.$String>>({
       <textarea
         className={clsx(
           "ipt-main py-input-pad-y min-h-input min-w-input",
-          (() => {
-            switch (resize) {
-              case "none": return "resize-none";
-              case "vertical": return "resize-x";
-              case "horizontal": return "resize-y";
-              default: return "resize";
-            }
-          })(),
+          getResizeClassName(resize),
         )}
         ref={ref}
         name={name}
@@ -93,6 +99,7 @@ export function TextArea<D extends Schema.DataItem<Schema.$String>>({
         defaultValue={value || undefined}
         onChange={handleChange}
         placeholder={placeholder}
+        rows={rows ?? 3}
         aria-label={label}
         aria-invalid={invalid}
         aria-errormessage={errormessage}
