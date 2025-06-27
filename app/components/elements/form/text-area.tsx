@@ -85,10 +85,7 @@ export function TextArea<D extends Schema.DataItem<Schema.$String>>({
       }}
     >
       <textarea
-        className={clsx(
-          "ipt-main py-input-pad-y min-h-input min-w-input",
-          getResizeClassName(resize),
-        )}
+        className={`ipt-main py-input-pad-y min-h-input min-w-input ${getResizeClassName(resize)}`}
         ref={ref}
         name={name}
         disabled={state.current.disabled}
