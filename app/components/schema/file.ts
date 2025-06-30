@@ -1,12 +1,12 @@
 import { convertBase64ToFile, convertBlobToFile, getFileSize10Text } from "../objects/file";
-import { getValidationArray } from "./utilities";
+import { getRequiredTextKey, getValidationArray } from "./utilities";
 
 
 function isFile(value: any): value is File {
   return value != null && value instanceof File;
 };
 
-function FILE_PARSER({ value, env }: Schema.ParserParams): Schema.ParserResult<File | string> {
+function FILE_PARSER({ value, env, label }: Schema.ParserParams): Schema.ParserResult<File | string> {
   if (value == null) return { value };
   if (value instanceof File) {
     if (value.size === 0) return { value: undefined };
@@ -21,7 +21,9 @@ function FILE_PARSER({ value, env }: Schema.ParserParams): Schema.ParserResult<F
         result: {
           type: "e",
           code: "parse",
-          message: env.t("ファイルに変換できません。"),
+          message: env.t("invalidFile", {
+            label: label || env.t("default_label"),
+          }),
         },
       };
     }
@@ -39,7 +41,9 @@ function FILE_PARSER({ value, env }: Schema.ParserParams): Schema.ParserResult<F
         result: {
           type: "e",
           code: "parse",
-          message: env.t("ファイルに変換できません。"),
+          message: env.t("invalidFile", {
+            label: label || env.t("default_label"),
+          }),
         },
       };
     }
@@ -49,7 +53,9 @@ function FILE_PARSER({ value, env }: Schema.ParserParams): Schema.ParserResult<F
     result: {
       type: "e",
       code: "parse",
-      message: env.t("ファイルに変換できません。"),
+      message: env.t("invalidFile", {
+        label: label || env.t("default_label"),
+      }),
     },
   };
 }
@@ -113,14 +119,18 @@ function getAcceptChecker(accept: string) {
 export function $file<Props extends Schema.FileProps>(props?: Props) {
   const validators: Array<Schema.Validator<File | string>> = [];
 
+  const actionType = props?.actionType ?? "select";
   const [required, getRequiredMessage] = getValidationArray(props?.required);
   const [accept, getAcceptMessage] = getValidationArray(props?.accept);
   const [maxSize, getMaxSizeMessage] = getValidationArray(props?.maxSize);
 
   if (required) {
+    const textKey = getRequiredTextKey(actionType);
     const getMessage: Schema.MessageGetter<typeof getRequiredMessage> = getRequiredMessage ?
       getRequiredMessage :
-      (p) => p.env.t("選択してください。");
+      (p) => p.env.t(textKey, {
+        label: p.label || p.env.t("default_label"),
+      });
 
     if (typeof required === "function") {
       validators.push((p) => {
@@ -151,7 +161,9 @@ export function $file<Props extends Schema.FileProps>(props?: Props) {
   if (accept) {
     const getMessage: Schema.MessageGetter<typeof getAcceptMessage> = getAcceptMessage ?
       getAcceptMessage :
-      (p) => p.env.t("ファイルの拡張子が不正です。");
+      (p) => p.env.t("fileAccept", {
+        label: p.label || p.env.t("default_label"),
+      });
 
     if (typeof accept === "function") {
       validators.push((p) => {
@@ -183,7 +195,10 @@ export function $file<Props extends Schema.FileProps>(props?: Props) {
   if (maxSize != null) {
     const getMessage: Schema.MessageGetter<typeof getMaxSizeMessage> = getMaxSizeMessage ?
       getMaxSizeMessage :
-      (p) => p.env.t(`ファイルは${p.maxSizeText}以下を選択してください。`);
+      (p) => p.env.t("maxFileSize", {
+        label: p.label || p.env.t("default_label"),
+        maxFileSize: p.maxSizeText,
+      });
 
     if (typeof maxSize === "function") {
       validators.push((p) => {
@@ -218,6 +233,7 @@ export function $file<Props extends Schema.FileProps>(props?: Props) {
 
   return {
     type: "file",
+    actionType,
     label: props?.label,
     mode: props?.mode,
     refs: props?.refs,

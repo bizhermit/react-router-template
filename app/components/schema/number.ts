@@ -1,7 +1,7 @@
 import { parseNumber } from "../objects/numeric";
-import { getValidationArray } from "./utilities";
+import { getInvalidValueTextKey, getRequiredTextKey, getValidationArray } from "./utilities";
 
-function NUMBER_PARSER({ value, env }: Schema.ParserParams): Schema.ParserResult<number> {
+function NUMBER_PARSER({ value, env, label }: Schema.ParserParams): Schema.ParserResult<number> {
   const [num, succeeded] = parseNumber(value);
   if (succeeded) return { value: num };
   return {
@@ -9,7 +9,9 @@ function NUMBER_PARSER({ value, env }: Schema.ParserParams): Schema.ParserResult
     result: {
       type: "e",
       code: "parse",
-      message: env.t("数値に変換できません。"),
+      message: env.t("invalidNumeric", {
+        label: label || env.t("default_label"),
+      }),
     },
   };
 };
@@ -17,15 +19,19 @@ function NUMBER_PARSER({ value, env }: Schema.ParserParams): Schema.ParserResult
 export function $num<Props extends Schema.NumberProps>(props?: Props) {
   const validators: Array<Schema.Validator<number>> = [];
 
+  const actionType = props?.actionType ?? (props?.source ? "select" : "input");
   const [required, getRequiredMessage] = getValidationArray(props?.required);
   const [min, getMinMessage] = getValidationArray(props?.min);
   const [max, getMaxMessage] = getValidationArray(props?.max);
   const [float, getFloatMessage] = getValidationArray(props?.float);
 
   if (required) {
+    const textKey = getRequiredTextKey(actionType);
     const getMessage: Schema.MessageGetter<typeof getRequiredMessage> = getRequiredMessage ?
       getRequiredMessage :
-      (p) => p.env.t("入力してください。");
+      (p) => p.env.t(textKey, {
+        label: p.label || p.env.t("default_label"),
+      });
 
     if (typeof required === "function") {
       validators.push((p) => {
@@ -55,10 +61,13 @@ export function $num<Props extends Schema.NumberProps>(props?: Props) {
 
   if (props?.source) {
     const source = props.source;
+    const textKey = getInvalidValueTextKey(actionType);
     const sourceValidationMessage = props.sourceValidationMessage;
     const getMessage: Schema.MessageGetter<typeof sourceValidationMessage> = sourceValidationMessage ?
       sourceValidationMessage :
-      (p) => p.env.t("有効な値を設定してください。");
+      (p) => p.env.t(textKey, {
+        label: p.label || p.env.t("default_label"),
+      });
 
     if (typeof source === "function") {
       validators.push((p) => {
@@ -84,9 +93,13 @@ export function $num<Props extends Schema.NumberProps>(props?: Props) {
     }
   } else {
     if (min != null) {
+      const textKey: I18nTextKey = `minNum_${actionType}`;
       const getMessage: Schema.MessageGetter<typeof getMinMessage> = getMinMessage ?
         getMinMessage :
-        (p) => p.env.t(`${p.min}以上で入力してください。`);
+        (p) => p.env.t(textKey, {
+          label: p.label || p.env.t("default_label"),
+          min: p.min,
+        });
 
       if (typeof min === "function") {
         validators.push((p) => {
@@ -113,9 +126,13 @@ export function $num<Props extends Schema.NumberProps>(props?: Props) {
     }
 
     if (max != null) {
+      const textKey: I18nTextKey = `maxNum_${actionType}`;
       const getMessage: Schema.MessageGetter<typeof getMaxMessage> = getMaxMessage ?
         getMaxMessage :
-        (p) => p.env.t(`${p.max}以下で入力してください。`);
+        (p) => p.env.t(textKey, {
+          label: p.label || p.env.t("default_label"),
+          max: p.max,
+        });
 
       if (typeof max === "function") {
         validators.push((p) => {
@@ -144,7 +161,10 @@ export function $num<Props extends Schema.NumberProps>(props?: Props) {
     if (float != null) {
       const getMessage: Schema.MessageGetter<typeof getFloatMessage> = getFloatMessage ?
         getFloatMessage :
-        (p) => p.env.t(`少数第${p.float}以下で入力してください。`);
+        (p) => p.env.t("maxFloat", {
+          label: p.label || p.env.t("default_label"),
+          float: p.float,
+        });
 
       if (typeof float === "function") {
         validators.push((p) => {
@@ -181,6 +201,7 @@ export function $num<Props extends Schema.NumberProps>(props?: Props) {
 
   return {
     type: "num",
+    actionType,
     label: props?.label,
     mode: props?.mode,
     refs: props?.refs,

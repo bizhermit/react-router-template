@@ -31,6 +31,7 @@ namespace Schema {
     value: any;
     dep: Record<string, any>;
     env: Env;
+    label: string | undefined;
   };
 
   interface ParserResult<V> {
@@ -108,11 +109,13 @@ namespace Schema {
     label?: string;
     refs?: string[];
     mode?: ModeFunction;
+    actionType?: "input" | "select" | "set";
   };
 
   interface $Base {
     mode?: ModeFunction;
     refs?: string[];
+    actionType: BaseProps["actionType"];
   };
 
   type StrPattern =

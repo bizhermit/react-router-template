@@ -38,6 +38,7 @@ export function parseWithSchema<$Schema extends Record<string, any>>(params: {
         value: val,
         dep,
         env: params.env,
+        label,
       });
       result = parsed.result;
 

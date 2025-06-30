@@ -1,4 +1,4 @@
-import { getValidationArray } from "./utilities";
+import { getRequiredTextKey, getValidationArray } from "./utilities";
 
 function ARRAY_PARSER({ value }: Schema.ParserParams): Schema.ParserResult<Array<any>> {
   if (value == null || value === "") {
@@ -15,15 +15,19 @@ export function $array<Props extends Schema.ArrayProps>(props: Props) {
 
   const validators: Array<Schema.Validator<any[]>> = [];
 
+  const actionType = props?.actionType ?? "set";
   const [required, getRequiredMessage] = getValidationArray(props?.required);
   const [length, getLengthMessage] = getValidationArray(props?.len);
   const [minLength, getMinLengthMessage] = getValidationArray(props?.min);
   const [maxLength, getMaxLengthMessage] = getValidationArray(props?.max);
 
   if (required) {
+    const textKey = getRequiredTextKey(actionType);
     const getMessage: Schema.MessageGetter<typeof getRequiredMessage> = getRequiredMessage ?
       getRequiredMessage :
-      (p) => p.env.t("入力してください。");
+      (p) => p.env.t(textKey, {
+        label: p.label || p.env.t("default_label"),
+      });
 
     if (typeof required === "function") {
       validators.push((p) => {
@@ -52,9 +56,13 @@ export function $array<Props extends Schema.ArrayProps>(props: Props) {
   };
 
   if (length != null) {
+    const textKey: I18nTextKey = `matchArrLength_${actionType}`;
     const getMessage: Schema.MessageGetter<typeof getLengthMessage> = getLengthMessage ?
       getLengthMessage :
-      (p) => p.env.t(`${p.length}件で入力してください。`);
+      (p) => p.env.t(textKey, {
+        label: p.label || p.env.t("default_label"),
+        length: p.length,
+      });
 
     if (typeof length === "function") {
       validators.push((p) => {
@@ -82,9 +90,13 @@ export function $array<Props extends Schema.ArrayProps>(props: Props) {
     }
   } else {
     if (minLength != null) {
+      const textKey: I18nTextKey = `minArrLength_${actionType}`;
       const getMessage: Schema.MessageGetter<typeof getMinLengthMessage> = getMinLengthMessage ?
         getMinLengthMessage :
-        (p) => p.env.t(`${p.minLength}文字以上で入力してください。`);
+        (p) => p.env.t(textKey, {
+          label: p.label || p.env.t("default_label"),
+          minLength: p.minLength,
+        });
 
       if (typeof minLength === "function") {
         validators.push((p) => {
@@ -113,9 +125,13 @@ export function $array<Props extends Schema.ArrayProps>(props: Props) {
     }
 
     if (maxLength != null) {
+      const textKey: I18nTextKey = `maxArrLength_${actionType}`;
       const getMessage: Schema.MessageGetter<typeof getMaxLengthMessage> = getMaxLengthMessage ?
         getMaxLengthMessage :
-        (p) => p.env.t(`${p.maxLength}文字以下で入力してください。`);
+        (p) => p.env.t(textKey, {
+          label: p.label || p.env.t("default_label"),
+          maxLength: p.maxLength,
+        });
 
       if (typeof maxLength === "function") {
         validators.push((p) => {
@@ -150,6 +166,7 @@ export function $array<Props extends Schema.ArrayProps>(props: Props) {
 
   return {
     type: "arr",
+    actionType,
     prop: props.prop as Props["prop"],
     key,
     label: props?.label,

@@ -44,6 +44,7 @@ const schema = $schema({
     required: true,
     min: 4,
     pattern: "email",
+    label: "テキスト",
   }),
   requiredText: $str({
     required: true,

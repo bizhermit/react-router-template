@@ -1,18 +1,20 @@
 import { formatDate, parseDate } from "../objects/date";
 import { parseNumber } from "../objects/numeric";
-import { getValidationArray } from "./utilities";
+import { getRequiredTextKey, getValidationArray } from "./utilities";
 
-function SPLIT_DATE_PARSER({ value, env }: Schema.ParserParams): Schema.ParserResult<number> {
- const [num, succeeded] = parseNumber(value);
-   if (succeeded) return { value: num };
-   return {
-     value: num,
-     result: {
-       type: "e",
-       code: "parse",
-       message: env.t("数値に変換できません。"),
-     },
-   };
+function SPLIT_DATE_PARSER({ value, env, label }: Schema.ParserParams): Schema.ParserResult<number> {
+  const [num, succeeded] = parseNumber(value);
+  if (succeeded) return { value: num };
+  return {
+    value: num,
+    result: {
+      type: "e",
+      code: "parse",
+      message: env.t("invalidNumeric", {
+        label: label || env.t("default_label"),
+      }),
+    },
+  };
 };
 
 function splitDate<Props extends Schema.SplitDateProps, T extends Schema.SplitDateTarget>({
@@ -26,14 +28,18 @@ function splitDate<Props extends Schema.SplitDateProps, T extends Schema.SplitDa
 }) {
   const validators: Array<Schema.Validator<number>> = [];
 
+  const actionType = splitProps?.actionType ?? "select";
   const [required, getRequiredMessage] = getValidationArray(splitProps?.required);
   const [min, getMinMessage] = getValidationArray(splitProps?.min);
   const [max, getMaxMessage] = getValidationArray(splitProps?.max);
 
   if (required) {
+    const textKey = getRequiredTextKey(actionType);
     const getMessage: Schema.MessageGetter<typeof getRequiredMessage> = getRequiredMessage ?
       getRequiredMessage :
-      (p) => p.env.t("入力してください。");
+      (p) => p.env.t(textKey, {
+        label: p.label || p.env.t("default_label"),
+      });
 
     if (typeof required === "function") {
       validators.push((p) => {
@@ -62,9 +68,13 @@ function splitDate<Props extends Schema.SplitDateProps, T extends Schema.SplitDa
   }
 
   if (min != null) {
+    const textKey: I18nTextKey = `minNum_${actionType}`;
     const getMessage: Schema.MessageGetter<typeof getMinMessage> = getMinMessage ?
       getMinMessage :
-      (p) => p.env.t(`${p.min}以上で入力してください。`);
+      (p) => p.env.t(textKey, {
+        label: p.label || p.env.t("default_label"),
+        min: p.min,
+      });
 
     if (typeof min === "function") {
       validators.push((p) => {
@@ -91,9 +101,13 @@ function splitDate<Props extends Schema.SplitDateProps, T extends Schema.SplitDa
   }
 
   if (max != null) {
+    const textKey: I18nTextKey = `maxNum_${actionType}`;
     const getMessage: Schema.MessageGetter<typeof getMaxMessage> = getMaxMessage ?
       getMaxMessage :
-      (p) => p.env.t(`${p.max}以下で入力してください。`);
+      (p) => p.env.t(textKey, {
+        label: p.label || p.env.t("default_label"),
+        max: p.max,
+      });
 
     if (typeof max === "function") {
       validators.push((p) => {
@@ -125,6 +139,7 @@ function splitDate<Props extends Schema.SplitDateProps, T extends Schema.SplitDa
 
   return core.splits[target as keyof typeof core.splits] = {
     type: `sdate-${target}`,
+    actionType,
     core,
     label: splitProps?.label,
     mode: splitProps?.mode,
@@ -147,15 +162,19 @@ function common<Props extends Schema.DateBaseProps>(
     beforePairValidation?: () => void;
   },
 ) {
+  const actionType = props?.actionType ?? "input";
   const [required, getRequiredMessage] = getValidationArray(props?.required);
   const [minDate, getMinDateMessage] = getValidationArray(props?.minDate);
   const [maxDate, getMaxDateMessage] = getValidationArray(props?.maxDate);
   const [pair, getPairMessage] = getValidationArray(props?.pair);
 
   if (required) {
+    const textKey = getRequiredTextKey(actionType);
     const getMessage: Schema.MessageGetter<typeof getRequiredMessage> = getRequiredMessage ?
       getRequiredMessage :
-      (p) => p.env.t("入力してください。");
+      (p) => p.env.t(textKey, {
+        label: p.label || p.env.t("default_label"),
+      });
 
     if (typeof required === "function") {
       validators.push((p) => {
@@ -184,9 +203,13 @@ function common<Props extends Schema.DateBaseProps>(
   }
 
   if (minDate) {
+    const textKey: I18nTextKey = `minDate_${actionType}`;
     const getMessage: Schema.MessageGetter<typeof getMinDateMessage> = getMinDateMessage ?
       getMinDateMessage :
-      (p) => p.env.t(`${formatDate(p.minDate, options.pattern)}以降で入力してください。`);
+      (p) => p.env.t(textKey, {
+        label: p.label || p.env.t("default_label"),
+        minDate: formatDate(p.minDate, options.pattern),
+      });
 
     if (typeof minDate === "function") {
       validators.push((p) => {
@@ -227,9 +250,13 @@ function common<Props extends Schema.DateBaseProps>(
   }
 
   if (maxDate) {
+    const textKey: I18nTextKey = `maxDate_${actionType}`;
     const getMessage: Schema.MessageGetter<typeof getMaxDateMessage> = getMaxDateMessage ?
       getMaxDateMessage :
-      (p) => p.env.t(`${formatDate(p.maxDate, options.pattern)}以前で入力してください。`);
+      (p) => p.env.t(textKey, {
+        label: p.label || p.env.t("default_label"),
+        maxDate: formatDate(p.maxDate, options.pattern),
+      });
 
     if (typeof maxDate === "function") {
       validators.push((p) => {
@@ -274,7 +301,9 @@ function common<Props extends Schema.DateBaseProps>(
   if (pair) {
     const getMessage: Schema.MessageGetter<typeof getPairMessage> = getPairMessage ?
       getPairMessage :
-      (p) => p.env.t("前後関係が不正です。");
+      (p) => p.env.t("contextDate", {
+        label: p.label || p.env.t("default_label"),
+      });
 
     if (typeof pair === "function") {
       validators.push((p) => {
@@ -346,10 +375,11 @@ function common<Props extends Schema.DateBaseProps>(
     minDate,
     maxDate,
     pair,
+    actionType,
   } as const;
 };
 
-function MONTH_PARSER({ value, env }: Schema.ParserParams): Schema.ParserResult<Schema.MonthString> {
+function MONTH_PARSER({ value, env, label }: Schema.ParserParams): Schema.ParserResult<Schema.MonthString> {
   if (value == null || value === "") {
     return { value: undefined };
   }
@@ -360,7 +390,9 @@ function MONTH_PARSER({ value, env }: Schema.ParserParams): Schema.ParserResult<
       result: {
         type: "e",
         code: "parse",
-        message: env.t("年月に変換できません。"),
+        message: env.t("invalidMonth", {
+          label: label || env.t("default_label"),
+        }),
       },
     };
   }
@@ -387,6 +419,7 @@ export function $month<Props extends Schema.MonthProps>(props?: Props) {
   let core: Schema.$Month;
   return core = {
     type: "month",
+    actionType: commonProps.actionType,
     label: props?.label,
     mode: props?.mode,
     refs: props?.refs,
@@ -416,7 +449,7 @@ export function $month<Props extends Schema.MonthProps>(props?: Props) {
   } as const satisfies Schema.$Month;
 };
 
-function DATE_PARSER({ value, env }: Schema.ParserParams): Schema.ParserResult<Schema.DateString> {
+function DATE_PARSER({ value, env, label }: Schema.ParserParams): Schema.ParserResult<Schema.DateString> {
   if (value == null || value === "") {
     return { value: undefined };
   }
@@ -427,7 +460,9 @@ function DATE_PARSER({ value, env }: Schema.ParserParams): Schema.ParserResult<S
       result: {
         type: "e",
         code: "parse",
-        message: env.t("年月日に変換できません。"),
+        message: env.t("invalidDate", {
+          label: label || env.t("default_label"),
+        }),
       },
     };
   }
@@ -454,6 +489,7 @@ export function $date<Props extends Schema.DateProps>(props?: Props) {
   let core: Schema.$Date;
   return core = {
     type: "date",
+    actionType: commonProps.actionType,
     label: props?.label,
     mode: props?.mode,
     refs: props?.refs,
@@ -500,7 +536,7 @@ function timeToNumber(time: Schema.TimeString | undefined) {
   return num;
 };
 
-function DATETIME_HM_PARSER({ value, env }: Schema.ParserParams): Schema.ParserResult<Schema.DateTime_HM_String> {
+function DATETIME_HM_PARSER({ value, env, label }: Schema.ParserParams): Schema.ParserResult<Schema.DateTime_HM_String> {
   if (value == null || value === "") {
     return { value: undefined };
   }
@@ -511,14 +547,16 @@ function DATETIME_HM_PARSER({ value, env }: Schema.ParserParams): Schema.ParserR
       result: {
         type: "e",
         code: "parse",
-        message: env.t("日時に変換できません。"),
+        message: env.t("invalidDatetime", {
+          label: label || env.t("default_label"),
+        }),
       },
     };
   }
   return { value: formatDate(date, "yyyy-MM-ddThh:mm") as Schema.DateTime_HM_String };
 };
 
-function DATETIME_HMS_PARSER({ value, env }: Schema.ParserParams): Schema.ParserResult<Schema.DateTime_HMS_String> {
+function DATETIME_HMS_PARSER({ value, env, label }: Schema.ParserParams): Schema.ParserResult<Schema.DateTime_HMS_String> {
   if (value == null || value === "") {
     return { value: undefined };
   }
@@ -529,7 +567,9 @@ function DATETIME_HMS_PARSER({ value, env }: Schema.ParserParams): Schema.Parser
       result: {
         type: "e",
         code: "parse",
-        message: env.t("日時に変換できません。"),
+        message: env.t("invalidDatetime", {
+          label: label || env.t("default_label"),
+        }),
       },
     };
   }
@@ -543,6 +583,7 @@ export function $datetime<Props extends Schema.DateTimeProps>(props?: Props) {
 
   const validators: Array<Schema.Validator<Schema.DateTimeString>> = [];
 
+  const actionType = props?.actionType  ?? "input";
   const [minTime, getMinTimeMessage] = getValidationArray(props?.minTime);
   const [maxTime, getMaxTimeMessage] = getValidationArray(props?.maxTime);
 
@@ -553,9 +594,13 @@ export function $datetime<Props extends Schema.DateTimeProps>(props?: Props) {
       pattern: "yyyy/M/d h:m:s",
       beforePairValidation: function () {
         if (minTime) {
+          const textKey: I18nTextKey = `minTime_${actionType}`;
           const getMessage: Schema.MessageGetter<typeof getMinTimeMessage> = getMinTimeMessage ?
             getMinTimeMessage :
-            (p) => p.env.t(`${p.minTime}以降で入力してください。`);
+            (p) => p.env.t(textKey, {
+              label: p.label || p.env.t("default_label"),
+              minTime: p.minTime,
+            });
 
           if (typeof minTime === "function") {
             validators.push((p) => {
@@ -592,9 +637,13 @@ export function $datetime<Props extends Schema.DateTimeProps>(props?: Props) {
         }
 
         if (maxTime) {
+          const textKey: I18nTextKey = `maxTime_${actionType}`;
           const getMessage: Schema.MessageGetter<typeof getMaxTimeMessage> = getMaxTimeMessage ?
             getMaxTimeMessage :
-            (p) => p.env.t(`${p.maxTime}以前で入力してください。`);
+            (p) => p.env.t(textKey, {
+              label: p.label || p.env.t("default_label"),
+              maxTime: p.maxTime,
+            });
 
           if (typeof maxTime === "function") {
             validators.push((p) => {
@@ -640,6 +689,7 @@ export function $datetime<Props extends Schema.DateTimeProps>(props?: Props) {
   let core: Schema.$DateTime;
   return core = {
     type: "datetime",
+    actionType: commonProps.actionType,
     time: time as Exclude<Props, undefined>["time"] extends "hms" ? "hms" : "hm",
     label: props?.label,
     mode: props?.mode,

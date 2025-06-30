@@ -1,4 +1,4 @@
-import { getValidationArray } from "./utilities";
+import { getRequiredTextKey, getValidationArray } from "./utilities";
 
 function STRUCT_PARSER({ value }: Schema.ParserParams): Schema.ParserResult<Record<string, any>> {
   return { value };
@@ -7,12 +7,16 @@ function STRUCT_PARSER({ value }: Schema.ParserParams): Schema.ParserResult<Reco
 export function $struct<Props extends Schema.StructProps>(props: Props) {
   const validators: Array<Schema.Validator<Record<string, any>>> = [];
 
+  const actionType = props.actionType ?? "set";
   const [required, getRequiredMessage] = getValidationArray(props?.required);
 
   if (required) {
+    const textKey = getRequiredTextKey(actionType);
     const getMessage: Schema.MessageGetter<typeof getRequiredMessage> = getRequiredMessage ?
       getRequiredMessage :
-      (p) => p.env.t("入力してください。");
+      (p) => p.env.t(textKey, {
+        label: p.label || p.env.t("default_label"),
+      });
 
     if (typeof required === "function") {
       validators.push((p) => {
@@ -46,6 +50,7 @@ export function $struct<Props extends Schema.StructProps>(props: Props) {
 
   return {
     type: "struct",
+    actionType,
     props: props.props as Props["props"],
     key: props.key,
     label: props?.label,

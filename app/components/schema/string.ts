@@ -1,6 +1,6 @@
 import type { HTMLAttributes, HTMLInputTypeAttribute } from "react";
 import { getLength } from "../objects/string";
-import { getValidationArray } from "./utilities";
+import { getInvalidValueTextKey, getRequiredTextKey, getValidationArray } from "./utilities";
 
 function isIpv4Address(str: string | null | undefined) {
   if (str == null) return false;
@@ -138,32 +138,6 @@ function getStringPatternChecker(pattern: Schema.StrPattern): ((str: string) => 
   }
 };
 
-interface PatternInputProps {
-  type?: HTMLInputTypeAttribute;
-  inputMode?: HTMLAttributes<HTMLInputElement>["inputMode"];
-};
-
-function getPatternInputProps(pattern: Schema.StringProps["pattern"]): PatternInputProps {
-  if (pattern == null || typeof pattern !== "string") return {};
-  switch (pattern) {
-    case "int":
-    case "h-num":
-      return { inputMode: "decimal" };
-    case "h-alpha":
-    case "h-alpha-num":
-    case "h-alpha-num-syn":
-      return { inputMode: "url" };
-    case "email":
-      return { type: "email" };
-    case "tel":
-      return { type: "tel" };
-    case "url":
-      return { type: "url" };
-    default:
-      return {};
-  }
-};
-
 function STRING_PARSER({ value }: Schema.ParserParams): Schema.ParserResult<string> {
   return {
     value: (value == null || value === "") ? undefined : typeof value === "string" ? value : String(value),
@@ -173,6 +147,7 @@ function STRING_PARSER({ value }: Schema.ParserParams): Schema.ParserResult<stri
 export function $str<Props extends Schema.StringProps>(props?: Props) {
   const validators: Array<Schema.Validator<string>> = [];
 
+  const actionType = props?.actionType ?? (props?.source ? "select" : "input");
   const [required, getRequiredMessage] = getValidationArray(props?.required);
   const [length, getLengthMessage] = getValidationArray(props?.len);
   const [minLength, getMinLengthMessage] = getValidationArray(props?.min);
@@ -180,9 +155,12 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
   const [pattern, getPatternMessage] = getValidationArray(props?.pattern);
 
   if (required) {
+    const textKey = getRequiredTextKey(actionType);
     const getMessage: Schema.MessageGetter<typeof getRequiredMessage> = getRequiredMessage ?
       getRequiredMessage :
-      (p) => p.env.t("入力してください。");
+      (p) => p.env.t(textKey, {
+        label: p.label || p.env.t("default_label"),
+      });
 
     if (typeof required === "function") {
       validators.push((p) => {
@@ -212,10 +190,13 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
 
   if (props?.source) {
     const source = props.source;
+    const textKey = getInvalidValueTextKey(actionType);
     const sourceValidationMessage = props.sourceValidationMessage;
     const getMessage: Schema.MessageGetter<typeof sourceValidationMessage> = sourceValidationMessage ?
       sourceValidationMessage :
-      (p) => p.env.t("有効な値を設定してください。");
+      (p) => p.env.t(textKey, {
+        label: p.label || p.env.t("default_label"),
+      });
 
     if (typeof source === "function") {
       validators.push((p) => {
@@ -243,7 +224,10 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
     if (length != null) {
       const getMessage: Schema.MessageGetter<typeof getLengthMessage> = getLengthMessage ?
         getLengthMessage :
-        (p) => p.env.t(`${p.length}文字で入力してください。`);
+        (p) => p.env.t("matchStrLength", {
+          label: p.label || p.env.t("default_label"),
+          length: p.length,
+        });
 
       if (typeof length === "function") {
         validators.push((p) => {
@@ -273,7 +257,10 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
       if (minLength != null) {
         const getMessage: Schema.MessageGetter<typeof getMinLengthMessage> = getMinLengthMessage ?
           getMinLengthMessage :
-          (p) => p.env.t(`${p.minLength}文字以上で入力してください。`);
+          (p) => p.env.t("minStrLength", {
+            label: p.label || p.env.t("default_label"),
+            minLength: p.minLength,
+          });
 
         if (typeof minLength === "function") {
           validators.push((p) => {
@@ -304,7 +291,10 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
       if (maxLength != null) {
         const getMessage: Schema.MessageGetter<typeof getMaxLengthMessage> = getMaxLengthMessage ?
           getMaxLengthMessage :
-          (p) => p.env.t(`${p.maxLength}文字以下で入力してください。`);
+          (p) => p.env.t("maxStrLength", {
+            label: p.label || p.env.t("default_label"),
+            maxLength: p.maxLength,
+          });
 
         if (typeof maxLength === "function") {
           validators.push((p) => {
@@ -336,7 +326,10 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
     if (pattern) {
       const getMessage: Schema.MessageGetter<typeof getPatternMessage> = getPatternMessage ?
         getPatternMessage :
-        (p) => p.env.t(`正しい書式で入力してください。`);
+        (p) => p.env.t("invalidPattern_input", {
+          label: p.label || p.env.t("default_label"),
+          pattern: p.env.t(typeof p.pattern === "string" ? p.pattern : "specifiedFormat"),
+        });
 
       if (typeof pattern === "function") {
         validators.push((p) => {
@@ -387,6 +380,7 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
 
   return {
     type: "str",
+    actionType,
     label: props?.label,
     mode: props?.mode,
     refs: props?.refs,

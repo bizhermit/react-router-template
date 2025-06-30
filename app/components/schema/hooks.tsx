@@ -520,6 +520,7 @@ export function parseSchemaItemValue<D extends Schema.DataItem<Schema.$Any>>(
     dep: schema.dep.current,
     env: schema.env,
     value,
+    label: $.label,
   }) as {
     value: Schema.ValueType<D["_"], true, true>;
     result: Schema.Result | null | undefined;

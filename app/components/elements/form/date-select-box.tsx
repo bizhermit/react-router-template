@@ -19,6 +19,8 @@ function SepSpan(props: { children: ReactNode }) {
 
 function selectBoxDisplayResult(
   t: Schema.Env["t"],
+  label: string | undefined,
+  actionType: Schema.BaseProps["actionType"],
   r: Schema.Result | null | undefined,
   Y: Schema.Result | null | undefined,
   M: Schema.Result | null | undefined,
@@ -37,7 +39,10 @@ function selectBoxDisplayResult(
   if (req.length > 0) {
     return {
       type: "e",
-      message: t(`入力してください（${req.join(",")}）。`),
+      message: t( `requiredSplitDate_${actionType || "select"}`, {
+        label: label || t("default_label"),
+        target: req.join(","),
+      }),
       code: "split-required",
     };
   }
@@ -1004,6 +1009,8 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
 
   const dispayResult = selectBoxDisplayResult(
     schema.env.t,
+    $date.label,
+    $date._.actionType,
     result,
     yearResult,
     monthResult,
