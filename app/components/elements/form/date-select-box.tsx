@@ -102,6 +102,18 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
         setMax(getMax);
         setMinTime(getMinTime);
         setMaxTime(getMaxTime);
+        setMinYear(getMinYear);
+        setMaxYear(getMaxYear);
+        setMinMonth(getMinMonth);
+        setMaxMonth(getMaxMonth);
+        setMinDay(getMinDay);
+        setMaxDay(getMaxDay);
+        setMinHour(getMinHour);
+        setMaxHour(getMaxHour);
+        setMinMinute(getMinMinute);
+        setMaxMinute(getMaxMinute);
+        setMinSecond(getMinSecond);
+        setMaxSecond(getMaxSecond);
         break;
       case "value-result":
       case "value": {
@@ -159,26 +171,38 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
         updateWithRefs($year, getYearValue, () => {
           setYearMode(getYearMode);
           setYearRequired(getYearRequired);
+          setMinYear(getMinYear);
+          setMaxYear(getMaxYear);
         });
         updateWithRefs($month, getMonthValue, () => {
           setMonthMode(getMonthMode);
           setMonthRequired(getMonthRequired);
+          setMinMonth(getMinMonth);
+          setMaxMonth(getMaxMonth);
         });
         updateWithRefs($day, getDayValue, () => {
           setDayMode(getDayMode);
           setDayRequired(getDayRequired);
+          setMinDay(getMinDay);
+          setMaxDay(getMaxDay);
         });
         updateWithRefs($hour, getHourValue, () => {
           setHourMode(getHourMode);
           setHourRequired(getHourRequired);
+          setMinHour(getMinHour);
+          setMaxHour(getMaxHour);
         });
         updateWithRefs($minute, getMinuteValue, () => {
           setMinuteMode(getMinuteMode);
           setMinuteRequired(getMinuteRequired);
+          setMinMinute(getMinMinute);
+          setMaxMinute(getMaxMinute);
         });
         updateWithRefs($second, getSecondValue, () => {
           setSecondMode(getSecondMode);
           setSecondRequired(getSecondRequired);
+          setMinSecond(getMinSecond);
+          setMaxSecond(getMaxSecond);
         });
         if (schema.setResults(results)) {
           isEffected.current = true;
@@ -224,6 +248,18 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
         setMax(getMax);
         setMinTime(getMinTime);
         setMaxTime(getMaxTime);
+        setMinYear(getMinYear);
+        setMaxYear(getMaxYear);
+        setMinMonth(getMinMonth);
+        setMaxMonth(getMaxMonth);
+        setMinDay(getMinDay);
+        setMaxDay(getMaxDay);
+        setMinHour(getMinHour);
+        setMaxHour(getMaxHour);
+        setMinMinute(getMinMinute);
+        setMaxMinute(getMaxMinute);
+        setMinSecond(getMinSecond);
+        setMaxSecond(getMaxSecond);
         break;
     }
   }, () => {
@@ -511,8 +547,264 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
 
   const [maxTime, setMaxTime] = useState(getMaxTime);
 
-  const optionMinYear = min.getFullYear();
-  const optionMaxYear = max.getFullYear();
+  function getMinYear() {
+    return getValidationValue({
+      data: schema.data.current,
+      dep: schema.dep.current,
+      env: schema.env,
+      label: $date.label,
+    }, $year?._.min);
+  };
+
+  const [minYear, setMinYear] = useState(getMinYear);
+
+  function getMaxYear() {
+    return getValidationValue({
+      data: schema.data.current,
+      dep: schema.dep.current,
+      env: schema.env,
+      label: $date.label,
+    }, $year?._.max);
+  };
+
+  const [maxYear, setMaxYear] = useState(getMaxYear);
+
+  function getMinMonth() {
+    return getValidationValue({
+      data: schema.data.current,
+      dep: schema.dep.current,
+      env: schema.env,
+      label: $date.label,
+    }, $month?._.min);
+  };
+
+  const [minMonth, setMinMonth] = useState(getMinMonth);
+
+  function getMaxMonth() {
+    return getValidationValue({
+      data: schema.data.current,
+      dep: schema.dep.current,
+      env: schema.env,
+      label: $date.label,
+    }, $month?._.max);
+  };
+
+  const [maxMonth, setMaxMonth] = useState(getMaxMonth);
+
+  function getMinDay() {
+    return getValidationValue({
+      data: schema.data.current,
+      dep: schema.dep.current,
+      env: schema.env,
+      label: $date.label,
+    }, $day?._.min);
+  };
+
+  const [minDay, setMinDay] = useState(getMinDay);
+
+  function getMaxDay() {
+    return getValidationValue({
+      data: schema.data.current,
+      dep: schema.dep.current,
+      env: schema.env,
+      label: $date.label,
+    }, $day?._.max);
+  };
+
+  const [maxDay, setMaxDay] = useState(getMaxDay);
+
+  function getMinHour() {
+    return getValidationValue({
+      data: schema.data.current,
+      dep: schema.dep.current,
+      env: schema.env,
+      label: $date.label,
+    }, $hour?._.min) ?? 0;
+  };
+
+  const [minHour, setMinHour] = useState(getMinHour);
+
+  function getMaxHour() {
+    return getValidationValue({
+      data: schema.data.current,
+      dep: schema.dep.current,
+      env: schema.env,
+      label: $date.label,
+    }, $hour?._.max) ?? 23;
+  };
+
+  const [maxHour, setMaxHour] = useState(getMaxHour);
+
+  function getMinMinute() {
+    return getValidationValue({
+      data: schema.data.current,
+      dep: schema.dep.current,
+      env: schema.env,
+      label: $date.label,
+    }, $minute?._.min) ?? 0;
+  };
+
+  const [minMinute, setMinMinute] = useState(getMinMinute);
+
+  function getMaxMinute() {
+    return getValidationValue({
+      data: schema.data.current,
+      dep: schema.dep.current,
+      env: schema.env,
+      label: $date.label,
+    }, $minute?._.max) ?? 59;
+  };
+
+  const [maxMinute, setMaxMinute] = useState(getMaxMinute);
+
+  function getMinSecond() {
+    return getValidationValue({
+      data: schema.data.current,
+      dep: schema.dep.current,
+      env: schema.env,
+      label: $date.label,
+    }, $second?._.min) ?? 0;
+  };
+
+  const [minSecond, setMinSecond] = useState(getMinSecond);
+
+  function getMaxSecond() {
+    return getValidationValue({
+      data: schema.data.current,
+      dep: schema.dep.current,
+      env: schema.env,
+      label: $date.label,
+    }, $second?._.max) ?? 59;
+  };
+
+  const [maxSecond, setMaxSecond] = useState(getMaxSecond);
+
+  let optionMinYear = min.getFullYear(), optionMaxYear = max.getFullYear();
+  let optionMinMonth = 0, optionMaxMonth = 11;
+  let optionMinDay = 1, optionMaxDay = 31;
+  let optionMinHour = 0, optionMaxHour = 23;
+  let optionMinMinute = 0, optionMaxMinute = 59;
+  let optionMinSecond = 0, optionMaxSecond = 59;
+
+  if (isValidScripts) {
+    // year
+    if (minYear != null) {
+      optionMinYear = Math.max(optionMinYear, minYear);
+    }
+    if (maxYear != null) {
+      optionMaxYear = Math.min(optionMaxYear, maxYear);
+    }
+    // month
+    if (min.getFullYear() === max.getFullYear()) {
+      optionMinMonth = min.getMonth();
+      optionMaxMonth = max.getMonth();
+    }
+    if (yearValue != null) {
+      if (min.getFullYear() === yearValue) {
+        optionMinMonth = min.getMonth();
+      }
+      if (max.getFullYear() === yearValue) {
+        optionMaxMonth = max.getMonth();
+      }
+    }
+    if (minMonth != null) {
+      optionMinMonth = Math.max(optionMinMonth, minMonth);
+    }
+    if (maxMonth != null) {
+      optionMaxMonth = Math.min(optionMaxMonth, maxMonth);
+    }
+    if (type !== "month") {
+      // day
+      if ((min.getMonth() + 1) === monthValue && min.getFullYear() === yearValue) {
+        optionMinDay = min.getDate();
+      }
+      if ((max.getMonth() + 1) === monthValue && max.getFullYear() === yearValue) {
+        optionMaxDay = max.getDate();
+      }
+      if (yearValue != null && monthValue != null) {
+        optionMaxDay = Math.min(optionMaxDay, new Date(yearValue, monthValue, 0).getDate());
+      }
+      if (minDay != null) {
+        optionMinDay = Math.max(optionMinDay, minDay);
+      }
+      if (maxDay != null) {
+        optionMaxDay = Math.min(optionMaxDay, maxDay);
+      }
+    }
+    if (type === "datetime") {
+      // hour
+      if (yearValue != null
+        && monthValue != null
+        && dayValue != null
+      ) {
+        if (min.getDate() === dayValue
+          && (min.getMonth() + 1) === monthValue
+          && min.getFullYear() === yearValue
+        ) {
+          optionMinHour = min.getHours();
+        }
+        if (max.getDate() === dayValue
+          && (max.getMonth() + 1) === monthValue
+          && max.getFullYear() === yearValue
+        ) {
+          optionMaxHour = max.getHours();
+        }
+      }
+      optionMinHour = Math.max(optionMinHour, minTime.h, minHour);
+      optionMaxHour = Math.min(optionMaxHour, maxTime.h, maxHour);
+      // minute
+      if (yearValue != null
+        && monthValue != null
+        && dayValue != null
+        && hourValue != null
+      ) {
+        if (min.getHours() === hourValue
+          && min.getDate() === dayValue
+          && (min.getMonth() + 1) === monthValue
+          && min.getFullYear() === yearValue
+        ) {
+          optionMinMinute = min.getMinutes();
+        }
+        if (max.getHours() === hourValue
+          && max.getDate() === dayValue
+          && (max.getMonth() + 1) === monthValue
+          && max.getFullYear() === yearValue
+        ) {
+          optionMaxMinute = max.getMinutes();
+        }
+      }
+      optionMinMinute = Math.max(optionMinMinute, minTime.m, minMinute);
+      optionMaxMinute = Math.min(optionMaxMinute, maxTime.m, maxMinute);
+      // second
+      if (time === "hms") {
+        if (minuteValue !== null
+          && yearValue != null
+          && monthValue != null
+          && dayValue != null
+          && hourValue != null
+        ) {
+          if (min.getMinutes() === minuteValue
+            && min.getHours() === hourValue
+            && min.getDate() === dayValue
+            && (min.getMonth() + 1) === monthValue
+            && min.getFullYear() === yearValue
+          ) {
+            optionMinSecond = min.getSeconds();
+          }
+          if (max.getMinutes() === minuteValue
+            && max.getHours() === hourValue
+            && max.getDate() === dayValue
+            && (max.getMonth() + 1) === monthValue
+            && max.getFullYear() === yearValue
+          ) {
+            optionMaxSecond = max.getSeconds();
+          }
+        }
+        optionMinSecond = Math.max(optionMinSecond, minTime.s, minSecond);
+        optionMaxSecond = Math.min(optionMaxSecond, maxTime.s, maxSecond);
+      }
+    }
+  }
 
   const yearOptions = useMemo(() => {
     const options: Array<ReactNode> = [];
@@ -532,22 +824,6 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
     optionMaxYear,
   ]);
 
-  let optionMinMonth = 0, optionMaxMonth = 11;
-  if (isValidScripts) {
-    if (min.getFullYear() === max.getFullYear()) {
-      optionMinMonth = min.getMonth();
-      optionMaxMonth = max.getMonth();
-    }
-    if (yearValue != null) {
-      if (min.getFullYear() === yearValue) {
-        optionMinMonth = min.getMonth();
-      }
-      if (max.getFullYear() === yearValue) {
-        optionMaxMonth = max.getMonth();
-      }
-    }
-  }
-
   const monthOptions = useMemo(() => {
     const options: Array<ReactNode> = [];
     for (let i = optionMinMonth; i <= optionMaxMonth; i++) {
@@ -565,19 +841,6 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
     optionMinMonth,
     optionMaxMonth,
   ]);
-
-  let optionMinDay = 1, optionMaxDay = 31;
-  if (type !== "month" && isValidScripts) {
-    if ((min.getMonth() + 1) === monthValue && min.getFullYear() === yearValue) {
-      optionMinDay = min.getDate();
-    }
-    if ((max.getMonth() + 1) === monthValue && max.getFullYear() === yearValue) {
-      optionMaxDay = max.getDate();
-    }
-    if (yearValue != null && monthValue != null) {
-      optionMaxDay = Math.min(optionMaxDay, new Date(yearValue, monthValue, 0).getDate());
-    }
-  }
 
   const dayOptions = useMemo(() => {
     const options: Array<ReactNode> = [];
@@ -597,30 +860,6 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
     optionMinDay,
     optionMaxDay,
   ]);
-
-
-  let optionMinHour = 0, optionMaxHour = 23;
-  if (type === "datetime" && isValidScripts) {
-    if (yearValue != null
-      && monthValue != null
-      && dayValue != null
-    ) {
-      if (min.getDate() === dayValue
-        && (min.getMonth() + 1) === monthValue
-        && min.getFullYear() === yearValue
-      ) {
-        optionMinHour = min.getHours();
-      }
-      if (max.getDate() === dayValue
-        && (max.getMonth() + 1) === monthValue
-        && max.getFullYear() === yearValue
-      ) {
-        optionMaxHour = max.getHours();
-      }
-    }
-    optionMinHour = Math.max(optionMinHour, minTime.h);
-    optionMaxHour = Math.min(optionMaxHour, maxTime.h);
-  }
 
   const hourOptions = useMemo(() => {
     const options: Array<ReactNode> = [];
@@ -642,32 +881,6 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
     optionMaxHour,
   ]);
 
-  let optionMinMinute = 0, optionMaxMinute = 59;
-  if (type === "datetime" && isValidScripts) {
-    if (yearValue != null
-      && monthValue != null
-      && dayValue != null
-      && hourValue != null
-    ) {
-      if (min.getHours() === hourValue
-        && min.getDate() === dayValue
-        && (min.getMonth() + 1) === monthValue
-        && min.getFullYear() === yearValue
-      ) {
-        optionMinMinute = min.getMinutes();
-      }
-      if (max.getHours() === hourValue
-        && max.getDate() === dayValue
-        && (max.getMonth() + 1) === monthValue
-        && max.getFullYear() === yearValue
-      ) {
-        optionMaxMinute = max.getMinutes();
-      }
-    }
-    optionMinMinute = Math.max(optionMinMinute, minTime.m);
-    optionMaxMinute = Math.min(optionMaxMinute, maxTime.m);
-  }
-
   const minuteOptions = useMemo(() => {
     const options: Array<ReactNode> = [];
     if (type !== "datetime") return options;
@@ -687,35 +900,6 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
     optionMinMinute,
     optionMaxMinute,
   ]);
-
-  let optionMinSecond = 0, optionMaxSecond = 59;
-  if (type === "datetime" && time === "hms" && isValidScripts) {
-    if (minuteValue !== null
-      && yearValue != null
-      && monthValue != null
-      && dayValue != null
-      && hourValue != null
-    ) {
-      if (min.getMinutes() === minuteValue
-        && min.getHours() === hourValue
-        && min.getDate() === dayValue
-        && (min.getMonth() + 1) === monthValue
-        && min.getFullYear() === yearValue
-      ) {
-        optionMinSecond = min.getSeconds();
-      }
-      if (max.getMinutes() === minuteValue
-        && max.getHours() === hourValue
-        && max.getDate() === dayValue
-        && (max.getMonth() + 1) === monthValue
-        && max.getFullYear() === yearValue
-      ) {
-        optionMaxSecond = max.getSeconds();
-      }
-    }
-    optionMinSecond = Math.max(optionMinSecond, minTime.s);
-    optionMaxSecond = Math.min(optionMaxSecond, maxTime.s);
-  }
 
   const secondOptions = useMemo(() => {
     const options: Array<ReactNode> = [];
