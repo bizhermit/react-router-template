@@ -3,6 +3,8 @@ import { SchemaData } from "./data";
 import { parseWithSchema } from ".";
 import { unstable_usePrompt } from "react-router";
 import { clone } from "../objects";
+import { ValidScriptsContext } from "../providers/valid-scripts";
+import { useText } from "~/i18n/hooks";
 
 export interface SchemaEffectParams_Data {
   type: "data";
@@ -92,14 +94,16 @@ interface Props<S extends Record<string, Schema.$Any>> {
 };
 
 export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>) {
+  const t = useText();
   const env = useRef<Schema.Env>({
     isServer: false,
-    t: (k) => k,
+    t,
   });
+  const scripts = use(ValidScriptsContext);
 
   const isInitialize = useRef(true);
   const isFirstLoad = useRef(true);
-  const isValidScripts = useRef(false);
+  const isValidScripts = useRef(scripts.valid);
   const isEffected = useRef(false);
 
   const subscribes = useRef<Array<(params: SchemaEffectParams) => void>>([]);

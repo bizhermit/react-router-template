@@ -1,0 +1,8 @@
+{
+  "halloWorld": "hallo world.",
+  "format_datetime": "MM/dd/yyyy hh:mm:ss",
+  "format_sdatetime": "MM/dd/yyyy hh:mm",
+  "format_date": "MM/dd/yyyy",
+  "format_sdate": "MM/dd/yy",
+  "format_month": "MM/yyyy"
+}

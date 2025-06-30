@@ -19,7 +19,10 @@ import { $struct } from "~/components/schema/struct";
 import type { Route } from "./+types";
 import { data, useFetcher } from "react-router";
 import { DateSelectBox } from "~/components/elements/form/date-select-box";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
+import { Text } from "~/i18n/react-component";
+import { useLocale, useText } from "~/i18n/hooks";
+import { getPayload } from "~/components/schema/server";
 
 const text = $str(
   {
@@ -161,16 +164,7 @@ const schema = $schema({
 export async function action(args: Route.ActionArgs) {
   console.log("-----------------");
   const start = performance.now();
-
-  const formData = await args.request.formData();
-  const submittion = parseWithSchema({
-    data: formData,
-    env: {
-      isServer: true,
-      t: (k) => k,
-    },
-    schema,
-  });
+  const submittion = await getPayload(args.request, schema);
   console.log(submittion);
   console.log(performance.now() - start);
   console.log("-----------------");
@@ -218,6 +212,7 @@ export default function Page(props: Route.ComponentProps) {
           submit
         </button>
       </fetcher.Form>
+      <LangComponent />
     </SchemaProvider>
   );
 }
@@ -396,6 +391,44 @@ function DynamicSelectBoxComponent() {
           source={source}
         />
       </FormItem>
+    </div>
+  );
+};
+
+function LangComponent() {
+  const t = useText();
+  const locale = useLocale();
+
+  return (
+    <div>
+      <span>{t("halloWorld")}</span>
+      <span>{t("replaceText", { hoge: "人民", fuga: 1000 })}</span>
+      <div>{t("htmlText")}</div>
+      <div>
+        <Text
+          i18nKey="htmlText"
+          replaceMap={{
+            "replace1": (props: { children?: ReactNode }) => <span style={{ color: "red" }}>完全に置き換えてもいいよ{props.children}</span>,
+          }}
+        />
+      </div>
+      {/* <p>
+          <span>dangerouslySetInnerHTML</span>
+          <div dangerouslySetInnerHTML={{ __html: t("htmlText") }} />
+        </p> */}
+      <div className="flex gap-3">
+        <button type="button" onClick={() => {
+          locale.switch("ja");
+        }}>
+          ja
+        </button>
+        /
+        <button type="button" onClick={() => {
+          locale.switch("en");
+        }}>
+          en
+        </button>
+      </div>
     </div>
   );
 };

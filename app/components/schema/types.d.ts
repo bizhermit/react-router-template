@@ -6,7 +6,7 @@ namespace Schema {
 
   interface Env {
     isServer: boolean;
-    t: (key: string) => string;
+    t: I18nGetter;
   };
 
   interface Result {
