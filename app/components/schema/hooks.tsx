@@ -613,7 +613,7 @@ export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
           }
           isEffected.current = true;
         }
-        if (params.items.some(item => $._.refs?.some(ref => ref === item.name))) {
+        if ($._.refs?.some(ref => params.items.some(item => item.name === ref))) {
           const result = validation(getValue());
           setMode(getMode);
           setRequired(getRequired);
