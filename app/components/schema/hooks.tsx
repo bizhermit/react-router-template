@@ -587,9 +587,11 @@ export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
         const result = getResult();
         setValue(value);
         setResult(result);
+        options.effect?.({ value, result });
+        // NOTE: no break
+      case "dep":
         setMode(getMode);
         setRequired(getRequired);
-        options.effect?.({ value, result });
         options.effectContext?.({
           data: schema.data.current,
           dep: schema.dep.current,
@@ -642,16 +644,6 @@ export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
         }
         break;
       }
-      case "dep":
-        setMode(getMode);
-        setRequired(getRequired);
-        options.effectContext?.({
-          data: schema.data.current,
-          dep: schema.dep.current,
-          env: schema.env,
-          label: $.label,
-        });
-        break;
       default:
         break;
     }

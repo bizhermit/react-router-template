@@ -84,6 +84,8 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
         setHourResult(getHourResult);
         setMinuteResult(getMinuteResult);
         setSecondResult(getSecondResult);
+        // NOTE: no break
+      case "dep":
         setMode(getMode);
         setYearMode(getYearMode);
         setMonthMode(getMonthMode);
@@ -229,37 +231,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
         update($second, setSecondResult);
         break;
       }
-      case "dep":
-        setMode(getMode);
-        setYearMode(getYearMode);
-        setMonthMode(getMonthMode);
-        setDayMode(getDayMode);
-        setHourMode(getHourMode);
-        setMinuteMode(getMinuteMode);
-        setSecondMode(getSecondMode);
-        setRequired(getRequired);
-        setYearRequired(getYearRequired);
-        setMonthRequired(getMonthRequired);
-        setDayRequired(getDayRequired);
-        setHourRequired(getHourRequired);
-        setMinuteRequired(getMinuteRequired);
-        setSecondRequired(getSecondRequired);
-        setMin(getMin);
-        setMax(getMax);
-        setMinTime(getMinTime);
-        setMaxTime(getMaxTime);
-        setMinYear(getMinYear);
-        setMaxYear(getMaxYear);
-        setMinMonth(getMinMonth);
-        setMaxMonth(getMaxMonth);
-        setMinDay(getMinDay);
-        setMaxDay(getMaxDay);
-        setMinHour(getMinHour);
-        setMaxHour(getMaxHour);
-        setMinMinute(getMinMinute);
-        setMaxMinute(getMaxMinute);
-        setMinSecond(getMinSecond);
-        setMaxSecond(getMaxSecond);
+      default:
         break;
     }
   }, () => {
