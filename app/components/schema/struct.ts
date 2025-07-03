@@ -1,11 +1,11 @@
 import { getRequiredTextKey, getValidationArray } from "./utilities";
 
-function STRUCT_PARSER({ value }: Schema.ParserParams): Schema.ParserResult<Record<string, any>> {
+function STRUCT_PARSER({ value }: Schema.ParserParams): Schema.ParserResult<Record<string, unknown>> {
   return { value };
 };
 
 export function $struct<Props extends Schema.StructProps>(props: Props) {
-  const validators: Array<Schema.Validator<Record<string, any>>> = [];
+  const validators: Array<Schema.Validator<Record<string, unknown>>> = [];
 
   const actionType = props.actionType ?? "set";
   const [required, getRequiredMessage] = getValidationArray(props?.required);
@@ -45,7 +45,7 @@ export function $struct<Props extends Schema.StructProps>(props: Props) {
   };
 
   if (props.validators) {
-    validators.push(...props.validators);
+    validators.push(...props.validators as typeof validators);
   }
 
   return {
@@ -56,7 +56,7 @@ export function $struct<Props extends Schema.StructProps>(props: Props) {
     label: props?.label,
     mode: props?.mode,
     refs: props?.refs,
-    parser: (props.parser as Schema.Parser<Schema.SchemaValue<Props["props"]>>) ?? STRUCT_PARSER,
+    parser: (props.parser ?? STRUCT_PARSER) as Schema.Parser<Schema.SchemaValue<Props["props"]>>,
     validators,
     required: required as Schema.GetValidationValue<Props, "required">,
   } as const satisfies Schema.$Struct<Props["props"]>;

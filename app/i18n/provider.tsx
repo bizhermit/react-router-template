@@ -5,7 +5,7 @@ import { I18nContext, I18nLangContext } from "./hooks";
 
 export function I18nProvider(props: {
   locale: Locales;
-  resource: Record<string, any>;
+  resource: I18nResource;
   children?: ReactNode;
 }) {
   const [locale, setLocale] = useState(props.locale);
@@ -18,7 +18,7 @@ export function I18nProvider(props: {
     if (text == null) return key;
     if (params) {
       Object.keys(params).forEach(k => {
-        const v = (params as Record<string, any>)[k];
+        const v = (params as Record<string, I18nReplaceValue>)[k];
         if (v == null) return;
         text = text!.replace(new RegExp(`{{${k}}}`, "g"), String(v));
       });

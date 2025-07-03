@@ -1,7 +1,7 @@
 import { convertBase64ToFile, convertBlobToFile, getFileSize10Text } from "../objects/file";
 import { getRequiredTextKey, getValidationArray } from "./utilities";
 
-function isFile(value: any): value is File {
+function isFile(value: unknown): value is File {
   return value != null && value instanceof File;
 };
 

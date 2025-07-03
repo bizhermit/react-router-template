@@ -30,7 +30,7 @@ namespace Schema {
   };
 
   interface ParserParams {
-    value: any;
+    value: unknown;
     dep: Record<string, any>;
     env: Env;
     label: string | undefined;

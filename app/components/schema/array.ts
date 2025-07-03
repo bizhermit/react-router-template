@@ -1,5 +1,6 @@
 import { getRequiredTextKey, getValidationArray } from "./utilities";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function ARRAY_PARSER({ value }: Schema.ParserParams): Schema.ParserResult<Array<any>> {
   if (value == null || value === "") {
     return { value: undefined };
@@ -13,7 +14,8 @@ function ARRAY_PARSER({ value }: Schema.ParserParams): Schema.ParserResult<Array
 export function $array<Props extends Schema.ArrayProps>(props: Props) {
   const key = props.prop.type === "struct" ? props.prop.key : undefined;
 
-  const validators: Array<Schema.Validator<any[]>> = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const validators: Array<Schema.Validator<Array<any>>> = [];
 
   const actionType = props?.actionType ?? "set";
   const [required, getRequiredMessage] = getValidationArray(props?.required);

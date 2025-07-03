@@ -167,7 +167,7 @@ export default tseslint.config({
         varsIgnorePattern: "^_",
       },
     ],
-    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-explicit-any": "warn",
     // React
     "react/jsx-uses-react": "off",
     "react/react-in-jsx-scope": "off",

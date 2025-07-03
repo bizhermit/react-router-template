@@ -4,14 +4,14 @@ declare global {
   interface Window {
     [I18N_PROP_NAME]?: {
       locale: Locales;
-      resource: I18N_Texts;
+      resource: I18nResource;
     };
   }
 };
 
 export async function loadI18nAsClient(): Promise<{
   locale: Locales;
-  resource: I18N_Texts;
+  resource: I18nResource;
 }> {
   const i18n = window[I18N_PROP_NAME];
   if (i18n) {
