@@ -1,7 +1,7 @@
-import { createElement, type ReactNode, type FC } from "react";
+import { createElement, type FC, type ReactNode } from "react";
 import { useText } from "./hooks";
 
-type ReplaceMap = Record<string, FC<{ children: ReactNode }>>;
+type ReplaceMap = Record<string, FC<{ children: ReactNode; }>>;
 
 type Props<K extends I18nTextKey> = {
   i18nKey: K;
@@ -48,7 +48,7 @@ export function Text<K extends I18nTextKey>({
       "gi"
     );
 
-    const stack: Array<{ tag: string; children: ReactNode[] }> = [];
+    const stack: Array<{ tag: string; children: ReactNode[]; }> = [];
     const output: ReactNode[] = [];
 
     let lastIndex = 0;
@@ -83,7 +83,7 @@ export function Text<K extends I18nTextKey>({
       lastIndex = tagRegex.lastIndex;
     }
 
-   const remaining = str.slice(lastIndex);
+    const remaining = str.slice(lastIndex);
     if (remaining) {
       (stack.length ? stack[stack.length - 1].children : output).push(remaining);
     }

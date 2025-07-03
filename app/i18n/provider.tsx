@@ -1,14 +1,14 @@
 import { use, useEffect, useRef, useState, type ReactNode } from "react";
-import { I18nContext, I18nLangContext } from "./hooks";
 import { useLocation, useNavigate, useRevalidator } from "react-router";
 import { DEFAULT_LOCALE, LOCALE_KEY } from "./config";
+import { I18nContext, I18nLangContext } from "./hooks";
 
 export function I18nProvider(props: {
   locale: Locales;
   resource: Record<string, any>;
   children?: ReactNode;
 }) {
-  const [locale, setLocale] = useState(props.locale)
+  const [locale, setLocale] = useState(props.locale);
   const switchRef = useRef(locale);
   const resourceRef = useRef(props.resource);
 
@@ -109,7 +109,7 @@ export function I18nCookieLocator(props: {
   const { revalidate } = useRevalidator();
   const [isSwitching, setSwitch] = useState(false);
 
-  async function switchLocale(locale: Locales, options?: { refresh?: boolean }) {
+  async function switchLocale(locale: Locales, options?: { refresh?: boolean; }) {
     setSwitch(true);
     document.cookie = `${LOCALE_KEY}=${encodeURIComponent(locale)};${cookieOption}`;
     if (await i18n.switch(locale)) {
