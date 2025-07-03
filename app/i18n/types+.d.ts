@@ -75,9 +75,9 @@ interface I18N_Texts {
   "minDate_input": "label" | "minDate";
   "minDate_select": "label" | "minDate";
   "minDate_set": "label" | "minDate";
-  "maxDate_input": "label" | "minDate";
-  "maxDate_select": "label" | "minDate";
-  "maxDate_set": "label" | "minDate";
+  "maxDate_input": "label" | "maxDate";
+  "maxDate_select": "label" | "maxDate";
+  "maxDate_set": "label" | "maxDate";
   "rangeDate_input": "label" | "minDate" | "maxDate";
   "rangeDate_select": "label" | "minDate" | "maxDate";
   "rangeDate_set": "label" | "minDate" | "maxDate";
@@ -95,5 +95,4 @@ interface I18N_Texts {
   "requiredSplitDate_input": "label" | "target";
   "requiredSplitDate_select": "label" | "target";
   "requiredSplitDate_set": "label" | "target";
-  "sample.sample_key": null;
 };

@@ -250,7 +250,7 @@ function common<Props extends Schema.DateBaseProps>(
   }
 
   if (maxDate) {
-    const textKey: I18nTextKey = `maxDate_${actionType}`;
+    const textKey = `maxDate_${actionType}` satisfies I18nTextKey;
     const getMessage: Schema.MessageGetter<typeof getMaxDateMessage> = getMaxDateMessage ?
       getMaxDateMessage :
       (p) => p.env.t(textKey, {

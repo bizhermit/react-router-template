@@ -197,7 +197,7 @@ export function $file<Props extends Schema.FileProps>(props?: Props) {
       getMaxSizeMessage :
       (p) => p.env.t("maxFileSize", {
         label: p.label || p.env.t("default_label"),
-        maxFileSize: p.maxSizeText,
+        maxSize: p.maxSizeText,
       });
 
     if (typeof maxSize === "function") {
