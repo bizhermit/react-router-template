@@ -1,6 +1,6 @@
 import serialize from "serialize-javascript";
-import ja from "../../public/locales/ja.json";
 import en from "../../public/locales/en.json";
+import ja from "../../public/locales/ja.json";
 import { DEFAULT_LOCALE, I18N_PROP_NAME, LOCALE_KEY, SUPPORTED_LOCALES } from "./config";
 
 const i18nResources = {
@@ -22,7 +22,7 @@ export function loadI18nAsServer(request: Request) {
   // }
   /* Cookie */
   const cookie = request.headers.get("cookie");
-  const v = cookie?.split(/;\s?/g).find(c => c.match(i18nCookieRegExp))?.split("=")[1]
+  const v = cookie?.split(/;\s?/g).find(c => c.match(i18nCookieRegExp))?.split("=")[1];
   if (v) {
     const l = decodeURIComponent(v);
     locale = SUPPORTED_LOCALES.find(k => k === l) || locale;
@@ -39,7 +39,7 @@ export function loadI18nAsServer(request: Request) {
         <script
           id={I18N_PROP_NAME}
           dangerouslySetInnerHTML={{
-            __html: `window.${I18N_PROP_NAME}=${serialize({ locale, resource })}`
+            __html: `window.${I18N_PROP_NAME}=${serialize({ locale, resource })}`,
           }}
         />
       );
@@ -65,7 +65,7 @@ export function findBrowserLocaleAsServer(request: Request) {
     .sort((l1, l2) => l2.q - l1.q)
     .filter(({ l }) => SUPPORTED_LOCALES.find(L => L === l))
     .map(({ l }) => l) ?? [];
-  if (locales.length === 0) DEFAULT_LOCALE;
+  if (locales.length === 0) return DEFAULT_LOCALE;
   return locales[0];
 };
 
@@ -85,6 +85,6 @@ export function getI18n(request: Request) {
         });
       }
       return text;
-    }
+    },
   };
 };

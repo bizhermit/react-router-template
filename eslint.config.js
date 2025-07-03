@@ -54,6 +54,14 @@ export default tseslint.config({
     "@stylistic/operator-linebreak": "off",
     // Typescript
     "@typescript-eslint/no-empty-object-type": "off",
+    "no-unused-expressions": "off",
+    "@typescript-eslint/no-unused-expressions": [
+      "warn",
+      {
+        allowShortCircuit: true,
+        allowTernary: true,
+      },
+    ],
     // React
     "react/jsx-uses-react": "off",
     "react/react-in-jsx-scope": "off",
