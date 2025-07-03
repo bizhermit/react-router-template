@@ -52,7 +52,7 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
     },
   });
 
-  const [source, setSource] = useState<Schema.Source<any>>(() => {
+  const [source, setSource] = useState<Schema.Source<unknown>>(() => {
     if (propsSource) return propsSource;
     if ("source" in dataItem._) {
       return getValidationValue({
@@ -115,10 +115,11 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
             </option>
             {
               source.map(item => {
+                const key = String(item.value);
                 return (
                   <option
-                    key={item.value}
-                    value={item.value}
+                    key={key}
+                    value={key}
                   >
                     {item.text}
                   </option>

@@ -123,7 +123,7 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
     isComposing.current = false;
   };
 
-  function format(value: any) {
+  function format(value: unknown) {
     if (value == null || value === "") return "";
     const num = Number(value);
     if (isNaN(num)) return "";

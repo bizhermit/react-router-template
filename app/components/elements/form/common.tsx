@@ -145,10 +145,11 @@ export function FormItem({
   );
 };
 
-export function getValidationValue<T extends Schema.$ValidationValue<any>>(
+export function getValidationValue<T extends Schema.$ValidationValue<unknown>>(
   params: Schema.DynamicValidationValueParams,
   validationValue: T,
-): T extends ((...args: any[]) => infer V) ? V : T {
+) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   type V = T extends ((...args: any[]) => infer V) ? V : T;
   if (validationValue == null) return undefined as V;
   if (typeof validationValue === "function") return validationValue(params) as V;

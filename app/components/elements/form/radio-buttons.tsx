@@ -51,7 +51,7 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
     },
   });
 
-  const [source, setSource] = useState<Schema.Source<any>>(() => {
+  const [source, setSource] = useState<Schema.Source<unknown>>(() => {
     if (propsSource) return propsSource;
     if ("source" in dataItem._) {
       return getValidationValue({
@@ -98,8 +98,9 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
       }}
     >
       {source.map(item => {
+        const key = String(item.value);
         return (
-          <InputLabel key={item.value}>
+          <InputLabel key={key}>
             <input
               className="ipt-point ipt-radio"
               type="radio"
@@ -108,7 +109,7 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
               aria-disabled={state.current.disabled}
               aria-readonly={state.current.readonly}
               required={required}
-              value={item.value}
+              value={key}
               defaultChecked={item.value === value}
               onChange={handleChange}
               onClick={handleClick}
