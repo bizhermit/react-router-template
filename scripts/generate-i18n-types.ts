@@ -5,7 +5,7 @@ const localesDirPath = path.join(process.cwd(), "public", "locales");
 const outputFilePath = path.join(process.cwd(), "app", "i18n", "types+.d.ts");
 
 if (!existsSync(localesDirPath)) {
-  process.stderr.write(`Error: The locales directory does not exist at ${localesDirPath}\n`)
+  process.stderr.write(`Error: The locales directory does not exist at ${localesDirPath}\n`);
   process.exit(0);
 }
 
@@ -37,16 +37,14 @@ files.forEach(file => {
       return;
     }
     const prefix = namespace ? `${namespace}.` : "";
-    for (let key in json) {
-      if (json.hasOwnProperty(key)) {
-        const fullKey = `${prefix}${key}`;
-        const text = String(json[key]);
-        if (!map[fullKey]) {
-          map[fullKey] = [];
-        }
-        const replaceKeys = [...text.matchAll(/\{\{(.*?)\}\}/g)].map(match => match[1]);
-        map[fullKey].push(...replaceKeys);
+    for (const key in json) {
+      const fullKey = `${prefix}${key}`;
+      const text = String(json[key]);
+      if (!map[fullKey]) {
+        map[fullKey] = [];
       }
+      const replaceKeys = [...text.matchAll(/\{\{(.*?)\}\}/g)].map(match => match[1]);
+      map[fullKey].push(...replaceKeys);
     }
   } catch (error) {
     process.stderr.write(`Error: Failed to read or parse the file ${file}. Error: ${error}\n`);
@@ -57,13 +55,11 @@ files.forEach(file => {
 let output = `// This file is auto-generated. Do not edit manually.\n\n`;
 output += `interface I18N_Texts {\n`;
 for (const key in map) {
-  if (map.hasOwnProperty(key)) {
-    const replaceKeys = Array.from(new Set(map[key]));
-    output += `  "${key}": ${(() => {
-      if (replaceKeys.length === 0) return "null";
-      return replaceKeys.map(s => `"${s}"`).join(" | ");
-    })()};\n`;
-  }
+  const replaceKeys = Array.from(new Set(map[key]));
+  output += `  "${key}": ${(() => {
+    if (replaceKeys.length === 0) return "null";
+    return replaceKeys.map(s => `"${s}"`).join(" | ");
+  })()};\n`;
 }
 
 output += `};\n`;

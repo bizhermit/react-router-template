@@ -24,10 +24,19 @@ export default tseslint.config({
     "@stylistic/quotes": [
       "warn",
       "double",
+      {
+        avoidEscape: true,
+        allowTemplateLiterals: true,
+      }
     ],
     "@stylistic/semi": [
       "warn",
       "always",
     ],
+    "@stylistic/brace-style": [
+      "warn",
+      "1tbs",
+    ],
+    "@stylistic/arrow-parens": "off",
   },
 })
