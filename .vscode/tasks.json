@@ -14,6 +14,12 @@
       "command": "npm run typecheck"
     },
     {
+      "label": "format",
+      "group": "none",
+      "type": "shell",
+      "command": "npm run format"
+    },
+    {
       "label": "generate i18n types",
       "group": "none",
       "type": "shell",

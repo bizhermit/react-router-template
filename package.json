@@ -9,9 +9,9 @@
     "build": "react-router build",
     "dev": "react-router dev --host",
     "start": "react-router-serve ./build/server/index.js",
-    "typecheck": "react-router typegen && tsc",
+    "typecheck": "react-router typegen && tsc && npx eslint",
     "generate-i18n-types": "node --loader ts-node/esm ./scripts/generate-i18n-types.ts",
-    "eslint": "npx eslint"
+    "format": "npx eslint --fix"
   },
   "dependencies": {
     "@react-router/node": "^7.6.0",
