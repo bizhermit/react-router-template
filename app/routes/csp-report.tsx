@@ -6,4 +6,4 @@ export async function action({ request }: Route.ActionArgs) {
   return new Response("", {
     status: 204,
   });
-}
+};
