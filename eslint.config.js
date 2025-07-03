@@ -72,7 +72,7 @@ export default tseslint.config({
     "@stylistic/operator-linebreak": "off",
     "@stylistic/multiline-ternary": [
       "warn",
-      "never",
+      "always-multiline",
     ],
     "@stylistic/jsx-wrap-multilines": [
       "warn",
