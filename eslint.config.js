@@ -99,6 +99,19 @@ export default tseslint.config({
         allowTernary: true,
       },
     ],
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": [
+      "warn",
+      {
+        args: "after-used",
+        argsIgnorePattern: "^_",
+        caughtErrors: "none",
+        destructuredArrayIgnorePattern: "^_",
+        ignoreRestSiblings: true,
+        varsIgnorePattern: "^_",
+      },
+    ],
+    "@typescript-eslint/no-explicit-any": "off",
     // React
     "react/jsx-uses-react": "off",
     "react/react-in-jsx-scope": "off",

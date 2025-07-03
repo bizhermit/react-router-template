@@ -56,7 +56,7 @@ export function findBrowserLocaleAsServer(request: Request) {
         l: l.trim().toLowerCase() as Locales,
         q: (() => {
           if (!q) return 1;
-          const num = Number(q.trim().match(/q\=(.+)/)?.[1]);
+          const num = Number(q.trim().match(/q=(.+)/)?.[1]);
           if (num == null || isNaN(num)) return 0;
           return num;
         })(),
