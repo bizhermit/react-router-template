@@ -1,3 +1,5 @@
+/* eslint-disable @stylistic/indent */
+
 namespace Schema {
 
   type Data = import("./data").SchemaData;
@@ -399,22 +401,17 @@ namespace Schema {
     name: string;
     parent?: DataItem<$Struct | $Array>;
     _: P;
-  } & (
-      P extends { type: infer T; } ? (
-        T extends "struct" ? {
-          dataItems: { [K in keyof P["props"]]: DataItem<P["props"][K]> };
-        } :
-        T extends "arr" ? {
-          generateDataItem: (index: number) => DataItem<P["prop"]>;
-        } :
-        T extends "date" | "month" | "datetime" ? {
-          splits: Partial<Record<SplitDateTarget, DataItem<$SplitDate>>>;
-        } :
-        T extends `sdate-${SplitDateTarget}` ? {
-          core: DataItem<$Date | $Month | $DateTime>;
-        } : {}
-      ) : never
-    );
+  } & (P extends { type: infer T; } ? (
+    T extends "struct" ? {
+      dataItems: { [K in keyof P["props"]]: DataItem<P["props"][K]> };
+    } : T extends "arr" ? {
+      generateDataItem: (index: number) => DataItem<P["prop"]>;
+    } : T extends "date" | "month" | "datetime" ? {
+      splits: Partial<Record<SplitDateTarget, DataItem<$SplitDate>>>;
+    } : T extends `sdate-${SplitDateTarget}` ? {
+      core: DataItem<$Date | $Month | $DateTime>;
+    } : {}
+  ) : never);
 
   type DataItems<Props extends Record<string, $Any>> =
     { -readonly [K in keyof Props]: DataItem<Props[K]> };
@@ -422,20 +419,20 @@ namespace Schema {
   type RequiredValue<V, R extends boolean | DynamicValidationValue<boolean>, O extends boolean = false> =
     O extends true ? V | null | undefined :
     R extends true ? V :
-    R extends (...args?: any[]) => true ? V :
+    R extends ((...args?: any[]) => true) ? V :
     V | null | undefined;
 
   type ValueType<Props extends $Any, Strict extends boolean = true, Optional extends boolean = false> =
     Props extends { source: Array<{ value: infer V; }>; } ? (
       RequiredValue<V, Props["required"], Optional>
-    ) :
-    Props extends { type: infer T; } ? (
+    ) : Props extends { type: infer T; } ? (
       T extends "str" ? (
         Strict extends true ? RequiredValue<string, Props["required"], Optional> :
         string | number | null | undefined
       ) :
       T extends "num" ? (
-        Strict extends true ? RequiredValue<number, Props["required"], Optional> :
+        Strict extends true ?
+        RequiredValue<number, Props["required"], Optional> :
         number | `${number}` | null | undefined
       ) :
       T extends "bool" ? (
@@ -474,8 +471,7 @@ namespace Schema {
         Strict extends true ? SchemaValue<Props, Optional> : TolerantSchemaValue<Props> :
         never
       )
-    ) :
-    never;
+    ) : never;
 
   type SchemaValue<Props extends Record<string, any>, Optional extends boolean = false> =
     Eval<{ -readonly [K in keyof Props]: ValueType<Props[K], true, Optional> }>;

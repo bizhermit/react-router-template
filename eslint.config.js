@@ -49,6 +49,32 @@ export default tseslint.config({
     "@stylistic/indent": [
       "warn",
       2,
+      {
+        SwitchCase: 1,
+        VariableDeclarator: "first",
+        outerIIFEBody: 1,
+        MemberExpression: 1,
+        FunctionDeclaration: {
+          body: 1,
+          parameters: 1,
+        },
+        FunctionExpression: {
+          body: 1,
+          parameters: 1,
+        },
+        StaticBlock: {
+          body: 1,
+        },
+        CallExpression: {
+          arguments: 1,
+        },
+        ArrayExpression: 1,
+        ObjectExpression: 1,
+        ImportDeclaration: 1,
+        ignoreComments: true,
+        flatTernaryExpressions: true,
+        offsetTernaryExpressions: false,
+      },
     ],
     "@stylistic/indent-binary-ops": "off",
     "@stylistic/comma-dangle": [
