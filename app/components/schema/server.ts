@@ -11,5 +11,6 @@ export async function getPayload<$Schema extends Record<string, any>>(request: R
       t: i18n.t,
     },
     schema,
+    dep,
   });
 };
