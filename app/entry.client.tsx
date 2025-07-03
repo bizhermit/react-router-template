@@ -7,6 +7,8 @@ import { ValidScriptsProvider } from "./components/providers/valid-scripts";
 
 async function hydrate() {
   const i18n = await loadI18nAsClient();
+  const isValidScripts = document.cookie.includes("js=t");
+
   startTransition(() => {
     hydrateRoot(
       document,
@@ -14,7 +16,9 @@ async function hydrate() {
         locale={i18n.locale}
         resource={i18n.resource}
       >
-        <ValidScriptsProvider>
+        <ValidScriptsProvider
+          initValid={isValidScripts}
+        >
           <StrictMode>
             <HydratedRouter />
           </StrictMode>

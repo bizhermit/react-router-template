@@ -14,6 +14,7 @@ export function ValidScriptsProvider(props: {
 }) {
   const [valid, setVaild] = useState(props.initValid ?? false);
   useLayoutEffect(() => {
+    document.cookie = "js=t; path=/";
     setVaild(true);
   }, []);
   return (
