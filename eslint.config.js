@@ -33,11 +33,27 @@ export default tseslint.config({
       "warn",
       "always",
     ],
+    "@stylistic/member-delimiter-style": [
+      "warn",
+      {
+        multiline: {
+          delimiter: "semi",
+          requireLast: true,
+        },
+        singleline: {
+          delimiter: "semi",
+          requireLast: true,
+        },
+      },
+    ],
     "@stylistic/brace-style": [
       "warn",
       "1tbs",
     ],
     "@stylistic/arrow-parens": "off",
+    "@stylistic/operator-linebreak": "off",
+    // Typescript
+    "@typescript-eslint/no-empty-object-type": "off",
     // React
     "react/jsx-uses-react": "off",
     "react/react-in-jsx-scope": "off",
