@@ -3,20 +3,20 @@ import { useText } from "./hooks";
 
 type ReplaceMap = Record<string, FC<{ children: ReactNode }>>;
 
-type Props = {
-  i18nKey: I18nTextKey;
-  params?: I18nReplaceParams;
+type Props<K extends I18nTextKey> = {
+  i18nKey: K;
+  params?: I18nReplaceParams<K>;
   replaceMap?: ReplaceMap;
 };
 
 const SELF_CLOSING_TAGS = ["br", "hr"];
 const ALLOWED_TAGS = [...SELF_CLOSING_TAGS, "b", "strong", "u", "i"];
 
-export function Text({
+export function Text<K extends I18nTextKey>({
   i18nKey,
   params,
   replaceMap = {},
-}: Props) {
+}: Props<K>) {
   const t = useText();
   const text = t(i18nKey, params);
 

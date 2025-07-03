@@ -9,7 +9,8 @@
     "build": "react-router build",
     "dev": "react-router dev --host",
     "start": "react-router-serve ./build/server/index.js",
-    "typecheck": "react-router typegen && tsc"
+    "typecheck": "react-router typegen && tsc",
+    "generate-i18n-types": "node --loader ts-node/esm ./scripts/generate-i18n-types.ts"
   },
   "dependencies": {
     "@react-router/node": "^7.6.0",
@@ -31,6 +32,7 @@
     "react-router-devtools": "^5.0.5",
     "sass-embedded": "^1.87.0",
     "tailwindcss": "^4.1.6",
+    "ts-node": "^10.9.2",
     "typescript": "^5.7.2",
     "vite": "^5.4.11",
     "vite-tsconfig-paths": "^5.1.4"

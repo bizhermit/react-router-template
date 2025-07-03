@@ -12,13 +12,13 @@ export function I18nProvider(props: {
   const switchRef = useRef(locale);
   const resourceRef = useRef(props.resource);
 
-  function t(key: I18nTextKey, params?: I18nReplaceParams) {
+  function t<K extends I18nTextKey>(key: K, params?: I18nReplaceParams<K>) {
     if (!key) return key;
     let text = resourceRef.current[key];
     if (text == null) return key;
     if (params) {
       Object.keys(params).forEach(k => {
-        const v = params[k];
+        const v = (params as Record<string, any>)[k];
         if (v == null) return;
         text = text!.replace(new RegExp(`{{${k}}}`, "g"), String(v));
       });

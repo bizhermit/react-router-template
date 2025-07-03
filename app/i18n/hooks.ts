@@ -14,8 +14,7 @@ export const I18nContext = createContext<I18nContextProps>({
 });
 
 export function useText() {
-  const i18n = use(I18nContext);
-  return (key: I18nTextKey, params?: I18nReplaceParams) => i18n.t(key, params);
+  return use(I18nContext).t;
 };
 
 type I18nLangContextProps = {

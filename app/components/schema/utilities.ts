@@ -5,10 +5,10 @@ export function getValidationArray<T extends Schema.Validation<any, any>>(valida
   return [validation] as U;
 };
 
-export function getRequiredTextKey(actionType: NonNullable<Schema.BaseProps["actionType"]>): I18nTextKey {
-  return `required_${actionType}`;
+export function getRequiredTextKey(actionType: NonNullable<Schema.BaseProps["actionType"]>) {
+  return `required_${actionType}` satisfies I18nTextKey;
 };
 
-export function getInvalidValueTextKey(actionType: NonNullable<Schema.BaseProps["actionType"]>): I18nTextKey {
-  return `invalidValue_${actionType}`;
+export function getInvalidValueTextKey(actionType: NonNullable<Schema.BaseProps["actionType"]>) {
+  return `invalidValue_${actionType}` satisfies I18nTextKey;
 };

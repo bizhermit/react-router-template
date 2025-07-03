@@ -5,8 +5,8 @@ import { DEFAULT_LOCALE, I18N_PROP_NAME, LOCALE_KEY, SUPPORTED_LOCALES } from ".
 
 const i18nResources = {
   [DEFAULT_LOCALE]: ja,
-  en: en as I18N_Texts,
-} satisfies Record<Locales, I18N_Texts>;
+  en,
+};
 
 const i18nCookieRegExp = new RegExp(`^${encodeURIComponent(LOCALE_KEY)}=(.+)`);
 
@@ -73,13 +73,13 @@ export function getI18n(request: Request) {
   const { locale, resource } = loadI18nAsServer(request);
   return {
     locale,
-    t: (key: I18nTextKey, params?: I18nReplaceParams) => {
+    t: <K extends I18nTextKey>(key: K, params?: I18nReplaceParams<K>) => {
       if (!key) return key;
       let text = (resource as Record<string, any>)[key];
       if (text == null) return key;
       if (params) {
         Object.keys(params).forEach(k => {
-          const v = params[k];
+          const v = (params as Record<string, any>)[k];
           if (v == null) return;
           text = text!.replace(new RegExp(`{{${k}}}`, "g"), String(v));
         });
