@@ -7,5 +7,6 @@ export default [
   //   route("home", "routes/home/page.tsx"),
   //   route("web-form", "routes/web-form/page.tsx"),
   // ]),
+  route("csp-report", "routes/csp-report.tsx"),
   route("*", "routes/fallback.tsx"),
 ] satisfies RouteConfig;
