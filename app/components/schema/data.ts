@@ -19,7 +19,7 @@ type Item = {
 export class SchemaData {
 
   private data: Record<string, any>;
-  private callback: (params: { items: Array<Item> }) => void;
+  private callback: (params: { items: Array<Item>; }) => void;
   private bulkQueue: Array<Item> | null;
 
   constructor(data: typeof this.data | FormData | null | undefined, callback: typeof this.callback) {
@@ -92,7 +92,7 @@ export class SchemaData {
     const n = names[names.length - 1];
     const r = getArrayIndex(n);
     if (r) {
-      if (!Array.isArray(d)) throw new Error(`set value failed. object is no array. "${name}"`)
+      if (!Array.isArray(d)) throw new Error(`set value failed. object is no array. "${name}"`);
       const i = Number(r[1]);
       if (isNaN(i)) {
         d.push(value);
@@ -113,7 +113,7 @@ export class SchemaData {
     return change;
   };
 
-  public bulkSet(items: Array<{ name: string; value: any }>) {
+  public bulkSet(items: Array<{ name: string; value: any; }>) {
     let change = false;
     const changeItems: typeof items = [];
     items.forEach(item => {

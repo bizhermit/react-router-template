@@ -1,10 +1,10 @@
 import { createContext, use, useCallback, useContext, useId, useLayoutEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
-import { SchemaData } from "./data";
-import { parseWithSchema } from ".";
 import { unstable_usePrompt } from "react-router";
+import { useText } from "~/i18n/hooks";
+import { parseWithSchema } from ".";
 import { clone } from "../objects";
 import { ValidScriptsContext } from "../providers/valid-scripts";
-import { useText } from "~/i18n/hooks";
+import { SchemaData } from "./data";
 
 export interface SchemaEffectParams_Data {
   type: "data";
@@ -14,7 +14,7 @@ export interface SchemaEffectParams_Data {
 };
 
 export interface SchemaEffectParams_ValueResult {
-  type: "value-result",
+  type: "value-result";
   items: Array<{ name: string; value: any; result: Schema.Result | null | undefined; }>;
 };
 
@@ -60,7 +60,7 @@ interface SchemaContextProps<S extends Record<string, Schema.$Any> = Record<stri
   setResults: (items: Array<{ name: string; result: Schema.Result | null | undefined; }>) => boolean;
   setValue: (name: string, value: any) => boolean;
   setValueAndResult: (name: string, value: any, result: Schema.Result | null | undefined) => boolean;
-  setValuesAndResults: (items: Array<{ name: string; value: any; result: Schema.Result | null | undefined }>) => boolean;
+  setValuesAndResults: (items: Array<{ name: string; value: any; result: Schema.Result | null | undefined; }>) => boolean;
   isInitialize: RefObject<boolean>;
   isFirstLoad: RefObject<boolean>;
   isValidScripts: RefObject<boolean>;
@@ -349,12 +349,13 @@ export function useSchemaValue<D extends Schema.DataItem<Schema.$Any>>(dataItem:
       case "data":
         setValue(getValue);
         break;
-      case "value":
-        const item = params.items.find(item => item.name === dataItem.name)
+      case "value": {
+        const item = params.items.find(item => item.name === dataItem.name);
         if (item) {
           setValue(item.value);
         }
         break;
+      }
       default:
         break;
     }
@@ -383,12 +384,13 @@ export function useSchemaResult<D extends Schema.DataItem<Schema.$Any>>(dataItem
       case "data":
         setResult(params.results[dataItem.name]);
         break;
-      case "result":
+      case "result": {
         const item = params.items.find(item => item.name === dataItem.name);
         if (item) {
           setResult(item.result);
         }
         break;
+      }
       default:
         break;
     }
@@ -586,14 +588,15 @@ export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
 
   const schema = useSchemaEffect((params) => {
     switch (params.type) {
-      case "data":
+      case "data": {
         isEffected.current = false;
         const value = getValue();
         const result = getResult();
         setValue(value);
         setResult(result);
         options.effect?.({ value, result });
-        // NOTE: no break
+      }
+      // eslint-disable-next-line no-fallthrough
       case "dep":
         setMode(getMode);
         setRequired(getRequired);
@@ -754,9 +757,11 @@ export function useSchemaArray<D extends Schema.DataItem<Schema.$Array>>(dataIte
   type ArrayType = Exclude<Schema.ValueType<D["_"], true, true>, null | undefined>;
 
   const schemaItem = useSchemaItem<D>({ $: dataItem, readOnly: options?.readOnly }, {
-    watchChildEffect: options?.watchChildValue ? undefined : () => {
-      setRev(c => c + 1);
-    },
+    watchChildEffect: options?.watchChildValue
+      ? undefined
+      : () => {
+        setRev(c => c + 1);
+      },
   });
 
   const [_, setRev] = useState(0);

@@ -1,7 +1,6 @@
 import { convertBase64ToFile, convertBlobToFile, getFileSize10Text } from "../objects/file";
 import { getRequiredTextKey, getValidationArray } from "./utilities";
 
-
 function isFile(value: any): value is File {
   return value != null && value instanceof File;
 };
@@ -61,13 +60,15 @@ function FILE_PARSER({ value, env, label }: Schema.ParserParams): Schema.ParserR
 }
 
 export function getAccept(accept: string) {
-  const items: Array<{ accept: string; type: "ext" | "group" | "type"; subject: string }> = [];
+  const items: Array<{ accept: string; type: "ext" | "group" | "type"; subject: string; }> = [];
   if (accept) {
     accept.split(",").forEach(a => {
       const accept = a.trim();
       if (accept.startsWith(".")) {
         items.push({
-          accept, type: "ext", subject: (() => {
+          accept,
+          type: "ext",
+          subject: (() => {
             if (/^\.png$/i.test(accept)) return "PNG";
             if (/^\.jpe?g$/i.test(accept)) return "JPEG";
             if (/^\.pdf$/i.test(accept)) return "PDF";
@@ -75,18 +76,20 @@ export function getAccept(accept: string) {
             if (/^\.docx?$/i.test(accept)) return "ドキュメント";
             if (/^\.xlsx?$/i.test(accept)) return "Excel";
             return accept;
-          })()
+          })(),
         });
         return;
       }
       if (/[a-zA-Z]\/\*/.test(accept)) {
         items.push({
-          accept, type: "group", subject: (() => {
+          accept,
+          type: "group",
+          subject: (() => {
             if (/^image/.test(accept)) return "画像";
             if (/^video/.test(accept)) return "動画";
             if (/^audio/.test(accept)) return "音声";
             return accept;
-          })()
+          })(),
         });
         return;
       }
@@ -186,7 +189,7 @@ export function $file<Props extends Schema.FileProps>(props?: Props) {
         return {
           type: "e",
           code: "accept",
-          message: getMessage({ ...p, accept: ctx.accept })
+          message: getMessage({ ...p, accept: ctx.accept }),
         };
       });
     }
