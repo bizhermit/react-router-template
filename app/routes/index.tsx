@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState, type ReactNode } from "react";
 import { data, useFetcher } from "react-router";
 import { CheckBox } from "~/components/elements/form/check-box";
@@ -181,13 +182,19 @@ export default function Page(props: Route.ComponentProps) {
 
   const { SchemaProvider, getData } = useSchema({
     schema,
-    data: fetcher.data ? fetcher.data.data :
-      props.actionData ? props.actionData.data :
-        // props.loaderData ? props.loaderData.data :
+    data: fetcher.data ?
+      fetcher.data.data :
+      props.actionData
+        ? props.actionData.data :
+        // props.loaderData ?
+        //   props.loaderData.data :
         undefined,
-    results: fetcher.data ? fetcher.data.results :
-      props.actionData ? props.actionData.results :
-        // props.loaderData ? props.loaderData.results :
+    results: fetcher.data ?
+      fetcher.data.results :
+      props.actionData ?
+        props.actionData.results :
+        // props.loaderData ?
+        //   props.loaderData.results :
         undefined,
   });
 

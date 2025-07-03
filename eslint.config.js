@@ -46,6 +46,11 @@ export default tseslint.config({
         },
       },
     ],
+    "@stylistic/indent": [
+      "warn",
+      2,
+    ],
+    "@stylistic/indent-binary-ops": "off",
     "@stylistic/comma-dangle": [
       "warn",
       {
@@ -110,7 +115,7 @@ export default tseslint.config({
       "warn",
       {
         allow: "single-line",
-      }
+      },
     ],
     "no-fallthrough": "warn",
     "no-control-regex": "off",

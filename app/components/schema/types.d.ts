@@ -88,7 +88,7 @@ namespace Schema {
 
   type $ValidationValue<T> = undefined | T | DynamicValidationValue<T>;
 
-  type GetValidationValue<Props extends any, Key extends keyof Props> =
+  type GetValidationValue<Props, Key extends keyof Props> =
     Props extends { [K in Key]: infer R } ? ValidationArray<R>[0] : undefined;
 
   type GetSource<T extends Source<any> | DynamicValidationValue<Source<any>> | undefined> =
