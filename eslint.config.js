@@ -70,6 +70,10 @@ export default tseslint.config({
     ],
     "@stylistic/arrow-parens": "off",
     "@stylistic/operator-linebreak": "off",
+    "@stylistic/multiline-ternary": [
+      "warn",
+      "never",
+    ],
     "@stylistic/jsx-wrap-multilines": [
       "warn",
       {
@@ -89,6 +93,8 @@ export default tseslint.config({
         singleline: "forbid",
       },
     ],
+    "no-fallthrough": "warn",
+    "no-control-regex": "off",
     // Typescript
     "@typescript-eslint/no-empty-object-type": "off",
     "no-unused-expressions": "off",

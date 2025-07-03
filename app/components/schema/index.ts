@@ -26,9 +26,11 @@ export function parseWithSchema<$Schema extends Record<string, any>>(params: {
     const label = item.label ? params.env.t(item.label as I18nTextKey) : undefined;
 
     if (name != null) {
-      fn = parent?._?.type === "struct" ? `${parent.name}.${name}` :
-        parent?._?.type === "arr" ? `${parent.name}[${name}]` :
-          `${name}`;
+      fn = parent?._?.type === "struct" ? (
+        `${parent.name}.${name}`
+      ) : parent?._?.type === "arr" ? (
+        `${parent.name}[${name}]`
+      ) : `${name}`;
 
       val = data._get(fn)[0];
 
@@ -80,6 +82,7 @@ export function parseWithSchema<$Schema extends Record<string, any>>(params: {
             return di;
           }
         }
+        // eslint-disable-next-line no-fallthrough
         default:
           return {
             name: fn!,
