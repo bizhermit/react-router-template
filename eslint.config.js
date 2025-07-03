@@ -70,6 +70,25 @@ export default tseslint.config({
     ],
     "@stylistic/arrow-parens": "off",
     "@stylistic/operator-linebreak": "off",
+    "@stylistic/jsx-wrap-multilines": [
+      "warn",
+      {
+        declaration: "parens-new-line",
+        assignment: "parens-new-line",
+        return: "parens-new-line",
+        arrow: "parens-new-line",
+        condition: "ignore",
+        logical: "ignore",
+        prop: "ignore",
+      },
+    ],
+    "@stylistic/jsx-curly-newline": [
+      "warn",
+      {
+        multiline: "consistent",
+        singleline: "forbid",
+      },
+    ],
     // Typescript
     "@typescript-eslint/no-empty-object-type": "off",
     "no-unused-expressions": "off",
