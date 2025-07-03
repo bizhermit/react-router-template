@@ -77,9 +77,7 @@ namespace Schema {
     ;
 
   type ValidationArray<T extends Validation<any, any>> =
-    T extends any[] ? T :
-    [Exclude<T, undefined>]
-    ;
+    T extends any[] ? T : [Exclude<T, undefined>];
 
   type PickCustomValidationMessageAddonParams<T extends CustomValidationMessage<any, any> | undefined> =
     Omit<Parameters<Exclude<T, undefined>>[0], keyof ValidationParams<any>>;
@@ -91,12 +89,10 @@ namespace Schema {
   type $ValidationValue<T> = undefined | T | DynamicValidationValue<T>;
 
   type GetValidationValue<Props extends any, Key extends keyof Props> =
-    Props extends { [K in Key]: infer R } ? ValidationArray<R>[0] : undefined
+    Props extends { [K in Key]: infer R } ? ValidationArray<R>[0] : undefined;
 
   type GetSource<T extends Source<any> | DynamicValidationValue<Source<any>> | undefined> =
-    T extends Array<any> ? T :
-    T extends () => any ? T :
-    undefined;
+    T extends Array<any> ? T : T extends () => any ? T : undefined;
 
   interface SourceItem<V> {
     value: V;
@@ -142,11 +138,11 @@ namespace Schema {
     parser?: Parser<V>;
     required?: Validation<boolean, V>;
     source?: Source<V> | DynamicValidationValue<Source<V>>;
-    sourceValidationMessage?: CustomValidationMessage<V, { source: Source<V> }>;
+    sourceValidationMessage?: CustomValidationMessage<V, { source: Source<V>; }>;
     len?: Validation<number, V, { length: number; currentLength: number; }>;
     min?: Validation<number, V, { minLength: number; currentLength: number; }>;
     max?: Validation<number, V, { maxLength: number; currentLength: number; }>;
-    pattern?: Validation<RegExp | StrPattern, V, { pattern: RegExp | StrPattern }>;
+    pattern?: Validation<RegExp | StrPattern, V, { pattern: RegExp | StrPattern; }>;
     validators?: Array<Validator<V>>;
   };
 
@@ -167,9 +163,9 @@ namespace Schema {
     parser?: Parser<V>;
     required?: Validation<boolean, V>;
     source?: Source<V> | DynamicValidationValue<Source<V>>;
-    sourceValidationMessage?: CustomValidationMessage<V, { source: Source<V> }>;
-    min?: Validation<number, V, { min: number }>;
-    max?: Validation<number, V, { max: number }>;
+    sourceValidationMessage?: CustomValidationMessage<V, { source: Source<V>; }>;
+    min?: Validation<number, V, { min: number; }>;
+    max?: Validation<number, V, { max: number; }>;
     float?: Validation<number, V, { float: number; currentFloat: number; }>;
     validators?: Array<Validator<V>>;
   };
@@ -190,7 +186,7 @@ namespace Schema {
 
   interface BooleanProps<
     TV extends BooleanValue = BooleanValue,
-    FV extends BooleanValue = BooleanValue,
+    FV extends BooleanValue = BooleanValue
   > extends BaseProps {
     trueValue?: TV;
     falseValue?: FV;
@@ -204,18 +200,18 @@ namespace Schema {
 
   interface $Boolean<
     TV extends BooleanValue = BooleanValue,
-    FV extends BooleanValue = BooleanValue,
+    FV extends BooleanValue = BooleanValue
   > extends $Base {
     type: "bool";
     label: string | undefined;
-    trueValue: TV,
-    falseValue: FV,
+    trueValue: TV;
+    falseValue: FV;
     trueText: string | undefined;
     falseText: string | undefined;
     parser: Parser<TV | FV>;
     validators: Array<Validator<TV | FV>>;
     required: $ValidationValue<boolean>;
-    getSource: (params: { env: Schema.Env }) => Source<TV | FV>;
+    getSource: (params: { env: Schema.Env; }) => Source<TV | FV>;
   };
 
   type MonthString = `${number}-${number}`;
@@ -260,8 +256,8 @@ namespace Schema {
   interface SplitDateProps<V extends number = number> extends BaseProps {
     parser?: Parser<V>;
     required?: Validation<boolean, V>;
-    min?: Validation<number, V, { min: number }>;
-    max?: Validation<number, V, { max: number }>;
+    min?: Validation<number, V, { min: number; }>;
+    max?: Validation<number, V, { max: number; }>;
     step?: number;
     validators?: Array<Validator<V>>;
   };
@@ -329,7 +325,7 @@ namespace Schema {
   interface FileProps<V extends File | string = File | string> extends BaseProps {
     parser?: Parser<V>;
     required?: Validation<boolean, V>;
-    accept?: Validation<string, V, { accept: string }>;
+    accept?: Validation<string, V, { accept: string; }>;
     maxSize?: Validation<number, V, { maxSize: number; maxSizeText: string; }>;
     validators?: Array<Validator<V>>;
   };
@@ -404,7 +400,7 @@ namespace Schema {
     parent?: DataItem<$Struct | $Array>;
     _: P;
   } & (
-      P extends { type: infer T } ? (
+      P extends { type: infer T; } ? (
         T extends "struct" ? {
           dataItems: { [K in keyof P["props"]]: DataItem<P["props"][K]> };
         } :
@@ -430,10 +426,10 @@ namespace Schema {
     V | null | undefined;
 
   type ValueType<Props extends $Any, Strict extends boolean = true, Optional extends boolean = false> =
-    Props extends { source: Array<{ value: infer V }> } ? (
+    Props extends { source: Array<{ value: infer V; }>; } ? (
       RequiredValue<V, Props["required"], Optional>
     ) :
-    Props extends { type: infer T } ? (
+    Props extends { type: infer T; } ? (
       T extends "str" ? (
         Strict extends true ? RequiredValue<string, Props["required"], Optional> :
         string | number | null | undefined

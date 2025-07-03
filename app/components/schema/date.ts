@@ -583,7 +583,7 @@ export function $datetime<Props extends Schema.DateTimeProps>(props?: Props) {
 
   const validators: Array<Schema.Validator<Schema.DateTimeString>> = [];
 
-  const actionType = props?.actionType  ?? "input";
+  const actionType = props?.actionType ?? "input";
   const [minTime, getMinTimeMessage] = getValidationArray(props?.minTime);
   const [maxTime, getMaxTimeMessage] = getValidationArray(props?.maxTime);
 
@@ -741,7 +741,7 @@ export function $datetime<Props extends Schema.DateTimeProps>(props?: Props) {
       });
     },
     splitSecond: function (splitProps?) {
-      if (time === "hm") throw new Error("split date seconds is not supported.")
+      if (time === "hm") throw new Error("split date seconds is not supported.");
       return splitDate({
         splitProps,
         target: "s",

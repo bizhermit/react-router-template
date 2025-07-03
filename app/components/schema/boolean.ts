@@ -5,8 +5,8 @@ const FALSE = false;
 
 export function $bool<Props extends Schema.BooleanProps>(props?: Props) {
   const validators: Array<Schema.Validator<Schema.BooleanValue>> = [];
-  type TrueValue = Props extends undefined ? typeof TRUE : (Props extends { trueValue: infer T } ? (T extends Schema.BooleanValue ? T : typeof TRUE) : typeof TRUE);
-  type FalseValue = Props extends undefined ? typeof FALSE : (Props extends { falseValue: infer F } ? (F extends Schema.BooleanValue ? F : typeof FALSE) : typeof FALSE)
+  type TrueValue = Props extends undefined ? typeof TRUE : (Props extends { trueValue: infer T; } ? (T extends Schema.BooleanValue ? T : typeof TRUE) : typeof TRUE);
+  type FalseValue = Props extends undefined ? typeof FALSE : (Props extends { falseValue: infer F; } ? (F extends Schema.BooleanValue ? F : typeof FALSE) : typeof FALSE);
   const trueValue = (props?.trueValue ?? TRUE) as TrueValue;
   const falseValue = (props?.falseValue ?? FALSE) as FalseValue;
 
@@ -91,7 +91,7 @@ export function $bool<Props extends Schema.BooleanProps>(props?: Props) {
     },
     validators,
     required: required as Schema.GetValidationValue<Props, "required">,
-    getSource: function (params: { env: Schema.Env }) {
+    getSource: function (params: { env: Schema.Env; }) {
       function getText(v: any) {
         if (v == null) return undefined;
         return params.env.t(String(v) as I18nTextKey);

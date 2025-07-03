@@ -106,6 +106,12 @@ export default tseslint.config({
       "warn",
       "line-aligned",
     ],
+    "@stylistic/jsx-one-expression-per-line": [
+      "warn",
+      {
+        allow: "single-line",
+      }
+    ],
     "no-fallthrough": "warn",
     "no-control-regex": "off",
     // Typescript

@@ -3,9 +3,9 @@ import { isbot } from "isbot";
 import { renderToPipeableStream } from "react-dom/server";
 import { ServerRouter, type AppLoadContext, type EntryContext } from "react-router";
 import { PassThrough } from "stream";
+import { ValidScriptsProvider } from "./components/providers/valid-scripts";
 import { I18nProvider } from "./i18n/provider";
 import { loadI18nAsServer } from "./i18n/server";
-import { ValidScriptsProvider } from "./components/providers/valid-scripts";
 
 const ABORT_DELAY = 5000;
 const isDev = process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test";
@@ -104,8 +104,7 @@ export default async function handleRequest(
             url={request.url}
           />
         </ValidScriptsProvider>
-      </I18nProvider>
-      ,
+      </I18nProvider>,
       {
         [callbackName]: () => {
           const body = new PassThrough();

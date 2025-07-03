@@ -1,4 +1,3 @@
-import type { HTMLAttributes, HTMLInputTypeAttribute } from "react";
 import { getLength } from "../objects/string";
 import { getInvalidValueTextKey, getRequiredTextKey, getValidationArray } from "./utilities";
 
@@ -342,7 +341,7 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
               type: "e",
               code: "pattern",
               message: getMessage({ ...p, pattern: pat }),
-            }
+            };
           }
           if (pat.test(p.value)) return null;
           return {

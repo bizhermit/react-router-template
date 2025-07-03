@@ -1,28 +1,28 @@
+import { useState, type ReactNode } from "react";
+import { data, useFetcher } from "react-router";
 import { CheckBox } from "~/components/elements/form/check-box";
 import { FormItem } from "~/components/elements/form/common";
 import { DateBox } from "~/components/elements/form/date-box";
+import { DateSelectBox } from "~/components/elements/form/date-select-box";
 import { FileBox } from "~/components/elements/form/file-box";
 import { NumberBox } from "~/components/elements/form/number-box";
 import { RadioButtons } from "~/components/elements/form/radio-buttons";
 import { SelectBox } from "~/components/elements/form/select-box";
 import { TextArea } from "~/components/elements/form/text-area";
 import { TextBox } from "~/components/elements/form/text-box";
-import { $schema, parseWithSchema } from "~/components/schema";
+import { $schema } from "~/components/schema";
 import { $array } from "~/components/schema/array";
 import { $bool } from "~/components/schema/boolean";
 import { $date, $datetime, $month } from "~/components/schema/date";
 import { $file } from "~/components/schema/file";
 import { useSchema, useSchemaArray, useSchemaContext } from "~/components/schema/hooks";
 import { $num } from "~/components/schema/number";
+import { getPayload } from "~/components/schema/server";
 import { $str } from "~/components/schema/string";
 import { $struct } from "~/components/schema/struct";
-import type { Route } from "./+types";
-import { data, useFetcher } from "react-router";
-import { DateSelectBox } from "~/components/elements/form/date-select-box";
-import { useState, type ReactNode } from "react";
-import { Text } from "~/i18n/react-component";
 import { useLocale, useText } from "~/i18n/hooks";
-import { getPayload } from "~/components/schema/server";
+import { Text } from "~/i18n/react-component";
+import type { Route } from "./+types";
 
 const text = $str(
   {
@@ -201,7 +201,7 @@ export default function Page(props: Route.ComponentProps) {
         method="post"
         encType="multipart/form-data"
         noValidate
-        onSubmit={e => {
+        onSubmit={_e => {
           // e.stopPropagation();
           // e.preventDefault();
           console.log(getData());
@@ -230,7 +230,7 @@ function Component1() {
           type="button"
           onClick={() => {
             array.push({
-              name: "hoge"
+              name: "hoge",
             });
           }}
         >
@@ -240,7 +240,7 @@ function Component1() {
           type="button"
           onClick={() => {
             array.push({
-              name: "hogehoge"
+              name: "hogehoge",
             }, { position: "first" });
           }}
         >
@@ -251,8 +251,8 @@ function Component1() {
           onClick={() => {
             array.bulkPush([
               { name: "fuga", age: 3 },
-              { name: "piyo" }
-            ])
+              { name: "piyo" },
+            ]);
           }}
         >
           bulk push
@@ -409,7 +409,12 @@ function LangComponent() {
         <Text
           i18nKey="htmlText"
           replaceMap={{
-            "replace1": (props: { children?: ReactNode }) => <span style={{ color: "red" }}>完全に置き換えてもいいよ{props.children}</span>,
+            replace1: (props: { children?: ReactNode; }) => (
+              <span style={{ color: "red" }}>
+                完全に置き換えてもいいよ
+                {props.children}
+              </span>
+            ),
           }}
         />
       </div>
@@ -418,15 +423,21 @@ function LangComponent() {
           <div dangerouslySetInnerHTML={{ __html: t("htmlText") }} />
         </p> */}
       <div className="flex gap-3">
-        <button type="button" onClick={() => {
-          locale.switch("ja");
-        }}>
+        <button
+          type="button"
+          onClick={() => {
+            locale.switch("ja");
+          }}
+        >
           ja
         </button>
         /
-        <button type="button" onClick={() => {
-          locale.switch("en");
-        }}>
+        <button
+          type="button"
+          onClick={() => {
+            locale.switch("en");
+          }}
+        >
           en
         </button>
       </div>
