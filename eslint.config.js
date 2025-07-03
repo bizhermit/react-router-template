@@ -38,5 +38,11 @@ export default tseslint.config({
       "1tbs",
     ],
     "@stylistic/arrow-parens": "off",
+    // React
+    "react/jsx-uses-react": "off",
+    "react/react-in-jsx-scope": "off",
+    "react/display-name": "off",
+    "react/no-children-prop": "off",
+    "react-hooks/exhaustive-deps": "off",
   },
 });
