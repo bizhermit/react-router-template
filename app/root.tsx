@@ -7,6 +7,7 @@ import {
   ScrollRestoration,
 } from "react-router";
 
+import type { ReactNode } from "react";
 import type { Route } from "./+types/root";
 import "./app.css";
 import { useLocale } from "./i18n/hooks";
@@ -25,7 +26,7 @@ export const links: Route.LinksFunction = () => [
   // },
 ];
 
-export function Layout({ children }: { children: React.ReactNode }) {
+export function Layout({ children }: { children: ReactNode; }) {
   const { lang } = useLocale();
 
   return (
