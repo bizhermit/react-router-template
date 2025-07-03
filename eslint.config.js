@@ -1,8 +1,8 @@
-import pluginJs from "@eslint/js"
-import stylistic from "@stylistic/eslint-plugin"
-import pluginReact from "eslint-plugin-react"
-import pluginReactHooks from "eslint-plugin-react-hooks"
-import tseslint from "typescript-eslint"
+import pluginJs from "@eslint/js";
+import stylistic from "@stylistic/eslint-plugin";
+import pluginReact from "eslint-plugin-react";
+import pluginReactHooks from "eslint-plugin-react-hooks";
+import tseslint from "typescript-eslint";
 
 export default tseslint.config({
   files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"],
@@ -27,7 +27,7 @@ export default tseslint.config({
       {
         avoidEscape: true,
         allowTemplateLiterals: true,
-      }
+      },
     ],
     "@stylistic/semi": [
       "warn",
@@ -39,4 +39,4 @@ export default tseslint.config({
     ],
     "@stylistic/arrow-parens": "off",
   },
-})
+});
