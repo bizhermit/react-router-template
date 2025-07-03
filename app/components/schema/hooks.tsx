@@ -10,7 +10,7 @@ export interface SchemaEffectParams_Data {
   type: "data";
   data: SchemaData;
   results: Record<string, Schema.Result>;
-  dep: Record<string, any>;
+  dep: Record<string, unknown>;
 };
 
 export interface SchemaEffectParams_ValueResult {
@@ -49,7 +49,7 @@ interface FormItemMountProps {
 interface SchemaContextProps<S extends Record<string, Schema.$Any> = Record<string, Schema.$Any>> {
   env: Schema.Env;
   data: RefObject<SchemaData>;
-  dep: RefObject<Record<string, any>>;
+  dep: RefObject<Record<string, unknown>>;
   dataItems: Schema.DataItems<S>;
   addSubscribe: (
     effect: (params: SchemaEffectParams) => void,
@@ -58,9 +58,9 @@ interface SchemaContextProps<S extends Record<string, Schema.$Any> = Record<stri
   getResult: (name: string) => Schema.Result | null | undefined;
   setResult: (name: string, result: Schema.Result | null | undefined) => boolean;
   setResults: (items: Array<{ name: string; result: Schema.Result | null | undefined; }>) => boolean;
-  setValue: (name: string, value: any) => boolean;
-  setValueAndResult: (name: string, value: any, result: Schema.Result | null | undefined) => boolean;
-  setValuesAndResults: (items: Array<{ name: string; value: any; result: Schema.Result | null | undefined; }>) => boolean;
+  setValue: (name: string, value: unknown) => boolean;
+  setValueAndResult: (name: string, value: unknown, result: Schema.Result | null | undefined) => boolean;
+  setValuesAndResults: (items: Array<{ name: string; value: unknown; result: Schema.Result | null | undefined; }>) => boolean;
   isInitialize: RefObject<boolean>;
   isFirstLoad: RefObject<boolean>;
   isValidScripts: RefObject<boolean>;
@@ -87,9 +87,9 @@ const EMPTY_STRUCT = {} as const;
 
 interface Props<S extends Record<string, Schema.$Any>> {
   schema: S;
-  data?: Record<string, any> | null | undefined;
+  data?: Record<string, unknown> | null | undefined;
   results?: Record<string, Schema.Result>;
-  dep?: Record<string, any>;
+  dep?: Record<string, unknown>;
   preventPrompt?: boolean;
 };
 
@@ -198,7 +198,7 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
     return change;
   };
 
-  function setValue(name: string, value: any) {
+  function setValue(name: string, value: unknown) {
     let change = false;
     if (bindData.current._set(name, value)) {
       change = true;
@@ -206,7 +206,7 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
     return change;
   };
 
-  function setValueAndResultImpl(name: string, value: any, result: Schema.Result | null | undefined) {
+  function setValueAndResultImpl(name: string, value: unknown, result: Schema.Result | null | undefined) {
     let change = false;
     if (bindData.current._set(name, value)) {
       change = true;
@@ -217,7 +217,7 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
     return change;
   };
 
-  function setValuesAndResults(items: Array<{ name: string; value: any; result: Schema.Result | null | undefined; }>) {
+  function setValuesAndResults(items: Array<{ name: string; value: unknown; result: Schema.Result | null | undefined; }>) {
     let change = false;
     items.forEach(({ name, value, result }) => {
       if (setValueAndResultImpl(name, value, result)) {
@@ -231,7 +231,7 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
     return change;
   };
 
-  function setValueAndResult(name: string, value: any, result: Schema.Result | null | undefined) {
+  function setValueAndResult(name: string, value: unknown, result: Schema.Result | null | undefined) {
     const items = [{ name, value, result }];
     const change = setValueAndResultImpl(name, value, result);
     if (change) {
@@ -492,31 +492,19 @@ export function getSchemaItemRequired(
 export function getSchemaItemResult(
   $: Schema.DataItem<Schema.$Any>,
   schema: ReturnType<typeof useSchemaEffect>,
-  getValue: () => any,
+  getValue: () => unknown,
 ) {
   if (schema.isInitialize.current) {
     if (!$.name) return undefined;
     return schema.getResult($.name);
   }
-  let r: Schema.Result | null | undefined;
-  const params: Schema.ValidationParams<any> = {
-    data: schema.data.current,
-    dep: schema.dep.current,
-    env: schema.env,
-    label: $.label,
-    value: getValue(),
-  };
-  for (const vali of $._.validators) {
-    r = vali(params);
-    if (r) return r;
-  }
-  return undefined;
+  return schemaItemValidation($, schema, getValue());
 };
 
 export function parseSchemaItemValue<D extends Schema.DataItem<Schema.$Any>>(
   $: D,
   schema: SchemaEffectHookParams,
-  value: any,
+  value: unknown,
 ) {
   return $._.parser({
     dep: schema.dep.current,
@@ -532,9 +520,10 @@ export function parseSchemaItemValue<D extends Schema.DataItem<Schema.$Any>>(
 export function schemaItemValidation<D extends Schema.DataItem<Schema.$Any>>(
   $: D,
   schema: SchemaEffectHookParams,
-  value: any,
+  value: unknown,
 ) {
   let r: Schema.Result | null | undefined;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const params: Schema.ValidationParams<any> = {
     data: schema.data.current,
     dep: schema.dep.current,
@@ -552,7 +541,7 @@ export function schemaItemValidation<D extends Schema.DataItem<Schema.$Any>>(
 export function schemaItemEffect<D extends Schema.DataItem<Schema.$Any>>(
   $: D,
   schema: SchemaEffectHookParams,
-  value: any,
+  value: unknown,
 ) {
   const parsed = parseSchemaItemValue($, schema, value);
   let r = parsed.result;
@@ -575,7 +564,7 @@ export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
   }) => void;
   effectContext?: (params: {
     data: SchemaData;
-    dep: Record<string, any>;
+    dep: Record<string, unknown>;
     env: Schema.Env;
     label: string | undefined;
   }) => void;
@@ -686,15 +675,15 @@ export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
 
   const [required, setRequired] = useState(getRequired);
 
-  function parse(value: any) {
+  function parse(value: unknown) {
     return parseSchemaItemValue($, schema, value);
   };
 
-  function validation(value: any) {
+  function validation(value: unknown) {
     return schemaItemValidation($, schema, value);
   };
 
-  function effect(value: any) {
+  function effect(value: unknown) {
     return schemaItemEffect($, schema, value);
   };
 
@@ -755,6 +744,7 @@ export function useSchemaArray<D extends Schema.DataItem<Schema.$Array>>(dataIte
   readOnly?: boolean;
 }) {
   type ArrayType = Exclude<Schema.ValueType<D["_"], true, true>, null | undefined>;
+  type LaxArrayType = Schema.ValueType<D["_"], false, false>;
 
   const schemaItem = useSchemaItem<D>({ $: dataItem, readOnly: options?.readOnly }, {
     watchChildEffect: options?.watchChildValue
@@ -789,7 +779,7 @@ export function useSchemaArray<D extends Schema.DataItem<Schema.$Array>>(dataIte
     if (!schemaItem.state.current.enabled) return;
     const arr = schemaItem.getValue() ?? [];
     const isFirst = options?.position === "first";
-    schemaItem.setValue((isFirst ? [...values, ...arr] : [...arr, ...values]) as Parameters<typeof schemaItem.setValue>[0]);
+    schemaItem.setValue((isFirst ? [...values, ...arr] : [...arr, ...values]) as LaxArrayType);
     if (isFirst) setKeyRev(c => c + 1);
   }
 
@@ -800,7 +790,7 @@ export function useSchemaArray<D extends Schema.DataItem<Schema.$Array>>(dataIte
     const isLast = index === (arr.length - 1);
     const newArr = [...arr];
     newArr.splice(index, 1);
-    schemaItem.setValue(newArr as Parameters<typeof schemaItem.setValue>[0]);
+    schemaItem.setValue(newArr as LaxArrayType);
     if (!isLast) setKeyRev(c => c + 1);
   };
 
@@ -820,7 +810,7 @@ export function useSchemaArray<D extends Schema.DataItem<Schema.$Array>>(dataIte
     if (!schemaItem.state.current.enabled) return;
     const arr = schemaItem.getValue();
     if (arr == null || arr.length === 0) return;
-    schemaItem.setValue([] as any);
+    schemaItem.setValue([] as LaxArrayType);
   };
 
   function map<T>(func: (params: {

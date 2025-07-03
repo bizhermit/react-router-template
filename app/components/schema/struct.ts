@@ -54,7 +54,7 @@ export function $struct<Props extends Schema.StructProps>(props: Props) {
     type: "struct",
     actionType,
     props: props.props as Props["props"],
-    key: props.key,
+    key: typeof props.key === "string" ? () => (props.key as string) : props.key,
     label: props?.label,
     mode: props?.mode,
     refs: props?.refs,

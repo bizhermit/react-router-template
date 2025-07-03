@@ -162,7 +162,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
           if (!$) return false;
           if ($._.refs?.some(ref => (params as SchemaEffectParams_ValueResult).items.some(item => item.name === ref))) {
             callback();
-            const result = schemaItemValidation($, schema, valueGetter);
+            const result = schemaItemValidation($, schema, valueGetter());
             if ($.name) results.push({ name: $.name, result });
             else setResult(result);
             return true;

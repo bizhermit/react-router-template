@@ -21,7 +21,7 @@ namespace Schema {
 
   interface ModeParams {
     data: Data;
-    dep: Record<string, any>;
+    dep: Record<string, unknown>;
     env: Env;
   };
 
@@ -49,7 +49,7 @@ namespace Schema {
     label: string | undefined;
     value: V | null | undefined;
     data: Data;
-    dep: Record<string, any>;
+    dep: Record<string, unknown>;
     env: Env;
   };
 
@@ -64,7 +64,7 @@ namespace Schema {
   interface DynamicValidationValueParams {
     label: string | undefined;
     data: Data;
-    dep: Record<string, any>;
+    dep: Record<string, unknown>;
     env: Env;
   };
 
@@ -78,11 +78,11 @@ namespace Schema {
     | [T | DynamicValidationValue<T>, CustomValidationMessage<V, P>?]
     ;
 
-  type ValidationArray<T extends Validation<any, any>> =
-    T extends any[] ? T : [Exclude<T, undefined>];
+  type ValidationArray<T extends Validation<unknown, unknown>> =
+    T extends unknown[] ? T : [Exclude<T, undefined>];
 
-  type PickCustomValidationMessageAddonParams<T extends CustomValidationMessage<any, any> | undefined> =
-    Omit<Parameters<Exclude<T, undefined>>[0], keyof ValidationParams<any>>;
+  type PickCustomValidationMessageAddonParams<T extends CustomValidationMessage<unknown, unknown> | undefined> =
+    Omit<Parameters<Exclude<T, undefined>>[0], keyof ValidationParams<unknown>>;
 
   interface MessageGetter<T extends CustomValidationMessage<any, any> | undefined> {
     (params: ValidationParams<any> & PickCustomValidationMessageAddonParams<T>): string;
@@ -93,8 +93,8 @@ namespace Schema {
   type GetValidationValue<Props, Key extends keyof Props> =
     Props extends { [K in Key]: infer R } ? ValidationArray<R>[0] : undefined;
 
-  type GetSource<T extends Source<any> | DynamicValidationValue<Source<any>> | undefined> =
-    T extends Array<any> ? T : T extends () => any ? T : undefined;
+  type GetSource<T extends Source<unknown> | DynamicValidationValue<Source<unknown>> | undefined> =
+    T extends Array<unknown> ? T : T extends () => unknown ? T : undefined;
 
   interface SourceItem<V> {
     value: V;
@@ -356,7 +356,7 @@ namespace Schema {
     type: "arr";
     label: string | undefined;
     prop: Prop;
-    key: string | ((value: Record<string, any>) => string) | undefined;
+    key: ((value: Record<string, unknown>) => string) | undefined;
     parser: Parser<ValueType<Prop>[]>;
     validators: Array<Validator<ValueType<Prop>[]>>;
     required: $ValidationValue<boolean>;
@@ -367,7 +367,7 @@ namespace Schema {
 
   interface StructProps<Props extends Record<string, $Any> = Record<string, $Any>> extends BaseProps {
     props: Props;
-    key?: string | ((value: (SchemaValue<Props> & Record<string, any>) | null | undefined) => string);
+    key?: string | ((value: Record<string, unknown> | null | undefined) => string);
     parser?: Parser<SchemaValue<Props>>;
     required?: Validation<boolean, SchemaValue<Props>>;
     validators?: Array<Validator<SchemaValue<Props>>>;
@@ -376,7 +376,7 @@ namespace Schema {
   interface $Struct<Props extends Record<string, $Any> = Record<string, $Any>> extends $Base {
     type: "struct";
     label: string | undefined;
-    key: string | ((value: (SchemaValue<Props> & Record<string, any>) | null | undefined) => string) | undefined;
+    key: ((value: Record<string, unknown> | null | undefined) => string) | undefined;
     props: Props;
     parser: Parser<SchemaValue<Props>>;
     validators: Array<Validator<SchemaValue<Props>>>;
@@ -419,7 +419,7 @@ namespace Schema {
   type RequiredValue<V, R extends boolean | DynamicValidationValue<boolean>, O extends boolean = false> =
     O extends true ? V | null | undefined :
     R extends true ? V :
-    R extends ((...args?: any[]) => true) ? V :
+    R extends ((...args?: unknown[]) => true) ? V :
     V | null | undefined;
 
   type ValueType<Props extends $Any, Strict extends boolean = true, Optional extends boolean = false> =
@@ -467,18 +467,18 @@ namespace Schema {
         Strict extends true ? RequiredValue<SchemaValue<Props["props"], Optional>, Props["required"], Optional> :
         TolerantSchemaValue<Props["props"]> | null | undefined
       ) : (
-        Props extends Record<string, any> ?
+        Props extends Record<string, unknown> ?
         Strict extends true ? SchemaValue<Props, Optional> : TolerantSchemaValue<Props> :
         never
       )
     ) : never;
 
-  type SchemaValue<Props extends Record<string, any>, Optional extends boolean = false> =
+  type SchemaValue<Props extends Record<string, $Any>, Optional extends boolean = false> =
     Eval<{ -readonly [K in keyof Props]: ValueType<Props[K], true, Optional> }>;
 
-  type PartialSchemaValue<Props extends Record<string, any>> = SchemaValue<Props, true>;
+  type PartialSchemaValue<Props extends Record<string, $Any>> = SchemaValue<Props, true>;
 
-  type TolerantSchemaValue<Props extends Record<string, any>> =
+  type TolerantSchemaValue<Props extends Record<string, $Any>> =
     Eval<{ -readonly [K in keyof Props]?: ValueType<Props[K], false> }>;
 
 };

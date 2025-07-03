@@ -1,13 +1,13 @@
 import { SchemaData } from "./data";
 
-export function $schema<SchemaProps extends Record<string, any>>(props: SchemaProps) {
+export function $schema<SchemaProps extends Record<string, Schema.$Any>>(props: SchemaProps) {
   return props;
 };
 
-export function parseWithSchema<$Schema extends Record<string, any>>(params: {
+export function parseWithSchema<$Schema extends Record<string, Schema.$Any>>(params: {
   schema: $Schema;
-  data: Record<string, any> | null | undefined;
-  dep?: Record<string, any>;
+  data: Record<string, unknown> | FormData | null | undefined;
+  dep?: Record<string, unknown>;
   env: Schema.Env;
   createDataItems?: boolean;
 }) {
@@ -22,7 +22,7 @@ export function parseWithSchema<$Schema extends Record<string, any>>(params: {
     name: string | number;
     parent: Schema.DataItem<Schema.$Struct | Schema.$Array> | undefined;
   }) {
-    let fn = undefined, val: any = undefined;
+    let fn = undefined, val: unknown = undefined;
     const label = item.label ? params.env.t(item.label as I18nTextKey) : undefined;
 
     if (name != null) {
@@ -50,6 +50,7 @@ export function parseWithSchema<$Schema extends Record<string, any>>(params: {
 
       if (result?.type !== "e") {
         validations?.push(() => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const validationParams: Schema.ValidationParams<any> = {
             data,
             dep,
@@ -69,7 +70,7 @@ export function parseWithSchema<$Schema extends Record<string, any>>(params: {
       if (!params.createDataItems && val == null) return null!;
     }
 
-    const dataItem: Schema.DataItem<any> = (() => {
+    const dataItem: Schema.DataItem<Schema.$Any> = (() => {
       switch (item.type) {
         case "date":
         case "month":

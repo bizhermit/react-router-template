@@ -1,4 +1,4 @@
-export function getValidationArray<T extends Schema.Validation<any, any>>(validation: T) {
+export function getValidationArray<T extends Schema.Validation<unknown, unknown>>(validation: T) {
   type U = Schema.ValidationArray<T>;
   if (validation == null) return [undefined] as U;
   if (Array.isArray(validation)) return validation as U;

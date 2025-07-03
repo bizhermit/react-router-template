@@ -1,7 +1,11 @@
 import { getI18n } from "~/i18n/server";
 import { parseWithSchema } from ".";
 
-export async function getPayload<$Schema extends Record<string, any>>(request: Request, schema: $Schema, dep?: Record<string, unknown>) {
+export async function getPayload<$Schema extends Record<string, Schema.$Any>>(
+  request: Request,
+  schema: $Schema,
+  dep?: Record<string, unknown>
+) {
   const i18n = getI18n(request);
   const formData = await request.formData();
   return parseWithSchema({
