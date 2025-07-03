@@ -1,0 +1,23 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "cleanup branch",
+      "group": "none",
+      "type": "shell",
+      "command": "git switch develop && git pull && git fetch --prune && git branch -vv | grep ': gone]' | awk '{print $1}' | xargs -r git branch -d"
+    },
+    {
+      "label": "typecheck",
+      "group": "none",
+      "type": "shell",
+      "command": "npm run typecheck"
+    },
+    {
+      "label": "generate i18n types",
+      "group": "none",
+      "type": "shell",
+      "command": "npm run generate-i18n-types"
+    }
+  ]
+}
