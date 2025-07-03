@@ -170,7 +170,7 @@ export function FileBox<D extends Schema.DataItem<Schema.$File>>({
 };
 
 type ViewerProps = {
-  value: any;
+  value: unknown;
   fileName: string;
 };
 
@@ -181,7 +181,7 @@ type LinkContext = {
   revoke?: () => void;
 };
 
-function parseToLinkContext(value: any, fileName: string): LinkContext {
+function parseToLinkContext(value: unknown, fileName: string): LinkContext {
   if (value == null) {
     return { type: "null", href: "", children: null };
   }
@@ -286,7 +286,7 @@ function parseFileToSrc(value: File) {
   });
 };
 
-async function parseToImageContext(value: any, fileName: string): Promise<ImageContext | null> {
+async function parseToImageContext(value: unknown, fileName: string): Promise<ImageContext | null> {
   if (value == null) return FAILED_IMAGE_CONTEXT;
   if (value instanceof File) {
     try {

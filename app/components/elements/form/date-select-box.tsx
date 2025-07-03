@@ -126,8 +126,9 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
       case "value": {
         function update(
           $: Schema.DataItem<Schema.$Any> | undefined,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           valueSetter: Dispatch<SetStateAction<any>>,
-          resultSetter: Dispatch<SetStateAction<any>>,
+          resultSetter: Dispatch<SetStateAction<Schema.Result | null | undefined>>,
         ) {
           if (!$?.name) return false;
           const item = (params as SchemaEffectParams_ValueResult).items.find(item => item.name === $.name);
@@ -154,6 +155,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
         const results: Array<{ name: string; result: Schema.Result | null | undefined; }> = [];
         function updateWithRefs(
           $: Schema.DataItem<Schema.$Any> | undefined,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           valueGetter: () => any,
           callback: () => void,
         ) {
@@ -219,7 +221,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
       case "result": {
         function update(
           $: Schema.DataItem<Schema.$Any> | undefined,
-          resultSetter: Dispatch<SetStateAction<any>>,
+          resultSetter: Dispatch<SetStateAction<Schema.Result | null | undefined>>,
         ) {
           if (!$?.name) return false;
           const item = (params as SchemaEffectParams_Result).items.find(item => item.name === $.name);
@@ -375,9 +377,10 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
 
   const [secondValue, setSecondValue] = useState<number | undefined>(getSecondValue);
 
-  function getResultImpl($: Schema.DataItem<Schema.$Any> | undefined, getter: () => any) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function getResultImpl($: Schema.DataItem<Schema.$Any> | undefined, valueGetter: () => any) {
     if (!$) return undefined;
-    return getSchemaItemResult($, schema, getter);
+    return getSchemaItemResult($, schema, valueGetter);
   };
 
   function getResult() {
