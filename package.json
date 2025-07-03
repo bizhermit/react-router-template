@@ -10,7 +10,8 @@
     "dev": "react-router dev --host",
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc",
-    "generate-i18n-types": "node --loader ts-node/esm ./scripts/generate-i18n-types.ts"
+    "generate-i18n-types": "node --loader ts-node/esm ./scripts/generate-i18n-types.ts",
+    "eslint": "npx eslint"
   },
   "dependencies": {
     "@react-router/node": "^7.6.0",
