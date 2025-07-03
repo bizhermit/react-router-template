@@ -46,9 +46,27 @@ export default tseslint.config({
         },
       },
     ],
+    "@stylistic/comma-dangle": [
+      "warn",
+      {
+        arrays: "always-multiline",
+        objects: "always-multiline",
+        imports: "always-multiline",
+        exports: "always-multiline",
+        functions: "ignore",
+      },
+    ],
     "@stylistic/brace-style": [
       "warn",
       "1tbs",
+    ],
+    "@stylistic/padded-blocks": [
+      "warn",
+      {
+        blocks: "never",
+        classes: "always",
+        switches: "never",
+      },
     ],
     "@stylistic/arrow-parens": "off",
     "@stylistic/operator-linebreak": "off",
