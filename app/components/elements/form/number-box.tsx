@@ -1,7 +1,7 @@
-import { useMemo, useRef, useState, type ChangeEvent, type CompositionEvent, type FocusEvent, type KeyboardEvent } from "react";
-import { getValidationValue, InputField, type InputWrapProps } from "./common";
-import { clsx } from "../utilities";
+import { useMemo, useRef, useState, type ChangeEvent, type FocusEvent, type KeyboardEvent } from "react";
 import { useSchemaItem } from "~/components/schema/hooks";
+import { clsx } from "../utilities";
+import { getValidationValue, InputField, type InputWrapProps } from "./common";
 
 export type NumberBoxProps<D extends Schema.DataItem<Schema.$Number>> = InputWrapProps & {
   $: D;
@@ -60,7 +60,7 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
       })();
       if (!isComposing.current && ref.current.value !== sv) ref.current.value = sv;
     },
-    effectContext: function() {
+    effectContext: function () {
       setMin(getMin);
       setMax(getMax);
       setFloat(getFloat);
@@ -115,11 +115,11 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
     e.currentTarget.value = text || "";
   };
 
-  function handleCompositionStart(e: CompositionEvent<HTMLInputElement>) {
+  function handleCompositionStart() {
     isComposing.current = true;
   };
 
-  function handleCompositionEnd(e: CompositionEvent<HTMLInputElement>) {
+  function handleCompositionEnd() {
     isComposing.current = false;
   };
 
@@ -204,7 +204,6 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
     }, UP_DOWN_ROOP_WAIT);
   };
 
-
   function handleMousedownIncrement() {
     handleMousedown("up");
   };
@@ -248,7 +247,8 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
         aria-invalid={invalid}
         aria-errormessage={errormessage}
       />
-      {validScripts &&
+      {
+        validScripts &&
         <>
           <div
             className={clsx(

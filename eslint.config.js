@@ -68,6 +68,15 @@ export default tseslint.config({
         switches: "never",
       },
     ],
+    "@stylistic/space-before-function-paren": [
+      "warn",
+      {
+        anonymous: "always",
+        named: "never",
+        asyncArrow: "always",
+        catch: "always",
+      },
+    ],
     "@stylistic/arrow-parens": "off",
     "@stylistic/operator-linebreak": "off",
     "@stylistic/multiline-ternary": [
@@ -92,6 +101,10 @@ export default tseslint.config({
         multiline: "consistent",
         singleline: "forbid",
       },
+    ],
+    "@stylistic/jsx-closing-tag-location": [
+      "warn",
+      "line-aligned",
     ],
     "no-fallthrough": "warn",
     "no-control-regex": "off",

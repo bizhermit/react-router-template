@@ -1,7 +1,6 @@
 import { useRef, useState, type ChangeEvent } from "react";
-import { getValidationValue, InputField, type InputWrapProps } from "./common";
-import { clsx } from "../utilities";
 import { useSchemaItem } from "~/components/schema/hooks";
+import { getValidationValue, InputField, type InputWrapProps } from "./common";
 
 type Resize = "none" | "vertical" | "horizontal" | "both";
 
@@ -43,7 +42,7 @@ export function TextArea<D extends Schema.DataItem<Schema.$String>>({
     data,
     dep,
     env,
-    props
+    props,
   } = useSchemaItem<Schema.DataItem<Schema.$String>>($props, {
     effect: function ({ value }) {
       if (!ref.current) return;
@@ -103,4 +102,4 @@ export function TextArea<D extends Schema.DataItem<Schema.$String>>({
       />
     </InputField>
   );
-}
+};

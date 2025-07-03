@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState, type ChangeEvent, type DragEvent, type KeyboardEvent, type MouseEvent, type ReactNode } from "react";
-import { getValidationValue, InputField, type InputWrapProps } from "./common";
-import { clsx } from "../utilities";
-import { useSchemaItem } from "~/components/schema/hooks";
 import { convertBase64ToFile } from "~/components/objects/file";
+import { useSchemaItem } from "~/components/schema/hooks";
+import { clsx } from "../utilities";
+import { getValidationValue, InputField, type InputWrapProps } from "./common";
 
 export type FileBoxProps<D extends Schema.DataItem<Schema.$File>> = InputWrapProps & {
   $: D;
@@ -43,7 +43,7 @@ export function FileBox<D extends Schema.DataItem<Schema.$File>>({
     dep,
     env,
     validScripts,
-    props
+    props,
   } = useSchemaItem<Schema.DataItem<Schema.$File>>($props, {
     effect: function ({ value }) {
       if (!ref.current) return;
@@ -149,7 +149,8 @@ export function FileBox<D extends Schema.DataItem<Schema.$File>>({
           aria-invalid={invalid}
           aria-errormessage={errormessage}
         />
-        {validScripts && placeholder &&
+        {
+          validScripts && placeholder &&
           <div className="text-placeholder px-input-pad-x py-input-pad-y">
             {placeholder}
           </div>
@@ -157,8 +158,10 @@ export function FileBox<D extends Schema.DataItem<Schema.$File>>({
       </InputField>
       {
         value && (
-          viewMode === "link" ? <FileBoxLinkView value={value} fileName={name} onClick={onViewClick} /> :
-            viewMode === "image" ? <FileBoxImageView value={value} fileName={name} onClick={onViewClick} /> :
+          viewMode === "link"
+            ? <FileBoxLinkView value={value} fileName={name} onClick={onViewClick} /> :
+            viewMode === "image"
+              ? <FileBoxImageView value={value} fileName={name} onClick={onViewClick} /> :
               undefined
         )
       }
@@ -234,7 +237,7 @@ export function FileBoxLinkView({ value, fileName, onClick }: ViewerProps & {
     return () => {
       context.revoke?.();
     };
-  }, [value, fileName])
+  }, [value, fileName]);
 
   if (!ctx || !ctx.href || ctx.children == null) return null;
   return (
@@ -278,7 +281,7 @@ function parseFileToSrc(value: File) {
     };
     reader.onabort = function () {
       reject("Failed to convert.");
-    }
+    };
     reader.readAsDataURL(value);
   });
 };
@@ -347,7 +350,7 @@ export function FileBoxImageView({ value, fileName, onClick }: ViewerProps & {
         src: "",
         alt: FAILED_IMAGE_CONTEXT.alt,
       };
-    })
+    });
   };
 
   useEffect(() => {
@@ -361,7 +364,7 @@ export function FileBoxImageView({ value, fileName, onClick }: ViewerProps & {
         setCtx(context);
       })
       .catch(() => setCtx(FAILED_IMAGE_CONTEXT));
-  }, [value, fileName])
+  }, [value, fileName]);
 
   if (!ctx) return null;
   if (!ctx.src) {

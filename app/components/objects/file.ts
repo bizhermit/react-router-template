@@ -2,7 +2,7 @@ export function convertBase64ToFile(base64: string | ArrayBuffer | null | undefi
   if (base64 == null) throw new Error("base64 not set");
   if (typeof base64 === "string") {
     const bin = decodeURIComponent(escape(atob(base64.replace(/^.*,/, ""))));
-    let u8a = new Uint8Array(bin.length);
+    const u8a = new Uint8Array(bin.length);
     for (let i = 0, il = bin.length; i < il; i++) {
       u8a[i] = bin.charCodeAt(i);
     }

@@ -46,7 +46,8 @@ export function InputField({
         </fieldset>
         {children}
       </div>
-      {!hideMessage && core?.state.current.enabled &&
+      {
+        !hideMessage && core?.state.current.enabled &&
         <InputMessageSpan result={core.result} />
       }
     </>
@@ -59,7 +60,7 @@ export function InputGroup({
   core,
   ref,
   ...props
-}: HTMLAttributes<HTMLDivElement> & InputWrapProps & CoreProps & { ref?: RefObject<HTMLDivElement> }) {
+}: HTMLAttributes<HTMLDivElement> & InputWrapProps & CoreProps & { ref?: RefObject<HTMLDivElement>; }) {
   if (core?.state.current.hidden) return null;
   return (
     <>
@@ -72,7 +73,8 @@ export function InputGroup({
           className,
         )}
       />
-      {!hideMessage && core?.state.current.enabled &&
+      {
+        !hideMessage && core?.state.current.enabled &&
         <InputMessageSpan result={core.result} />
       }
     </>
@@ -97,7 +99,8 @@ export function InputLabel({
           className,
         )}
       />
-      {!hideMessage && core?.state.current.enabled &&
+      {
+        !hideMessage && core?.state.current.enabled &&
         <InputMessageSpan result={core.result} />
       }
     </>
@@ -106,14 +109,14 @@ export function InputLabel({
 
 export function InputLabelText({
   children,
-}: { children?: ReactNode }) {
+}: { children?: ReactNode; }) {
   if (!children) return;
-  return <span className="ipt-label-text">{children}</span>
+  return <span className="ipt-label-text">{children}</span>;
 }
 
 export function Placeholder({
   children,
-}: { children?: string }) {
+}: { children?: string; }) {
   if (!children) return null;
   return (
     <div className="ipt-placeholder">

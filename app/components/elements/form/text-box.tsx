@@ -1,13 +1,13 @@
 import { useRef, useState, type ChangeEvent, type HTMLAttributes, type HTMLInputTypeAttribute } from "react";
-import { getValidationValue, InputField, type InputWrapProps } from "./common";
 import { useSchemaItem } from "~/components/schema/hooks";
+import { getValidationValue, InputField, type InputWrapProps } from "./common";
 
 export type TextBoxProps<D extends Schema.DataItem<Schema.$String>> = InputWrapProps & {
   $: D;
   placeholder?: string;
 };
 
-function getPatternInputProps(pattern: Schema.StringProps["pattern"]): { type?: HTMLInputTypeAttribute; inputMode?: HTMLAttributes<HTMLInputElement>["inputMode"] } {
+function getPatternInputProps(pattern: Schema.StringProps["pattern"]): { type?: HTMLInputTypeAttribute; inputMode?: HTMLAttributes<HTMLInputElement>["inputMode"]; } {
   if (pattern == null || typeof pattern !== "string") return {};
   switch (pattern) {
     case "int":
@@ -48,7 +48,7 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
     data,
     dep,
     env,
-    props
+    props,
   } = useSchemaItem<Schema.DataItem<Schema.$String>>($props, {
     effect: function ({ value }) {
       if (!ref.current) return;
@@ -111,4 +111,4 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
       />
     </InputField>
   );
-}
+};

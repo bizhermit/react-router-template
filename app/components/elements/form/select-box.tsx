@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState, type ChangeEvent, type ReactNode } from "react";
+import { isEmpty } from "~/components/objects";
+import { useSchemaItem } from "~/components/schema/hooks";
+import { clsx, ZERO_WIDTH_SPACE } from "../utilities";
 import { getValidationValue, InputField, Placeholder, type InputWrapProps } from "./common";
 import { getBooleanSource } from "./utilities";
-import { clsx, ZERO_WIDTH_SPACE } from "../utilities";
-import { useSchemaItem } from "~/components/schema/hooks";
-import { isEmpty } from "~/components/objects";
 
 type SelectBoxSchemaProps = Schema.$String | Schema.$Number | Schema.$Boolean;
 
@@ -45,7 +45,7 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
       const sv = String(value ?? "");
       if (ref.current.value !== sv) ref.current.value = sv;
     },
-    effectContext: function(p) {
+    effectContext: function (p) {
       if (propsSource == null && "source" in dataItem._) {
         setSource(getValidationValue(p, dataItem._.source) ?? []);
       }
@@ -104,27 +104,29 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
         aria-invalid={invalid}
         aria-errormessage={errormessage}
       >
-        {children ?? <>
-          <option
-            value=""
-            hidden={required}
-            data-notext={isEmpty(emptyText)}
-          >
-            {emptyText || ZERO_WIDTH_SPACE}
-          </option>
-          {
-            source.map(item => {
-              return (
-                <option
-                  key={item.value}
-                  value={item.value}
-                >
-                  {item.text}
-                </option>
-              );
-            })
-          }
-        </>}
+        {
+          children ?? <>
+            <option
+              value=""
+              hidden={required}
+              data-notext={isEmpty(emptyText)}
+            >
+              {emptyText || ZERO_WIDTH_SPACE}
+            </option>
+            {
+              source.map(item => {
+                return (
+                  <option
+                    key={item.value}
+                    value={item.value}
+                  >
+                    {item.text}
+                  </option>
+                );
+              })
+            }
+          </>
+        }
       </select>
       <Placeholder>{placeholder}</Placeholder>
       <div
@@ -138,8 +140,7 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
           type="hidden"
           name={name}
           value={value as string || undefined}
-        />
-      }
+        />}
     </InputField>
   );
 };

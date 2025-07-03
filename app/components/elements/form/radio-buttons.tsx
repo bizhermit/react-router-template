@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ChangeEvent, type MouseEvent } from "react";
+import { useSchemaItem } from "~/components/schema/hooks";
 import { getValidationValue, InputGroup, InputLabel, InputLabelText, type InputWrapProps } from "./common";
 import { getBooleanSource } from "./utilities";
-import { useSchemaItem } from "~/components/schema/hooks";
 
 type RadioButtonsSchemaProps = Schema.$String | Schema.$Number | Schema.$Boolean;
 
@@ -122,7 +122,8 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
           </InputLabel>
         );
       })}
-      {!state.current.disabled && state.current.readonly &&
+      {
+        !state.current.disabled && state.current.readonly &&
         <input
           type="hidden"
           name={name}

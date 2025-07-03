@@ -1,6 +1,6 @@
 import { useState, type HTMLAttributes } from "react";
-import { clsx } from "../utilities";
 import { useSchemaEffect } from "~/components/schema/hooks";
+import { clsx } from "../utilities";
 
 export type InputMessageProps = HTMLAttributes<HTMLSpanElement> & {
   $: Schema.DataItem<Schema.$Any>;
@@ -16,12 +16,13 @@ export function InputMessage({
         setResult(params.results[$.name]);
         break;
       case "value-result":
-      case "result":
+      case "result": {
         const item = params.items.find(item => item.name === $.name);
         if (item) {
           setResult(item.result);
         }
         break;
+      }
       default:
         break;
     }

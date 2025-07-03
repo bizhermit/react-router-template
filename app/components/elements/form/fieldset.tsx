@@ -1,5 +1,5 @@
-import { type FieldsetHTMLAttributes } from "react";
-import { FieldSetContext, useFieldSet } from "~/components/schema/hooks";
+import { use, type FieldsetHTMLAttributes } from "react";
+import { FieldSetContext } from "~/components/schema/hooks";
 
 type FieldSetProps = FieldsetHTMLAttributes<HTMLFieldSetElement> & {
   readOnly?: boolean;
@@ -15,7 +15,7 @@ export function FieldSet({
 }: FieldSetProps) {
   if (hide) return null;
 
-  const ctx = useFieldSet();
+  const ctx = use(FieldSetContext);
   const isDisabled = ctx.disabled || !!disabled;
   const isReadOnly = ctx.readOnly || !!readOnly;
 

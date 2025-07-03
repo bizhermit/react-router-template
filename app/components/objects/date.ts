@@ -1,20 +1,13 @@
-export namespace Month {
+export const Month = {
+  en: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"] as const,
+  en_s: ["Jan.", "Feb.", "Mar.", "Apr.", "May", "Jun", "Jul.", "Aug.", "Sep.", "Oct.", "Nov.", "Dec."] as const,
+  ja: ["１月", "２月", "３月", "４月", "５月", "６月", "７月", "８月", "９月", "１０月", "１１月", "１２月"] as const,
+};
 
-  export const en = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"] as const;
-
-  export const en_s = ["Jan.", "Feb.", "Mar.", "Apr.", "May", "Jun", "Jul.", "Aug.", "Sep.", "Oct.", "Nov.", "Dec."] as const;
-
-  export const ja = ["１月", "２月", "３月", "４月", "５月", "６月", "７月", "８月", "９月", "１０月", "１１月", "１２月"] as const;
-
-}
-
-export namespace Week {
-
-  export const ja_s = ["日", "月", "火", "水", "木", "金", "土"] as const;
-
-  export const en_s = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] as const;
-
-}
+export const Week = {
+  ja_s: ["日", "月", "火", "水", "木", "金", "土"] as const,
+  en_s: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] as const,
+};
 
 export type TimeZoneOffset =
   | `+${number}:${number}`
@@ -32,7 +25,7 @@ export type TimeZone =
 const TIME_ZONE_OFFSET = {
   "Z": 0,
   "UTC": 0,
-  "Asia/Tokyo": -540
+  "Asia/Tokyo": -540,
 } satisfies Partial<Record<TimeZone, number>>;
 
 export function parseTimezoneOffset(tz: TimeZone | TimeZoneOffset) {
@@ -46,7 +39,7 @@ export function parseDate(value: any) {
     return undefined;
   }
   if (typeof value === "string") {
-    const a = value.match(/^(\d{1,4})[-|\/|年]?(\d{1,2}|$)[-|\/|月]?(\d{1,2}|$)[日]?[\s|T]?(\d{1,2}|$)[:]?(\d{1,2}|$)[:]?(\d{1,2}|$)[.]?(\d{0,3}|$)?(.*)/);
+    const a = value.match(/^(\d{1,4})[-|/|年]?(\d{1,2}|$)[-|/|月]?(\d{1,2}|$)[日]?[\s|T]?(\d{1,2}|$)[:]?(\d{1,2}|$)[:]?(\d{1,2}|$)[.]?(\d{0,3}|$)?(.*)/);
     if (a) {
       const tz = a[8];
       const d = new Date(
@@ -59,7 +52,7 @@ export function parseDate(value: any) {
       if (diff !== 0) d.setTime(d.getTime() - (diff * 60000));
       return d;
     }
-    throw new Error("")
+    throw new Error("");
   }
   if (typeof value === "number") {
     return new Date(value);

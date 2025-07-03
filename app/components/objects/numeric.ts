@@ -8,12 +8,12 @@ export function parseNumber(value: any): [number: number | undefined, succeeded:
   if (str === "") return [undefined, false];
   const num = Number(str.replace(/[０-９，．＋－ー]/g, s => {
     switch (s) {
-      case '，': return ',';
-      case '．': return '.';
-      case '＋': return '+';
+      case "，": return ",";
+      case "．": return ".";
+      case "＋": return "+";
       case "ー":
-      case '－':
-        return '-';
+      case "－":
+        return "-";
       default:
         return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
     }

@@ -1,9 +1,9 @@
 import { useId, useLayoutEffect, useMemo, useRef, useState, type ChangeEvent, type Dispatch, type ReactNode, type RefObject, type SetStateAction } from "react";
-import { getValidationValue, InputField, InputGroup, Placeholder, type InputWrapProps } from "./common";
 import { formatDate, parseDate } from "~/components/objects/date";
-import { clsx, ZERO_WIDTH_SPACE } from "../utilities";
-import { getDefaultState, getSchemaItemMode, getSchemaItemRequired, getSchemaItemResult, MODE, MODE_PRIORITY, parseSchemaItemValue, schemaItemEffect, schemaItemValidation, useFieldSet, useSchemaEffect, useSchemaItem, type SchemaEffectParams_Result, type SchemaEffectParams_ValueResult } from "~/components/schema/hooks";
 import { parseTimeNums, parseTypedDate } from "~/components/schema/date";
+import { getDefaultState, getSchemaItemMode, getSchemaItemRequired, getSchemaItemResult, schemaItemEffect, schemaItemValidation, useFieldSet, useSchemaEffect, type SchemaEffectParams_Result, type SchemaEffectParams_ValueResult } from "~/components/schema/hooks";
+import { clsx, ZERO_WIDTH_SPACE } from "../utilities";
+import { getValidationValue, InputField, InputGroup, Placeholder, type InputWrapProps } from "./common";
 
 export type DateSelectBoxProps<D extends Schema.DataItem<Schema.$SplitDate>> = InputWrapProps & {
   $: D;
@@ -13,8 +13,8 @@ export type DateSelectBoxProps<D extends Schema.DataItem<Schema.$SplitDate>> = I
 const DEFAULT_MIN_DATE = new Date("1970-01-01T00:00:00");
 const DEFAULT_MAX_DATE = new Date("2099-12-31T23:59:59");
 
-function SepSpan(props: { children: ReactNode }) {
-  return <span className="px-2">{props.children}</span>
+function SepSpan(props: { children: ReactNode; }) {
+  return <span className="px-2">{props.children}</span>;
 };
 
 function selectBoxDisplayResult(
@@ -31,7 +31,7 @@ function selectBoxDisplayResult(
 ): Schema.Result | null | undefined {
   const req: Array<Schema.SplitDateTarget> = [];
   if (Y?.code === "required") req.push("Y");
-  if (M?.code === "required") req.push("M")
+  if (M?.code === "required") req.push("M");
   if (D?.code === "required") req.push("D");
   if (h?.code === "required") req.push("h");
   if (m?.code === "required") req.push("m");
@@ -39,7 +39,7 @@ function selectBoxDisplayResult(
   if (req.length > 0) {
     return {
       type: "e",
-      message: t( `requiredSplitDate_${actionType || "select"}`, {
+      message: t(`requiredSplitDate_${actionType || "select"}`, {
         label: label || t("default_label"),
         target: req.join(","),
       }),
@@ -89,7 +89,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
         setHourResult(getHourResult);
         setMinuteResult(getMinuteResult);
         setSecondResult(getSecondResult);
-        // NOTE: no break
+      // eslint-disable-next-line no-fallthrough
       case "dep":
         setMode(getMode);
         setYearMode(getYearMode);
@@ -151,7 +151,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
         update($minute, setMinuteValue, setMinuteResult);
         update($second, setSecondValue, setSecondResult);
 
-        const results: Array<{ name: string, result: Schema.Result | null | undefined }> = [];
+        const results: Array<{ name: string; result: Schema.Result | null | undefined; }> = [];
         function updateWithRefs(
           $: Schema.DataItem<Schema.$Any> | undefined,
           valueGetter: () => any,
@@ -214,6 +214,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
         if (schema.setResults(results)) {
           isEffected.current = true;
         }
+        break;
       }
       case "result": {
         function update(
@@ -430,7 +431,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
     return getRequiredImpl($date);
   };
 
-  const [required, setRequired] = useState(getRequired);
+  const [_required, setRequired] = useState(getRequired);
 
   function getYearRequired() {
     return getRequiredImpl($year);
@@ -1029,7 +1030,8 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
         result: dispayResult,
       }}
     >
-      {$date.name &&
+      {
+        $date.name &&
         <input
           type="hidden"
           name={$date.name}
@@ -1063,7 +1065,8 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
       >
         {monthOptions}
       </SplittedSelect>
-      {type !== "month" &&
+      {
+        type !== "month" &&
         <>
           <SepSpan>/</SepSpan>
           <SplittedSelect
@@ -1081,7 +1084,8 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
           </SplittedSelect>
         </>
       }
-      {type === "datetime" &&
+      {
+        type === "datetime" &&
         <>
           <SepSpan>&nbsp;</SepSpan>
           <SplittedSelect
@@ -1111,7 +1115,8 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
           >
             {minuteOptions}
           </SplittedSelect>
-          {time === "hms" &&
+          {
+            time === "hms" &&
             <>
               <SepSpan>:</SepSpan>
               <SplittedSelect
@@ -1125,7 +1130,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
                 result={secondResult}
                 placeholder={placeholder?.[5]}
               >
-                {dayOptions}
+                {secondOptions}
               </SplittedSelect>
             </>
           }
@@ -1206,7 +1211,8 @@ function SplittedSelect({
           !state.current.enabled && "opacity-0"
         )}
       />
-      {state.current.readonly && $?.name &&
+      {
+        state.current.readonly && $?.name &&
         <input
           type="hidden"
           name={$?.name}
@@ -1214,5 +1220,5 @@ function SplittedSelect({
         />
       }
     </InputField>
-  )
+  );
 };

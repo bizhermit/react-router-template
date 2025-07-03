@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState, type KeyboardEvent } from "react";
-import { getValidationValue, InputField, type InputWrapProps } from "./common";
-import { useSchemaItem, type SchemaItemProps } from "~/components/schema/hooks";
 import { parseTypedDateString } from "~/components/schema/date";
+import { useSchemaItem } from "~/components/schema/hooks";
+import { getValidationValue, InputField, type InputWrapProps } from "./common";
 
 type DateBoxSchemaProps = Schema.$Date | Schema.$Month | Schema.$DateTime;
 
