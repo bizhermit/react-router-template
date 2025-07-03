@@ -1,13 +1,22 @@
 import { DEFAULT_LOCALE, I18N_PROP_NAME, LOCALE_KEY, SUPPORTED_LOCALES } from "./config";
 
+declare global {
+  interface Window {
+    [I18N_PROP_NAME]?: {
+      locale: Locales;
+      resource: I18N_Texts;
+    };
+  }
+};
+
 export async function loadI18nAsClient(): Promise<{
   locale: Locales;
   resource: I18N_Texts;
 }> {
-  const i18n = (window as any)[I18N_PROP_NAME];
+  const i18n = window[I18N_PROP_NAME];
   if (i18n) {
     document.getElementById(I18N_PROP_NAME)?.remove();
-    delete (window as any)[I18N_PROP_NAME];
+    delete window[I18N_PROP_NAME];
     return i18n;
   }
   const locale = await findLocaleAsClient();
@@ -35,7 +44,7 @@ export async function findLocaleAsClient() {
   //   locale = (navigator.languages.find(l => SUPPORTED_LOCALES.find(L => L === l)) as Locales | undefined) || locale;
   // }
   /* Cookie */
-  const v = document.cookie.split(/;\s?/g).find(c => c.match(i18nCookieRegExp))?.split("=")[1]
+  const v = document.cookie.split(/;\s?/g).find(c => c.match(i18nCookieRegExp))?.split("=")[1];
   if (v) {
     const l = decodeURIComponent(v);
     locale = SUPPORTED_LOCALES.find(k => k === l) || locale;
