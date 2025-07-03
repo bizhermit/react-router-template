@@ -13,5 +13,5 @@ export function getBooleanSource({
   return [
     { value: dataItem._.trueValue, text: trueText },
     { value: dataItem._.falseValue, text: falseText },
-  ] satisfies Schema.Source<any>;
+  ] satisfies Schema.Source<Schema.ValueType<typeof dataItem["_"]>>;
 };

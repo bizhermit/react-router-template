@@ -13,12 +13,12 @@ export function splitName(name: string) {
 
 type Item = {
   name: string;
-  value: any;
+  value: unknown;
 };
 
 export class SchemaData {
 
-  private data: Record<string, any>;
+  private data: Record<string, unknown>;
   private callback: (params: { items: Array<Item>; }) => void;
   private bulkQueue: Array<Item> | null;
 
@@ -44,9 +44,10 @@ export class SchemaData {
     this.bulkQueue = null;
   };
 
-  public _get<V = any>(name: string): [vlaue: V | null | undefined, hasProperty: boolean] {
+  public _get<V>(name: string): [vlaue: V | null | undefined, hasProperty: boolean] {
     let has = false;
     const names = splitName(name);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let v: any = this.data;
     for (const n of names) {
       if (v == null) return [undefined, false];
@@ -64,7 +65,7 @@ export class SchemaData {
     return [v, has];
   };
 
-  public get<V = any>(name: string): V | null | undefined {
+  public get<V>(name: string): V | null | undefined {
     return this._get<V>(name)[0];
   };
 
@@ -76,7 +77,7 @@ export class SchemaData {
     return this._get(name)[1];
   };
 
-  public _set(name: string, value: any): boolean {
+  public _set(name: string, value: unknown): boolean {
     let d = this.data, change = false;
     const names = splitName(name);
     for (let i = 0, il = names.length - 1; i < il; i++) {
@@ -87,7 +88,7 @@ export class SchemaData {
         d[n] = getArrayIndex(names[i + 1]) ? [] : {};
         change = true;
       }
-      d = d[n];
+      d = d[n] as Record<string | number, unknown>;
     }
     const n = names[names.length - 1];
     const r = getArrayIndex(n);
@@ -107,13 +108,13 @@ export class SchemaData {
     return change;
   };
 
-  public set(name: string, value: any): boolean {
+  public set(name: string, value: unknown): boolean {
     const change = this._set(name, value);
     if (change) this.effect([{ name, value }]);
     return change;
   };
 
-  public bulkSet(items: Array<{ name: string; value: any; }>) {
+  public bulkSet(items: Array<{ name: string; value: unknown; }>) {
     let change = false;
     const changeItems: typeof items = [];
     items.forEach(item => {
@@ -127,7 +128,7 @@ export class SchemaData {
     return change;
   };
 
-  public bulkPush(name: string, value: any) {
+  public bulkPush(name: string, value: unknown) {
     if (!this.bulkQueue) this.bulkQueue = [];
     this.bulkQueue.push({ name, value });
     return this;
@@ -148,11 +149,11 @@ export class SchemaData {
     return this.getBulkQueueLength() > 0;
   };
 
-  private effect(items: Array<{ name: string; value: any; }>) {
+  private effect(items: Array<{ name: string; value: unknown; }>) {
     this.callback({ items });
   };
 
-  public getData<T = Record<string, any>>() {
+  public getData<T = Record<string, unknown>>() {
     return this.data as T;
   };
 

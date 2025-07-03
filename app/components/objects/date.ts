@@ -34,7 +34,7 @@ export function parseTimezoneOffset(tz: TimeZone | TimeZoneOffset) {
   return TIME_ZONE_OFFSET[tz as TimeZone] ?? 0;
 };
 
-export function parseDate(value: any) {
+export function parseDate(value: unknown) {
   if (value == null || value === "") {
     return undefined;
   }

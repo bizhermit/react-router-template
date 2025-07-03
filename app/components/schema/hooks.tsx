@@ -30,7 +30,7 @@ export interface SchemaEffectParams_Result {
 
 export interface SchemaEffectParams_Dep {
   type: "dep";
-  dep: Record<string, any>;
+  dep: Record<string, unknown>;
 };
 
 export type SchemaEffectParams =

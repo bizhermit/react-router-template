@@ -298,7 +298,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
 
   const [secondMode, setSecondMode] = useState(getSecondMode);
 
-  function joinSplitTypedDate(values: Record<Schema.SplitDateTarget, number | undefined>) {
+  function joinSplitTypedDate(values: Record<Schema.SplitDateTarget, number | null | undefined>) {
     if (values.Y == null || values.M == null) return undefined;
     switch (type) {
       case "date":
@@ -318,7 +318,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
     }
   };
 
-  function parseTypedValue(values: Record<Schema.SplitDateTarget, number | undefined>) {
+  function parseTypedValue(values: Record<Schema.SplitDateTarget, number | null | undefined>) {
     return formatDate(joinSplitTypedDate(values), $date._.formatPattern) as Schema.DateValueString | null | undefined;
   };
 
@@ -337,45 +337,45 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
 
   function getYearValue() {
     if (!$year) return undefined;
-    return schema.data.current.get($year.name);
+    return schema.data.current.get<number>($year.name);
   };
 
-  const [yearValue, setYearValue] = useState<number | undefined>(getYearValue);
+  const [yearValue, setYearValue] = useState(getYearValue);
 
   function getMonthValue() {
     if (!$month) return undefined;
-    return schema.data.current.get($month.name);
+    return schema.data.current.get<number>($month.name);
   };
 
-  const [monthValue, setMonthValue] = useState<number | undefined>(getMonthValue);
+  const [monthValue, setMonthValue] = useState(getMonthValue);
 
   function getDayValue() {
     if (!$day) return undefined;
-    return schema.data.current.get($day.name);
+    return schema.data.current.get<number>($day.name);
   };
 
-  const [dayValue, setDayValue] = useState<number | undefined>(getDayValue);
+  const [dayValue, setDayValue] = useState(getDayValue);
 
   function getHourValue() {
     if (!$hour) return undefined;
-    return schema.data.current.get($hour.name);
+    return schema.data.current.get<number>($hour.name);
   };
 
-  const [hourValue, setHourValue] = useState<number | undefined>(getHourValue);
+  const [hourValue, setHourValue] = useState(getHourValue);
 
   function getMinuteValue() {
     if (!$minute) return undefined;
-    return schema.data.current.get($minute.name);
+    return schema.data.current.get<number>($minute.name);
   };
 
-  const [minuteValue, setMinuteValue] = useState<number | undefined>(getMinuteValue);
+  const [minuteValue, setMinuteValue] = useState(getMinuteValue);
 
   function getSecondValue() {
     if (!$second) return undefined;
-    return schema.data.current.get($second.name);
+    return schema.data.current.get<number>($second.name);
   };
 
-  const [secondValue, setSecondValue] = useState<number | undefined>(getSecondValue);
+  const [secondValue, setSecondValue] = useState(getSecondValue);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function getResultImpl($: Schema.DataItem<Schema.$Any> | undefined, valueGetter: () => any) {
