@@ -79,12 +79,14 @@ namespace Schema {
     ;
 
   type ValidationArray<T extends Validation<unknown, unknown>> =
-    T extends unknown[] ? T : [Exclude<T, undefined>];
+    T extends Array<unknown> ? T : [Exclude<T, undefined>];
 
   type PickCustomValidationMessageAddonParams<T extends CustomValidationMessage<unknown, unknown> | undefined> =
     Omit<Parameters<Exclude<T, undefined>>[0], keyof ValidationParams<unknown>>;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   interface MessageGetter<T extends CustomValidationMessage<any, any> | undefined> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (params: ValidationParams<any> & PickCustomValidationMessageAddonParams<T>): string;
   };
 

@@ -15,12 +15,12 @@ export interface SchemaEffectParams_Data {
 
 export interface SchemaEffectParams_ValueResult {
   type: "value-result";
-  items: Array<{ name: string; value: any; result: Schema.Result | null | undefined; }>;
+  items: Array<{ name: string; value: unknown; result: Schema.Result | null | undefined; }>;
 };
 
 export interface SchemaEffectParams_Value {
   type: "value";
-  items: Array<{ name: string; value: any; }>;
+  items: Array<{ name: string; value: unknown; }>;
 };
 
 export interface SchemaEffectParams_Result {
@@ -352,7 +352,7 @@ export function useSchemaValue<D extends Schema.DataItem<Schema.$Any>>(dataItem:
       case "value": {
         const item = params.items.find(item => item.name === dataItem.name);
         if (item) {
-          setValue(item.value);
+          setValue(item.value as Schema.ValueType<D["_"]>);
         }
         break;
       }
@@ -361,7 +361,7 @@ export function useSchemaValue<D extends Schema.DataItem<Schema.$Any>>(dataItem:
     }
   });
 
-  const [value, setValue] = useState(getValue());
+  const [value, setValue] = useState(getValue);
 
   function getValue() {
     return schema.data.current.get(dataItem.name) as Schema.ValueType<D["_"]>;
@@ -598,7 +598,10 @@ export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
         break;
       case "value-result":
       case "value": {
-        const item = (params as SchemaEffectParams_ValueResult).items.find(item => item.name === $.name);
+        const item = (params as SchemaEffectParams_ValueResult).items.find(item => item.name === $.name) as {
+          value: Schema.ValueType<D["_"], true, true>;
+          result: Schema.Result | null | undefined;
+        } | undefined;
         if (item) {
           if (params.type === "value-result") {
             setValue(item.value);
@@ -824,6 +827,7 @@ export function useSchemaArray<D extends Schema.DataItem<Schema.$Array>>(dataIte
     return schemaItem.value?.map((value, index) => {
       const di = dataItem.generateDataItem(index) as Schema.DataItem<D["_"]["prop"]>;
       const key = typeof dataItem._.key === "function" ?
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         dataItem._.key(value as any) :
         (value && dataItem._.key) ? (value as Record<string, string>)[dataItem._.key] : `${keyRev}_${index}`;
       return func({
