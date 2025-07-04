@@ -39,10 +39,8 @@ export function FileBox<D extends Schema.DataItem<Schema.$File>>({
     label,
     invalid,
     errormessage,
-    data,
-    dep,
-    env,
     validScripts,
+    getCommonParams,
     props,
   } = useSchemaItem<Schema.DataItem<Schema.$File>>($props, {
     effect: function ({ value }) {
@@ -66,13 +64,13 @@ export function FileBox<D extends Schema.DataItem<Schema.$File>>({
   });
 
   function getAccept() {
-    return getValidationValue({ data, dep, env, label: dataItem.label }, dataItem._.accept);
+    return getValidationValue(getCommonParams(), dataItem._.accept);
   };
 
   const [accept, setAccept] = useState(getAccept);
 
   function getMaxSize() {
-    return getValidationValue({ data, dep, env, label: dataItem.label }, dataItem._.maxSize);
+    return getValidationValue(getCommonParams(), dataItem._.maxSize);
   };
 
   const [maxSize, setMaxSize] = useState(getMaxSize);

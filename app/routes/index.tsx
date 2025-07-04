@@ -11,6 +11,7 @@ import { RadioButtons } from "~/components/elements/form/radio-buttons";
 import { SelectBox } from "~/components/elements/form/select-box";
 import { TextArea } from "~/components/elements/form/text-area";
 import { TextBox } from "~/components/elements/form/text-box";
+import { parseNumber } from "~/components/objects/numeric";
 import { $schema } from "~/components/schema";
 import { $array } from "~/components/schema/array";
 import { $bool } from "~/components/schema/boolean";
@@ -38,6 +39,10 @@ const text = $str(
 
 const birth = $date({
   // required: true,
+  pair: {
+    name: "date",
+    position: "before",
+  },
 });
 
 const schema = $schema({
@@ -109,6 +114,7 @@ const schema = $schema({
   datetimeHasSecond: $datetime({
     time: "hms",
   }),
+  birth,
   birth_year: birth.splitYear({
     required: true,
   }),
@@ -136,7 +142,12 @@ const schema = $schema({
     prop: $struct({
       props: {
         name: $str({
-          required: true,
+          required: ({ data, name }) => {
+            const age = parseNumber(data.get(name, ".age"))[0];
+            if (age == null) return false;
+            return age > 10;
+          },
+          refs: [".age"],
         }),
         age: $num(),
         birth: $month(),
@@ -283,6 +294,12 @@ function Component1() {
               <span>
                 {JSON.stringify(params.value)}
               </span>
+              <TextBox
+                $={params.dataItem.dataItems.name}
+              />
+              <NumberBox
+                $={params.dataItem.dataItems.age}
+              />
               <button
                 type="button"
                 onClick={() => {

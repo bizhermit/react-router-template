@@ -11,6 +11,21 @@ export function splitName(name: string) {
   return name.split(/\.|(\[\d*\])/).filter(s => s);
 };
 
+export function getRelativeName(baseName: string, relativeName: string) {
+  const relative = relativeName.match(/^(\.+)(.*)/);
+  if (!relative) return relativeName;
+  const name = relative[2];
+  if (!name) return relativeName;
+  const level = relative[1].length;
+  const splittedName = splitName(baseName);
+  let relativeBaseName = "";
+  for (let i = 0, il = splittedName.length - level; i < il; i++) {
+    if (relativeBaseName) relativeBaseName += ".";
+    relativeBaseName += splittedName[i];
+  };
+  return `${relativeBaseName}.${name}`.replace(/^\.|\.(?=\[)/g, "");
+};
+
 type Item = {
   name: string;
   value: unknown;
@@ -47,9 +62,12 @@ export class SchemaData {
     this.bulkQueue = null;
   };
 
-  public _get<V>(name: string): [vlaue: V | null | undefined, hasProperty: boolean] {
+  public _get<V>(
+    name: string,
+    relativeName?: string
+  ): [vlaue: V | null | undefined, hasProperty: boolean] {
     let has = false;
-    const names = splitName(name);
+    const names = splitName(relativeName ? getRelativeName(name, relativeName) : name);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let v: any = this.data;
     for (const n of names) {
@@ -68,16 +86,16 @@ export class SchemaData {
     return [v, has];
   };
 
-  public get<V>(name: string): V | null | undefined {
-    return this._get<V>(name)[0];
+  public get<V>(name: string, relativeName?: string): V | null | undefined {
+    return this._get<V>(name, relativeName)[0];
   };
 
-  public hasValue(name: string): boolean {
-    return this.get(name) != null;
+  public hasValue(name: string, relativeName?: string): boolean {
+    return this.get(name, relativeName) != null;
   }
 
-  public hasProperty(name: string): boolean {
-    return this._get(name)[1];
+  public hasProperty(name: string, relativeName?: string): boolean {
+    return this._get(name, relativeName)[1];
   };
 
   public _set(name: string, value: unknown): boolean {

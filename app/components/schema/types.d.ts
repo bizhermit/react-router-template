@@ -46,6 +46,7 @@ namespace Schema {
   };
 
   interface ValidationParams<V> {
+    name: string;
     label: string | undefined;
     value: V | null | undefined;
     data: Data;
@@ -62,6 +63,7 @@ namespace Schema {
   };
 
   interface DynamicValidationValueParams {
+    name: string;
     label: string | undefined;
     data: Data;
     dep: Record<string, unknown>;

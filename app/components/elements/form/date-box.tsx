@@ -27,9 +27,8 @@ export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
     label,
     invalid,
     errormessage,
-    data,
-    dep,
-    env,
+    getCommonParams,
+    setRefs,
     props,
   } = useSchemaItem<Schema.DataItem<DateBoxSchemaProps>>($props, {
     effect: function ({ value }) {
@@ -40,6 +39,7 @@ export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
     effectContext: function () {
       setMin(getMin);
       setMax(getMax);
+      setPair(getPair);
     },
   });
 
@@ -48,7 +48,7 @@ export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
 
   function getMin() {
     return parseTypedDateString(
-      getValidationValue({ data, dep, env, label: dataItem.label }, dataItem._.minDate),
+      getValidationValue(getCommonParams(), dataItem._.minDate),
       type,
       time,
     );
@@ -58,13 +58,21 @@ export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
 
   function getMax() {
     return parseTypedDateString(
-      getValidationValue({ data, dep, env, label: dataItem.label }, dataItem._.maxDate),
+      getValidationValue(getCommonParams(), dataItem._.maxDate),
       type,
       time,
     );
   };
 
   const [max, setMax] = useState(getMax);
+
+  function getPair() {
+    const pair = getValidationValue(getCommonParams(), dataItem._.pair);
+    setRefs(pair?.name ? [pair.name] : []);
+    return pair;
+  };
+
+  const [_pair, setPair] = useState(getPair);
 
   function applyInputedValue() {
     const { value } = setValue(ref.current.value);

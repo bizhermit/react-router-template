@@ -42,9 +42,7 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
     invalid,
     errormessage,
     validScripts,
-    data,
-    dep,
-    env,
+    getCommonParams,
     props,
   } = useSchemaItem<Schema.DataItem<Schema.$Number>>($props, {
     effect: function ({ value, result }) {
@@ -68,19 +66,19 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
   });
 
   function getMin() {
-    return getValidationValue({ data, dep, env, label: dataItem.label }, dataItem._.min);
+    return getValidationValue(getCommonParams(), dataItem._.min);
   };
 
   const [min, setMin] = useState(getMin);
 
   function getMax() {
-    return getValidationValue({ data, dep, env, label: dataItem.label }, dataItem._.max);
+    return getValidationValue(getCommonParams(), dataItem._.max);
   };
 
   const [max, setMax] = useState(getMax);
 
   function getFloat() {
-    return getValidationValue({ data, dep, env, label: dataItem.label }, dataItem._.float);
+    return getValidationValue(getCommonParams(), dataItem._.float);
   };
 
   const [float, setFloat] = useState(getFloat);

@@ -39,9 +39,7 @@ export function TextArea<D extends Schema.DataItem<Schema.$String>>({
     label,
     invalid,
     errormessage,
-    data,
-    dep,
-    env,
+    getCommonParams,
     props,
   } = useSchemaItem<Schema.DataItem<Schema.$String>>($props, {
     effect: function ({ value }) {
@@ -56,13 +54,13 @@ export function TextArea<D extends Schema.DataItem<Schema.$String>>({
   });
 
   function getMinLen() {
-    return getValidationValue({ data, dep, env, label: dataItem.label }, dataItem._.minLength);
+    return getValidationValue(getCommonParams(), dataItem._.minLength);
   };
 
   const [minLen, setMinLen] = useState<number | undefined>(getMinLen);
 
   function getMaxLen() {
-    const params: Schema.DynamicValidationValueParams = { data, dep, env, label: dataItem.label };
+    const params = getCommonParams();
     const len = getValidationValue(params, dataItem._.length);
     if (len != null) return len;
     return getValidationValue(params, dataItem._.maxLength);

@@ -22,7 +22,7 @@ export function parseWithSchema<$Schema extends Record<string, Schema.$Any>>(par
     name: string | number;
     parent: Schema.DataItem<Schema.$Struct | Schema.$Array> | undefined;
   }) {
-    let fn = undefined, val: unknown = undefined;
+    let fn: string | undefined = undefined, val: unknown = undefined;
     const label = item.label ? params.env.t(item.label as I18nTextKey) : undefined;
 
     if (name != null) {
@@ -52,10 +52,11 @@ export function parseWithSchema<$Schema extends Record<string, Schema.$Any>>(par
         validations?.push(() => {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const validationParams: Schema.ValidationParams<any> = {
+            name: fn!,
+            label,
             data,
             dep,
             env: params.env,
-            label,
             value: val,
           };
           let r: Schema.Result | undefined | null = undefined;
@@ -100,6 +101,10 @@ export function parseWithSchema<$Schema extends Record<string, Schema.$Any>>(par
       case "datetime": {
         type DateDataItemType = Schema.DataItem<Schema.$DateTime>;
         (dataItem as DateDataItemType).splits = {};
+        for (const k in (item as Schema.$DateTime).splits) {
+          (item as Schema.$DateTime).splits[k as Schema.SplitDateTarget]!._core =
+            dataItem as DateDataItemType;
+        }
         for (const k in item._splits) {
           const splitDateDataItem = item._splits[k as Schema.SplitDateTarget]!;
           splitDateDataItem.core = dataItem as DateDataItemType;

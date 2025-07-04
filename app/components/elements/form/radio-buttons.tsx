@@ -29,9 +29,8 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
     label,
     invalid,
     errormessage,
-    data,
-    dep,
     env,
+    getCommonParams,
     props,
   } = useSchemaItem<Schema.DataItem<RadioButtonsSchemaProps>>($props, {
     effect: function ({ value }) {
@@ -56,12 +55,7 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
   const [source, setSource] = useState<Schema.Source<unknown>>(() => {
     if (propsSource) return propsSource;
     if ("source" in dataItem._) {
-      return getValidationValue({
-        data,
-        dep,
-        env,
-        label: dataItem.label,
-      }, dataItem._.source) ?? [];
+      return getValidationValue(getCommonParams(), dataItem._.source) ?? [];
     }
     if (dataItem._.type === "bool") {
       return getBooleanSource({

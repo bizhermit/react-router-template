@@ -35,9 +35,8 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
     label,
     invalid,
     errormessage,
-    data,
-    dep,
     env,
+    getCommonParams,
     props,
   } = useSchemaItem<Schema.DataItem<SelectBoxSchemaProps>>($props, {
     effect: function ({ value }) {
@@ -55,12 +54,7 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
   const [source, setSource] = useState<Schema.Source<unknown>>(() => {
     if (propsSource) return propsSource;
     if ("source" in dataItem._) {
-      return getValidationValue({
-        data,
-        dep,
-        env,
-        label: dataItem.label,
-      }, dataItem._.source) ?? [];
+      return getValidationValue(getCommonParams(), dataItem._.source) ?? [];
     }
     if (dataItem._.type === "bool") {
       return getBooleanSource({

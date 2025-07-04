@@ -1,7 +1,7 @@
 import { useId, useLayoutEffect, useMemo, useRef, useState, type ChangeEvent, type Dispatch, type ReactNode, type RefObject, type SetStateAction } from "react";
 import { formatDate, parseDate } from "~/components/objects/date";
 import { parseTimeNums, parseTypedDate } from "~/components/schema/date";
-import { getDefaultState, getSchemaItemMode, getSchemaItemRequired, getSchemaItemResult, schemaItemEffect, schemaItemValidation, useFieldSet, useSchemaEffect, type SchemaEffectParams_Result, type SchemaEffectParams_ValueResult } from "~/components/schema/hooks";
+import { getDefaultState, getSchemaItemMode, getSchemaItemRequired, getSchemaItemResult, optimizeRefs, schemaItemEffect, schemaItemValidation, useFieldSet, useSchemaEffect, type SchemaEffectParams_Result, type SchemaEffectParams_ValueResult } from "~/components/schema/hooks";
 import { clsx, ZERO_WIDTH_SPACE } from "../utilities";
 import { getValidationValue, InputField, InputGroup, Placeholder, type InputWrapProps } from "./common";
 
@@ -73,6 +73,15 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
   const $minute = $date.splits.m;
   const $second = $date.splits.s;
 
+  const dateRefs = useRef(optimizeRefs($date, $date._.refs));
+  const yearRefs = useRef($year ? optimizeRefs($year, $year._.refs) : []);
+  const monthRefs = useRef($month ? optimizeRefs($month, $month._.refs) : []);
+  const dayRefs = useRef($day ? optimizeRefs($day, $day._.refs) : []);
+  const hourRefs = useRef($hour ? optimizeRefs($hour, $hour._.refs) : []);
+  const minuteRefs = useRef($minute ? optimizeRefs($minute, $minute._.refs) : []);
+  const secondRefs = useRef($second ? optimizeRefs($second, $second._.refs) : []);
+  const customRefs = useRef<Array<string>>([]);
+
   const type = $date._.type as (Schema.$Date["type"] | Schema.$Month["type"] | Schema.$DateTime["type"]);
   const time = $date._.time;
 
@@ -114,6 +123,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
         setMax(getMax);
         setMinTime(getMinTime);
         setMaxTime(getMaxTime);
+        setPair(getPair);
         setMinYear(getMinYear);
         setMaxYear(getMaxYear);
         setMinMonth(getMinMonth);
@@ -161,13 +171,14 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
         const results: Array<{ name: string; result: Schema.Result | null | undefined; }> = [];
         function updateWithRefs(
           $: Schema.DataItem<Schema.$Any> | undefined,
+          refs: Array<RefObject<Array<string>>>,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           valueGetter: () => any,
           callback: () => void,
         ) {
           if (!$) return false;
           // eslint-disable-next-line @stylistic/max-len
-          if ($._.refs?.some(ref => (params as SchemaEffectParams_ValueResult).items.some(item => item.name === ref))) {
+          if (refs.some(r => r.current.some(ref => (params as SchemaEffectParams_ValueResult).items.some(item => item.name === ref)))) {
             callback();
             const result = schemaItemValidation($, schema, valueGetter());
             if ($.name) results.push({ name: $.name, result });
@@ -176,45 +187,46 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
           }
           return false;
         }
-        updateWithRefs($date, getValue, () => {
+        updateWithRefs($date, [dateRefs, customRefs], getValue, () => {
           setMode(getMode);
           setRequired(getRequired);
           setMin(getMin);
           setMax(getMax);
           setMinTime(getMinTime);
           setMaxTime(getMaxTime);
+          setPair(getPair);
         });
-        updateWithRefs($year, getYearValue, () => {
+        updateWithRefs($year, [yearRefs], getYearValue, () => {
           setYearMode(getYearMode);
           setYearRequired(getYearRequired);
           setMinYear(getMinYear);
           setMaxYear(getMaxYear);
         });
-        updateWithRefs($month, getMonthValue, () => {
+        updateWithRefs($month, [monthRefs], getMonthValue, () => {
           setMonthMode(getMonthMode);
           setMonthRequired(getMonthRequired);
           setMinMonth(getMinMonth);
           setMaxMonth(getMaxMonth);
         });
-        updateWithRefs($day, getDayValue, () => {
+        updateWithRefs($day, [dayRefs], getDayValue, () => {
           setDayMode(getDayMode);
           setDayRequired(getDayRequired);
           setMinDay(getMinDay);
           setMaxDay(getMaxDay);
         });
-        updateWithRefs($hour, getHourValue, () => {
+        updateWithRefs($hour, [hourRefs], getHourValue, () => {
           setHourMode(getHourMode);
           setHourRequired(getHourRequired);
           setMinHour(getMinHour);
           setMaxHour(getMaxHour);
         });
-        updateWithRefs($minute, getMinuteValue, () => {
+        updateWithRefs($minute, [minuteRefs], getMinuteValue, () => {
           setMinuteMode(getMinuteMode);
           setMinuteRequired(getMinuteRequired);
           setMinMinute(getMinMinute);
           setMaxMinute(getMaxMinute);
         });
-        updateWithRefs($second, getSecondValue, () => {
+        updateWithRefs($second, [secondRefs], getSecondValue, () => {
           setSecondMode(getSecondMode);
           setSecondRequired(getSecondRequired);
           setMinSecond(getMinSecond);
@@ -483,14 +495,21 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
 
   const [secondRequired, setSecondRequired] = useState(getSecondRequired);
 
+  function getCommonParams(
+    $: Schema.DataItem<Schema.$Any> | undefined
+  ): Schema.DynamicValidationValueParams {
+    return {
+      name: $?.name || "",
+      label: $?.label || "",
+      data: schema.data.current,
+      dep: schema.dep.current,
+      env: schema.env,
+    };
+  };
+
   function getMin() {
     return parseTypedDate(
-      getValidationValue({
-        data: schema.data.current,
-        dep: schema.dep.current,
-        env: schema.env,
-        label: $date.label,
-      }, $date._.minDate),
+      getValidationValue(getCommonParams($date), $date._.minDate),
       type,
       time,
     ) ?? DEFAULT_MIN_DATE;
@@ -500,12 +519,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
 
   function getMax() {
     return parseTypedDate(
-      getValidationValue({
-        data: schema.data.current,
-        dep: schema.dep.current,
-        env: schema.env,
-        label: $date.label,
-      }, $date._.maxDate),
+      getValidationValue(getCommonParams($date), $date._.maxDate),
       type,
       time,
     ) ?? DEFAULT_MAX_DATE;
@@ -515,12 +529,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
 
   function getMinTime() {
     return parseTimeNums(
-      getValidationValue({
-        data: schema.data.current,
-        dep: schema.dep.current,
-        env: schema.env,
-        label: $date.label,
-      }, $date._.minTime)
+      getValidationValue(getCommonParams($date), $date._.minTime)
     );
   };
 
@@ -528,145 +537,88 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
 
   function getMaxTime() {
     return parseTimeNums(
-      getValidationValue({
-        data: schema.data.current,
-        dep: schema.dep.current,
-        env: schema.env,
-        label: $date.label,
-      }, $date._.maxTime)
+      getValidationValue(getCommonParams($date), $date._.maxTime)
     );
   };
 
   const [maxTime, setMaxTime] = useState(getMaxTime);
 
+  function getPair() {
+    const pair = getValidationValue(getCommonParams($date), $date._.pair);
+    customRefs.current = optimizeRefs($date, pair?.name ? [pair.name] : []);
+    return pair;
+  };
+
+  const [_pair, setPair] = useState(getPair);
+
   function getMinYear() {
-    return getValidationValue({
-      data: schema.data.current,
-      dep: schema.dep.current,
-      env: schema.env,
-      label: $date.label,
-    }, $year?._.min);
+    return getValidationValue(getCommonParams($year), $year?._.min);
   };
 
   const [minYear, setMinYear] = useState(getMinYear);
 
   function getMaxYear() {
-    return getValidationValue({
-      data: schema.data.current,
-      dep: schema.dep.current,
-      env: schema.env,
-      label: $date.label,
-    }, $year?._.max);
+    return getValidationValue(getCommonParams($year), $year?._.max);
   };
 
   const [maxYear, setMaxYear] = useState(getMaxYear);
 
   function getMinMonth() {
-    return getValidationValue({
-      data: schema.data.current,
-      dep: schema.dep.current,
-      env: schema.env,
-      label: $date.label,
-    }, $month?._.min);
+    return getValidationValue(getCommonParams($month), $month?._.min);
   };
 
   const [minMonth, setMinMonth] = useState(getMinMonth);
 
   function getMaxMonth() {
-    return getValidationValue({
-      data: schema.data.current,
-      dep: schema.dep.current,
-      env: schema.env,
-      label: $date.label,
-    }, $month?._.max);
+    return getValidationValue(getCommonParams($month), $month?._.max);
   };
 
   const [maxMonth, setMaxMonth] = useState(getMaxMonth);
 
   function getMinDay() {
-    return getValidationValue({
-      data: schema.data.current,
-      dep: schema.dep.current,
-      env: schema.env,
-      label: $date.label,
-    }, $day?._.min);
+    return getValidationValue(getCommonParams($day), $day?._.min);
   };
 
   const [minDay, setMinDay] = useState(getMinDay);
 
   function getMaxDay() {
-    return getValidationValue({
-      data: schema.data.current,
-      dep: schema.dep.current,
-      env: schema.env,
-      label: $date.label,
-    }, $day?._.max);
+    return getValidationValue(getCommonParams($day), $day?._.max);
   };
 
   const [maxDay, setMaxDay] = useState(getMaxDay);
 
   function getMinHour() {
-    return getValidationValue({
-      data: schema.data.current,
-      dep: schema.dep.current,
-      env: schema.env,
-      label: $date.label,
-    }, $hour?._.min) ?? 0;
+    return getValidationValue(getCommonParams($hour), $hour?._.min) ?? 0;
   };
 
   const [minHour, setMinHour] = useState(getMinHour);
 
   function getMaxHour() {
-    return getValidationValue({
-      data: schema.data.current,
-      dep: schema.dep.current,
-      env: schema.env,
-      label: $date.label,
-    }, $hour?._.max) ?? 23;
+    return getValidationValue(getCommonParams($hour), $hour?._.max) ?? 23;
   };
 
   const [maxHour, setMaxHour] = useState(getMaxHour);
 
   function getMinMinute() {
-    return getValidationValue({
-      data: schema.data.current,
-      dep: schema.dep.current,
-      env: schema.env,
-      label: $date.label,
-    }, $minute?._.min) ?? 0;
+    return getValidationValue(getCommonParams($minute), $minute?._.min) ?? 0;
   };
 
   const [minMinute, setMinMinute] = useState(getMinMinute);
 
   function getMaxMinute() {
-    return getValidationValue({
-      data: schema.data.current,
-      dep: schema.dep.current,
-      env: schema.env,
-      label: $date.label,
-    }, $minute?._.max) ?? 59;
+    return getValidationValue(getCommonParams($minute), $minute?._.max) ?? 59;
   };
 
   const [maxMinute, setMaxMinute] = useState(getMaxMinute);
 
   function getMinSecond() {
-    return getValidationValue({
-      data: schema.data.current,
-      dep: schema.dep.current,
-      env: schema.env,
-      label: $date.label,
-    }, $second?._.min) ?? 0;
+    return getValidationValue(getCommonParams($second), $second?._.min) ?? 0;
   };
 
   const [minSecond, setMinSecond] = useState(getMinSecond);
 
   function getMaxSecond() {
-    return getValidationValue({
-      data: schema.data.current,
-      dep: schema.dep.current,
-      env: schema.env,
-      label: $date.label,
-    }, $second?._.max) ?? 59;
+    return getValidationValue(getCommonParams($second), $second?._.max) ?? 59;
   };
 
   const [maxSecond, setMaxSecond] = useState(getMaxSecond);
@@ -978,16 +930,18 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
       && !targetState.current.readonly;
   };
 
-  function handleChangeImpl($: Schema.DataItem<Schema.$Any> | undefined, v: string) {
+  function handleChangeImpl($: Schema.DataItem<Schema.$SplitDate> | undefined, v: string) {
     if (!$) return;
-    const submission = schemaItemEffect($, schema, v);
+    const submission = schemaItemEffect<Schema.DataItem<Schema.$SplitDate>>($, schema, v);
+    const num = submission.value;
+    const t = $._.type;
     const dateValue = parseTypedValue({
-      Y: yearValue,
-      M: monthValue,
-      D: dayValue,
-      h: hourValue,
-      m: minuteValue,
-      s: secondValue,
+      Y: t === "sdate-Y" ? num : yearValue,
+      M: t === "sdate-M" ? num : monthValue,
+      D: t === "sdate-D" ? num : dayValue,
+      h: t === "sdate-h" ? num : hourValue,
+      m: t === "sdate-m" ? num : minuteValue,
+      s: t === "sdate-s" ? num : secondValue,
     });
     const dateSubmission = schemaItemEffect($date, schema, dateValue);
     if ($date.name) {

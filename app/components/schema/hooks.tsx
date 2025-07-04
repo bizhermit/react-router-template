@@ -4,7 +4,7 @@ import { useText } from "~/i18n/hooks";
 import { parseWithSchema } from ".";
 import { clone } from "../objects";
 import { ValidScriptsContext } from "../providers/valid-scripts";
-import { SchemaData } from "./data";
+import { getRelativeName, SchemaData } from "./data";
 
 export interface SchemaEffectParams_Data {
   type: "data";
@@ -502,6 +502,7 @@ export function getSchemaItemRequired(
 ) {
   if (typeof $._.required === "function") {
     return $._.required({
+      name: $.name,
       data: schema.data.current,
       dep: schema.dep.current,
       env: schema.env,
@@ -547,10 +548,11 @@ export function schemaItemValidation<D extends Schema.DataItem<Schema.$Any>>(
   let r: Schema.Result | null | undefined;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const params: Schema.ValidationParams<any> = {
+    name: $.name,
+    label: $.label,
     data: schema.data.current,
     dep: schema.dep.current,
     env: schema.env,
-    label: $.label,
     value,
   };
   for (const vali of $._.validators) {
@@ -576,6 +578,14 @@ export function schemaItemEffect<D extends Schema.DataItem<Schema.$Any>>(
   } as const;
 };
 
+export function optimizeRefs(
+  $: Schema.DataItem<Schema.$Any>,
+  refs: Array<string> | undefined
+): Array<string> {
+  if (!refs) return [];
+  return refs.map(ref => getRelativeName($.name, ref));
+};
+
 export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
   $,
   ...props
@@ -585,6 +595,7 @@ export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
     result: Schema.Result | null | undefined;
   }) => void;
   effectContext?: (params: {
+    name: string;
     data: SchemaData;
     dep: Record<string, unknown>;
     env: Schema.Env;
@@ -596,6 +607,9 @@ export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
   const isEffected = useRef(false);
 
   const fs = useFieldSet();
+
+  const originalRefs = useRef(optimizeRefs($, $._.refs));
+  const customRefs = useRef<Array<string>>([]);
 
   const schema = useSchemaEffect((params) => {
     switch (params.type) {
@@ -612,10 +626,11 @@ export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
         setMode(getMode);
         setRequired(getRequired);
         options.effectContext?.({
+          name: $.name,
+          label: $.label,
           data: schema.data.current,
           dep: schema.dep.current,
           env: schema.env,
-          label: $.label,
         });
         break;
       case "value-result":
@@ -638,15 +653,19 @@ export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
           }
           isEffected.current = true;
         }
-        if ($._.refs?.some(ref => params.items.some(item => item.name === ref))) {
+        if (
+          originalRefs.current.some(ref => params.items.some(item => item.name === ref)) ||
+          customRefs.current.some(ref => params.items.some(item => item.name === ref))
+        ) {
           const result = validation(getValue());
           setMode(getMode);
           setRequired(getRequired);
           options.effectContext?.({
+            name: $.name,
+            label: $.label,
             data: schema.data.current,
             dep: schema.dep.current,
             env: schema.env,
-            label: $.label,
           });
           if (schema.setResult($.name, result)) {
             isEffected.current = true;
@@ -713,6 +732,20 @@ export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
     return schemaItemEffect($, schema, value);
   };
 
+  function setRefs(refs: Array<string>) {
+    customRefs.current = optimizeRefs($, refs);
+  };
+
+  function getCommonParams(): Schema.DynamicValidationValueParams {
+    return {
+      name: $.name,
+      label: $.label,
+      data: schema.data.current,
+      dep: schema.dep.current,
+      env: schema.env,
+    };
+  };
+
   useLayoutEffect(() => {
     setRequired(getRequired);
     if (!schema.isInitialize.current && result !== schema.getResult($.name)) {
@@ -762,6 +795,8 @@ export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
     dep: schema.dep.current,
     env: schema.env,
     validScripts: schema.isValidScripts.current,
+    getCommonParams,
+    setRefs,
   } as const;
 };
 
