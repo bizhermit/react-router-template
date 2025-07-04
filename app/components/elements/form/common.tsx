@@ -14,13 +14,18 @@ type CoreProps = {
   };
 };
 
+type InputFieldProps =
+  & HTMLAttributes<HTMLDivElement>
+  & InputWrapProps
+  & CoreProps;
+
 export function InputField({
   className,
   hideMessage,
   core,
   children,
   ...props
-}: HTMLAttributes<HTMLDivElement> & InputWrapProps & CoreProps) {
+}: InputFieldProps) {
   if (core?.state.current.hidden) return null;
 
   return (
@@ -54,13 +59,21 @@ export function InputField({
   );
 };
 
+type InputGroupProps =
+  & HTMLAttributes<HTMLDivElement>
+  & InputWrapProps
+  & CoreProps
+  & {
+    ref?: RefObject<HTMLDivElement>;
+  };
+
 export function InputGroup({
   className,
   hideMessage,
   core,
   ref,
   ...props
-}: HTMLAttributes<HTMLDivElement> & InputWrapProps & CoreProps & { ref?: RefObject<HTMLDivElement>; }) {
+}: InputGroupProps) {
   if (core?.state.current.hidden) return null;
   return (
     <>
@@ -81,12 +94,17 @@ export function InputGroup({
   );
 };
 
+type InputLabelProps =
+  & HTMLAttributes<HTMLLabelElement>
+  & InputWrapProps
+  & CoreProps;
+
 export function InputLabel({
   className,
   hideMessage,
   core,
   ...props
-}: HTMLAttributes<HTMLLabelElement> & InputWrapProps & CoreProps) {
+}: InputLabelProps) {
   if (core?.state.current.hidden) return null;
 
   return (
@@ -127,8 +145,10 @@ export function Placeholder({
   );
 };
 
-type FormItemProps = HTMLAttributes<HTMLDivElement> & {
-};
+type FormItemProps =
+  & HTMLAttributes<HTMLDivElement>
+  & {
+  };
 
 export function FormItem({
   className,

@@ -22,7 +22,10 @@ export class SchemaData {
   private callback: (params: { items: Array<Item>; }) => void;
   private bulkQueue: Array<Item> | null;
 
-  constructor(data: typeof this.data | FormData | null | undefined, callback: typeof this.callback) {
+  constructor(
+    data: typeof this.data | FormData | null | undefined,
+    callback: typeof this.callback
+  ) {
     if (data instanceof FormData) {
       this.data = {};
       for (const [k, v] of data.entries()) {

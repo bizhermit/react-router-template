@@ -98,11 +98,12 @@ export function parseWithSchema<$Schema extends Record<string, Schema.$Any>>(par
       case "date":
       case "month":
       case "datetime": {
-        (dataItem as Schema.DataItem<Schema.$DateTime>).splits = {};
+        type DateDataItemType = Schema.DataItem<Schema.$DateTime>;
+        (dataItem as DateDataItemType).splits = {};
         for (const k in item._splits) {
           const splitDateDataItem = item._splits[k as Schema.SplitDateTarget]!;
-          splitDateDataItem.core = dataItem as Schema.DataItem<Schema.$DateTime>;
-          (dataItem as Schema.DataItem<Schema.$DateTime>).splits[k as Schema.SplitDateTarget] = splitDateDataItem;
+          splitDateDataItem.core = dataItem as DateDataItemType;
+          (dataItem as DateDataItemType).splits[k as Schema.SplitDateTarget] = splitDateDataItem;
         }
         break;
       }
@@ -120,7 +121,8 @@ export function parseWithSchema<$Schema extends Record<string, Schema.$Any>>(par
             parent,
           }) as Schema.DataItem<Schema.$DateTime>;
           for (const k in item.core.splits) {
-            const splitDateProps = (item.core as Schema.$DateTime).splits[k as Schema.SplitDateTarget];
+            const splitDateProps =
+              (item.core as Schema.$DateTime).splits[k as Schema.SplitDateTarget];
             splitDateProps!._core = dateDataItem;
           }
         }

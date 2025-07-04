@@ -2,7 +2,11 @@ import { formatDate, parseDate } from "../objects/date";
 import { parseNumber } from "../objects/numeric";
 import { getRequiredTextKey, getValidationArray } from "./utilities";
 
-function SPLIT_DATE_PARSER({ value, env, label }: Schema.ParserParams): Schema.ParserResult<number> {
+function SPLIT_DATE_PARSER({
+  value,
+  env,
+  label,
+}: Schema.ParserParams): Schema.ParserResult<number> {
   const [num, succeeded] = parseNumber(value);
   if (succeeded) return { value: num };
   return {
@@ -379,7 +383,11 @@ function common<Props extends Schema.DateBaseProps>(
   } as const;
 };
 
-function MONTH_PARSER({ value, env, label }: Schema.ParserParams): Schema.ParserResult<Schema.MonthString> {
+function MONTH_PARSER({
+  value,
+  env,
+  label,
+}: Schema.ParserParams): Schema.ParserResult<Schema.MonthString> {
   if (value == null || value === "") {
     return { value: undefined };
   }
@@ -449,7 +457,11 @@ export function $month<Props extends Schema.MonthProps>(props?: Props) {
   } as const satisfies Schema.$Month;
 };
 
-function DATE_PARSER({ value, env, label }: Schema.ParserParams): Schema.ParserResult<Schema.DateString> {
+function DATE_PARSER({
+  value,
+  env,
+  label,
+}: Schema.ParserParams): Schema.ParserResult<Schema.DateString> {
   if (value == null || value === "") {
     return { value: undefined };
   }
@@ -536,7 +548,11 @@ function timeToNumber(time: Schema.TimeString | undefined) {
   return num;
 };
 
-function DATETIME_HM_PARSER({ value, env, label }: Schema.ParserParams): Schema.ParserResult<Schema.DateTime_HM_String> {
+function DATETIME_HM_PARSER({
+  value,
+  env,
+  label,
+}: Schema.ParserParams): Schema.ParserResult<Schema.DateTime_HM_String> {
   if (value == null || value === "") {
     return { value: undefined };
   }
@@ -556,7 +572,11 @@ function DATETIME_HM_PARSER({ value, env, label }: Schema.ParserParams): Schema.
   return { value: formatDate(date, "yyyy-MM-ddThh:mm") as Schema.DateTime_HM_String };
 };
 
-function DATETIME_HMS_PARSER({ value, env, label }: Schema.ParserParams): Schema.ParserResult<Schema.DateTime_HMS_String> {
+function DATETIME_HMS_PARSER({
+  value,
+  env,
+  label,
+}: Schema.ParserParams): Schema.ParserResult<Schema.DateTime_HMS_String> {
   if (value == null || value === "") {
     return { value: undefined };
   }
@@ -767,7 +787,10 @@ export function parseTypedDateString(
   return formatDate(date, type === "month" ? "yyyy-MM" : type === "date" ? "yyyy-MM-dd" : time === "hm" ? "yyyy-MM-ddThh:mm" : "yyyy-MM-ddThh:mm:ss");
 };
 
-export function parseTimeNums(value: Schema.TimeString | null | undefined, defaultNums = { h: 0, m: 0, s: 0 }) {
+export function parseTimeNums(
+  value: Schema.TimeString | null | undefined,
+  defaultNums = { h: 0, m: 0, s: 0 }
+) {
   if (value == null) return defaultNums;
   const [h, m, s] = value.split(":");
   return {

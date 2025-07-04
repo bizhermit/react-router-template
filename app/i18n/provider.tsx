@@ -1,7 +1,7 @@
 import { use, useEffect, useRef, useState, type ReactNode } from "react";
 import { useLocation, useNavigate, useRevalidator } from "react-router";
 import { DEFAULT_LOCALE, LOCALE_KEY } from "./config";
-import { I18nContext, I18nLangContext } from "./hooks";
+import { I18nContext, I18nLangContext, type SwitchLocaleOptions } from "./hooks";
 
 export function I18nProvider(props: {
   locale: Locales;
@@ -62,7 +62,7 @@ export function I18nUrlLocator(props: {
   const currentLocale = (location.pathname.match(/^\/([^/]+)/)?.[1]?.toLowerCase() as Locales | undefined) || DEFAULT_LOCALE;
   const needRefresh = !isSwitching && !isIndex && i18n.locale !== currentLocale;
 
-  async function switchLocale(locale: Locales, options?: { refresh?: boolean; }) {
+  async function switchLocale(locale: Locales, options?: SwitchLocaleOptions) {
     const pathname = window.location.pathname.replace(/^\/([^/]+)/, `/${locale}`);
     if (options?.refresh) {
       await navigate(
@@ -109,7 +109,7 @@ export function I18nCookieLocator(props: {
   const { revalidate } = useRevalidator();
   const [isSwitching, setSwitch] = useState(false);
 
-  async function switchLocale(locale: Locales, options?: { refresh?: boolean; }) {
+  async function switchLocale(locale: Locales, options?: SwitchLocaleOptions) {
     setSwitch(true);
     document.cookie = `${LOCALE_KEY}=${encodeURIComponent(locale)};${cookieOption}`;
     if (await i18n.switch(locale)) {

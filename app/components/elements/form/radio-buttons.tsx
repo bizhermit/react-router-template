@@ -5,10 +5,12 @@ import { getBooleanSource } from "./utilities";
 
 type RadioButtonsSchemaProps = Schema.$String | Schema.$Number | Schema.$Boolean;
 
-export type RadioButtonsProps<D extends Schema.DataItem<RadioButtonsSchemaProps>> = InputWrapProps & {
-  $: D;
-  source?: Schema.Source<Schema.ValueType<D["_"]>>;
-};
+export type RadioButtonsProps<D extends Schema.DataItem<RadioButtonsSchemaProps>> =
+  & InputWrapProps
+  & {
+    $: D;
+    source?: Schema.Source<Schema.ValueType<D["_"]>>;
+  };
 
 export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>({
   source: propsSource,

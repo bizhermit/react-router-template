@@ -7,7 +7,12 @@ import { getValidationValue, InputField, InputGroup, Placeholder, type InputWrap
 
 export type DateSelectBoxProps<D extends Schema.DataItem<Schema.$SplitDate>> = InputWrapProps & {
   $: D;
-  placeholder?: [string, string] | [string, string, string] | [string, string, string, string] | [string, string, string, string, string] | [string, string, string, string, string, string];
+  placeholder?:
+  | [string, string]
+  | [string, string, string]
+  | [string, string, string, string]
+  | [string, string, string, string, string]
+  | [string, string, string, string, string, string];
 };
 
 const DEFAULT_MIN_DATE = new Date("1970-01-01T00:00:00");
@@ -131,7 +136,8 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
           resultSetter: Dispatch<SetStateAction<Schema.Result | null | undefined>>,
         ) {
           if (!$?.name) return false;
-          const item = (params as SchemaEffectParams_ValueResult).items.find(item => item.name === $.name);
+          const item = (params as SchemaEffectParams_ValueResult)
+            .items.find(item => item.name === $.name);
           if (!item) return false;
           if (params.type === "value-result") {
             valueSetter(item.value);
@@ -160,6 +166,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
           callback: () => void,
         ) {
           if (!$) return false;
+          // eslint-disable-next-line @stylistic/max-len
           if ($._.refs?.some(ref => (params as SchemaEffectParams_ValueResult).items.some(item => item.name === ref))) {
             callback();
             const result = schemaItemValidation($, schema, valueGetter());
@@ -224,7 +231,8 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
           resultSetter: Dispatch<SetStateAction<Schema.Result | null | undefined>>,
         ) {
           if (!$?.name) return false;
-          const item = (params as SchemaEffectParams_Result).items.find(item => item.name === $.name);
+          const item = (params as SchemaEffectParams_Result)
+            .items.find(item => item.name === $.name);
           if (!item) return false;
           resultSetter(item.result);
           isEffected.current = true;
@@ -319,7 +327,10 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
   };
 
   function parseTypedValue(values: Record<Schema.SplitDateTarget, number | null | undefined>) {
-    return formatDate(joinSplitTypedDate(values), $date._.formatPattern) as Schema.DateValueString | null | undefined;
+    return formatDate(
+      joinSplitTypedDate(values),
+      $date._.formatPattern
+    ) as Schema.DateValueString | null | undefined;
   };
 
   function getValue() {
@@ -912,7 +923,10 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
     setSecondRequired(getSecondRequired);
     if (!schema.isInitialize.current) {
       const updateResults: Parameters<typeof schema.setResults>[0] = [];
-      function resetResult($: Schema.DataItem<Schema.$Any> | undefined, r: Schema.Result | null | undefined) {
+      function resetResult(
+        $: Schema.DataItem<Schema.$Any> | undefined,
+        r: Schema.Result | null | undefined
+      ) {
         if (!$?.name) return;
         if (r !== schema.getResult($.name)) {
           updateResults.push({ name: $.name, result: r });
@@ -952,7 +966,10 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
     && !state.current.disabled
     && !state.current.readonly;
 
-  function mergeState(targetState: RefObject<Record<Schema.Mode, boolean>>, targetMode: Schema.Mode) {
+  function mergeState(
+    targetState: RefObject<Record<Schema.Mode, boolean>>,
+    targetMode: Schema.Mode
+  ) {
     targetState.current.hidden = state.current.hidden || targetMode === "hidden";
     targetState.current.disabled = state.current.disabled || targetMode === "disabled";
     targetState.current.readonly = state.current.readonly || targetMode === "readonly";
@@ -1144,7 +1161,10 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
 };
 
 interface SplittedSelectProps {
-  mergeState: (targetState: RefObject<Record<Schema.Mode, boolean>>, targetMode: Schema.Mode) => void;
+  mergeState: (
+    targetState: RefObject<Record<Schema.Mode, boolean>>,
+    targetMode: Schema.Mode
+  ) => void;
   coreResult: Schema.Result | null | undefined;
   $: Schema.DataItem<Schema.$SplitDate> | undefined;
   mode: Schema.Mode;

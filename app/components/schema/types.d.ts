@@ -81,6 +81,7 @@ namespace Schema {
   type ValidationArray<T extends Validation<unknown, unknown>> =
     T extends Array<unknown> ? T : [Exclude<T, undefined>];
 
+  // eslint-disable-next-line @stylistic/max-len
   type PickCustomValidationMessageAddonParams<T extends CustomValidationMessage<unknown, unknown> | undefined> =
     Omit<Parameters<Exclude<T, undefined>>[0], keyof ValidationParams<unknown>>;
 
@@ -313,7 +314,10 @@ namespace Schema {
     splitSecond: <Props extends SplitDateProps>(props: Props) => $SplitDate<"s">;
   };
 
-  interface $SplitDate<T extends SplitDateTarget = SplitDateTarget, V extends number = number> extends $Base {
+  interface $SplitDate<
+    T extends SplitDateTarget = SplitDateTarget,
+    V extends number = number
+  > extends $Base {
     type: `sdate-${T}`;
     label: string | undefined;
     parser: Parser<V>;
@@ -367,7 +371,9 @@ namespace Schema {
     maxLength: $ValidationValue<number>;
   };
 
-  interface StructProps<Props extends Record<string, $Any> = Record<string, $Any>> extends BaseProps {
+  interface StructProps<
+    Props extends Record<string, $Any> = Record<string, $Any>
+  > extends BaseProps {
     props: Props;
     key?: string | ((value: Record<string, unknown> | null | undefined) => string);
     parser?: Parser<SchemaValue<Props>>;
@@ -418,13 +424,21 @@ namespace Schema {
   type DataItems<Props extends Record<string, $Any>> =
     { -readonly [K in keyof Props]: DataItem<Props[K]> };
 
-  type RequiredValue<V, R extends boolean | DynamicValidationValue<boolean>, O extends boolean = false> =
+  type RequiredValue<
+    V,
+    R extends boolean | DynamicValidationValue<boolean>,
+    O extends boolean = false
+  > =
     O extends true ? V | null | undefined :
     R extends true ? V :
     R extends ((...args?: unknown[]) => true) ? V :
     V | null | undefined;
 
-  type ValueType<Props extends $Any, Strict extends boolean = true, Optional extends boolean = false> =
+  type ValueType<
+    Props extends $Any,
+    Strict extends boolean = true,
+    Optional extends boolean = false
+  > =
     Props extends { source: Array<{ value: infer V; }>; } ? (
       RequiredValue<V, Props["required"], Optional>
     ) : Props extends { type: infer T; } ? (

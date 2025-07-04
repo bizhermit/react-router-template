@@ -63,11 +63,12 @@ export function $num<Props extends Schema.NumberProps>(props?: Props) {
     const source = props.source;
     const textKey = getInvalidValueTextKey(actionType);
     const sourceValidationMessage = props.sourceValidationMessage;
-    const getMessage: Schema.MessageGetter<typeof sourceValidationMessage> = sourceValidationMessage ?
-      sourceValidationMessage :
-      (p) => p.env.t(textKey, {
-        label: p.label || p.env.t("default_label"),
-      });
+    const getMessage: Schema.MessageGetter<typeof sourceValidationMessage> =
+      sourceValidationMessage ?
+        sourceValidationMessage :
+        (p) => p.env.t(textKey, {
+          label: p.label || p.env.t("default_label"),
+        });
 
     if (typeof source === "function") {
       validators.push((p) => {

@@ -1,4 +1,8 @@
-export function convertBase64ToFile(base64: string | ArrayBuffer | null | undefined, fileName: string, options?: FilePropertyBag) {
+export function convertBase64ToFile(
+  base64: string | ArrayBuffer | null | undefined,
+  fileName: string,
+  options?: FilePropertyBag
+) {
   if (base64 == null) throw new Error("base64 not set");
   if (typeof base64 === "string") {
     const bin = decodeURIComponent(escape(atob(base64.replace(/^.*,/, ""))));

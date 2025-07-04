@@ -57,10 +57,18 @@ interface SchemaContextProps<S extends Record<string, Schema.$Any> = Record<stri
   ) => (() => void);
   getResult: (name: string) => Schema.Result | null | undefined;
   setResult: (name: string, result: Schema.Result | null | undefined) => boolean;
-  setResults: (items: Array<{ name: string; result: Schema.Result | null | undefined; }>) => boolean;
+  setResults: (
+    items: Array<{ name: string; result: Schema.Result | null | undefined; }>
+  ) => boolean;
   setValue: (name: string, value: unknown) => boolean;
-  setValueAndResult: (name: string, value: unknown, result: Schema.Result | null | undefined) => boolean;
-  setValuesAndResults: (items: Array<{ name: string; value: unknown; result: Schema.Result | null | undefined; }>) => boolean;
+  setValueAndResult: (
+    name: string,
+    value: unknown,
+    result: Schema.Result | null | undefined
+  ) => boolean;
+  setValuesAndResults: (
+    items: Array<{ name: string; value: unknown; result: Schema.Result | null | undefined; }>
+  ) => boolean;
   isInitialize: RefObject<boolean>;
   isFirstLoad: RefObject<boolean>;
   isValidScripts: RefObject<boolean>;
@@ -169,7 +177,9 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
       }
     } else {
       const current = results.current[name];
-      change = current == null || current.message !== result.message || current.type !== result.type;
+      change = current == null
+        || current.message !== result.message
+        || current.type !== result.type;
       results.current[name] = result;
     }
     return change;
@@ -206,7 +216,11 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
     return change;
   };
 
-  function setValueAndResultImpl(name: string, value: unknown, result: Schema.Result | null | undefined) {
+  function setValueAndResultImpl(
+    name: string,
+    value: unknown,
+    result: Schema.Result | null | undefined
+  ) {
     let change = false;
     if (bindData.current._set(name, value)) {
       change = true;
@@ -217,7 +231,9 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
     return change;
   };
 
-  function setValuesAndResults(items: Array<{ name: string; value: unknown; result: Schema.Result | null | undefined; }>) {
+  function setValuesAndResults(
+    items: Array<{ name: string; value: unknown; result: Schema.Result | null | undefined; }>
+  ) {
     let change = false;
     items.forEach(({ name, value, result }) => {
       if (setValueAndResultImpl(name, value, result)) {
@@ -231,7 +247,11 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
     return change;
   };
 
-  function setValueAndResult(name: string, value: unknown, result: Schema.Result | null | undefined) {
+  function setValueAndResult(
+    name: string,
+    value: unknown,
+    result: Schema.Result | null | undefined
+  ) {
     const items = [{ name, value, result }];
     const change = setValueAndResultImpl(name, value, result);
     if (change) {
@@ -320,7 +340,9 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
   } as const;
 };
 
-export function useSchemaContext<S extends Record<string, Schema.$Any> = Record<string, Schema.$Any>>() {
+export function useSchemaContext<
+  S extends Record<string, Schema.$Any> = Record<string, Schema.$Any>
+>() {
   return useContext(SchemaContext) as SchemaContextProps<S>;
 };
 
@@ -598,10 +620,11 @@ export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
         break;
       case "value-result":
       case "value": {
-        const item = (params as SchemaEffectParams_ValueResult).items.find(item => item.name === $.name) as {
-          value: Schema.ValueType<D["_"], true, true>;
-          result: Schema.Result | null | undefined;
-        } | undefined;
+        const item = (params as SchemaEffectParams_ValueResult)
+          .items.find(item => item.name === $.name) as {
+            value: Schema.ValueType<D["_"], true, true>;
+            result: Schema.Result | null | undefined;
+          } | undefined;
         if (item) {
           if (params.type === "value-result") {
             setValue(item.value);
@@ -769,7 +792,7 @@ export function useSchemaArray<D extends Schema.DataItem<Schema.$Array>>(dataIte
     if (!schemaItem.state.current.enabled) return;
     const arr = schemaItem.getValue() ?? [] as ArrayType;
     const isFirst = options?.position === "first";
-    schemaItem.setValue((isFirst ? [value, ...arr] : [...arr, value]) as Parameters<typeof schemaItem.setValue>[0]);
+    schemaItem.setValue((isFirst ? [value, ...arr] : [...arr, value]) as LaxArrayType);
     if (isFirst) setKeyRev(c => c + 1);
   };
 

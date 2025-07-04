@@ -5,7 +5,11 @@ function isFile(value: unknown): value is File {
   return value != null && value instanceof File;
 };
 
-function FILE_PARSER({ value, env, label }: Schema.ParserParams): Schema.ParserResult<File | string> {
+function FILE_PARSER({
+  value,
+  env,
+  label,
+}: Schema.ParserParams): Schema.ParserResult<File | string> {
   if (value == null) return { value };
   if (value instanceof File) {
     if (value.size === 0) return { value: undefined };

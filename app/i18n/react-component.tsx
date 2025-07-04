@@ -20,7 +20,11 @@ export function Text<K extends I18nTextKey>({
   const t = useText();
   const text = t(i18nKey, params);
 
-  const renderTag = (tag: string, children: ReactNode[], key: number): ReactNode => {
+  const renderTag = (
+    tag: string,
+    children: ReactNode[],
+    key: number
+  ): ReactNode => {
     switch (tag) {
       case "b":
         return <b key={key}>{children}</b>;
@@ -54,20 +58,25 @@ export function Text<K extends I18nTextKey>({
     let lastIndex = 0;
     let match: RegExpExecArray | null;
 
+    const push = (content: ReactNode) => {
+      (stack.length ? stack[stack.length - 1].children : output).push(content);
+    };
+
     while ((match = tagRegex.exec(str)) !== null) {
       const [_, closingSlash, rawTagName] = match;
       const tagName = rawTagName.toLowerCase();
       const index = match.index;
 
       const rawText = str.slice(lastIndex, index);
+
       if (rawText) {
-        (stack.length ? stack[stack.length - 1].children : output).push(rawText);
+        push(rawText);
       }
 
       const isSelfClosing = SELF_CLOSING_TAGS.includes(tagName);
       if (!closingSlash && isSelfClosing) {
         const rendered = renderTag(tagName, [], index);
-        (stack.length ? stack[stack.length - 1].children : output).push(rendered);
+        push(rendered);
       } else if (!closingSlash) {
         stack.push({ tag: tagName, children: [] });
       } else {
@@ -77,7 +86,7 @@ export function Text<K extends I18nTextKey>({
         }
 
         const rendered = renderTag(tagName, last.children, index);
-        (stack.length ? stack[stack.length - 1].children : output).push(rendered);
+        push(rendered);
       }
 
       lastIndex = tagRegex.lastIndex;
@@ -85,7 +94,7 @@ export function Text<K extends I18nTextKey>({
 
     const remaining = str.slice(lastIndex);
     if (remaining) {
-      (stack.length ? stack[stack.length - 1].children : output).push(remaining);
+      push(remaining);
     }
 
     if (stack.length > 0) {

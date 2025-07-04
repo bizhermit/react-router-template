@@ -5,8 +5,16 @@ const FALSE = false;
 
 export function $bool<Props extends Schema.BooleanProps>(props?: Props) {
   const validators: Array<Schema.Validator<Schema.BooleanValue>> = [];
-  type TrueValue = Props extends undefined ? typeof TRUE : (Props extends { trueValue: infer T; } ? (T extends Schema.BooleanValue ? T : typeof TRUE) : typeof TRUE);
-  type FalseValue = Props extends undefined ? typeof FALSE : (Props extends { falseValue: infer F; } ? (F extends Schema.BooleanValue ? F : typeof FALSE) : typeof FALSE);
+  type TrueValue = Props extends undefined ? typeof TRUE :
+    (Props extends { trueValue: infer T; } ?
+      (T extends Schema.BooleanValue ? T : typeof TRUE) :
+      typeof TRUE
+    );
+  type FalseValue = Props extends undefined ? typeof FALSE :
+    (Props extends { falseValue: infer F; } ?
+      (F extends Schema.BooleanValue ? F : typeof FALSE) :
+      typeof FALSE
+    );
   const trueValue = (props?.trueValue ?? TRUE) as TrueValue;
   const falseValue = (props?.falseValue ?? FALSE) as FalseValue;
 
@@ -60,35 +68,36 @@ export function $bool<Props extends Schema.BooleanProps>(props?: Props) {
     label: props?.label,
     mode: props?.mode,
     refs: props?.refs,
-    parser: (props?.parser as Schema.Parser<TrueValue | FalseValue> | undefined) ?? function ({ value, env, label }) {
-      const s = String(value);
-      if (s === String(trueValue)) {
-        return { value: trueValue };
-      }
-      if (s === String(falseValue)) {
-        return { value: falseValue };
-      }
-      if (value == null || value === "") {
-        return { value: undefined };
-      }
-      const ls = s.toLowerCase();
-      if (ls === "on") {
-        return { value: trueValue };
-      }
-      if (ls === "off") {
-        return { value: falseValue };
-      }
-      return {
-        value: undefined,
-        result: {
-          type: "e",
-          code: "parse",
-          message: env.t("invalidBoolean", {
-            label: label || env.t("default_label"),
-          }),
-        },
-      };
-    },
+    parser: (props?.parser as Schema.Parser<TrueValue | FalseValue> | undefined) ??
+      function ({ value, env, label }) {
+        const s = String(value);
+        if (s === String(trueValue)) {
+          return { value: trueValue };
+        }
+        if (s === String(falseValue)) {
+          return { value: falseValue };
+        }
+        if (value == null || value === "") {
+          return { value: undefined };
+        }
+        const ls = s.toLowerCase();
+        if (ls === "on") {
+          return { value: trueValue };
+        }
+        if (ls === "off") {
+          return { value: falseValue };
+        }
+        return {
+          value: undefined,
+          result: {
+            type: "e",
+            code: "parse",
+            message: env.t("invalidBoolean", {
+              label: label || env.t("default_label"),
+            }),
+          },
+        };
+      },
     validators,
     required: required as Schema.GetValidationValue<Props, "required">,
     getSource: function (params: { env: Schema.Env; }) {

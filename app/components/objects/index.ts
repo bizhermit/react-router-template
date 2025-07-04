@@ -29,7 +29,8 @@ export function clone<T>(o: T): T {
     case "Date":
       return new Date((o as unknown as Date).getTime()) as T;
     case "Map":
-      return new Map([...o as unknown as Map<unknown, unknown>].map(v => [clone(v[0]), clone(v[1])])) as T;
+      return new Map([...o as unknown as Map<unknown, unknown>]
+        .map(v => [clone(v[0]), clone(v[1])])) as T;
     case "Set":
       return new Set([...o as unknown as Set<unknown>].map(v => clone(v))) as T;
     case "RegExp":

@@ -1,7 +1,7 @@
 import { createContext, use } from "react";
 import { DEFAULT_LOCALE } from "./config";
 
-type I18nContextProps = {
+interface I18nContextProps {
   locale: Locales;
   t: I18nGetter;
   switch: (locale: Locales) => Promise<boolean>;
@@ -17,9 +17,13 @@ export function useText() {
   return use(I18nContext).t;
 };
 
-type I18nLangContextProps = {
+export interface SwitchLocaleOptions {
+  refresh?: boolean;
+};
+
+interface I18nLangContextProps {
   locale: Locales;
-  switch: (locale: Locales, options?: { refresh?: boolean; }) => Promise<void>;
+  switch: (locale: Locales, options?: SwitchLocaleOptions) => Promise<void>;
 };
 
 export const I18nLangContext = createContext<I18nLangContextProps>({

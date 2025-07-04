@@ -27,7 +27,7 @@ export default tseslint.config({
     "@stylistic/max-len": [
       "warn",
       {
-        code: 80,
+        code: 100,
         tabWidth: 2,
         ignoreComments: true,
         ignoreTrailingComments: true,
