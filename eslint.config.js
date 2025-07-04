@@ -1,5 +1,6 @@
 import pluginJs from "@eslint/js";
 import stylistic from "@stylistic/eslint-plugin";
+import prettier from "eslint-config-prettier";
 import pluginReact from "eslint-plugin-react";
 import pluginReactHooks from "eslint-plugin-react-hooks";
 import tseslint from "typescript-eslint";
@@ -18,6 +19,7 @@ export default tseslint.config({
     pluginReact.configs.flat.recommended,
     pluginReactHooks.configs["recommended-latest"],
     stylistic.configs.recommended,
+    prettier,
   ],
   rules: {
     "@stylistic/eol-last": "warn",
@@ -29,10 +31,7 @@ export default tseslint.config({
         allowTemplateLiterals: true,
       },
     ],
-    "@stylistic/semi": [
-      "warn",
-      "always",
-    ],
+    "@stylistic/semi": ["warn", "always"],
     "@stylistic/member-delimiter-style": [
       "warn",
       {
@@ -87,10 +86,7 @@ export default tseslint.config({
         functions: "ignore",
       },
     ],
-    "@stylistic/brace-style": [
-      "warn",
-      "1tbs",
-    ],
+    "@stylistic/brace-style": ["warn", "1tbs"],
     "@stylistic/padded-blocks": [
       "warn",
       {
@@ -110,10 +106,7 @@ export default tseslint.config({
     ],
     "@stylistic/arrow-parens": "off",
     "@stylistic/operator-linebreak": "off",
-    "@stylistic/multiline-ternary": [
-      "warn",
-      "always-multiline",
-    ],
+    "@stylistic/multiline-ternary": ["warn", "always-multiline"],
     "@stylistic/jsx-wrap-multilines": [
       "warn",
       {
@@ -133,10 +126,7 @@ export default tseslint.config({
         singleline: "forbid",
       },
     ],
-    "@stylistic/jsx-closing-tag-location": [
-      "warn",
-      "line-aligned",
-    ],
+    "@stylistic/jsx-closing-tag-location": ["warn", "line-aligned"],
     "@stylistic/jsx-one-expression-per-line": [
       "warn",
       {
