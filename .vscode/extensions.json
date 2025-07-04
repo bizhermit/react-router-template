@@ -1,0 +1,20 @@
+{
+  "recommendations": [
+    "ms-vscode-remote.remote-containers",
+    "mikestead.dotenv",
+    "cschlosser.doxdocgen",
+    "hediet.vscode-drawio",
+    "EditorConfig.EditorConfig",
+    "dsznajder.es7-react-js-snippets",
+    "dbaeumer.vscode-eslint",
+    "mhutchie.git-graph",
+    "GitHub.copilot",
+    "eamodio.gitlens",
+    "yzhang.markdown-all-in-one",
+    "shd101wyy.markdown-preview-enhanced",
+    "ms-playwright.playwright",
+    "Prisma.prisma",
+    "jock.svg",
+    "bradlc.vscode-tailwindcss",
+  ]
+}
