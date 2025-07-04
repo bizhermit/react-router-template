@@ -352,7 +352,7 @@ function common<Props extends Schema.DateBaseProps>(
         if (pairDate == null) return null;
 
         const time = date.getTime();
-        const pairTime = date.getTime();
+        const pairTime = pairDate.getTime();
         if (pair.same !== false && time === pairTime) return null;
         if (pair.position === "before") {
           if (pairTime < time) return null;

@@ -93,7 +93,18 @@ const schema = $schema({
   month: $month({
     required: true,
   }),
-  date: $date(),
+  date: $date({
+    pair: {
+      name: "datePair",
+      position: "after",
+    },
+  }),
+  datePair: $date({
+    pair: {
+      name: "date",
+      position: "before",
+    },
+  }),
   datetime: $datetime(),
   datetimeHasSecond: $datetime({
     time: "hms",
@@ -334,6 +345,11 @@ function Component2() {
       <FormItem>
         <DateBox
           $={dataItems.date}
+        />
+      </FormItem>
+      <FormItem>
+        <DateBox
+          $={dataItems.datePair}
         />
       </FormItem>
       <FormItem>
