@@ -24,12 +24,19 @@ export default tseslint.config({
       "warn",
       "unix",
     ],
-    // "@stylistic/max-len": [
-    //   "warn",
-    //   {
-    //     code: 80,
-    //   },
-    // ],
+    "@stylistic/max-len": [
+      "warn",
+      {
+        code: 80,
+        tabWidth: 2,
+        ignoreComments: true,
+        ignoreTrailingComments: true,
+        ignoreUrls: true,
+        ignoreStrings: true,
+        ignoreTemplateLiterals: true,
+        ignoreRegExpLiterals: true,
+      },
+    ],
     "@stylistic/eol-last": "warn",
     "@stylistic/quotes": [
       "warn",
