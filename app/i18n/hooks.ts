@@ -18,7 +18,7 @@ export function useText() {
 };
 
 export interface SwitchLocaleOptions {
-  refresh?: boolean;
+  preventRefresh?: boolean;
 };
 
 interface I18nLangContextProps {

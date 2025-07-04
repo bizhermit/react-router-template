@@ -64,7 +64,7 @@ export function I18nUrlLocator(props: {
 
   async function switchLocale(locale: Locales, options?: SwitchLocaleOptions) {
     const pathname = window.location.pathname.replace(/^\/([^/]+)/, `/${locale}`);
-    if (options?.refresh) {
+    if (!options?.preventRefresh) {
       await navigate(
         `${pathname}${location.search}`,
         {
@@ -113,7 +113,7 @@ export function I18nCookieLocator(props: {
     setSwitch(true);
     document.cookie = `${LOCALE_KEY}=${encodeURIComponent(locale)};${cookieOption}`;
     if (await i18n.switch(locale)) {
-      if (options?.refresh) await revalidate();
+      if (!options?.preventRefresh) await revalidate();
     }
     setSwitch(false);
   };
