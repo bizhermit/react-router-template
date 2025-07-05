@@ -202,7 +202,11 @@ export async function action(args: Route.ActionArgs) {
 export default function Page(props: Route.ComponentProps) {
   const fetcher = useFetcher();
 
-  const { SchemaProvider, getData } = useSchema({
+  const {
+    SchemaProvider,
+    handleSubmit,
+    handleReset,
+  } = useSchema({
     schema,
     data: fetcher.data ?
       fetcher.data.data :
@@ -230,16 +234,20 @@ export default function Page(props: Route.ComponentProps) {
         method="post"
         encType="multipart/form-data"
         noValidate
-        onSubmit={_e => {
-          // e.stopPropagation();
-          // e.preventDefault();
-          console.log(getData());
-        }}
+        onSubmit={handleSubmit}
+        onReset={handleReset}
       >
         <Component1 />
         <Component2 />
-        <button type="submit">
+        <button
+          type="submit"
+        >
           submit
+        </button>
+        <button
+          type="reset"
+        >
+          reset
         </button>
       </fetcher.Form>
       <LangComponent />

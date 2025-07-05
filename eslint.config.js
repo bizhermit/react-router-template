@@ -160,6 +160,7 @@ export default tseslint.config({
         allow: "single-line",
       },
     ],
+    "@stylistic/no-trailing-spaces": "warn",
     "no-fallthrough": "warn",
     "no-control-regex": "off",
     // Typescript

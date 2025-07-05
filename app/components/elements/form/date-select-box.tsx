@@ -259,6 +259,15 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
         update($second, setSecondResult);
         break;
       }
+      case "validation":
+        setResult(getResult());
+        setYearResult(getYearResult());
+        setMonthResult(getMonthResult());
+        setDayResult(getDayResult());
+        setHourResult(getHourResult());
+        setMinuteResult(getMinuteResult());
+        setSecondResult(getSecondResult());
+        break;
       default:
         break;
     }

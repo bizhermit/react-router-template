@@ -1,4 +1,4 @@
-import { createContext, use, useCallback, useContext, useId, useLayoutEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
+import { createContext, use, useCallback, useContext, useId, useLayoutEffect, useMemo, useRef, useState, type FormEvent, type ReactNode, type RefObject } from "react";
 import { unstable_usePrompt } from "react-router";
 import { useText } from "~/i18n/hooks";
 import { parseWithSchema } from ".";
@@ -33,12 +33,18 @@ export interface SchemaEffectParams_Dep {
   dep: Record<string, unknown>;
 };
 
+export interface SchemaEffectParams_Validatoin {
+  type: "validation";
+  results: Record<string, Schema.Result>;
+};
+
 export type SchemaEffectParams =
   | SchemaEffectParams_Data
   | SchemaEffectParams_ValueResult
   | SchemaEffectParams_Value
   | SchemaEffectParams_Result
   | SchemaEffectParams_Dep
+  | SchemaEffectParams_Validatoin
   ;
 
 interface FormItemMountProps {
@@ -69,6 +75,8 @@ interface SchemaContextProps<S extends Record<string, Schema.$Any> = Record<stri
   setValuesAndResults: (
     items: Array<{ name: string; value: unknown; result: Schema.Result | null | undefined; }>
   ) => boolean;
+  validation: () => ReturnType<typeof parseWithSchema>;
+  reset: () => void;
   isInitialize: RefObject<boolean>;
   isFirstLoad: RefObject<boolean>;
   isValidScripts: RefObject<boolean>;
@@ -86,6 +94,8 @@ export const SchemaContext = createContext<SchemaContextProps>({
   setValue: null!,
   setValueAndResult: null!,
   setValuesAndResults: null!,
+  validation: () => null!,
+  reset: () => { },
   isInitialize: { current: true },
   isFirstLoad: { current: true },
   isValidScripts: { current: false },
@@ -120,7 +130,7 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
   const dep = useRef(props.dep ?? EMPTY_STRUCT);
   const dataItems = useRef<Schema.DataItems<S>>(null!);
 
-  useMemo(() => {
+  const schema = useMemo(() => {
     isInitialize.current = true;
     isEffected.current = false;
     dep.current = props.dep ?? EMPTY_STRUCT;
@@ -148,6 +158,7 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
       const params: SchemaEffectParams = { type: "value", items };
       subscribes.current.forEach(f => f(params));
     });
+    return props.schema;
   }, [props.data]);
 
   const addSubscribe = useCallback((
@@ -261,6 +272,40 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
     return change;
   };
 
+  const validation = useCallback(() => {
+    const submission = parseWithSchema({
+      schema: schema,
+      env: env.current,
+      data: props.data,
+      dep: dep.current,
+    });
+    results.current = submission.results;
+    const params: SchemaEffectParams_Validatoin = {
+      type: "validation",
+      results: results.current,
+    };
+    subscribes.current.forEach(f => f(params));
+    return submission;
+  }, []);
+
+  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.stopPropagation();
+    const submission = validation();
+    if (submission.hasError) {
+      e.preventDefault();
+    }
+  };
+
+  const reset = useCallback(() => {
+    // TODO: reset
+    console.log("reset");
+  }, []);
+
+  function handleReset(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    reset();
+  };
+
   const SchemaProvider = useCallback((p: {
     children?: ReactNode;
   }) => {
@@ -278,6 +323,8 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
           setValue,
           setValueAndResult,
           setValuesAndResults,
+          validation,
+          reset,
           isInitialize,
           isFirstLoad,
           isValidScripts,
@@ -337,6 +384,10 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
     getData: function () {
       return clone(bindData.current.getData());
     },
+    handleSubmit,
+    handleReset,
+    validation,
+    reset,
   } as const;
 };
 
@@ -686,6 +737,9 @@ export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
         }
         break;
       }
+      case "validation":
+        setResult(getResult());
+        break;
       default:
         break;
     }
