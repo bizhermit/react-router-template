@@ -330,6 +330,21 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
     const submission = validation();
     if (submission.hasError) {
       e.preventDefault();
+      setTimeout(() => {
+        const topElem = Array.from((e.target as HTMLFormElement).querySelectorAll(`[aria-invalid="true"]`))
+          .map(elem => {
+            const wrapElem = elem.parentElement!;
+            return {
+              elem: wrapElem,
+              top: wrapElem.getBoundingClientRect().top,
+            };
+          })
+          .sort((elem1, elem2) => elem1.top - elem2.top)[0]?.elem;
+        topElem?.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+        });
+      }, 0);
     }
   };
 
