@@ -87,7 +87,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
 
   const schema = useSchemaEffect((params) => {
     switch (params.type) {
-      case "data":
+      case "refresh":
         isEffected.current = false;
         setValue(getValue);
         setYearValue(getYearValue);

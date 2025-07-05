@@ -1,3 +1,5 @@
+import { clone } from "../objects";
+
 export function getArrayIndex(name: string) {
   return name.match(/^\[(\d*)\]$/);
 };
@@ -56,7 +58,7 @@ export class SchemaData {
         }
       }
     } else {
-      this.data = data ?? {};
+      this.data = clone(data) ?? {};
     }
     this.callback = callback;
     this.bulkQueue = null;

@@ -208,19 +208,17 @@ export default function Page(props: Route.ComponentProps) {
     handleReset,
   } = useSchema({
     schema,
-    data: fetcher.data ?
+    // loaderData: props.loaderData ? props.loaderData.data : undefined,
+    actionData: fetcher.data ?
       fetcher.data.data :
       props.actionData
         ? props.actionData.data :
-        // props.loaderData ?
-        //   props.loaderData.data :
         undefined,
-    results: fetcher.data ?
+    // loaderData: props.loaderData ? props.loaderData.results : undefined,
+    actionResults: fetcher.data ?
       fetcher.data.results :
       props.actionData ?
         props.actionData.results :
-        // props.loaderData ?
-        //   props.loaderData.results :
         undefined,
   });
 

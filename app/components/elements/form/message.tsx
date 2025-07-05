@@ -12,7 +12,7 @@ export function InputMessage({
 }: InputMessageProps) {
   const schema = useSchemaEffect((params) => {
     switch (params.type) {
-      case "data":
+      case "refresh":
         setResult(params.results[$.name]);
         break;
       case "value-result":

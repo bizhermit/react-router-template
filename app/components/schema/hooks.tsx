@@ -6,8 +6,8 @@ import { clone } from "../objects";
 import { ValidScriptsContext } from "../providers/valid-scripts";
 import { getRelativeName, SchemaData } from "./data";
 
-export interface SchemaEffectParams_Data {
-  type: "data";
+export interface SchemaEffectParams_Refresh {
+  type: "refresh";
   data: SchemaData;
   results: Record<string, Schema.Result>;
   dep: Record<string, unknown>;
@@ -39,7 +39,7 @@ export interface SchemaEffectParams_Validatoin {
 };
 
 export type SchemaEffectParams =
-  | SchemaEffectParams_Data
+  | SchemaEffectParams_Refresh
   | SchemaEffectParams_ValueResult
   | SchemaEffectParams_Value
   | SchemaEffectParams_Result
@@ -105,8 +105,10 @@ const EMPTY_STRUCT = {} as const;
 
 interface Props<S extends Record<string, Schema.$Any>> {
   schema: S;
-  data?: Record<string, unknown> | null | undefined;
-  results?: Record<string, Schema.Result>;
+  loaderData?: Record<string, unknown> | null | undefined;
+  actionData?: Record<string, unknown> | null | undefined;
+  loaderResults?: Record<string, Schema.Result> | null | undefined;
+  actionResults?: Record<string, Schema.Result> | null | undefined;
   dep?: Record<string, unknown>;
   preventPrompt?: boolean;
 };
@@ -130,19 +132,35 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
   const dep = useRef(props.dep ?? EMPTY_STRUCT);
   const dataItems = useRef<Schema.DataItems<S>>(null!);
 
-  const schema = useMemo(() => {
-    isInitialize.current = true;
-    isEffected.current = false;
-    dep.current = props.dep ?? EMPTY_STRUCT;
+  const actionDataRef = useRef<Record<string, unknown> | null | undefined>(undefined);
+  const loaderDataRef = useRef<Record<string, unknown> | null | undefined>(undefined);
+
+  const argData = (actionDataRef.current = props.actionData)
+    ?? (loaderDataRef.current = props.loaderData)
+    ?? undefined;
+
+  function refresh(
+    mode: "init" | "reset",
+    data: Record<string, unknown> | null | undefined,
+  ) {
     const submission = parseWithSchema({
       schema: props.schema,
       env: env.current,
-      data: props.data,
+      data,
       dep: dep.current,
       createDataItems: !dataItems.current,
     });
     if (!dataItems.current) dataItems.current = submission.dataItems;
-    results.current = props.results ?? EMPTY_STRUCT;
+    switch (mode) {
+      case "init":
+        results.current = props.actionResults ?? props.loaderResults ?? EMPTY_STRUCT;
+        break;
+      case "reset":
+        results.current = submission.results;
+        break;
+      default:
+        break;
+    }
     for (const k in results.current) {
       const r = results.current[k];
       if (r == null) {
@@ -155,11 +173,18 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
     }
     bindData.current = new SchemaData(submission.data, ({ items }) => {
       isEffected.current = true;
-      const params: SchemaEffectParams = { type: "value", items };
+      const params: SchemaEffectParams_Value = { type: "value", items };
       subscribes.current.forEach(f => f(params));
     });
+  };
+
+  const schema = useMemo(() => {
+    isInitialize.current = true;
+    isEffected.current = false;
+    dep.current = props.dep ?? EMPTY_STRUCT;
+    refresh("init", argData);
     return props.schema;
-  }, [props.data]);
+  }, [argData]);
 
   const addSubscribe = useCallback((
     effect: (params: SchemaEffectParams) => void,
@@ -204,7 +229,10 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
       }
     });
     if (change) {
-      const params: SchemaEffectParams = { type: "result", items };
+      const params: SchemaEffectParams_Result = {
+        type: "result",
+        items,
+      };
       subscribes.current.forEach(f => f(params));
     }
     return change;
@@ -213,7 +241,10 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
   function setResult(name: string, result: Schema.Result | null | undefined) {
     const change = setResultImpl(name, result);
     if (change) {
-      const params: SchemaEffectParams = { type: "result", items: [{ name, result }] };
+      const params: SchemaEffectParams_Result = {
+        type: "result",
+        items: [{ name, result }],
+      };
       subscribes.current.forEach(f => f(params));
     }
     return change;
@@ -252,7 +283,10 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
       }
     });
     if (change) {
-      const params: SchemaEffectParams = { type: "value-result", items };
+      const params: SchemaEffectParams = {
+        type: "value-result",
+        items,
+      };
       subscribes.current.forEach(f => f(params));
     }
     return change;
@@ -266,7 +300,10 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
     const items = [{ name, value, result }];
     const change = setValueAndResultImpl(name, value, result);
     if (change) {
-      const params: SchemaEffectParams = { type: "value-result", items };
+      const params: SchemaEffectParams = {
+        type: "value-result",
+        items,
+      };
       subscribes.current.forEach(f => f(params));
     }
     return change;
@@ -276,7 +313,7 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
     const submission = parseWithSchema({
       schema: schema,
       env: env.current,
-      data: props.data,
+      data: bindData.current.getData(),
       dep: dep.current,
     });
     results.current = submission.results;
@@ -297,8 +334,14 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
   };
 
   const reset = useCallback(() => {
-    // TODO: reset
-    console.log("reset");
+    refresh("reset", loaderDataRef.current);
+    const params: SchemaEffectParams_Refresh = {
+      type: "refresh",
+      data: bindData.current,
+      results: results.current,
+      dep: dep.current,
+    };
+    subscribes.current.forEach(f => f(params));
   }, []);
 
   function handleReset(e: FormEvent<HTMLFormElement>) {
@@ -340,7 +383,7 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
     const newDep = props.dep ?? EMPTY_STRUCT;
     if (dep.current === (newDep)) return;
     dep.current = newDep;
-    const params: SchemaEffectParams = { type: "dep", dep: newDep };
+    const params: SchemaEffectParams_Dep = { type: "dep", dep: newDep };
     subscribes.current.forEach(f => f(params));
   }, [props.dep]);
 
@@ -348,8 +391,8 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
     if (isFirstLoad.current) {
       isFirstLoad.current = false;
     } else {
-      const params: SchemaEffectParams = {
-        type: "data",
+      const params: SchemaEffectParams_Refresh = {
+        type: "refresh",
         data: bindData.current,
         results: results.current,
         dep: dep.current,
@@ -357,7 +400,7 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
       subscribes.current.forEach(f => f(params));
     }
     isInitialize.current = false;
-  }, [props.data]);
+  }, [argData]);
 
   unstable_usePrompt({
     when: () => {
@@ -419,7 +462,7 @@ type SetValue<P extends Schema.$Any> =
 export function useSchemaValue<D extends Schema.DataItem<Schema.$Any>>(dataItem: D) {
   const schema = useSchemaEffect((params) => {
     switch (params.type) {
-      case "data":
+      case "refresh":
         setValue(getValue);
         break;
       case "value": {
@@ -454,7 +497,7 @@ export function useSchemaValue<D extends Schema.DataItem<Schema.$Any>>(dataItem:
 export function useSchemaResult<D extends Schema.DataItem<Schema.$Any>>(dataItem: D) {
   const schema = useSchemaEffect((params) => {
     switch (params.type) {
-      case "data":
+      case "refresh":
         setResult(params.results[dataItem.name]);
         break;
       case "result": {
@@ -664,7 +707,7 @@ export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
 
   const schema = useSchemaEffect((params) => {
     switch (params.type) {
-      case "data": {
+      case "refresh": {
         isEffected.current = false;
         const value = getValue();
         const result = getResult();
