@@ -1,0 +1,54 @@
+import { useRef, useState, type ButtonHTMLAttributes, type MouseEvent } from "react";
+import { clsx } from "./utilities";
+
+interface ButtonOptions {
+  disabled?: boolean;
+  color?: "primary" | "secondary" | "sub" | "danger";
+  appearance?: "fill" | "outline" | "text";
+  round?: boolean;
+  onClick?: (parmas: {
+    event: MouseEvent<HTMLButtonElement>;
+    unlock: (focus?: boolean) => void;
+  }) => (void | Promise<void>);
+};
+
+type ButtonProps = Overwrite<ButtonHTMLAttributes<HTMLButtonElement>, ButtonOptions>;
+
+export function Button({
+  className,
+  color,
+  appearance,
+  round,
+  onClick,
+  ...props
+}: ButtonProps) {
+  const [disabled, setDisabled] = useState(false);
+  const disabledRef = useRef(disabled);
+
+  function handleClick(e: MouseEvent<HTMLButtonElement>) {
+    if (props.disabled || disabledRef.current) {
+      e.preventDefault();
+      return;
+    }
+    setDisabled(disabledRef.current = true);
+    const unlock = () => setDisabled(disabledRef.current = false);
+    const res = onClick?.({ event: e, unlock });
+    if (res == null) unlock();
+  };
+
+  return (
+    <button
+      type="button"
+      {...props}
+      className={clsx(
+        "btn",
+        className,
+      )}
+      disabled={props.disabled || disabled}
+      data-color={color || "primary"}
+      data-appearance={appearance || "fill"}
+      data-round={round}
+      onClick={handleClick}
+    />
+  );
+};

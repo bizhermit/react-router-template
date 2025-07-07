@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState, type ReactNode } from "react";
 import { data, useFetcher } from "react-router";
+import { Button } from "~/components/elements/button";
 import { CheckBox } from "~/components/elements/form/check-box";
 import { FormItem } from "~/components/elements/form/common";
 import { DateBox } from "~/components/elements/form/date-box";
@@ -11,6 +12,7 @@ import { RadioButtons } from "~/components/elements/form/radio-buttons";
 import { SelectBox } from "~/components/elements/form/select-box";
 import { TextArea } from "~/components/elements/form/text-area";
 import { TextBox } from "~/components/elements/form/text-box";
+import { clsx } from "~/components/elements/utilities";
 import { parseNumber } from "~/components/objects/numeric";
 import { $schema } from "~/components/schema";
 import { $array } from "~/components/schema/array";
@@ -235,23 +237,54 @@ export default function Page(props: Route.ComponentProps) {
         onSubmit={handleSubmit}
         onReset={handleReset}
       >
+        <ColorComponents />
         <Component1 />
         <Component2 />
-        <button
+        <Button
           type="submit"
+          round
         >
           submit
-        </button>
-        <button
+        </Button>
+        <Button
           type="reset"
+          color="sub"
+          round
         >
           reset
-        </button>
+        </Button>
       </fetcher.Form>
       <LangComponent />
     </SchemaProvider>
   );
-}
+};
+
+function ColorComponents() {
+  const colors = ["primary", "secondary", "sub", "danger"] as const;
+  return (
+    <ul>
+      {colors.map(color => {
+        return (
+          <li key={color}>
+            <h2
+              className={clsx(
+                color === "primary" && "text-primary",
+                color === "secondary" && "text-secondary",
+                color === "sub" && "text-sub",
+                color === "danger" && "text-danger",
+              )}
+            >
+              {color}
+            </h2>
+            <Button color={color}>FillButton</Button>
+            <Button color={color} appearance="outline">OutlineButton</Button>
+            <Button color={color} appearance="text">TextButton</Button>
+          </li>
+        );
+      })}
+    </ul>
+  );
+};
 
 function Component1() {
   const { dataItems } = useSchemaContext<typeof schema>();
@@ -418,8 +451,7 @@ function DynamicSelectBoxComponent() {
 
   return (
     <div>
-      <button
-        type="button"
+      <Button
         onClick={() => {
           const c = count + 1;
           setCount(c);
@@ -431,7 +463,7 @@ function DynamicSelectBoxComponent() {
         }}
       >
         countup {count}
-      </button>
+      </Button>
       <FormItem>
         <SelectBox
           $={dataItems.requiredText}

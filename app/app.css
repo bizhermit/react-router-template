@@ -12,10 +12,22 @@
 
   --color-bg: #eee;
   --color-fg: #111;
+  --color-shadow: #111;
+  --color-primary: #4593ef;
+  --color-primary-fg: #f4f4f4;
+  --color-secondary: #30a950;
+  --color-secondary-fg: #f4f4f4;
+  --color-sub: #aab;
+  --color-sub-fg: #f4f4f4;
+  --color-danger: #f05454;
+  --color-danger-fg: #f4f4f4;
 
   /* loadingbar */
   --spacing-loadingbar1: 25%;
   --spacing-loadingbar2: 15%;
+
+  /* button */
+  --spacing-button: 3.2rem;
 
   /* input */
   --color-input: #111;
@@ -46,6 +58,15 @@
 
     --color-bg: #2c2c2c;
     --color-fg: #ddd;
+    --color-shadow: #888;
+    --color-primary: #4085ca;
+    --color-primary-fg: #ddd;
+    --color-secondary: #14a389;
+    --color-secondary-fg: #ddd;
+    --color-sub: #889;
+    --color-sub-fg: #ddd;
+    --color-danger: #e85151;
+    --color-danger-fg: #ddd;
     --color-input: #ddd;
     --color-input-bg: #222;
     --color-input-err: #ddd;
@@ -94,7 +115,7 @@
     &::after {
       @apply absolute content-[""] h-full top-0;
       @apply bg-blue-500;
-      
+
       animation-timing-function: ease-in-out;
       animation-duration: 3s;
       animation-iteration-count: infinite;
@@ -143,4 +164,5 @@
   }
 }
 
+@import "./components//elements/button.css";
 @import "./components/elements/form/style.css";

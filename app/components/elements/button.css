@@ -1,0 +1,92 @@
+@layer components {
+
+  :is(.btn, a[role="button"], label[role="button"]) {
+    ---btn-bg: var(--color-primary);
+    ---btn-fg: var(--color-primary-fg);
+
+    position: relative;
+    vertical-align: top;
+    display: inline-flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    align-items: center;
+    gap: 0.8rem;
+    height: var(--spacing-button);
+    min-width: 0;
+    padding: 0 calc(var(--spacing-button) / 2);
+    border-radius: 2px;
+    text-decoration: none;
+    user-select: none;
+
+    &[data-round="true"] {
+      border-radius: 9999px;
+    }
+
+    &[data-color="secondary"] {
+      ---btn-bg: var(--color-secondary);
+      ---btn-fg: var(--color-secondary-fg);
+    }
+
+    &[data-color="sub"] {
+      ---btn-bg: var(--color-sub);
+      ---btn-fg: var(--color-sub-fg);
+    }
+
+    &[data-color="danger"] {
+      ---btn-bg: var(--color-danger);
+      ---btn-fg: var(--color-danger-fg);
+    }
+
+    &[data-appearance="fill"] {
+      transition: opacity 0.2s;
+      background-color: var(---btn-bg);
+      color: var(---btn-fg);
+    }
+
+    &[data-appearance="outline"] {
+      transition: background-color 0.2s, color 0.2s, opacity 0.2s;
+      background-color: transparent;
+      border: 1px solid var(---btn-bg);
+      color: var(---btn-bg);
+    }
+
+    &[data-appearance="text"] {
+      transition: opacity 0.2s;
+      background-color: transparent;
+      color: var(---btn-bg);
+    }
+
+    &:not(:is(:disabled, [aria-disabled="true"])) {
+      cursor: pointer;
+
+      @media (hover: hover) {
+        &:hover {
+          opacity: 0.75;
+
+          &:active {
+            opacity: 1;
+          }
+
+          &[data-appearance="outline"] {
+            background-color: var(---btn-bg);
+            color: var(---btn-fg);
+
+            &:active {
+              opacity: 1;
+            }
+          }
+        }
+      }
+    }
+
+    >.icon {
+      width: var(--space-button);
+      overflow: hidden;
+
+      &:only-child {
+        position: absolute;
+      }
+    }
+  }
+
+}
