@@ -24,8 +24,6 @@ const generateResponseHeadersAsMode = isDev ?
       "form-action 'self'",
       "report-uri /csp-violation-report-endpoint",
       "report-to csp-endpoint",
-      "upgrade-insecure-requests",
-      "block-all-mixed-content",
     ].join("; "));
     // 開発時は常にキャッシュを無効化
     headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
