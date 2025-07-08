@@ -19,7 +19,7 @@ import { $array } from "~/components/schema/array";
 import { $bool } from "~/components/schema/boolean";
 import { $date, $datetime, $month } from "~/components/schema/date";
 import { $file } from "~/components/schema/file";
-import { useSchema, useSchemaArray, useSchemaContext } from "~/components/schema/hooks";
+import { useSchema, useSchemaArray, useSchemaContext, useSchemaValue } from "~/components/schema/hooks";
 import { $num } from "~/components/schema/number";
 import { getPayload } from "~/components/schema/server";
 import { $str } from "~/components/schema/string";
@@ -358,8 +358,17 @@ function Component1() {
 function Component2() {
   const { dataItems } = useSchemaContext<typeof schema>();
 
+  const [birthMonth, setBirthMonth] = useSchemaValue(dataItems.birth_month);
+
   return (
     <div className="flex flex-row flex-wrap gap-2">
+      <Button
+        onClick={() => {
+          setBirthMonth("1");
+        }}
+      >
+        set month
+      </Button>
       <FormItem>
         <TextBox
           $={dataItems.text}

@@ -252,7 +252,7 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
 
   function setValue(name: string, value: unknown) {
     let change = false;
-    if (bindData.current._set(name, value)) {
+    if (bindData.current.set(name, value)) {
       change = true;
     }
     return change;

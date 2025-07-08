@@ -54,6 +54,18 @@ function selectBoxDisplayResult(
   return Y ?? M ?? D ?? h ?? m ?? s ?? r;
 };
 
+function resetSelectValue<V>(
+  value: V,
+  valueSetter: Dispatch<SetStateAction<V>>,
+  selectRef?: RefObject<HTMLSelectElement>
+) {
+  valueSetter(value);
+  if (!selectRef?.current) return value;
+  const v = String(value || "");
+  if (selectRef.current.value !== v) selectRef.current.value = v;
+  return value;
+};
+
 export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
   $: _$,
   placeholder,
@@ -73,6 +85,13 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
   const $minute = $date.splits.m;
   const $second = $date.splits.s;
 
+  const yearSelectRef = useRef<HTMLSelectElement>(null!);
+  const monthSelectRef = useRef<HTMLSelectElement>(null!);
+  const daySelectRef = useRef<HTMLSelectElement>(null!);
+  const hourSelectRef = useRef<HTMLSelectElement>(null!);
+  const minuteSelectRef = useRef<HTMLSelectElement>(null!);
+  const secondSelectRef = useRef<HTMLSelectElement>(null!);
+
   const dateRefs = useRef(optimizeRefs($date, $date._.refs));
   const yearRefs = useRef($year ? optimizeRefs($year, $year._.refs) : []);
   const monthRefs = useRef($month ? optimizeRefs($month, $month._.refs) : []);
@@ -87,15 +106,15 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
 
   const schema = useSchemaEffect((params) => {
     switch (params.type) {
-      case "refresh":
+      case "refresh": {
         isEffected.current = false;
         setValue(getValue);
-        setYearValue(getYearValue);
-        setMonthValue(getMonthValue);
-        setDayValue(getDayValue);
-        setHourValue(getHourValue);
-        setMinuteValue(getMinuteValue);
-        setSecondValue(getSecondValue);
+        resetSelectValue(getYearValue(), setYearValue, yearSelectRef);
+        resetSelectValue(getMonthValue(), setMonthValue, monthSelectRef);
+        resetSelectValue(getDayValue(), setDayValue, daySelectRef);
+        resetSelectValue(getHourValue(), setHourValue, hourSelectRef);
+        resetSelectValue(getMinuteValue(), setMinuteValue, minuteSelectRef);
+        resetSelectValue(getSecondValue(), setSecondValue, secondSelectRef);
         setResult(getResult);
         setYearResult(getYearResult);
         setMonthResult(getMonthResult);
@@ -103,6 +122,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
         setHourResult(getHourResult);
         setMinuteResult(getMinuteResult);
         setSecondResult(getSecondResult);
+      }
       // eslint-disable-next-line no-fallthrough
       case "dep":
         setMode(getMode);
@@ -144,29 +164,30 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           valueSetter: Dispatch<SetStateAction<any>>,
           resultSetter: Dispatch<SetStateAction<Schema.Result | null | undefined>>,
+          selectRef?: RefObject<HTMLSelectElement>
         ) {
           if (!$?.name) return false;
           const item = (params as SchemaEffectParams_ValueResult)
             .items.find(item => item.name === $.name);
           if (!item) return false;
           if (params.type === "value-result") {
-            valueSetter(item.value);
+            resetSelectValue(item.value, valueSetter, selectRef);
             resultSetter(item.result);
           } else {
             const submission = schemaItemEffect($, schema, item.value);
-            valueSetter(submission.value);
+            resetSelectValue(submission.value, valueSetter, selectRef);
             resultSetter(submission.result);
           }
           isEffected.current = true;
           return true;
         }
         update($date, setValue, setResult);
-        update($year, setYearValue, setYearResult);
-        update($month, setMonthValue, setMonthResult);
-        update($day, setDayValue, setDayResult);
-        update($hour, setHourValue, setHourResult);
-        update($minute, setMinuteValue, setMinuteResult);
-        update($second, setSecondValue, setSecondResult);
+        update($year, setYearValue, setYearResult, yearSelectRef);
+        update($month, setMonthValue, setMonthResult, monthSelectRef);
+        update($day, setDayValue, setDayResult, daySelectRef);
+        update($hour, setHourValue, setHourResult, hourSelectRef);
+        update($minute, setMinuteValue, setMinuteResult, minuteSelectRef);
+        update($second, setSecondValue, setSecondResult, secondSelectRef);
 
         const results: Array<{ name: string; result: Schema.Result | null | undefined; }> = [];
         function updateWithRefs(
@@ -1022,6 +1043,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
         />
       }
       <SplittedSelect
+        ref={yearSelectRef}
         mergeState={mergeState}
         coreResult={result}
         $={$year}
@@ -1036,6 +1058,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
       </SplittedSelect>
       <SepSpan>/</SepSpan>
       <SplittedSelect
+        ref={monthSelectRef}
         mergeState={mergeState}
         coreResult={result}
         $={$month}
@@ -1053,6 +1076,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
         <>
           <SepSpan>/</SepSpan>
           <SplittedSelect
+            ref={daySelectRef}
             mergeState={mergeState}
             coreResult={result}
             $={$day}
@@ -1072,6 +1096,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
         <>
           <SepSpan>&nbsp;</SepSpan>
           <SplittedSelect
+            ref={hourSelectRef}
             mergeState={mergeState}
             coreResult={result}
             $={$hour}
@@ -1086,6 +1111,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
           </SplittedSelect>
           <SepSpan>:</SepSpan>
           <SplittedSelect
+            ref={minuteSelectRef}
             mergeState={mergeState}
             coreResult={result}
             $={$minute}
@@ -1103,6 +1129,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
             <>
               <SepSpan>:</SepSpan>
               <SplittedSelect
+                ref={secondSelectRef}
                 mergeState={mergeState}
                 coreResult={result}
                 $={$second}
@@ -1124,6 +1151,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
 };
 
 interface SplittedSelectProps {
+  ref: RefObject<HTMLSelectElement>;
   mergeState: (
     targetState: RefObject<Record<Schema.Mode, boolean>>,
     targetMode: Schema.Mode
@@ -1140,6 +1168,7 @@ interface SplittedSelectProps {
 };
 
 function SplittedSelect({
+  ref,
   mergeState,
   coreResult,
   $,
@@ -1170,6 +1199,7 @@ function SplittedSelect({
       hideMessage
     >
       <select
+        ref={ref}
         className="ipt-main ipt-select"
         name={$?.name}
         required={required}
