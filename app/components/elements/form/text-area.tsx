@@ -8,6 +8,7 @@ export type TextAreaProps<D extends Schema.DataItem<Schema.$String>> = InputWrap
   $: D;
   placeholder?: string;
   rows?: number;
+  cols?: number;
   resize?: Resize;
 };
 
@@ -23,6 +24,7 @@ function getResizeClassName(resize: Resize | undefined) {
 export function TextArea<D extends Schema.DataItem<Schema.$String>>({
   placeholder,
   rows,
+  cols,
   resize,
   ...$props
 }: TextAreaProps<D>) {
@@ -94,6 +96,7 @@ export function TextArea<D extends Schema.DataItem<Schema.$String>>({
         onChange={handleChange}
         placeholder={placeholder}
         rows={rows ?? 3}
+        cols={cols}
         aria-label={label}
         aria-invalid={invalid}
         aria-errormessage={errormessage}
