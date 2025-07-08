@@ -176,6 +176,7 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
       const params: SchemaEffectParams_Value = { type: "value", items };
       subscribes.current.forEach(f => f(params));
     });
+    return submission;
   };
 
   const schema = useMemo(() => {
@@ -346,6 +347,7 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
         });
       }, 0);
     }
+    return submission;
   };
 
   const reset = useCallback(() => {
