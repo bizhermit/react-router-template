@@ -17,7 +17,9 @@ type AnyStore = {
 
 type AnyStores = { [Store: string]: AnyStore; };
 
-interface IndexedDBController<S extends AnyStores> {
+export type IndexedDBStores<S extends AnyStores> = S;
+
+export interface IndexedDBController<S extends AnyStores> {
   db: IDBDatabase;
   trans: <Store extends keyof S, R>(
     parmas: {
@@ -33,7 +35,7 @@ interface IndexedDBController<S extends AnyStores> {
 
 type StoreKeyType<S extends AnyStore> = S["columns"][S["key"]];
 
-interface IndexedDBStoreController<S extends AnyStore> {
+export interface IndexedDBStoreController<S extends AnyStore> {
   getByKey: (key: StoreKeyType<S>) => Promise<(S["columns"] | null)>;
   deleteByKey: (key: StoreKeyType<S>) => Promise<boolean>;
   select: (query: IDBValidKey | IDBKeyRange | null, direction?: IDBCursorDirection) => Promise<Array<S["columns"]> | null>;

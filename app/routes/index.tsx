@@ -13,7 +13,7 @@ import { SelectBox } from "~/components/elements/form/select-box";
 import { TextArea } from "~/components/elements/form/text-area";
 import { TextBox } from "~/components/elements/form/text-box";
 import { clsx } from "~/components/elements/utilities";
-import getIndexedDB from "~/components/indexeddb/client";
+import getIndexedDB, { type IndexedDBController, type IndexedDBStores } from "~/components/indexeddb/client";
 import { parseNumber } from "~/components/objects/numeric";
 import { $schema } from "~/components/schema";
 import { $array } from "~/components/schema/array";
@@ -256,6 +256,7 @@ export default function Page(props: Route.ComponentProps) {
         </Button>
       </fetcher.Form>
       <LangComponent />
+      <IndexedDBComponent />
     </SchemaProvider>
   );
 };
@@ -533,7 +534,7 @@ function LangComponent() {
   );
 };
 
-type Stores = {
+type Stores = IndexedDBStores<{
   hoge: {
     key: "email";
     columns: {
@@ -542,28 +543,81 @@ type Stores = {
       age: number;
     };
   };
-};
+}>;
 
 function IndexedDBComponent() {
+  const [db, setDB] = useState<IndexedDBController<Stores> | undefined>(undefined);
+
   useEffect(() => {
-    const db = getIndexedDB<Stores>({
+    getIndexedDB<Stores>({
       name: "template",
       upgrade: async ({ db, newVersion, oldVersion }) => {
-        db.createObjectStore("hoge", { autoIncrement: true });
+        db.createObjectStore("hoge", { keyPath: "email" });
       },
     }).then((controller) => {
-      controller.trans({ storeNames: "hoge" }, async ({ stores: { hoge } }) => {
-        const value = await hoge.getByKey("hoge@example.com");
-        console.log(value?.email);
-        await hoge.deleteByKey("fuga@example.com");
-        return;
-      });
+      setDB(controller);
+      // controller.trans({ storeNames: "hoge" }, async ({ stores: { hoge } }) => {
+      //   const value = await hoge.getByKey("hoge@example.com");
+      //   console.log(value?.email);
+      //   await hoge.deleteByKey("fuga@example.com");
+      //   return;
+      // });
     });
   }, []);
 
   return (
-    <div>
-
-    </div>
+    <section>
+      <h2>IndexedDB</h2>
+      {db == null
+        ? "loading..."
+        : <>
+          <div className="flex flex-row gap-2">
+            <Button
+              onClick={async ({ unlock }) => {
+                await db.trans({
+                  storeNames: "hoge",
+                  mode: "readonly",
+                }, async ({ stores }) => {
+                  const value = await stores.hoge.getByKey("hoge@example.com");
+                  console.log("show:", value);
+                });
+                unlock();
+              }}
+            >
+              show
+            </Button>
+            <Button
+              onClick={async ({ unlock }) => {
+                await db.trans({
+                  storeNames: "hoge",
+                  mode: "readwrite",
+                }, async ({ stores: { hoge } }) => {
+                  await hoge.insert({
+                    email: "hoge@example.com",
+                    age: 18,
+                    name: "Tarou",
+                  });
+                });
+                unlock();
+              }}
+            >
+              add
+            </Button>
+            <Button
+              onClick={async ({ unlock }) => {
+                await db.trans({
+                  storeNames: "hoge",
+                  mode: "readwrite",
+                }, async ({ stores: { hoge } }) => {
+                  await hoge.deleteByKey("hoge@example.com");
+                });
+                unlock();
+              }}
+            >
+              delete
+            </Button>
+          </div>
+        </>}
+    </section>
   );
 };
