@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { data, useFetcher } from "react-router";
 import { Button } from "~/components/elements/button";
 import { CheckBox } from "~/components/elements/form/check-box";
@@ -13,6 +13,7 @@ import { SelectBox } from "~/components/elements/form/select-box";
 import { TextArea } from "~/components/elements/form/text-area";
 import { TextBox } from "~/components/elements/form/text-box";
 import { clsx } from "~/components/elements/utilities";
+import getIndexedDB from "~/components/indexeddb/client";
 import { parseNumber } from "~/components/objects/numeric";
 import { $schema } from "~/components/schema";
 import { $array } from "~/components/schema/array";
@@ -528,6 +529,41 @@ function LangComponent() {
           en
         </button>
       </div>
+    </div>
+  );
+};
+
+type Stores = {
+  hoge: {
+    key: "email";
+    columns: {
+      email: string;
+      name: string;
+      age: number;
+    };
+  };
+};
+
+function IndexedDBComponent() {
+  useEffect(() => {
+    const db = getIndexedDB<Stores>({
+      name: "template",
+      upgrade: async ({ db, newVersion, oldVersin }) => {
+        db.createObjectStore("hoge", { autoIncrement: true });
+      },
+    }).then((controller) => {
+      controller.trans({ storeNames: "hoge" }, async ({ stores: { hoge } }) => {
+        const value = await hoge.getByKey("hoge@example.com");
+        console.log(value?.email);
+        await hoge.deleteByKey("fuga@example.com");
+        return;
+      });
+    });
+  }, []);
+
+  return (
+    <div>
+
     </div>
   );
 };

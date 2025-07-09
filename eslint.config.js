@@ -38,6 +38,7 @@ export default tseslint.config({
       },
     ],
     "@stylistic/eol-last": "warn",
+    "@stylistic/no-multiple-empty-lines": "warn",
     "@stylistic/quotes": [
       "warn",
       "double",
@@ -163,6 +164,7 @@ export default tseslint.config({
     "@stylistic/no-trailing-spaces": "warn",
     "no-fallthrough": "warn",
     "no-control-regex": "off",
+    "no-empty-pattern": "warn",
     // Typescript
     "@typescript-eslint/no-empty-object-type": "off",
     "no-unused-expressions": "off",
