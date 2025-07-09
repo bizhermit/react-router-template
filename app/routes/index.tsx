@@ -548,7 +548,7 @@ function IndexedDBComponent() {
   useEffect(() => {
     const db = getIndexedDB<Stores>({
       name: "template",
-      upgrade: async ({ db, newVersion, oldVersin }) => {
+      upgrade: async ({ db, newVersion, oldVersion }) => {
         db.createObjectStore("hoge", { autoIncrement: true });
       },
     }).then((controller) => {

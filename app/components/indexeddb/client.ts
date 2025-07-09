@@ -5,7 +5,7 @@ interface IndexedDBProps {
   version?: number;
   upgrade: (params: {
     db: IDBDatabase;
-    oldVersin: number;
+    oldVersion: number;
     newVersion: number | null;
   }) => Promise<void>;
 };
@@ -36,7 +36,10 @@ type StoreKeyType<S extends AnyStore> = S["columns"][S["key"]];
 interface IndexedDBStoreController<S extends AnyStore> {
   getByKey: (key: StoreKeyType<S>) => Promise<(S["columns"] | null)>;
   deleteByKey: (key: StoreKeyType<S>) => Promise<boolean>;
-  select: (query: any, direction?: IDBCursorDirection) => Promise<Array<S["columns"]> | null>;
+  select: (query: IDBValidKey | IDBKeyRange | null, direction?: IDBCursorDirection) => Promise<Array<S["columns"]> | null>;
+  insert: (value: S["columns"]) => Promise<StoreKeyType<S>>;
+  update: (value: S["columns"]) => Promise<StoreKeyType<S>>;
+  upsert: (value: S["columns"]) => Promise<{ action: "insert" | "update"; key: StoreKeyType<S>; }>;
 };
 
 export default async function getIndexedDB<
@@ -57,10 +60,13 @@ export default async function getIndexedDB<
       const db = (event.target as IDBOpenDBRequest).result;
       props.upgrade({
         db,
-        oldVersin: event.oldVersion,
+        oldVersion: event.oldVersion,
         newVersion: event.newVersion,
+      }).then(() => {
+        ready(db);
+      }).catch((e) => {
+        reject(e);
       });
-      ready(db);
     };
 
     request.onsuccess = (event) => {
@@ -78,9 +84,6 @@ export default async function getIndexedDB<
         alert("Update DataBase.");
         window.location.reload();
       };
-
-      const trans = db.transaction(["hoge", "fuga"], "readwrite", {});
-      trans.objectStore("hoge");
 
       resolve({
         db,
@@ -106,14 +109,14 @@ export default async function getIndexedDB<
                 });
               },
               deleteByKey: (key) => {
-                return new Promise<boolean>((resolve) => {
+                return new Promise((resolve) => {
                   const req = store.delete(key);
                   req.onerror = () => resolve(false);
                   req.onsuccess = () => resolve(true);
                 });
               },
               select: (query, dir) => {
-                return new Promise<any[] | null>((resolve) => {
+                return new Promise((resolve) => {
                   const ret: any[] = [];
                   const req = store.openCursor(query, dir);
                   req.onerror = () => resolve(null);
@@ -125,6 +128,54 @@ export default async function getIndexedDB<
                     } else {
                       resolve(ret);
                     }
+                  };
+                });
+              },
+              insert: (value) => {
+                return new Promise((resolve, reject) => {
+                  const req = store.add(value);
+                  req.onerror = (event) => reject(event);
+                  req.onsuccess = (event) => {
+                    const key = (event.target as IDBRequest<IDBValidKey>).result;
+                    resolve(key);
+                  };
+                });
+              },
+              update: (value) => {
+                return new Promise((resolve, reject) => {
+                  const req = store.put(value);
+                  req.onerror = (event) => reject(event);
+                  req.onsuccess = (event) => {
+                    const key = (event.target as IDBRequest<IDBValidKey>).result;
+                    resolve(key);
+                  };
+                });
+              },
+              upsert: (value) => {
+                return new Promise((resolve, reject) => {
+                  const keyPath = Array.isArray(store.keyPath) ? store.keyPath[0] : store.keyPath;
+                  if (!keyPath) {
+                    reject(`${storeName} has no keyPath`);
+                    return;
+                  }
+                  const keyValue = value[keyPath];
+                  if (keyValue == null) {
+                    reject(`Cannot extract key from value using keyPath: ${keyPath}`);
+                    return;
+                  }
+                  const getReq = store.get(keyValue);
+                  getReq.onerror = (event) => reject(event);
+                  getReq.onsuccess = () => {
+                    const isExists = getReq.result != null;
+                    const upsertReq = isExists ? store.put(value) : store.add(value);
+                    upsertReq.onerror = (event) => reject(event);
+                    upsertReq.onsuccess = (event) => {
+                      const key = (event.target as IDBRequest<IDBValidKey>).result;
+                      resolve({
+                        action: isExists ? "update" : "insert",
+                        key,
+                      });
+                    };
                   };
                 });
               },
