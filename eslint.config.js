@@ -128,10 +128,7 @@ export default tseslint.config({
     ],
     "@stylistic/arrow-parens": "off",
     "@stylistic/operator-linebreak": "off",
-    "@stylistic/multiline-ternary": [
-      "warn",
-      "always-multiline",
-    ],
+    "@stylistic/multiline-ternary": "off",
     "@stylistic/jsx-wrap-multilines": [
       "warn",
       {

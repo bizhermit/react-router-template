@@ -19,16 +19,40 @@ type AnyStores = { [Store: string]: AnyStore; };
 
 export type IndexedDBStores<S extends AnyStores> = S;
 
+interface IndexedDBStoreReadController<S extends AnyStore> {
+  existKey: (key: StoreKeyType<S>) => Promise<boolean>;
+  getByKey: (key: StoreKeyType<S>) => Promise<(S["data"] | null)>;
+  select: (query: IDBValidKey | IDBKeyRange | null, direction?: IDBCursorDirection) => Promise<Array<S["data"]> | null>;
+}
+
+export interface IndexedDBStoreWriteController<S extends AnyStore> {
+  deleteByKey: (key: StoreKeyType<S>) => Promise<boolean>;
+  insert: (value: S["data"]) => Promise<StoreKeyType<S>>;
+  update: (value: S["data"]) => Promise<StoreKeyType<S>>;
+  upsert: (value: S["data"]) => Promise<{ action: "insert" | "update"; key: StoreKeyType<S>; }>;
+};
+
+export type IndexedDBStoreWritableController<S extends AnyStore> =
+  IndexedDBStoreReadController<S> & IndexedDBStoreWriteController<S>;
+
 export interface IndexedDBController<S extends AnyStores> {
   db: IDBDatabase;
-  trans: <Store extends keyof S, R>(
+  trans<Store extends keyof S, R>(
     parmas: {
       storeNames: Store | Iterable<Store>;
-      mode?: IDBTransactionMode;
+      mode?: "readonly";
       options?: IDBTransactionOptions;
     },
-    process: (stores: { [K in Store]: IndexedDBStoreController<S[K]>; }) => Promise<R>
-  ) => Promise<R>;
+    process: (stores: { [K in Store]: IndexedDBStoreReadController<S[K]>; }) => Promise<R>
+  ): Promise<R>;
+  trans<Store extends keyof S, R>(
+    parmas: {
+      storeNames: Store | Iterable<Store>;
+      mode: "readwrite";
+      options?: IDBTransactionOptions;
+    },
+    process: (stores: { [K in Store]: IndexedDBStoreWritableController<S[K]>; }) => Promise<R>
+  ): Promise<R>;
 };
 
 type AutoIncrementKey = number;
@@ -36,17 +60,7 @@ type StoreKeyType<S extends AnyStore> = S extends { key: infer K; } ? (
   K extends string[] ? { [PK in keyof K]: K[PK] extends string ? S["data"][K[PK]] : never } :
   K extends string ? S["data"][K] :
   never
-) : AutoIncrementKey;
-
-export interface IndexedDBStoreController<S extends AnyStore> {
-  existKey: (key: StoreKeyType<S>) => Promise<boolean>;
-  getByKey: (key: StoreKeyType<S>) => Promise<(S["data"] | null)>;
-  deleteByKey: (key: StoreKeyType<S>) => Promise<boolean>;
-  select: (query: IDBValidKey | IDBKeyRange | null, direction?: IDBCursorDirection) => Promise<Array<S["data"]> | null>;
-  insert: (value: S["data"]) => Promise<StoreKeyType<S>>;
-  update: (value: S["data"]) => Promise<StoreKeyType<S>>;
-  upsert: (value: S["data"]) => Promise<{ action: "insert" | "update"; key: StoreKeyType<S>; }>;
-};
+) : (AutoIncrementKey | IDBValidKey);
 
 export default async function getIndexedDB<
   T extends AnyStores = AnyStores
@@ -101,12 +115,15 @@ export default async function getIndexedDB<
             params.options
           );
 
-          const stores = {} as Record<keyof T, IndexedDBStoreController<any>>;
+          const stores = {} as any;
+
           storeNames.forEach(storeName => {
             const store = trans.objectStore(storeName);
-            type KeyType = StoreKeyType<T[keyof T]>;
 
-            function getByKey(key: number) {
+            type StoreType = T[keyof T];
+            type KeyType = StoreKeyType<StoreType>;
+
+            function getByKey(key: IDBValidKey) {
               return new Promise<any>((resolve) => {
                 const req = store.get(key);
                 req.onerror = () => resolve(null);
@@ -116,21 +133,14 @@ export default async function getIndexedDB<
               });
             };
 
-            async function existKey(key: number) {
+            async function existKey(key: IDBValidKey) {
               const value = await getByKey(key);
               return value != null;
             };
 
-            stores[storeName as keyof T] = {
+            const read = {
               existKey,
               getByKey,
-              deleteByKey: (key) => {
-                return new Promise((resolve) => {
-                  const req = store.delete(key);
-                  req.onerror = () => resolve(false);
-                  req.onsuccess = () => resolve(true);
-                });
-              },
               select: (query, dir) => {
                 return new Promise((resolve) => {
                   const ret: any[] = [];
@@ -145,6 +155,16 @@ export default async function getIndexedDB<
                       resolve(ret);
                     }
                   };
+                });
+              },
+            } satisfies IndexedDBStoreReadController<StoreType>;
+
+            const write = params.mode !== "readwrite" ? {} : {
+              deleteByKey: (key) => {
+                return new Promise((resolve) => {
+                  const req = store.delete(key);
+                  req.onerror = () => resolve(false);
+                  req.onsuccess = () => resolve(true);
                 });
               },
               insert: (value) => {
@@ -186,7 +206,7 @@ export default async function getIndexedDB<
                     reject(`Cannot extract key from value using keyPath: ${store.keyPath}`);
                     return;
                   }
-                  existKey(keyValue).then((isExist) => {
+                  existKey(keyValue as IDBValidKey).then((isExist) => {
                     const upsertReq = isExist ? store.put(value) : store.add(value);
                     upsertReq.onerror = (event) => reject(event);
                     upsertReq.onsuccess = (event) => {
@@ -199,7 +219,9 @@ export default async function getIndexedDB<
                   });
                 });
               },
-            };
+            } satisfies IndexedDBStoreWriteController<StoreType>;
+
+            stores[storeName as keyof T] = { ...read, ...write };
           });
 
           return process(stores);
