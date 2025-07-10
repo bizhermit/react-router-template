@@ -228,36 +228,38 @@ export default function Page(props: Route.ComponentProps) {
   // console.log(dataItems);
 
   return (
-    <SchemaProvider>
-      <div>
-      </div>
-      <fetcher.Form
-        method="post"
-        encType="multipart/form-data"
-        noValidate
-        onSubmit={handleSubmit}
-        onReset={handleReset}
-      >
-        <ColorComponents />
-        <Component1 />
-        <Component2 />
-        <Button
-          type="submit"
-          round
+    <>
+      <ColorComponents />
+      <SchemaProvider>
+        <fetcher.Form
+          method="post"
+          encType="multipart/form-data"
+          noValidate
+          onSubmit={handleSubmit}
+          onReset={handleReset}
         >
-          submit
-        </Button>
-        <Button
-          type="reset"
-          color="sub"
-          round
-        >
-          reset
-        </Button>
-      </fetcher.Form>
+
+          <Component1 />
+          <Component2 />
+          <Button
+            type="submit"
+            round
+          >
+            submit
+          </Button>
+          <Button
+            type="reset"
+            color="sub"
+            round
+          >
+            reset
+          </Button>
+        </fetcher.Form>
+      </SchemaProvider>
       <LangComponent />
       <IndexedDBComponent />
-    </SchemaProvider>
+      <StreamCompoment />
+    </>
   );
 };
 
@@ -620,6 +622,40 @@ function IndexedDBComponent() {
             </Button>
           </div>
         </>}
+    </section>
+  );
+};
+
+function StreamCompoment() {
+  const [output, setOutput] = useState("");
+
+  return (
+    <section>
+      <h2>Stream Response</h2>
+      <Button
+        onClick={async ({ unlock }) => {
+          try {
+            const res = await fetch("/sandbox/stream", { method: "POST" });
+            if (!res.ok) throw new Error("response error");
+            const reader = res.body?.getReader();
+            const decorder = new TextDecoder();
+
+            while (true) {
+              const { done, value } = await reader!.read();
+              if (done) break;
+              setOutput((prev) => prev + decorder.decode(value));
+            }
+          } catch (e) {
+            console.error(e);
+          }
+          unlock();
+        }}
+      >
+        start
+      </Button>
+      <div className="break-words">
+        {output}
+      </div>
     </section>
   );
 };
