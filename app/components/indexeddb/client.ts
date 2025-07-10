@@ -11,8 +11,8 @@ interface IndexedDBProps {
 };
 
 type AnyStore = {
-  key: string;
-  columns: { [C: string]: unknown; };
+  key?: string | string[];
+  data: { [C: string]: unknown; };
 };
 
 type AnyStores = { [Store: string]: AnyStore; };
@@ -27,21 +27,25 @@ export interface IndexedDBController<S extends AnyStores> {
       mode?: IDBTransactionMode;
       options?: IDBTransactionOptions;
     },
-    process: (params: {
-      stores: { [K in Store]: IndexedDBStoreController<S[K]>; };
-    }) => Promise<R>
+    process: (stores: { [K in Store]: IndexedDBStoreController<S[K]>; }) => Promise<R>
   ) => Promise<R>;
 };
 
-type StoreKeyType<S extends AnyStore> = S["columns"][S["key"]];
+type AutoIncrementKey = number;
+type StoreKeyType<S extends AnyStore> = S extends { key: infer K; } ? (
+  K extends string[] ? { [PK in keyof K]: K[PK] extends string ? S["data"][K[PK]] : never } :
+  K extends string ? S["data"][K] :
+  never
+) : AutoIncrementKey;
 
 export interface IndexedDBStoreController<S extends AnyStore> {
-  getByKey: (key: StoreKeyType<S>) => Promise<(S["columns"] | null)>;
+  existKey: (key: StoreKeyType<S>) => Promise<boolean>;
+  getByKey: (key: StoreKeyType<S>) => Promise<(S["data"] | null)>;
   deleteByKey: (key: StoreKeyType<S>) => Promise<boolean>;
-  select: (query: IDBValidKey | IDBKeyRange | null, direction?: IDBCursorDirection) => Promise<Array<S["columns"]> | null>;
-  insert: (value: S["columns"]) => Promise<StoreKeyType<S>>;
-  update: (value: S["columns"]) => Promise<StoreKeyType<S>>;
-  upsert: (value: S["columns"]) => Promise<{ action: "insert" | "update"; key: StoreKeyType<S>; }>;
+  select: (query: IDBValidKey | IDBKeyRange | null, direction?: IDBCursorDirection) => Promise<Array<S["data"]> | null>;
+  insert: (value: S["data"]) => Promise<StoreKeyType<S>>;
+  update: (value: S["data"]) => Promise<StoreKeyType<S>>;
+  upsert: (value: S["data"]) => Promise<{ action: "insert" | "update"; key: StoreKeyType<S>; }>;
 };
 
 export default async function getIndexedDB<
@@ -100,16 +104,26 @@ export default async function getIndexedDB<
           const stores = {} as Record<keyof T, IndexedDBStoreController<any>>;
           storeNames.forEach(storeName => {
             const store = trans.objectStore(storeName);
+            type KeyType = StoreKeyType<T[keyof T]>;
+
+            function getByKey(key: number) {
+              return new Promise<any>((resolve) => {
+                const req = store.get(key);
+                req.onerror = () => resolve(null);
+                req.onsuccess = () => {
+                  resolve(req.result);
+                };
+              });
+            };
+
+            async function existKey(key: number) {
+              const value = await getByKey(key);
+              return value != null;
+            };
+
             stores[storeName as keyof T] = {
-              getByKey: (key) => {
-                return new Promise<any>((resolve) => {
-                  const req = store.get(key);
-                  req.onerror = () => resolve(null);
-                  req.onsuccess = () => {
-                    resolve(req.result);
-                  };
-                });
-              },
+              existKey,
+              getByKey,
               deleteByKey: (key) => {
                 return new Promise((resolve) => {
                   const req = store.delete(key);
@@ -138,7 +152,7 @@ export default async function getIndexedDB<
                   const req = store.add(value);
                   req.onerror = (event) => reject(event);
                   req.onsuccess = (event) => {
-                    const key = (event.target as IDBRequest<IDBValidKey>).result;
+                    const key = (event.target as IDBRequest<KeyType>).result;
                     resolve(key);
                   };
                 });
@@ -148,45 +162,47 @@ export default async function getIndexedDB<
                   const req = store.put(value);
                   req.onerror = (event) => reject(event);
                   req.onsuccess = (event) => {
-                    const key = (event.target as IDBRequest<IDBValidKey>).result;
+                    const key = (event.target as IDBRequest<KeyType>).result;
                     resolve(key);
                   };
                 });
               },
               upsert: (value) => {
                 return new Promise((resolve, reject) => {
-                  const keyPath = Array.isArray(store.keyPath) ? store.keyPath[0] : store.keyPath;
-                  if (!keyPath) {
+                  if (!store.keyPath) {
                     reject(`${storeName} has no keyPath`);
                     return;
                   }
-                  const keyValue = value[keyPath];
+                  const keyValue = (() => {
+                    if (!store.keyPath) return null;
+                    if (Array.isArray(store.keyPath)) {
+                      return store.keyPath.map(key => {
+                        return value[key];
+                      });
+                    }
+                    return value[store.keyPath];
+                  })();
                   if (keyValue == null) {
-                    reject(`Cannot extract key from value using keyPath: ${keyPath}`);
+                    reject(`Cannot extract key from value using keyPath: ${store.keyPath}`);
                     return;
                   }
-                  const getReq = store.get(keyValue);
-                  getReq.onerror = (event) => reject(event);
-                  getReq.onsuccess = () => {
-                    const isExists = getReq.result != null;
-                    const upsertReq = isExists ? store.put(value) : store.add(value);
+                  existKey(keyValue).then((isExist) => {
+                    const upsertReq = isExist ? store.put(value) : store.add(value);
                     upsertReq.onerror = (event) => reject(event);
                     upsertReq.onsuccess = (event) => {
-                      const key = (event.target as IDBRequest<IDBValidKey>).result;
+                      const key = (event.target as IDBRequest<KeyType>).result;
                       resolve({
-                        action: isExists ? "update" : "insert",
+                        action: isExist ? "update" : "insert",
                         key,
                       });
                     };
-                  };
+                  });
                 });
               },
             };
           });
 
-          return process({
-            stores,
-          });
+          return process(stores);
         },
       });
     };

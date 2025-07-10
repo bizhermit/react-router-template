@@ -537,7 +537,7 @@ function LangComponent() {
 type Stores = IndexedDBStores<{
   hoge: {
     key: "email";
-    columns: {
+    data: {
       email: string;
       name: string;
       age: number;
@@ -574,13 +574,13 @@ function IndexedDBComponent() {
           <div className="flex flex-row gap-2">
             <Button
               onClick={async ({ unlock }) => {
-                await db.trans({
+                const value = await db.trans({
                   storeNames: "hoge",
                   mode: "readonly",
-                }, async ({ stores }) => {
-                  const value = await stores.hoge.getByKey("hoge@example.com");
-                  console.log("show:", value);
+                }, async ({ hoge }) => {
+                  return await hoge.getByKey("hoge@example.com");
                 });
+                console.log("get", value);
                 unlock();
               }}
             >
@@ -588,16 +588,17 @@ function IndexedDBComponent() {
             </Button>
             <Button
               onClick={async ({ unlock }) => {
-                await db.trans({
+                const key = await db.trans({
                   storeNames: "hoge",
                   mode: "readwrite",
-                }, async ({ stores: { hoge } }) => {
-                  await hoge.insert({
+                }, async ({ hoge }) => {
+                  return await hoge.insert({
                     email: "hoge@example.com",
                     age: 18,
                     name: "Tarou",
                   });
                 });
+                console.log("insert", key);
                 unlock();
               }}
             >
@@ -605,12 +606,13 @@ function IndexedDBComponent() {
             </Button>
             <Button
               onClick={async ({ unlock }) => {
-                await db.trans({
+                const result = await db.trans({
                   storeNames: "hoge",
                   mode: "readwrite",
-                }, async ({ stores: { hoge } }) => {
-                  await hoge.deleteByKey("hoge@example.com");
+                }, async ({ hoge }) => {
+                  return await hoge.deleteByKey("hoge@example.com");
                 });
+                console.log("delete", result);
                 unlock();
               }}
             >
