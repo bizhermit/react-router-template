@@ -232,11 +232,7 @@ export default function Page(props: Route.ComponentProps) {
     <>
       <ColorComponents />
       <SchemaProvider>
-        <fetcher.Form
-          {...getFormProps("post")}
-          onSubmit={handleSubmit}
-          onReset={handleReset}
-        >
+        <fetcher.Form {...getFormProps("post")}>
           <Component1 />
           <Component2 />
           <div className="flex gap-2">

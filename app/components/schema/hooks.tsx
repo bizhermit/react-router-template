@@ -446,6 +446,8 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
       method,
       noValidate: true,
       encType: hasFile ? "multipart/form-data" as const : undefined,
+      onSubmit: handleSubmit,
+      onReset: handleReset,
     } satisfies FormHTMLAttributes<HTMLFormElement>;
   };
 
