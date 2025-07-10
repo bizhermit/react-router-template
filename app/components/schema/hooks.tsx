@@ -487,7 +487,7 @@ type SetValue<P extends Schema.$Any> =
   | Schema.ValueType<P, false>
   | null
   | undefined
-  | ((currentValue: Schema.ValueType<P, true> | null | undefined) => Schema.ValueType<P, false>)
+  | ((currentValue: Schema.ValueType<P, true, true> | null | undefined) => Schema.ValueType<P, false>)
   ;
 
 export function useSchemaValue<D extends Schema.DataItem<Schema.$Any>>(dataItem: D) {
@@ -511,7 +511,7 @@ export function useSchemaValue<D extends Schema.DataItem<Schema.$Any>>(dataItem:
   const [value, setValue] = useState(getValue);
 
   function getValue() {
-    return schema.data.current.get(dataItem.name) as Schema.ValueType<D["_"]>;
+    return schema.data.current.get(dataItem.name) as Schema.ValueType<D["_"], true, true>;
   };
 
   function set(value: SetValue<D["_"]>) {
