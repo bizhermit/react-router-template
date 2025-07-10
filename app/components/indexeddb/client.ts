@@ -26,7 +26,7 @@ interface IndexedDBStoreReadController<S extends AnyStore> {
 }
 
 export interface IndexedDBStoreWriteController<S extends AnyStore> {
-  deleteByKey: (key: StoreKeyType<S>) => Promise<boolean>;
+  deleteByKey: (key: StoreKeyType<S>) => Promise<void>;
   insert: (value: S["data"]) => Promise<StoreKeyType<S>>;
   update: (value: S["data"]) => Promise<StoreKeyType<S>>;
   upsert: (value: S["data"]) => Promise<{ action: "insert" | "update"; key: StoreKeyType<S>; }>;
@@ -161,10 +161,10 @@ export default async function getIndexedDB<
 
             const write = params.mode !== "readwrite" ? {} : {
               deleteByKey: (key) => {
-                return new Promise((resolve) => {
+                return new Promise((resolve, reject) => {
                   const req = store.delete(key);
-                  req.onerror = () => resolve(false);
-                  req.onsuccess = () => resolve(true);
+                  req.onerror = () => reject();
+                  req.onsuccess = () => resolve();
                 });
               },
               insert: (value) => {
