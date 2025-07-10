@@ -39,6 +39,7 @@ export default tseslint.config({
     ],
     "@stylistic/eol-last": "warn",
     "@stylistic/no-multiple-empty-lines": "warn",
+    "prefer-const": "warn",
     "@stylistic/quotes": [
       "warn",
       "double",

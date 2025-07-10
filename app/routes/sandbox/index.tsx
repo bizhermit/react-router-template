@@ -209,6 +209,7 @@ export default function Page(props: Route.ComponentProps) {
     SchemaProvider,
     handleSubmit,
     handleReset,
+    getFormProps,
   } = useSchema({
     schema,
     // loaderData: props.loaderData ? props.loaderData.data : undefined,
@@ -232,28 +233,27 @@ export default function Page(props: Route.ComponentProps) {
       <ColorComponents />
       <SchemaProvider>
         <fetcher.Form
-          method="post"
-          encType="multipart/form-data"
-          noValidate
+          {...getFormProps("post")}
           onSubmit={handleSubmit}
           onReset={handleReset}
         >
-
           <Component1 />
           <Component2 />
-          <Button
-            type="submit"
-            round
-          >
-            submit
-          </Button>
-          <Button
-            type="reset"
-            color="sub"
-            round
-          >
-            reset
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              type="submit"
+              round
+            >
+              submit
+            </Button>
+            <Button
+              type="reset"
+              color="sub"
+              round
+            >
+              reset
+            </Button>
+          </div>
         </fetcher.Form>
       </SchemaProvider>
       <LangComponent />

@@ -1,4 +1,4 @@
-import { createContext, use, useCallback, useContext, useId, useLayoutEffect, useMemo, useRef, useState, type FormEvent, type ReactNode, type RefObject } from "react";
+import { createContext, use, useCallback, useContext, useId, useLayoutEffect, useMemo, useRef, useState, type FormEvent, type FormHTMLAttributes, type ReactNode, type RefObject } from "react";
 import { unstable_usePrompt } from "react-router";
 import { useText } from "~/i18n/hooks";
 import { parseWithSchema } from ".";
@@ -179,12 +179,15 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
     return submission;
   };
 
-  const schema = useMemo(() => {
+  const { schema, hasFile } = useMemo(() => {
     isInitialize.current = true;
     isEffected.current = false;
     dep.current = props.dep ?? EMPTY_STRUCT;
-    refresh("init", argData);
-    return props.schema;
+    const submission = refresh("init", argData);
+    return {
+      schema: props.schema,
+      hasFile: submission.hasFile,
+    };
   }, [argData]);
 
   const addSubscribe = useCallback((
@@ -438,6 +441,14 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, []);
 
+  function getFormProps(method: "get" | "post" | "put") {
+    return {
+      method,
+      noValidate: true,
+      encType: hasFile ? "multipart/form-data" as const : undefined,
+    } satisfies FormHTMLAttributes<HTMLFormElement>;
+  };
+
   return {
     SchemaProvider,
     dataItems: dataItems.current,
@@ -448,6 +459,7 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
     handleReset,
     validation,
     reset,
+    getFormProps,
   } as const;
 };
 

@@ -16,6 +16,7 @@ export function parseWithSchema<$Schema extends Record<string, Schema.$Any>>(par
   const validations: (() => void)[] = [];
   const results: Record<string, Schema.Result> = {};
   const dataItems: Record<string, Schema.DataItem<Schema.$Any>> = {};
+  let hasFile = false;
 
   function parseItem({ item, name, parent }: {
     item: Schema.$Any;
@@ -157,6 +158,9 @@ export function parseWithSchema<$Schema extends Record<string, Schema.$Any>>(par
           parent: dataItem as Schema.DataItem<Schema.$Struct>,
         });
         break;
+      case "file":
+        hasFile = true;
+        break;
       default:
         break;
     };
@@ -194,15 +198,18 @@ export function parseWithSchema<$Schema extends Record<string, Schema.$Any>>(par
     hasError: Object.keys(results).some(k => results[k].type === "e"),
     results,
     dataItems: params.createDataItems ? dataItems : undefined,
+    hasFile,
   } as ({
     hasError: true;
     data: Schema.SchemaValue<$Schema, true>;
     results: Record<string, Schema.Result>;
     dataItems: Schema.DataItems<$Schema>;
+    hasFile: boolean;
   } | {
     hasError: false;
     data: Schema.SchemaValue<$Schema>;
     results: Record<string, Schema.Result>;
     dataItems: Schema.DataItems<$Schema>;
+    hasFile: boolean;
   });
 };
