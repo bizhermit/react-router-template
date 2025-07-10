@@ -9,7 +9,8 @@ export default [
   // ]),
   route("csp-report", "routes/csp-report.tsx"),
   ...prefix("sandbox", [
-    route("stream", "routes/sandbox/stream.ts"),
+    index("routes/sandbox/index.tsx"),
+    route("stream", "routes/sandbox/stream-api.ts"),
   ]),
   route("*", "routes/fallback.tsx"),
 ] satisfies RouteConfig;
