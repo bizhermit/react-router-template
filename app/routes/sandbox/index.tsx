@@ -14,6 +14,7 @@ import { TextArea } from "~/components/elements/form/text-area";
 import { TextBox } from "~/components/elements/form/text-box";
 import { clsx } from "~/components/elements/utilities";
 import getIndexedDB, { type IndexedDBController, type IndexedDBStores } from "~/components/indexeddb/client";
+import { formatDate } from "~/components/objects/date";
 import { parseNumber } from "~/components/objects/numeric";
 import { $schema } from "~/components/schema";
 import { $array } from "~/components/schema/array";
@@ -572,9 +573,8 @@ function IndexedDBComponent() {
           <div className="flex flex-row gap-2">
             <Button
               onClick={async ({ unlock }) => {
-                const value = await db.trans({
+                const value = await db.read({
                   storeNames: "hoge",
-                  mode: "readonly",
                 }, async ({ hoge }) => {
                   return await hoge.getByKey("hoge@example.com");
                 });
@@ -586,9 +586,8 @@ function IndexedDBComponent() {
             </Button>
             <Button
               onClick={async ({ unlock }) => {
-                const key = await db.trans({
+                const key = await db.write({
                   storeNames: "hoge",
-                  mode: "readwrite",
                 }, async ({ hoge }) => {
                   return await hoge.insert({
                     email: "hoge@example.com",
@@ -604,9 +603,41 @@ function IndexedDBComponent() {
             </Button>
             <Button
               onClick={async ({ unlock }) => {
-                const result = await db.trans({
+                const key = await db.write({
                   storeNames: "hoge",
-                  mode: "readwrite",
+                }, async ({ hoge }) => {
+                  const value = await hoge.getByKey("hoge@example.com");
+                  if (value == null) return;
+                  value.age = 88;
+                  return await hoge.update(value);
+                });
+                console.log("update", key);
+                unlock();
+              }}
+            >
+              update
+            </Button>
+            <Button
+              onClick={async ({ unlock }) => {
+                const key = await db.write({
+                  storeNames: "hoge",
+                }, async ({ hoge }) => {
+                  hoge.upsert({
+                    email: "fuga@example.com",
+                    age: 0,
+                    name: formatDate(new Date(), "yyyy-MM-dd hh:mm:ss") || "",
+                  });
+                });
+                console.log("upsert", key);
+                unlock();
+              }}
+            >
+              upsert
+            </Button>
+            <Button
+              onClick={async ({ unlock }) => {
+                const result = await db.write({
+                  storeNames: "hoge",
                 }, async ({ hoge }) => {
                   return await hoge.deleteByKey("hoge@example.com");
                 });
