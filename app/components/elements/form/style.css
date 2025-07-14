@@ -10,6 +10,10 @@
     justify-content: flex-start;
     align-items: flex-start;
     gap: 0;
+
+    &:empty {
+      display: none;
+    }
   }
 
   .ipt {
