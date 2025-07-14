@@ -1,0 +1,18 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model user {
+  id         String   @id @default(cuid())
+  email      String   @db.VarChar(128)
+  password   String?
+  name       String   @db.VarChar(32)
+  state      String   @default("0") @db.Char(1) // 0: 仮, 1: 有効, 8: 停止, 9: 削除
+  created_at DateTime @default(now())
+  updated_at DateTime
+}

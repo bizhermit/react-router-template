@@ -8,6 +8,18 @@
       "command": "git switch main && git pull && git fetch --prune && git branch -vv | grep ': gone]' | awk '{print $1}' | xargs -r git branch -d"
     },
     {
+      "label": "migrate",
+      "group": "none",
+      "type": "shell",
+      "command": "npm run migrate"
+    },
+    {
+      "label": "Prisma Studio",
+      "group": "none",
+      "type": "shell",
+      "command": "npm run prisma"
+    },
+    {
       "label": "typecheck",
       "group": "none",
       "type": "shell",

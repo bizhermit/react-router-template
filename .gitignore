@@ -1,9 +1,9 @@
 .DS_Store
 /node_modules/
 
-# React Router
+/.vscode/settings.json
+
 /.react-router/
 /build/
 /.env*.local
-
-/.vscode/settings.json
+/prisma/migrations

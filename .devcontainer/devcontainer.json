@@ -1,0 +1,48 @@
+{
+  "name": "template",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "node",
+  "workspaceFolder": "/workspace",
+  "postCreateCommand": "bash ./.devcontainer/postCreatedCommand.sh",
+  "postStartCommand": "bash ./.devcontainer/postStartCommand.sh",
+  "overrideCommand": true,
+  "remoteUser": "node",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "MS-CEINTL.vscode-language-pack-ja",
+        "ms-azuretools.vscode-docker",
+        "eamodio.gitlens",
+        "mhutchie.git-graph",
+        "EditorConfig.EditorConfig",
+        "yzhang.markdown-all-in-one",
+        "shd101wyy.markdown-preview-enhanced",
+        "Pivotal.vscode-manifest-yaml",
+        "hediet.vscode-drawio",
+        "dbaeumer.vscode-eslint",
+        "dsznajder.es7-react-js-snippets",
+        "clinyong.vscode-css-modules",
+        "Prisma.prisma",
+        "bradlc.vscode-tailwindcss",
+        "AndrewButson.vscode-openapi-viewer",
+        "ritwickdey.LiveServer",
+        "jock.svg"
+      ],
+      "settings": {
+        "files.associations": {
+          ".env.*": "properties",
+          "fonts.conf": "xml"
+        },
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "explicit",
+          "source.organizeImports": "explicit"
+        },
+        "[prisma]": {
+          "editor.defaultFormatter": "Prisma.prisma"
+        },
+        "liveServer.settings.root": "/build/client"
+      }
+    }
+  }
+}
