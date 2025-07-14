@@ -9,7 +9,7 @@ import {
 
 import type { ReactNode } from "react";
 import type { Route } from "./+types/root";
-import "./app.css";
+import "./global.css";
 import { useLocale } from "./i18n/hooks";
 import { I18nCookieLocator } from "./i18n/provider";
 
