@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   node:
-    container_name: 'node22_dev'
+    container_name: 'template_node_dev'
     env_file:
       - path: '../.env'
         required: false
