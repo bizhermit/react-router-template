@@ -24,6 +24,7 @@ export function $num<Props extends Schema.NumberProps>(props?: Props) {
   const [min, getMinMessage] = getValidationArray(props?.min);
   const [max, getMaxMessage] = getValidationArray(props?.max);
   const [float, getFloatMessage] = getValidationArray(props?.float);
+  const [sourceValidation, getSourceValidationMessage] = getValidationArray(props?.sourceValidation);
 
   if (required) {
     const textKey = getRequiredTextKey(actionType);
@@ -59,13 +60,12 @@ export function $num<Props extends Schema.NumberProps>(props?: Props) {
     }
   };
 
-  if (props?.source) {
+  if (sourceValidation !== false && props?.source) {
     const source = props.source;
     const textKey = getInvalidValueTextKey(actionType);
-    const sourceValidationMessage = props.sourceValidationMessage;
-    const getMessage: Schema.MessageGetter<typeof sourceValidationMessage> =
-      sourceValidationMessage ?
-        sourceValidationMessage :
+    const getMessage: Schema.MessageGetter<typeof getSourceValidationMessage> =
+      getSourceValidationMessage ?
+        getSourceValidationMessage :
         (p) => p.env.t(textKey, {
           label: p.label || p.env.t("default_label"),
         });

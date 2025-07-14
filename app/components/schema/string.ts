@@ -152,6 +152,7 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
   const [minLength, getMinLengthMessage] = getValidationArray(props?.min);
   const [maxLength, getMaxLengthMessage] = getValidationArray(props?.max);
   const [pattern, getPatternMessage] = getValidationArray(props?.pattern);
+  const [sourceValidation, getSourceValidationMessage] = getValidationArray(props?.sourceValidation);
 
   if (required) {
     const textKey = getRequiredTextKey(actionType);
@@ -187,13 +188,12 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
     }
   };
 
-  if (props?.source) {
+  if (sourceValidation !== false && props?.source) {
     const source = props.source;
     const textKey = getInvalidValueTextKey(actionType);
-    const sourceValidationMessage = props.sourceValidationMessage;
-    const getMessage: Schema.MessageGetter<typeof sourceValidationMessage> =
-      sourceValidationMessage ?
-        sourceValidationMessage :
+    const getMessage: Schema.MessageGetter<typeof getSourceValidationMessage> =
+      getSourceValidationMessage ?
+        getSourceValidationMessage :
         (p) => p.env.t(textKey, {
           label: p.label || p.env.t("default_label"),
         });

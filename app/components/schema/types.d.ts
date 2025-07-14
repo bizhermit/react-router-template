@@ -83,7 +83,6 @@ namespace Schema {
   type ValidationArray<T extends Validation<unknown, unknown>> =
     T extends Array<unknown> ? T : [Exclude<T, undefined>];
 
-  // eslint-disable-next-line @stylistic/max-len
   type PickCustomValidationMessageAddonParams<T extends CustomValidationMessage<unknown, unknown> | undefined> =
     Omit<Parameters<Exclude<T, undefined>>[0], keyof ValidationParams<unknown>>;
 
@@ -145,7 +144,7 @@ namespace Schema {
     parser?: Parser<V>;
     required?: Validation<boolean, V>;
     source?: Source<V> | DynamicValidationValue<Source<V>>;
-    sourceValidationMessage?: CustomValidationMessage<V, { source: Source<V>; }>;
+    sourceValidation?: Validation<boolean, V, { source: Source<V>; }>;
     len?: Validation<number, V, { length: number; currentLength: number; }>;
     min?: Validation<number, V, { minLength: number; currentLength: number; }>;
     max?: Validation<number, V, { maxLength: number; currentLength: number; }>;
@@ -170,7 +169,7 @@ namespace Schema {
     parser?: Parser<V>;
     required?: Validation<boolean, V>;
     source?: Source<V> | DynamicValidationValue<Source<V>>;
-    sourceValidationMessage?: CustomValidationMessage<V, { source: Source<V>; }>;
+    sourceValidation?: Validation<boolean, V, { source: Source<V>; }>;
     min?: Validation<number, V, { min: number; }>;
     max?: Validation<number, V, { max: number; }>;
     float?: Validation<number, V, { float: number; currentFloat: number; }>;
