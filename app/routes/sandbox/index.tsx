@@ -55,6 +55,7 @@ const schema = $schema({
     min: 4,
     pattern: "email",
     label: "テキスト",
+    sourceValidation: false,
     source: [
       { value: "hoge@example.com" },
       { value: "fuga@example.com" },
@@ -82,6 +83,7 @@ const schema = $schema({
     ] as const,
   }),
   count: $num({
+    sourceValidation: false,
     source: [
       { value: 10 },
       { value: 20 },
