@@ -15,7 +15,7 @@ export type DateSelectBoxProps<D extends Schema.DataItem<Schema.$SplitDate>> = I
   | [string, string, string, string, string, string];
 };
 
-const DEFAULT_MIN_DATE = new Date("1970-01-01T00:00:00");
+const DEFAULT_MIN_DATE = new Date("1900-01-01T00:00:00");
 const DEFAULT_MAX_DATE = new Date("2099-12-31T23:59:59");
 
 function SepSpan(props: { children: ReactNode; }) {
