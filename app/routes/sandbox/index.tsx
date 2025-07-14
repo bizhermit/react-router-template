@@ -55,6 +55,11 @@ const schema = $schema({
     min: 4,
     pattern: "email",
     label: "テキスト",
+    source: [
+      { value: "hoge@example.com" },
+      { value: "fuga@example.com" },
+      { value: "piyo@example.com" },
+    ],
   }),
   requiredText: $str({
     required: true,
@@ -76,7 +81,12 @@ const schema = $schema({
       { value: "piyo", text: "PIYO" },
     ] as const,
   }),
-  count: $num(),
+  count: $num({
+    source: [
+      { value: 10 },
+      { value: 20 },
+    ],
+  }),
   // age: $num({ required: true }),
   generation: $num({
     source: [

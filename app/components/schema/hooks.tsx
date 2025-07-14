@@ -905,6 +905,7 @@ export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
 
   return {
     props,
+    id,
     name: $.name,
     label: $.label,
     value,

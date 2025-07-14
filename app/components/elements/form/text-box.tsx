@@ -1,10 +1,12 @@
 import { useRef, useState, type ChangeEvent, type HTMLAttributes, type HTMLInputTypeAttribute } from "react";
 import { useSchemaItem } from "~/components/schema/hooks";
 import { getValidationValue, InputField, type InputWrapProps } from "./common";
+import { useSource } from "./utilities";
 
 export type TextBoxProps<D extends Schema.DataItem<Schema.$String>> = InputWrapProps & {
   $: D;
   placeholder?: string;
+  source?: Schema.Source<Schema.ValueType<D["_"]>>;
 };
 
 function getPatternInputProps(pattern: Schema.StringProps["pattern"]): { type?: HTMLInputTypeAttribute; inputMode?: HTMLAttributes<HTMLInputElement>["inputMode"]; } {
@@ -30,11 +32,13 @@ function getPatternInputProps(pattern: Schema.StringProps["pattern"]): { type?: 
 
 export function TextBox<D extends Schema.DataItem<Schema.$String>>({
   placeholder,
+  source: propsSource,
   ...$props
 }: TextBoxProps<D>) {
   const ref = useRef<HTMLInputElement>(null!);
 
   const {
+    id,
     name,
     dataItem,
     state,
@@ -46,6 +50,7 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
     invalid,
     errormessage,
     getCommonParams,
+    env,
     props,
   } = useSchemaItem<Schema.DataItem<Schema.$String>>($props, {
     effect: function ({ value }) {
@@ -56,6 +61,7 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
     effectContext: function () {
       setMinLen(getMinLen);
       setMaxLen(getMaxLen);
+      resetDataItemSource();
     },
   });
 
@@ -74,12 +80,21 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
 
   const [maxLen, setMaxLen] = useState<number | undefined>(getMaxLen);
 
+  const { source, resetDataItemSource } = useSource({
+    dataItem,
+    propsSource,
+    env,
+    getCommonParams,
+  });
+
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
     if (!state.current.enabled) return;
     setValue(e.target.value);
   };
 
   const patternProps = getPatternInputProps(dataItem._.pattern);
+
+  const dataListId = source == null ? undefined : `${id}_dl`;
 
   return (
     <InputField
@@ -106,7 +121,20 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
         aria-label={label}
         aria-invalid={invalid}
         aria-errormessage={errormessage}
+        list={dataListId}
       />
+      {source && <>
+        <datalist id={dataListId}>
+          {source.map(item => {
+            return (
+              <option
+                key={item.value}
+                value={item.value ?? ""}
+              />
+            );
+          })}
+        </datalist>
+      </>}
     </InputField>
   );
 };

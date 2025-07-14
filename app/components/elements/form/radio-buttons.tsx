@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState, type ChangeEvent, type MouseEvent } from "react";
+import { useRef, type ChangeEvent, type MouseEvent } from "react";
 import { useSchemaItem } from "~/components/schema/hooks";
-import { getValidationValue, InputGroup, InputLabel, InputLabelText, type InputWrapProps } from "./common";
-import { getBooleanSource } from "./utilities";
+import { InputGroup, InputLabel, InputLabelText, type InputWrapProps } from "./common";
+import { useSource } from "./utilities";
 
 type RadioButtonsSchemaProps = Schema.$String | Schema.$Number | Schema.$Boolean;
 
@@ -45,25 +45,16 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
         });
       }
     },
-    effectContext: function (p) {
-      if (propsSource == null && "source" in dataItem._) {
-        setSource(getValidationValue(p, dataItem._.source) ?? []);
-      }
+    effectContext: function () {
+      resetDataItemSource();
     },
   });
 
-  const [source, setSource] = useState<Schema.Source<unknown>>(() => {
-    if (propsSource) return propsSource;
-    if ("source" in dataItem._) {
-      return getValidationValue(getCommonParams(), dataItem._.source) ?? [];
-    }
-    if (dataItem._.type === "bool") {
-      return getBooleanSource({
-        dataItem: dataItem as Schema.DataItem<Schema.$Boolean>,
-        t: env.t,
-      });
-    }
-    return [];
+  const { source, resetDataItemSource } = useSource({
+    dataItem,
+    propsSource,
+    env,
+    getCommonParams,
   });
 
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
@@ -78,12 +69,6 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
     setValue(undefined);
   };
 
-  useEffect(() => {
-    if (propsSource) {
-      setSource(propsSource);
-    }
-  }, [propsSource]);
-
   return (
     <InputGroup
       {...props}
@@ -93,7 +78,7 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
         result,
       }}
     >
-      {source.map(item => {
+      {source?.map(item => {
         const key = String(item.value);
         return (
           <InputLabel key={key}>

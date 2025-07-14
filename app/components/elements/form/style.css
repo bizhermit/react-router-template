@@ -90,6 +90,10 @@
     outline: none;
     background-color: transparent;
     padding-inline: var(--spacing-input-pad-x);
+
+    &::-webkit-calendar-picker-indicator {
+      display: none !important;
+    }
   }
 
   .ipt-label {

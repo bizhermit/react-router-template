@@ -102,7 +102,7 @@ namespace Schema {
 
   interface SourceItem<V> {
     value: V;
-    text: string;
+    text?: string;
   };
 
   type Source<V> = SourceItem<V>[];

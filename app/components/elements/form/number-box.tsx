@@ -2,10 +2,12 @@ import { useMemo, useRef, useState, type ChangeEvent, type FocusEvent, type Keyb
 import { useSchemaItem } from "~/components/schema/hooks";
 import { clsx } from "../utilities";
 import { getValidationValue, InputField, type InputWrapProps } from "./common";
+import { useSource } from "./utilities";
 
 export type NumberBoxProps<D extends Schema.DataItem<Schema.$Number>> = InputWrapProps & {
   $: D;
   placeholder?: string;
+  source?: Schema.Source<Schema.ValueType<D["_"]>>;
   step?: number;
 };
 
@@ -21,6 +23,7 @@ function preventParse(result: Schema.Result | null | undefined) {
 
 export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
   placeholder,
+  source: propsSource,
   step,
   ...$props
 }: NumberBoxProps<D>) {
@@ -30,6 +33,7 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
   const isComposing = useRef(false);
 
   const {
+    id,
     name,
     dataItem,
     state,
@@ -43,6 +47,7 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
     errormessage,
     validScripts,
     getCommonParams,
+    env,
     props,
   } = useSchemaItem<Schema.DataItem<Schema.$Number>>($props, {
     effect: function ({ value, result }) {
@@ -62,6 +67,7 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
       setMin(getMin);
       setMax(getMax);
       setFloat(getFloat);
+      resetDataItemSource();
     },
   });
 
@@ -82,6 +88,13 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
   };
 
   const [float, setFloat] = useState(getFloat);
+
+  const { source, resetDataItemSource } = useSource({
+    dataItem,
+    propsSource,
+    env,
+    getCommonParams,
+  });
 
   const { inputMode, formatter } = useMemo(() => {
     return {
@@ -210,6 +223,8 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
     handleMousedown("down");
   };
 
+  const dataListId = source == null ? undefined : `${id}_dl`;
+
   return (
     <InputField
       {...props}
@@ -244,6 +259,7 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
         aria-label={label}
         aria-invalid={invalid}
         aria-errormessage={errormessage}
+        list={dataListId}
       />
       {
         validScripts &&
@@ -285,6 +301,17 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
           />
         </>
       }
+      {source &&
+        <datalist id={dataListId}>
+          {source.map(item => {
+            return (
+              <option
+                key={item.value}
+                value={item.value ?? ""}
+              />
+            );
+          })}
+        </datalist>}
     </InputField>
   );
 };

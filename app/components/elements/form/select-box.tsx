@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState, type ChangeEvent, type ReactNode } from "react";
+import { useRef, type ChangeEvent, type ReactNode } from "react";
 import { isEmpty } from "~/components/objects";
 import { useSchemaItem } from "~/components/schema/hooks";
 import { clsx, ZERO_WIDTH_SPACE } from "../utilities";
-import { getValidationValue, InputField, Placeholder, type InputWrapProps } from "./common";
-import { getBooleanSource } from "./utilities";
+import { InputField, Placeholder, type InputWrapProps } from "./common";
+import { useSource } from "./utilities";
 
 type SelectBoxSchemaProps = Schema.$String | Schema.$Number | Schema.$Boolean;
 
@@ -44,37 +44,22 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
       const sv = String(value ?? "");
       if (ref.current.value !== sv) ref.current.value = sv;
     },
-    effectContext: function (p) {
-      if (propsSource == null && "source" in dataItem._) {
-        setSource(getValidationValue(p, dataItem._.source) ?? []);
-      }
+    effectContext: function () {
+      resetDataItemSource();
     },
   });
 
-  const [source, setSource] = useState<Schema.Source<unknown>>(() => {
-    if (propsSource) return propsSource;
-    if ("source" in dataItem._) {
-      return getValidationValue(getCommonParams(), dataItem._.source) ?? [];
-    }
-    if (dataItem._.type === "bool") {
-      return getBooleanSource({
-        dataItem: dataItem as Schema.DataItem<Schema.$Boolean>,
-        t: env.t,
-      });
-    }
-    return [];
+  const { source, resetDataItemSource } = useSource({
+    dataItem,
+    propsSource,
+    env,
+    getCommonParams,
   });
 
   function handleChange(e: ChangeEvent<HTMLSelectElement>) {
     if (!state.current.enabled) return;
     setValue(e.target.value);
   };
-
-  useEffect(() => {
-    if (propsSource) {
-      setSource(propsSource);
-    }
-  }, [propsSource]);
 
   return (
     <InputField
@@ -108,7 +93,7 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
               {emptyText || ZERO_WIDTH_SPACE}
             </option>
             {
-              source.map(item => {
+              source?.map(item => {
                 const key = String(item.value);
                 return (
                   <option
