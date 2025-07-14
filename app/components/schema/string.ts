@@ -301,7 +301,7 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
             if (p.value == null || p.value === "") return null;
             const maxLen = maxLength(p);
             const cur = getLength(p.value);
-            if (cur >= maxLen) return null;
+            if (cur <= maxLen) return null;
             return {
               type: "e",
               code: "maxLength",
@@ -312,7 +312,7 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
           validators.push((p) => {
             if (p.value == null || p.value === "") return null;
             const cur = getLength(p.value);
-            if (cur >= maxLength) return null;
+            if (cur <= maxLength) return null;
             return {
               type: "e",
               code: "maxLength",
@@ -357,7 +357,11 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
           validators.push((p) => {
             if (p.value == null || p.value === "") return null;
             if (check(p.value)) return null;
-            return null;
+            return {
+              type: "e",
+              code: "pattern",
+              message: getMessage({ ...p, pattern }),
+            };
           });
         } else {
           validators.push((p) => {
