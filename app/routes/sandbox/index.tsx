@@ -201,6 +201,10 @@ const schema = $schema({
 // console.log(submittion);
 // console.log(performance.now() - start);
 
+export async function loader() {
+  return data({});
+};
+
 export async function action(args: Route.ActionArgs) {
   console.log("-----------------");
   const start = performance.now();

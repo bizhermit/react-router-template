@@ -1,16 +1,12 @@
 version: '3.8'
 services:
   node:
-    container_name: 'template_node_dev'
+    container_name: 'template_node'
     build:
       context: '../'
-      dockerfile: '.devcontainer/docker/node/Dockerfile'
-    image: 'template_node_dev'
+      dockerfile: '.container/docker/node/Dockerfile'
+    image: 'template_node'
     tty: true
-    volumes:
-      - '../:/workspace:delegated'
-      - 'template_node_dev_node_modules:/workspace/node_modules'
-      - 'template_node_dev_react-router:/workspace/.react-router'
     extra_hosts:
       - 'host.docker.internal:host-gateway'
     env_file:
@@ -19,18 +15,21 @@ services:
     environment:
       - 'TZ=${TZ:-UTC}'
       - 'LOCALHOST=${LOCALHOST:-host.docker.internal}'
+      - 'PORT=${PORT:-3000}'
       - 'DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@postgres:${POSTGRES_PORT:-5432}/${POSTGRES_DB:-template}'
-    command: bash -c 'sh /workspace/.devcontainer/postCreatedCommand.sh && npm i && npm run migrate && npm run dev && bash'
+      - 'WAITFOR=postgres:${POSTGRES_PORT:-5432}'
+    ports:
+      - '${PORT:-3000}:${PORT:-3000}'
     networks:
-      - template_dev
+      - template
     depends_on:
       - postgres
   postgres:
-    container_name: 'template_database_dev'
+    container_name: 'template_database'
     image: postgres:17-bookworm
     restart: always
     volumes:
-      - 'template_database_dev:/var/lib/postgresql/data'
+      - 'template_database:/var/lib/postgresql/data'
       - '../database/postgres/init:/docker-entrypoint-initdb.d'
     env_file:
       - path: './.env'
@@ -41,22 +40,25 @@ services:
       - 'POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password}'
       - 'POSTGRES_DB=${POSTGRES_DB:-template}'
       - 'POSTGRES_PORT=${POSTGRES_PORT:-5432}'
-    # ports: # 外部ツールから接続する場合はコメントアウトを外す
-    #   - '${POSTGRES_PORT:-5432}:${POSTGRES_PORT:-5432}'
+    healthcheck:
+      test: [ 'CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-postgres}' ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
     command: >
       postgres
       -c log_destination=stderr
-      -c log_min_messages=WARNING
-      -c log_connections=on
-      -c log_disconnections=on
-      -c log_statement=all
+      -c log_min_messages=FATAL
+      -c log_connections=off
+      -c log_disconnections=off
+      -c log_statement=none
     networks:
-      - template_dev
+      - template
 networks:
-  template_dev:
-    name: template_dev
+  template:
+    name: template
     driver: bridge
 volumes:
-  template_node_dev_node_modules:
-  template_node_dev_react-router:
-  template_database_dev:
+  template_node_node_modules:
+  template_node_react-router:
+  template_database:

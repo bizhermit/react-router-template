@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npx react-router build",
-    "dev": "npx react-router dev --host",
+    "build": "npm run generate-i18n-types && npx prisma generate && npx react-router build",
+    "dev": "npm run generate-i18n-types && npx react-router dev --host",
     "start": "npx react-router-serve ./build/server/index.js",
     "migrate": "npx prisma migrate dev",
     "prisma": "npx prisma studio",
