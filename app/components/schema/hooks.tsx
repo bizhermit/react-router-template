@@ -1013,9 +1013,8 @@ export function useSchemaArray<D extends Schema.DataItem<Schema.$Array>>(dataIte
   }) => T) {
     return schemaItem.value?.map((value, index) => {
       const di = dataItem.generateDataItem(index) as Schema.DataItem<D["_"]["prop"]>;
-      const key = typeof dataItem._.key === "function" ?
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        dataItem._.key(value as any) :
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const key = typeof dataItem._.key === "function" ? dataItem._.key(value as any) :
         (value && dataItem._.key) ? (value as Record<string, string>)[dataItem._.key] : `${keyRev}_${index}`;
       return func({
         key,
