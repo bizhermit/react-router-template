@@ -5,7 +5,7 @@ services:
     build:
       context: '../'
       dockerfile: '.devcontainer/docker/node/Dockerfile'
-    image: 'template_node_dev'
+    image: 'node22-dev'
     tty: true
     volumes:
       - '../:/workspace:delegated'

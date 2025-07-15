@@ -1,7 +1,6 @@
 FROM node:22-bookworm
 
 WORKDIR /workspace
-# COPY .devcontainer/fonts.conf /etc/fonts/local.conf
 
 RUN apt-get update -y \
   # && apt-get upgrade -y \
