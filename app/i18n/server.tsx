@@ -85,6 +85,7 @@ export function getI18n(request: Request) {
     return text;
   };
   t.locale = locale;
+
   return {
     locale,
     t,
