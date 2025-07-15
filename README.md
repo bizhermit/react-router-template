@@ -55,6 +55,7 @@
 | TZ                | タイムゾーン                                                            |
 | PORT              | Webアプリケーションサーバー起動ポート番号<br>（コンテナ作成時に要設定） |
 | DEV_PORT          | Webアプリケーションサーバー開発モードでの起動ポート番号                 |
+| VITE_APP_MODE     | Webアプリケーション動作モード                                           |
 | VITE_API_URL      | WebAPIオリジン                                                          |
 | POSTGRES_USER     | データベースログインユーザー                                            |
 | POSTGRES_PASSWORD | データベースログインパスワード                                          |
