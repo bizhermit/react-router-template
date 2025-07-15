@@ -202,6 +202,7 @@ const schema = $schema({
 // console.log(performance.now() - start);
 
 export async function loader() {
+  console.log(import.meta.env.MODE);
   return data({});
 };
 

@@ -23,14 +23,57 @@
 1. 任意のフォルダに当リポジトリをクローンする
 2. dockerおよびdocker-composeを実行可能状態にする
    - RancherDesktopを起動する
-3. 開発コンテナの環境変数を設定する
-   - `.devcontainer/.env.example`を参考に`.devcontainer/.env`を作成する
-   - `.env`またはキーが未作成の場合、デフォルト値が使用される
+3. [環境変数](#環境変数)を設定する
 4. 開発コンテナ（Dev Containers）を起動する
 
 ### ２回目以降
 
 1. 開発コンテナ（Dev Containers）を起動する
+
+## 環境変数
+
+### 優先順位
+
+| 優先度 | ファイル名              | 説明                               |
+| :----: | ----------------------- | ---------------------------------- |
+|   1    | .env.[`NODE_ENV`].local | `NODE_ENV`に依存するローカル値     |
+|   2    | .env.local              | `NODE_NEV`に依存しないローカル値   |
+|   3    | .env.[`NODE_ENV`]       | `NODE_ENV`に依存するデフォルト値   |
+|   4    | .env                    | `NODE_ENV`に依存しないデフォルト値 |
+
+※ `NODE_ENV`は開発モードでは`development`、製品モード（ビルド含む）では`production`が設定されます。  
+
+ファイル名に`.local`が付いていないファイルがgit管理対象となります。  
+各環境で値を変更する場合は、`.env*.local`を作成してください。  
+
+### 設定値
+
+ビルド時に静的展開（クライアントサイドで直接参照）する場合は、キーにプレフィックス（`VITE_`）を付けてください。  
+
+| キー              | 説明                                                                    |
+| ----------------- | ----------------------------------------------------------------------- |
+| TZ                | タイムゾーン                                                            |
+| PORT              | Webアプリケーションサーバー起動ポート番号<br>（コンテナ作成時に要設定） |
+| DEV_PORT          | Webアプリケーションサーバー開発モードでの起動ポート番号                 |
+| VITE_API_URL      | WebAPIオリジン                                                          |
+| POSTGRES_USER     | データベースログインユーザー                                            |
+| POSTGRES_PASSWORD | データベースログインパスワード                                          |
+| POSTGRES_DB       | データベース名                                                          |
+| POSTGRES_PORT     | データベース起動ポート番号                                              |
+
+### 使い方
+
+#### サーバーサイド
+
+```ts
+const timezone = process.env.TZ;
+```
+
+#### クライアントサイドおよびサーバーサイド
+
+```ts
+const apiUrl = import.meta.env.VITE_API_URL;
+```
 
 ## コマンド
 
@@ -47,10 +90,10 @@ npm run dev
 ### Webアプリケーション起動（製品モード）
 
 ```bash
-# 1
+# 1 ビルド
 npm run build
 
-#2
+# 2 起動
 npm run start
 ```
 
@@ -83,3 +126,23 @@ npm run typecheck
 ```bash
 npm run format
 ```
+### 本番起動
+
+環境変数の使いまわしをするため、dockerコマンドではなくシェルスクリプトを使用してください。
+
+```bash
+bash docker-compose.sh up
+
+# 再ビルドする場合
+bash docker-compose.sh up --build
+```
+
+#### シェルスクリプトから実行できない場合
+
+- `./.container/.env`と.`./.env*`を適切に設定してください。
+
+## 開発規約
+
+- [コーディング規約](./docs/codingStandards.md)
+
+## ブランチ運用
