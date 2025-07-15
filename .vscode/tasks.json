@@ -36,6 +36,12 @@
       "group": "none",
       "type": "shell",
       "command": "npm run generate-i18n-types"
+    },
+    {
+      "label": "playwright",
+      "group": "none",
+      "type": "shell",
+      "command": "npm run playwright"
     }
   ]
 }

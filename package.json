@@ -13,7 +13,8 @@
     "prisma": "npx prisma studio",
     "typecheck": "npx react-router typegen && tsc && npx eslint",
     "generate-i18n-types": "node --loader ts-node/esm ./scripts/generate-i18n-types.ts",
-    "format": "npx eslint --fix"
+    "format": "npx eslint --fix",
+    "playwright": "npx playwright test"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.10.0",
