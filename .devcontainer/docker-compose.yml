@@ -46,7 +46,7 @@ services:
     command: >
       postgres
       -c log_destination=stderr
-      -c log_min_messages=WARNING
+      -c log_min_messages=${POSTGRES_LOG_LEVEL:-WARNING}
       -c log_connections=on
       -c log_disconnections=on
       -c log_statement=all

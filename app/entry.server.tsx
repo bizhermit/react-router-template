@@ -9,6 +9,33 @@ import { loadI18nAsServer } from "./i18n/server";
 
 const ABORT_DELAY = 5000;
 const isDev = process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test";
+const appMode = import.meta.env.VITE_APP_MODE || "prod";
+
+function prodHeader(headers: Headers) {
+  headers.set("Content-Security-Policy", [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline'",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob: https:",
+    "font-src 'self' data: https:",
+    "connect-src 'self' https: ws: wss: blob: data:",
+    "frame-ancestors 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "report-uri /csp-violation-report-endpoint",
+    "report-to csp-endpoint",
+    "upgrade-insecure-requests",
+    "block-all-mixed-content",
+  ].join("; "));
+  headers.set("strict-transport-security", "max-age=31536000; includeSubDomains; preload");
+};
+
+function noCacheHeader(headers: Headers) {
+  headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  headers.set("Pragma", "no-cache");
+  headers.set("Expires", "0");
+  headers.set("Vary", "Accept-Encoding, Origin, User-Agent");
+};
 
 const generateResponseHeadersAsMode = isDev ?
   (headers: Headers) => {
@@ -25,30 +52,19 @@ const generateResponseHeadersAsMode = isDev ?
       "report-uri /csp-violation-report-endpoint",
       "report-to csp-endpoint",
     ].join("; "));
-    // 開発時は常にキャッシュを無効化
-    headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
-    headers.set("Pragma", "no-cache");
-    headers.set("Expires", "0");
-    headers.set("Vary", "Accept-Encoding, Origin, User-Agent");
-  } :
-  (headers: Headers) => {
-    headers.set("Content-Security-Policy", [
-      "default-src 'self'",
-      "script-src 'self' 'unsafe-inline'",
-      "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: blob: https:",
-      "font-src 'self' data: https:",
-      "connect-src 'self' https: ws: wss: blob: data:",
-      "frame-ancestors 'none'",
-      "base-uri 'self'",
-      "form-action 'self'",
-      "report-uri /csp-violation-report-endpoint",
-      "report-to csp-endpoint",
-      "upgrade-insecure-requests",
-      "block-all-mixed-content",
-    ].join("; "));
-    headers.set("strict-transport-security", "max-age=31536000; includeSubDomains; preload");
-  };
+    // NOTE: 開発時は常にキャッシュを無効化
+    noCacheHeader(headers);
+  } : (
+    appMode === "test" ?
+      (headers: Headers) => {
+        prodHeader(headers);
+        // NOTE: テストモード時は常にキャッシュを無効化
+        noCacheHeader(headers);
+      } :
+      (headers: Headers) => {
+        prodHeader(headers);
+      }
+  );
 
 let reportToCspEndpoint = "";
 
