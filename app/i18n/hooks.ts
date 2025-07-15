@@ -7,9 +7,12 @@ interface I18nContextProps {
   switch: (locale: Locales) => Promise<boolean>;
 };
 
+const DUMMY_TEXT_GETTER: I18nGetter = (k) => k;
+DUMMY_TEXT_GETTER.locale = DEFAULT_LOCALE;
+
 export const I18nContext = createContext<I18nContextProps>({
   locale: DEFAULT_LOCALE,
-  t: (k) => k,
+  t: DUMMY_TEXT_GETTER,
   switch: async () => false,
 });
 

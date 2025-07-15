@@ -12,7 +12,7 @@ type I18nReplaceParams<K extends I18nTextKey> =
   I18N_Texts[K] extends null ? undefined :
   Record<I18N_Texts[K], I18nReplaceValue>;
 
-type I18nGetter = <K extends I18nTextKey>(
-  key: K,
-  params?: I18nReplaceParams<K>
-) => string;
+interface I18nGetter {
+  <K extends I18nTextKey>(key: K, params?: I18nReplaceParams<K>): string;
+  locale: Locales;
+};

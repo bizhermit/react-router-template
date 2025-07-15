@@ -25,6 +25,7 @@ export function I18nProvider(props: {
     }
     return text;
   };
+  (t as I18nGetter).locale = locale;
 
   async function switchLocale(locale: Locales) {
     switchRef.current = locale;
@@ -40,7 +41,7 @@ export function I18nProvider(props: {
   return (
     <I18nContext.Provider
       value={{
-        t,
+        t: t as I18nGetter,
         locale,
         switch: switchLocale,
       }}

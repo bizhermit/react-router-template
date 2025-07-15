@@ -71,20 +71,22 @@ export function findBrowserLocaleAsServer(request: Request) {
 
 export function getI18n(request: Request) {
   const { locale, resource } = loadI18nAsServer(request);
+  const t: I18nGetter = <K extends I18nTextKey>(key: K, params?: I18nReplaceParams<K>) => {
+    if (!key) return key;
+    let text = (resource as Record<string, string>)[key];
+    if (text == null) return key;
+    if (params) {
+      Object.keys(params).forEach(k => {
+        const v = (params as Record<string, I18nReplaceValue>)[k];
+        if (v == null) return;
+        text = text!.replace(new RegExp(`{{${k}}}`, "g"), String(v));
+      });
+    }
+    return text;
+  };
+  t.locale = locale;
   return {
     locale,
-    t: <K extends I18nTextKey>(key: K, params?: I18nReplaceParams<K>) => {
-      if (!key) return key;
-      let text = (resource as Record<string, string>)[key];
-      if (text == null) return key;
-      if (params) {
-        Object.keys(params).forEach(k => {
-          const v = (params as Record<string, I18nReplaceValue>)[k];
-          if (v == null) return;
-          text = text!.replace(new RegExp(`{{${k}}}`, "g"), String(v));
-        });
-      }
-      return text;
-    },
+    t,
   };
 };
