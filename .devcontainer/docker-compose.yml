@@ -11,6 +11,7 @@ services:
       - '../:/workspace:delegated'
       - 'template_node_dev_node_modules:/workspace/node_modules'
       - 'template_node_dev_react-router:/workspace/.react-router'
+      - 'template_node_dev_build:/workspace/build'
     extra_hosts:
       - 'host.docker.internal:host-gateway'
     env_file:
@@ -59,4 +60,5 @@ networks:
 volumes:
   template_node_dev_node_modules:
   template_node_dev_react-router:
+  template_node_dev_build:
   template_postgres_dev:
