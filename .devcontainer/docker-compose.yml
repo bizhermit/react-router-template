@@ -26,11 +26,11 @@ services:
     depends_on:
       - postgres
   postgres:
-    container_name: 'template_database_dev'
+    container_name: 'template_postgres_dev'
     image: postgres:17-bookworm
     restart: always
     volumes:
-      - 'template_database_dev:/var/lib/postgresql/data'
+      - 'template_postgres_dev:/var/lib/postgresql/data'
       - '../database/postgres/init:/docker-entrypoint-initdb.d'
     env_file:
       - path: './.env'
@@ -59,4 +59,4 @@ networks:
 volumes:
   template_node_dev_node_modules:
   template_node_dev_react-router:
-  template_database_dev:
+  template_postgres_dev:
