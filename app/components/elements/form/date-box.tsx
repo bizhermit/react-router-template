@@ -44,6 +44,7 @@ export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
       setMin(getMin);
       setMax(getMax);
       setPair(getPair);
+      resetDataItemSource();
     },
   });
 
