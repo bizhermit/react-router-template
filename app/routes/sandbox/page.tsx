@@ -17,6 +17,7 @@ import { TextBox } from "~/components/elements/form/text-box";
 import { ArrowDownIcon, ArrowLeftIcon, ArrowRightIcon, ArrowUpIcon, BadgeIcon, BookmarkFillIcon, BookmarkIcon, ButtonIcon, CalendarFillIcon, CalendarIcon, CameraFillIcon, CameraIcon, CardIcon, CheckCircleFillIcon, CheckCircleIcon, CheckIcon, ChocolateMenuFillIcon, ChocolateMenuIcon, CircleFillIcon, CircleIcon, ClearAllIcon, ClockFillIcon, ClockIcon, CloudDownloadIcon, CloudFillIcon, CloudIcon, CloudUploadIcon, ContainerIcon, CrossCircleFillIcon, CrossCircleIcon, CrossIcon, DeleteBackFillIcon, DeleteBackIcon, DeleteFillIcon, DeleteIcon, DoubleDownFillIcon, DoubleDownIcon, DoubleLeftFillIcon, DoubleLeftIcon, DoubleRightFillIcon, DoubleRightIcon, DoubleUpFillIcon, DoubleUpIcon, DownFillIcon, DownIcon, DownloadIcon, ElementIcon, ExclamationCircleFillIcon, ExclamationCircleIcon, ExclamationDiamondFillIcon, ExclamationDiamondIcon, ExclamationIcon, ExclamationTriangleFillIcon, ExclamationTriangleIcon, ExLinkIcon, FileAddFillIcon, FileAddIcon, FileDeleteFillIcon, FileDeleteIcon, FileFillIcon, FileIcon, FilterFillIcon, FilterIcon, FolderAddFillIcon, FolderAddIcon, FolderDeleteFillIcon, FolderDeleteIcon, FolderFillIcon, FolderIcon, FormIcon, FormItemIcon, GearFillIcon, GearIcon, GridFillIcon, GridIcon, HeartFillIcon, HeartHalfFillIcon, HeartIcon, HomeFillIcon, HomeIcon, HorizontalDividerIcon, KebabMenuIcon, LabelFillIcon, LabelIcon, LeftFillIcon, LeftIcon, LeftRightIcon, LinkIcon, ListFilterIcon, ListIcon, LoadingIcon, LocationFillIcon, LocationIcon, MagnifyingGlassIcon, MagnifyingGlassMinusFillIcon, MagnifyingGlassMinusIcon, MagnifyingGlassPlusFillIcon, MagnifyingGlassPlusIcon, MailFillIcon, MailIcon, MeatballsMenuIcon, MenuIcon, MenuLeftIcon, MenuLeftRightIcon, MenuRightIcon, MinusCircleFillIcon, MinusCircleIcon, MinusIcon, NavContainerIcon, OrderListIcon, PinFillIcon, PinIcon, PlusCircleFillIcon, PlusCircleIcon, PlusIcon, PopupIcon, PowerIcon, QuestionCircleFillIcon, QuestionCircleIcon, QuestionIcon, RedoIcon, ReloadIcon, RightFillIcon, RightIcon, SaveFillIcon, SaveIcon, ShareFillIcon, ShareIcon, SignInIcon, SignOutIcon, SlideContainerIcon, SmileFillIcon, SmileIcon, SplitContainerIcon, StarFillIcon, StarHalfFillIcon, StarIcon, StepperIcon, SyncIcon, TabContainerIcon, TextBoxIcon, TodayFillIcon, TodayIcon, TooltipIcon, TrashCanFillIcon, TrashCanIcon, UndoIcon, UnloadIcon, UpDownIcon, UpFillIcon, UpIcon, UploadIcon, UserAddIcon, UserFillIcon, UserIcon, UserMinusIcon, UsersFillIcon, UsersIcon, VerticalDividerIcon } from "~/components/elements/icon";
 import { LinkButton } from "~/components/elements/link-button";
 import { clsx } from "~/components/elements/utilities";
+import { useAbortController } from "~/components/hooks/abort-controller";
 import { usePageExitPropmt } from "~/components/hooks/page-exit-prompt";
 import getIndexedDB, { type IndexedDBController, type IndexedDBStores } from "~/components/indexeddb/client";
 import { formatDate } from "~/components/objects/date";
@@ -726,6 +727,7 @@ function IndexedDBComponent() {
 
 function StreamCompoment() {
   const [output, setOutput] = useState("");
+  const abortController = useAbortController();
 
   return (
     <section>
@@ -734,7 +736,10 @@ function StreamCompoment() {
           <Button
             onClick={async ({ unlock }) => {
               try {
-                const res = await fetch("/sandbox/stream", { method: "POST" });
+                const res = await fetch("/sandbox/stream", {
+                  method: "POST",
+                  signal: abortController.create(),
+                });
                 if (!res.ok) throw new Error("response error");
                 const reader = res.body?.getReader();
                 const decorder = new TextDecoder();
@@ -746,12 +751,23 @@ function StreamCompoment() {
                 }
               } catch (e) {
                 console.error(e);
+              } finally {
+                abortController.dispose();
               }
               unlock();
             }}
           >
             start
           </Button>
+          <Button
+            disabled={abortController.state !== "processing"}
+            onClick={() => {
+              abortController.abort();
+            }}
+          >
+            abort
+          </Button>
+          <span>{abortController.state}</span>
         </div>
         <div className="break-words">
           {output}
