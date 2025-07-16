@@ -1,7 +1,7 @@
 import { type RouteConfig, index, prefix, route } from "@react-router/dev/routes";
 
 export default [
-  index("routes/index.tsx"),
+  index("routes/page.tsx"),
   // ...prefix("/:lang", [
   //   index("routes/language.tsx"),
   //   route("home", "routes/home/page.tsx"),
@@ -9,7 +9,7 @@ export default [
   // ]),
   route("csp-report", "routes/csp-report.tsx"),
   ...prefix("sandbox", [
-    index("routes/sandbox/index.tsx"),
+    index("routes/sandbox/page.tsx"),
     route("stream", "routes/sandbox/stream-api.ts"),
   ]),
   route("*", "routes/fallback.tsx"),

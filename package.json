@@ -11,8 +11,8 @@
     "start": "npx react-router-serve ./build/server/index.js",
     "migrate": "npx prisma migrate dev",
     "prisma": "npx prisma studio",
-    "typecheck": "npx react-router typegen && tsc && npx eslint",
-    "generate-i18n-types": "node --loader ts-node/esm ./scripts/generate-i18n-types.ts",
+    "typecheck": "npm run generate-i18n-types && npx react-router typegen && tsc && npx eslint",
+    "generate-i18n-types": "node ./scripts/generate-i18n-types.mjs",
     "format": "npx eslint --fix",
     "playwright": "npx playwright test"
   },

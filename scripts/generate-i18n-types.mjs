@@ -16,14 +16,14 @@ if (files.length === 0) {
   process.exit(0);
 }
 
-const map: Record<string, string[]> = {};
+const map = {};
 
 files.forEach(file => {
   if (!file.endsWith(".json")) {
     return;
   }
   const ctx = file.split(".");
-  let namespace: string | null = null;
+  let namespace = null;
   if (ctx.length === 3) {
     namespace = ctx[1];
   }
@@ -65,5 +65,5 @@ for (const key in map) {
 output += `};\n`;
 
 writeFileSync(outputFilePath, output, "utf-8");
-process.stdout.write(`I18n keys have been generated and written to ${outputFilePath}\n`);
+process.stdout.write(`I18n keys have been generated and written to ${outputFilePath}\n\n`);
 process.exit(0);

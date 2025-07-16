@@ -29,7 +29,7 @@ import { $str } from "~/components/schema/string";
 import { $struct } from "~/components/schema/struct";
 import { useLocale, useText } from "~/i18n/hooks";
 import { Text } from "~/i18n/react-component";
-import type { Route } from "./+types";
+import type { Route } from "./+types/page";
 
 const text = $str(
   {
