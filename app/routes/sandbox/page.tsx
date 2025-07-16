@@ -729,43 +729,86 @@ function StreamCompoment() {
   const [output, setOutput] = useState("");
   const abortController = useAbortController();
 
+  async function fetchStream(timeout?: number) {
+    await abortController.start(async (signal) => {
+      try {
+        const res = await fetch("/sandbox/stream", {
+          method: "POST",
+          signal,
+        });
+        if (!res.ok) throw new Error("response error");
+        const reader = res.body?.getReader();
+        const decorder = new TextDecoder();
+
+        while (true) {
+          const { done, value } = await reader!.read();
+          if (done) break;
+          setOutput((prev) => prev + decorder.decode(value));
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }, timeout);
+
+    // try {
+    //   const res = await fetch("/sandbox/stream", {
+    //     method: "POST",
+    //     signal: abortController.create(timeout),
+    //   });
+    //   if (!res.ok) throw new Error("response error");
+    //   const reader = res.body?.getReader();
+    //   const decorder = new TextDecoder();
+
+    //   while (true) {
+    //     const { done, value } = await reader!.read();
+    //     if (done) break;
+    //     setOutput((prev) => prev + decorder.decode(value));
+    //   }
+    // } catch (e) {
+    //   console.error(e);
+    // } finally {
+    //   abortController.dispose();
+    // }
+  }
+
+  const isProcessing = abortController.state === "processing";
+
   return (
     <section>
       <Details summary="Stream Response">
         <div className="flex flex-row gap-2">
           <Button
+            disabled={isProcessing}
             onClick={async ({ unlock }) => {
-              try {
-                const res = await fetch("/sandbox/stream", {
-                  method: "POST",
-                  signal: abortController.create(),
-                });
-                if (!res.ok) throw new Error("response error");
-                const reader = res.body?.getReader();
-                const decorder = new TextDecoder();
-
-                while (true) {
-                  const { done, value } = await reader!.read();
-                  if (done) break;
-                  setOutput((prev) => prev + decorder.decode(value));
-                }
-              } catch (e) {
-                console.error(e);
-              } finally {
-                abortController.dispose();
-              }
+              await fetchStream();
               unlock();
             }}
           >
             start
           </Button>
           <Button
-            disabled={abortController.state !== "processing"}
+            disabled={isProcessing}
+            onClick={async ({ unlock }) => {
+              await fetchStream(5000);
+              unlock();
+            }}
+          >
+            start(timeout: 5000ms)
+          </Button>
+          <Button
+            disabled={!isProcessing}
             onClick={() => {
               abortController.abort();
             }}
           >
             abort
+          </Button>
+          <Button
+            onClick={() => {
+              setOutput("");
+            }}
+          >
+            reset output
           </Button>
           <span>{abortController.state}</span>
         </div>
