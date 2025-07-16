@@ -1,4 +1,4 @@
-import { getRequiredTextKey, getValidationArray } from "./utilities";
+import { getInvalidValueTextKey, getRequiredTextKey, getValidationArray } from "./utilities";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function ARRAY_PARSER({ value }: Schema.ParserParams): Schema.ParserResult<Array<any>> {
@@ -22,6 +22,7 @@ export function $array<Props extends Schema.ArrayProps>(props: Props) {
   const [length, getLengthMessage] = getValidationArray(props?.len);
   const [minLength, getMinLengthMessage] = getValidationArray(props?.min);
   const [maxLength, getMaxLengthMessage] = getValidationArray(props?.max);
+  const [sourceValidation, getSourceValidationMessage] = getValidationArray(props?.sourceValidation);
 
   if (required) {
     const textKey = getRequiredTextKey(actionType);
@@ -159,6 +160,40 @@ export function $array<Props extends Schema.ArrayProps>(props: Props) {
           };
         });
       }
+    }
+  }
+
+  if (sourceValidation !== false && props.source) {
+    const source = props.source;
+    const textKey = getInvalidValueTextKey(actionType);
+    const getMessage: Schema.MessageGetter<typeof getSourceValidationMessage> =
+      getSourceValidationMessage ?
+        getSourceValidationMessage :
+        (p) => p.env.t(textKey, {
+          label: p.label || p.env.t("default_label"),
+        });
+
+    if (typeof source === "function") {
+      validators.push((p) => {
+        if (p.value == null || p.value.length === 0) return null;
+        const src = source(p);
+        if (!p.value.some(vItem => !src.some(item => item.value === vItem))) return null;
+        return {
+          type: "e",
+          code: "source",
+          message: getMessage({ ...p, source: src }),
+        };
+      });
+    } else {
+      validators.push((p) => {
+        if (p.value == null || p.value.length === 0) return null;
+        if (!p.value.some(vItem => !source.some(item => item.value === vItem))) return null;
+        return {
+          type: "e",
+          code: "source",
+          message: getMessage({ ...p, source }),
+        };
+      });
     }
   }
 
