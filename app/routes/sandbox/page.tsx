@@ -344,10 +344,10 @@ function Component1() {
   const array = useSchemaArray(dataItems.structArray);
 
   return (
-    <div>
+    <div className="flex flex-col gap-2">
       <div className="flex flex-row gap-2">
-        <button
-          type="button"
+        <Button
+          appearance="outline"
           onClick={() => {
             array.push({
               name: "hoge",
@@ -355,9 +355,9 @@ function Component1() {
           }}
         >
           push last
-        </button>
-        <button
-          type="button"
+        </Button>
+        <Button
+          appearance="outline"
           onClick={() => {
             array.push({
               name: "hogehoge",
@@ -365,9 +365,9 @@ function Component1() {
           }}
         >
           push first
-        </button>
-        <button
-          type="button"
+        </Button>
+        <Button
+          appearance="outline"
           onClick={() => {
             array.bulkPush([
               { name: "fuga", age: 3 },
@@ -376,7 +376,7 @@ function Component1() {
           }}
         >
           bulk push
-        </button>
+        </Button>
       </div>
       <ul>
         {array.map(params => {
