@@ -163,6 +163,7 @@ export default tseslint.config({
     "@stylistic/no-trailing-spaces": "warn",
     "no-fallthrough": "warn",
     "no-control-regex": "off",
+    "no-empty": "warn",
     "no-empty-pattern": "warn",
     // Typescript
     "@typescript-eslint/no-empty-object-type": "off",
