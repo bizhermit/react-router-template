@@ -1,7 +1,7 @@
 import { useRef, useState, type ButtonHTMLAttributes, type MouseEvent } from "react";
 import { clsx } from "./utilities";
 
-interface ButtonOptions {
+export interface ButtonOptions {
   disabled?: boolean;
   color?: "primary" | "secondary" | "sub" | "danger";
   appearance?: "fill" | "outline" | "text";
