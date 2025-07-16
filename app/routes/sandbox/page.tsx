@@ -740,7 +740,7 @@ function StreamCompoment() {
         const reader = res.body?.getReader();
 
         setAbortCallback(() => {
-          reader?.cancel("client aborted");
+          reader!.cancel("client aborted");
         });
 
         const decorder = new TextDecoder();
