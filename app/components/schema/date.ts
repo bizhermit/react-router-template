@@ -479,8 +479,20 @@ function DATE_PARSER({
       },
     };
   }
-  return { value: formatDate(date) as Schema.DateString };
+  return { value: formatDateString(date) };
 };
+
+export function formatDateString(date: string | number | Date | null | undefined) {
+  return formatDate(date, "yyyy-MM-dd") as Schema.DateString | undefined;
+};
+
+export function formatMonthString(date: string | number | Date | null | undefined) {
+  return formatDate(date, "yyyy-MM") as Schema.MonthString | undefined;
+};
+
+export function formatDatetimeString(date: string | number | Date | null | undefined) {
+  return formatDate(date, "yyyy-MM-ddThh:mm:ss") as Schema.TimeString | undefined;
+}
 
 export function $date<Props extends Schema.DateProps>(props?: Props) {
   const splits: Schema.$Date["splits"] = {};
