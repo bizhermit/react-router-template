@@ -174,6 +174,7 @@ export function $array<Props extends Schema.ArrayProps>(props: Props) {
     label: props?.label,
     mode: props?.mode,
     refs: props?.refs,
+    source: props.source as Schema.GetSource<Props["source"]>,
     parser: props.parser ?? ARRAY_PARSER,
     validators,
     required: required as Schema.GetValidationValue<Props, "required">,

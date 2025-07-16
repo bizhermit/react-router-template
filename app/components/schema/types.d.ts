@@ -353,6 +353,8 @@ namespace Schema {
     prop: Prop;
     parser?: Parser<ValueType<Prop>[]>;
     required?: Validation<boolean, ValueType<Prop>[]>;
+    source?: Source<ValueType<Prop>> | DynamicValidationValue<Source<ValueType<Prop>>>;
+    sourceValidation?: Validation<boolean, ValueType<Prop>, { source: Source<ValueType<Prop>>; }>;
     len?: Validation<number, ValueType<Prop>[], { length: number; currentLength: number; }>;
     min?: Validation<number, ValueType<Prop>[], { minLength: number; currentLength: number; }>;
     max?: Validation<number, ValueType<Prop>[], { maxLength: number; currentLength: number; }>;
@@ -363,9 +365,10 @@ namespace Schema {
     type: "arr";
     label: string | undefined;
     prop: Prop;
+    source: Source<unknown> | DynamicValidationValue<Source<unknown>> | undefined;
     key: ((value: Record<string, unknown>) => string) | undefined;
-    parser: Parser<ValueType<Prop>[]>;
-    validators: Array<Validator<ValueType<Prop>[]>>;
+    parser: Parser<unknown[]>;
+    validators: Array<Validator<unknown[]>>;
     required: $ValidationValue<boolean>;
     length: $ValidationValue<number>;
     minLength: $ValidationValue<number>;
@@ -387,8 +390,8 @@ namespace Schema {
     label: string | undefined;
     key: ((value: Record<string, unknown> | null | undefined) => string) | undefined;
     props: Props;
-    parser: Parser<SchemaValue<Props>>;
-    validators: Array<Validator<SchemaValue<Props>>>;
+    parser: Parser<SchemaValue<unknown>>;
+    validators: Array<Validator<SchemaValue<unknown>>>;
     required: $ValidationValue<boolean>;
   };
 
