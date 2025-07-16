@@ -2,16 +2,19 @@ import { useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { parseTypedDateString } from "~/components/schema/date";
 import { useSchemaItem } from "~/components/schema/hooks";
 import { getValidationValue, InputField, type InputWrapProps } from "./common";
+import { useSource } from "./utilities";
 
 type DateBoxSchemaProps = Schema.$Date | Schema.$Month | Schema.$DateTime;
 
 export type DateBoxProps<D extends Schema.DataItem<DateBoxSchemaProps>> = InputWrapProps & {
   $: D;
+  source?: Schema.Source<Schema.ValueType<D["_"]>>;
   placeholder?: string;
 };
 
 export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
   placeholder,
+  source: propsSource,
   ...$props
 }: DateBoxProps<P>) {
   const ref = useRef<HTMLInputElement>(null!);
@@ -29,6 +32,7 @@ export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
     errormessage,
     getCommonParams,
     setRefs,
+    env,
     props,
   } = useSchemaItem<Schema.DataItem<DateBoxSchemaProps>>($props, {
     effect: function ({ value }) {
@@ -98,6 +102,15 @@ export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
     );
   }, []);
 
+  const { source, resetDataItemSource } = useSource({
+    dataItem,
+    propsSource,
+    env,
+    getCommonParams,
+  });
+
+  const dataListId = source == null ? undefined : `${name}_dl`;
+
   return (
     <InputField
       {...props}
@@ -124,7 +137,23 @@ export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
         aria-label={label}
         aria-invalid={invalid}
         aria-errormessage={errormessage}
+        list={dataListId}
       />
+      {
+        source &&
+        <datalist id={dataListId}>
+          {source.map(item => {
+            return (
+              <option
+                key={item.value}
+                value={item.value || ""}
+              >
+                {item.text}
+              </option>
+            );
+          })}
+        </datalist>
+      }
     </InputField>
   );
 };

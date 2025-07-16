@@ -122,18 +122,21 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
         aria-errormessage={errormessage}
         list={dataListId}
       />
-      {source && <>
+      {
+        source &&
         <datalist id={dataListId}>
           {source.map(item => {
             return (
               <option
                 key={item.value}
                 value={item.value ?? ""}
-              />
+              >
+                {item.text}
+              </option>
             );
           })}
         </datalist>
-      </>}
+      }
     </InputField>
   );
 };

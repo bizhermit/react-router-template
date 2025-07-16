@@ -239,6 +239,8 @@ namespace Schema {
   interface DateBaseProps<V extends DateValueString = DateValueString> extends BaseProps {
     parser?: Parser<V>;
     required?: Validation<boolean, V>;
+    source?: Source<V> | DynamicValidationValue<Source<V>>;
+    sourceValidation?: Validation<boolean, V, { source: Source<V>; }>;
     minDate?: Validation<Date | V, V, { minDate: Date; date: Date; }>;
     maxDate?: Validation<Date | V, V, { maxDate: Date; date: Date; }>;
     pair?: Validation<{
@@ -269,6 +271,7 @@ namespace Schema {
   };
 
   interface $BaseDate<V extends DateValueString = DateValueString> extends $Base {
+    source: Source<V> | DynamicValidationValue<Source<V>> | undefined;
     parser: Parser<V>;
     validators: Array<Validator<V>>;
     required: $ValidationValue<boolean>;

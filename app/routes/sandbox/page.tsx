@@ -59,7 +59,7 @@ const schema = $schema({
     sourceValidation: false,
     source: [
       { value: "hoge@example.com" },
-      { value: "fuga@example.com" },
+      { value: "fuga@example.com", text: "sample mailaddress" },
       { value: "piyo@example.com" },
     ],
   }),
@@ -86,7 +86,7 @@ const schema = $schema({
   count: $num({
     sourceValidation: false,
     source: [
-      { value: 10 },
+      { value: 10, text: "10歳" },
       { value: 20 },
     ],
   }),
@@ -116,6 +116,20 @@ const schema = $schema({
     required: true,
   }),
   date: $date({
+    source: () => {
+      const date = new Date();
+      const today = formatDate(date, "yyyy-MM-dd") as Schema.DateString;
+      date.setMonth(date.getMonth() + 1);
+      date.setDate(0);
+      const lastOfMonth = formatDate(date, "yyyy-MM-dd") as Schema.DateString;
+      date.setDate(1);
+      const firstOfMonth = formatDate(date, "yyyy-MM-dd") as Schema.DateString;
+      return [
+        { value: firstOfMonth, text: "月初" },
+        { value: today, text: "今日" },
+        { value: lastOfMonth, text: "月末" },
+      ];
+    },
     pair: {
       name: "datePair",
       position: "after",

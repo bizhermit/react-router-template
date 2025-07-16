@@ -300,17 +300,21 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
           />
         </>
       }
-      {source &&
+      {
+        source &&
         <datalist id={dataListId}>
           {source.map(item => {
             return (
               <option
                 key={item.value}
                 value={item.value ?? ""}
-              />
+              >
+                {item.text}
+              </option>
             );
           })}
-        </datalist>}
+        </datalist>
+      }
     </InputField>
   );
 };
