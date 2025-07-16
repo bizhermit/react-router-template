@@ -181,15 +181,14 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
     return submission;
   };
 
-  const { schema, hasFile } = useMemo(() => {
+  const { schema } = useMemo(() => {
     isInitialize.current = true;
     isEffected.current = false;
     props.onChangeEffected?.(isEffected.current);
     dep.current = props.dep ?? EMPTY_STRUCT;
-    const submission = refresh("init", argData);
+    refresh("init", argData);
     return {
       schema: props.schema,
-      hasFile: submission.hasFile,
     };
   }, [argData]);
 
@@ -429,11 +428,13 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
     isValidScripts.current = true;
   }, []);
 
-  function getFormProps(method: "get" | "post" | "put") {
+  function getFormProps(method: "get" | "post" | "put", options: {
+    encType?: "application/x-www-form-urlencoded" | "multipart/form-data";
+  }) {
     return {
       method,
       noValidate: true,
-      encType: hasFile ? "multipart/form-data" as const : undefined,
+      encType: options.encType,
       onSubmit: handleSubmit,
       onReset: handleReset,
     } satisfies FormHTMLAttributes<HTMLFormElement>;

@@ -293,7 +293,11 @@ export default function Page(props: Route.ComponentProps) {
       </div>
       <section>
         <SchemaProvider>
-          <fetcher.Form {...getFormProps("post")}>
+          <fetcher.Form
+            {...getFormProps("post", {
+              encType: "multipart/form-data",
+            })}
+          >
             <Component1 />
             <Component2 />
             <div className="flex gap-2">
