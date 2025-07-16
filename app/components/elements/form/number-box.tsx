@@ -33,7 +33,6 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
   const isComposing = useRef(false);
 
   const {
-    id,
     name,
     dataItem,
     state,
@@ -223,7 +222,7 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
     handleMousedown("down");
   };
 
-  const dataListId = source == null ? undefined : `${id}_dl`;
+  const dataListId = source == null ? undefined : `${name}_dl`;
 
   return (
     <InputField

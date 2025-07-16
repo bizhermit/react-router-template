@@ -38,7 +38,6 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
   const ref = useRef<HTMLInputElement>(null!);
 
   const {
-    id,
     name,
     dataItem,
     state,
@@ -94,7 +93,7 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
 
   const patternProps = getPatternInputProps(dataItem._.pattern);
 
-  const dataListId = source == null ? undefined : `${id}_dl`;
+  const dataListId = source == null ? undefined : `${name}_dl`;
 
   return (
     <InputField
