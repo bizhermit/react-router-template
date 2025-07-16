@@ -2,6 +2,7 @@ import { createContext, use, useCallback, useContext, useId, useLayoutEffect, us
 import { unstable_usePrompt } from "react-router";
 import { useText } from "~/i18n/hooks";
 import { parseWithSchema } from ".";
+import type { InputWrapProps } from "../elements/form/common";
 import { clone } from "../objects";
 import { ValidScriptsContext } from "../providers/valid-scripts";
 import { getRelativeName, SchemaData } from "./data";
@@ -569,10 +570,6 @@ export const FieldSetContext = createContext<FieldSetContextProps>({
 
 export function useFieldSet() {
   return use(FieldSetContext);
-};
-
-export interface InputWrapProps {
-  hideMessage?: boolean;
 };
 
 export interface SchemaItemProps<D extends Schema.DataItem> extends InputWrapProps {

@@ -177,7 +177,7 @@ export function $array<Props extends Schema.ArrayProps>(props: Props) {
       validators.push((p) => {
         if (p.value == null || p.value.length === 0) return null;
         const src = source(p);
-        if (!p.value.some(vItem => !src.some(item => item.value === vItem))) return null;
+        if (!p.value.some(v => !src.some(item => item.value === v))) return null;
         return {
           type: "e",
           code: "source",
@@ -187,7 +187,7 @@ export function $array<Props extends Schema.ArrayProps>(props: Props) {
     } else {
       validators.push((p) => {
         if (p.value == null || p.value.length === 0) return null;
-        if (!p.value.some(vItem => !source.some(item => item.value === vItem))) return null;
+        if (!p.value.some(v => !source.some(item => item.value === v))) return null;
         return {
           type: "e",
           code: "source",

@@ -91,8 +91,10 @@
     background-color: transparent;
     padding-inline: var(--spacing-input-pad-x);
 
-    &::-webkit-calendar-picker-indicator {
-      display: none !important;
+    &:not([type="date"], [type="month"], [type="time"], [type="datetime-local"]) {
+      &::-webkit-calendar-picker-indicator {
+        display: none !important;
+      }
     }
   }
 

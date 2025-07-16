@@ -3,6 +3,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { data, useFetcher } from "react-router";
 import { Button } from "~/components/elements/button";
 import { CheckBox } from "~/components/elements/form/check-box";
+import { CheckList } from "~/components/elements/form/check-list";
 import { FormItem } from "~/components/elements/form/common";
 import { DateBox } from "~/components/elements/form/date-box";
 import { DateSelectBox } from "~/components/elements/form/date-select-box";
@@ -144,6 +145,12 @@ const schema = $schema({
   }),
   array: $array({
     prop: $num(),
+    min: 1,
+    source: [
+      { value: 1, text: "item-1" },
+      { value: 2, text: "item-2" },
+      { value: 3, text: "item-3" },
+    ],
   }),
   struct: $struct({
     props: {
@@ -460,6 +467,11 @@ function Component2() {
           $={dataItems.file}
           placeholder="ファイルを選択してください。"
           viewMode="image"
+        />
+      </FormItem>
+      <FormItem>
+        <CheckList
+          $={dataItems.array}
         />
       </FormItem>
     </div>
