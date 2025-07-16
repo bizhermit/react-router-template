@@ -40,6 +40,7 @@
     &[data-appearance="fill"] {
       transition: opacity 0.2s;
       background-color: var(---btn-bg);
+
       color: var(---btn-fg);
     }
 
@@ -47,6 +48,7 @@
       transition: background-color 0.2s, color 0.2s, opacity 0.2s;
       background-color: transparent;
       border: 1px solid var(---btn-bg);
+      padding-inline: calc(var(--spacing-button) / 2 - 1px);
       color: var(---btn-bg);
     }
 
@@ -85,7 +87,8 @@
     }
 
     >.icon {
-      width: var(--space-button);
+      min-width: calc(var(--spacing-button) * 0.5);
+      max-width: calc(var(--spacing-button) * 0.5);
       overflow: hidden;
 
       &:only-child {

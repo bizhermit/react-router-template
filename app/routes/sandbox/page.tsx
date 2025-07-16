@@ -2,6 +2,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { data, useFetcher } from "react-router";
 import { Button } from "~/components/elements/button";
+import { Details } from "~/components/elements/details";
 import { CheckBox } from "~/components/elements/form/check-box";
 import { CheckList } from "~/components/elements/form/check-list";
 import { FormItem } from "~/components/elements/form/common";
@@ -13,6 +14,7 @@ import { RadioButtons } from "~/components/elements/form/radio-buttons";
 import { SelectBox } from "~/components/elements/form/select-box";
 import { TextArea } from "~/components/elements/form/text-area";
 import { TextBox } from "~/components/elements/form/text-box";
+import { ArrowDownIcon, ArrowLeftIcon, ArrowRightIcon, ArrowUpIcon, BadgeIcon, BookmarkFillIcon, BookmarkIcon, ButtonIcon, CalendarFillIcon, CalendarIcon, CameraFillIcon, CameraIcon, CardIcon, CheckCircleFillIcon, CheckCircleIcon, CheckIcon, ChocolateMenuFillIcon, ChocolateMenuIcon, CircleFillIcon, CircleIcon, ClearAllIcon, ClockFillIcon, ClockIcon, CloudDownloadIcon, CloudFillIcon, CloudIcon, CloudUploadIcon, ContainerIcon, CrossCircleFillIcon, CrossCircleIcon, CrossIcon, DeleteBackFillIcon, DeleteBackIcon, DeleteFillIcon, DeleteIcon, DoubleDownFillIcon, DoubleDownIcon, DoubleLeftFillIcon, DoubleLeftIcon, DoubleRightFillIcon, DoubleRightIcon, DoubleUpFillIcon, DoubleUpIcon, DownFillIcon, DownIcon, DownloadIcon, ElementIcon, ExclamationCircleFillIcon, ExclamationCircleIcon, ExclamationDiamondFillIcon, ExclamationDiamondIcon, ExclamationIcon, ExclamationTriangleFillIcon, ExclamationTriangleIcon, ExLinkIcon, FileAddFillIcon, FileAddIcon, FileDeleteFillIcon, FileDeleteIcon, FileFillIcon, FileIcon, FilterFillIcon, FilterIcon, FolderAddFillIcon, FolderAddIcon, FolderDeleteFillIcon, FolderDeleteIcon, FolderFillIcon, FolderIcon, FormIcon, FormItemIcon, GearFillIcon, GearIcon, GridFillIcon, GridIcon, HeartFillIcon, HeartHalfFillIcon, HeartIcon, HomeFillIcon, HomeIcon, HorizontalDividerIcon, KebabMenuIcon, LabelFillIcon, LabelIcon, LeftFillIcon, LeftIcon, LeftRightIcon, LinkIcon, ListFilterIcon, ListIcon, LoadingIcon, LocationFillIcon, LocationIcon, MagnifyingGlassIcon, MagnifyingGlassMinusFillIcon, MagnifyingGlassMinusIcon, MagnifyingGlassPlusFillIcon, MagnifyingGlassPlusIcon, MailFillIcon, MailIcon, MeatballsMenuIcon, MenuIcon, MenuLeftIcon, MenuLeftRightIcon, MenuRightIcon, MinusCircleFillIcon, MinusCircleIcon, MinusIcon, NavContainerIcon, OrderListIcon, PinFillIcon, PinIcon, PlusCircleFillIcon, PlusCircleIcon, PlusIcon, PopupIcon, PowerIcon, QuestionCircleFillIcon, QuestionCircleIcon, QuestionIcon, RedoIcon, ReloadIcon, RightFillIcon, RightIcon, SaveFillIcon, SaveIcon, ShareFillIcon, ShareIcon, SignInIcon, SignOutIcon, SlideContainerIcon, SmileFillIcon, SmileIcon, SplitContainerIcon, StarFillIcon, StarHalfFillIcon, StarIcon, StepperIcon, SyncIcon, TabContainerIcon, TextBoxIcon, TodayFillIcon, TodayIcon, TooltipIcon, TrashCanFillIcon, TrashCanIcon, UndoIcon, UnloadIcon, UpDownIcon, UpFillIcon, UpIcon, UploadIcon, UserAddIcon, UserFillIcon, UserIcon, UserMinusIcon, UsersFillIcon, UsersIcon, VerticalDividerIcon } from "~/components/elements/icon";
 import { clsx } from "~/components/elements/utilities";
 import getIndexedDB, { type IndexedDBController, type IndexedDBStores } from "~/components/indexeddb/client";
 import { formatDate } from "~/components/objects/date";
@@ -268,60 +270,68 @@ export default function Page(props: Route.ComponentProps) {
   // console.log(dataItems);
 
   return (
-    <>
+    <main className="flex flex-col gap-4">
+      <h1>Sandbox</h1>
+      <section>
+        <SchemaProvider>
+          <fetcher.Form {...getFormProps("post")}>
+            <Component1 />
+            <Component2 />
+            <div className="flex gap-2">
+              <Button
+                type="submit"
+                round
+              >
+                submit
+              </Button>
+              <Button
+                type="reset"
+                color="sub"
+                round
+              >
+                reset
+              </Button>
+            </div>
+          </fetcher.Form>
+        </SchemaProvider>
+      </section>
       <ColorComponents />
-      <SchemaProvider>
-        <fetcher.Form {...getFormProps("post")}>
-          <Component1 />
-          <Component2 />
-          <div className="flex gap-2">
-            <Button
-              type="submit"
-              round
-            >
-              submit
-            </Button>
-            <Button
-              type="reset"
-              color="sub"
-              round
-            >
-              reset
-            </Button>
-          </div>
-        </fetcher.Form>
-      </SchemaProvider>
       <LangComponent />
       <IndexedDBComponent />
       <StreamCompoment />
-    </>
+      <IconsComponent />
+    </main>
   );
 };
 
 function ColorComponents() {
   const colors = ["primary", "secondary", "sub", "danger"] as const;
   return (
-    <ul>
-      {colors.map(color => {
-        return (
-          <li key={color}>
-            <h2
-              className={clsx(
-                color === "primary" && "text-primary",
-                color === "secondary" && "text-secondary",
-                color === "sub" && "text-sub",
-                color === "danger" && "text-danger",
-              )}
-            >
-              {color}
-            </h2>
-            <Button color={color}>FillButton</Button>
-            <Button color={color} appearance="outline">OutlineButton</Button>
-            <Button color={color} appearance="text">TextButton</Button>
-          </li>
-        );
-      })}
-    </ul>
+    <section>
+      <Details summary="Color">
+        <ul>
+          {colors.map(color => {
+            return (
+              <li key={color}>
+                <h2
+                  className={clsx(
+                    color === "primary" && "text-primary",
+                    color === "secondary" && "text-secondary",
+                    color === "sub" && "text-sub",
+                    color === "danger" && "text-danger",
+                  )}
+                >
+                  {color}
+                </h2>
+                <Button color={color}>FillButton</Button>
+                <Button color={color} appearance="outline">OutlineButton</Button>
+                <Button color={color} appearance="text">TextButton</Button>
+              </li>
+            );
+          })}
+        </ul>
+      </Details>
+    </section>
   );
 };
 
@@ -532,47 +542,49 @@ function LangComponent() {
   const locale = useLocale();
 
   return (
-    <div>
-      <span>{t("halloWorld")}</span>
-      <span>{t("replaceText", { hoge: "人民", fuga: 1000 })}</span>
-      <div>{t("htmlText")}</div>
-      <div>
-        <Text
-          i18nKey="htmlText"
-          replaceMap={{
-            replace1: (props: { children?: ReactNode; }) => (
-              <span style={{ color: "red" }}>
-                完全に置き換えてもいいよ
-                {props.children}
-              </span>
-            ),
-          }}
-        />
-      </div>
-      {/* <p>
+    <section>
+      <Details summary="i18n">
+        <span>{t("halloWorld")}</span>
+        <span>{t("replaceText", { hoge: "人民", fuga: 1000 })}</span>
+        <div>{t("htmlText")}</div>
+        <div>
+          <Text
+            i18nKey="htmlText"
+            replaceMap={{
+              replace1: (props: { children?: ReactNode; }) => (
+                <span style={{ color: "red" }}>
+                  完全に置き換えてもいいよ
+                  {props.children}
+                </span>
+              ),
+            }}
+          />
+        </div>
+        {/* <p>
           <span>dangerouslySetInnerHTML</span>
           <div dangerouslySetInnerHTML={{ __html: t("htmlText") }} />
         </p> */}
-      <div className="flex gap-3">
-        <button
-          type="button"
-          onClick={() => {
-            locale.switch("ja");
-          }}
-        >
-          ja
-        </button>
-        /
-        <button
-          type="button"
-          onClick={() => {
-            locale.switch("en");
-          }}
-        >
-          en
-        </button>
-      </div>
-    </div>
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={() => {
+              locale.switch("ja");
+            }}
+          >
+            ja
+          </button>
+          /
+          <button
+            type="button"
+            onClick={() => {
+              locale.switch("en");
+            }}
+          >
+            en
+          </button>
+        </div>
+      </Details>
+    </section>
   );
 };
 
@@ -609,89 +621,90 @@ function IndexedDBComponent() {
 
   return (
     <section>
-      <h2>IndexedDB</h2>
-      {db == null
-        ? "loading..."
-        : <>
-          <div className="flex flex-row gap-2">
-            <Button
-              onClick={async ({ unlock }) => {
-                const value = await db.read({
-                  storeNames: "hoge",
-                }, async ({ hoge }) => {
-                  return await hoge.getByKey("hoge@example.com");
-                });
-                console.log("get", value);
-                unlock();
-              }}
-            >
-              show
-            </Button>
-            <Button
-              onClick={async ({ unlock }) => {
-                const key = await db.write({
-                  storeNames: "hoge",
-                }, async ({ hoge }) => {
-                  return await hoge.insert({
-                    email: "hoge@example.com",
-                    age: 18,
-                    name: "Tarou",
+      <Details summary="IndexedDB">
+        {db == null
+          ? "loading..."
+          : <>
+            <div className="flex flex-row gap-2">
+              <Button
+                onClick={async ({ unlock }) => {
+                  const value = await db.read({
+                    storeNames: "hoge",
+                  }, async ({ hoge }) => {
+                    return await hoge.getByKey("hoge@example.com");
                   });
-                });
-                console.log("insert", key);
-                unlock();
-              }}
-            >
-              add
-            </Button>
-            <Button
-              onClick={async ({ unlock }) => {
-                const key = await db.write({
-                  storeNames: "hoge",
-                }, async ({ hoge }) => {
-                  const value = await hoge.getByKey("hoge@example.com");
-                  if (value == null) return;
-                  value.age = 88;
-                  return await hoge.update(value);
-                });
-                console.log("update", key);
-                unlock();
-              }}
-            >
-              update
-            </Button>
-            <Button
-              onClick={async ({ unlock }) => {
-                const key = await db.write({
-                  storeNames: "hoge",
-                }, async ({ hoge }) => {
-                  hoge.upsert({
-                    email: "fuga@example.com",
-                    age: 0,
-                    name: formatDate(new Date(), "yyyy-MM-dd hh:mm:ss") || "",
+                  console.log("get", value);
+                  unlock();
+                }}
+              >
+                show
+              </Button>
+              <Button
+                onClick={async ({ unlock }) => {
+                  const key = await db.write({
+                    storeNames: "hoge",
+                  }, async ({ hoge }) => {
+                    return await hoge.insert({
+                      email: "hoge@example.com",
+                      age: 18,
+                      name: "Tarou",
+                    });
                   });
-                });
-                console.log("upsert", key);
-                unlock();
-              }}
-            >
-              upsert
-            </Button>
-            <Button
-              onClick={async ({ unlock }) => {
-                const result = await db.write({
-                  storeNames: "hoge",
-                }, async ({ hoge }) => {
-                  return await hoge.deleteByKey("hoge@example.com");
-                });
-                console.log("delete", result);
-                unlock();
-              }}
-            >
-              delete
-            </Button>
-          </div>
-        </>}
+                  console.log("insert", key);
+                  unlock();
+                }}
+              >
+                add
+              </Button>
+              <Button
+                onClick={async ({ unlock }) => {
+                  const key = await db.write({
+                    storeNames: "hoge",
+                  }, async ({ hoge }) => {
+                    const value = await hoge.getByKey("hoge@example.com");
+                    if (value == null) return;
+                    value.age = 88;
+                    return await hoge.update(value);
+                  });
+                  console.log("update", key);
+                  unlock();
+                }}
+              >
+                update
+              </Button>
+              <Button
+                onClick={async ({ unlock }) => {
+                  const key = await db.write({
+                    storeNames: "hoge",
+                  }, async ({ hoge }) => {
+                    hoge.upsert({
+                      email: "fuga@example.com",
+                      age: 0,
+                      name: formatDate(new Date(), "yyyy-MM-dd hh:mm:ss") || "",
+                    });
+                  });
+                  console.log("upsert", key);
+                  unlock();
+                }}
+              >
+                upsert
+              </Button>
+              <Button
+                onClick={async ({ unlock }) => {
+                  const result = await db.write({
+                    storeNames: "hoge",
+                  }, async ({ hoge }) => {
+                    return await hoge.deleteByKey("hoge@example.com");
+                  });
+                  console.log("delete", result);
+                  unlock();
+                }}
+              >
+                delete
+              </Button>
+            </div>
+          </>}
+      </Details>
     </section>
   );
 };
@@ -701,31 +714,236 @@ function StreamCompoment() {
 
   return (
     <section>
-      <h2>Stream Response</h2>
-      <Button
-        onClick={async ({ unlock }) => {
-          try {
-            const res = await fetch("/sandbox/stream", { method: "POST" });
-            if (!res.ok) throw new Error("response error");
-            const reader = res.body?.getReader();
-            const decorder = new TextDecoder();
+      <Details summary="Stream Response">
+        <div className="flex flex-row gap-2">
+          <Button
+            onClick={async ({ unlock }) => {
+              try {
+                const res = await fetch("/sandbox/stream", { method: "POST" });
+                if (!res.ok) throw new Error("response error");
+                const reader = res.body?.getReader();
+                const decorder = new TextDecoder();
 
-            while (true) {
-              const { done, value } = await reader!.read();
-              if (done) break;
-              setOutput((prev) => prev + decorder.decode(value));
-            }
-          } catch (e) {
-            console.error(e);
-          }
-          unlock();
-        }}
-      >
-        start
-      </Button>
-      <div className="break-words">
-        {output}
-      </div>
+                while (true) {
+                  const { done, value } = await reader!.read();
+                  if (done) break;
+                  setOutput((prev) => prev + decorder.decode(value));
+                }
+              } catch (e) {
+                console.error(e);
+              }
+              unlock();
+            }}
+          >
+            start
+          </Button>
+        </div>
+        <div className="break-words">
+          {output}
+        </div>
+      </Details>
+    </section>
+  );
+};
+
+const icons = [
+  PlusIcon,
+  PlusCircleIcon,
+  PlusCircleFillIcon,
+  MinusIcon,
+  MinusCircleIcon,
+  MinusCircleFillIcon,
+  CrossIcon,
+  CrossCircleIcon,
+  CrossCircleFillIcon,
+  MenuIcon,
+  MenuLeftIcon,
+  MenuRightIcon,
+  MenuLeftRightIcon,
+  KebabMenuIcon,
+  MeatballsMenuIcon,
+  ChocolateMenuIcon,
+  ChocolateMenuFillIcon,
+  LeftIcon,
+  LeftFillIcon,
+  DoubleLeftIcon,
+  DoubleLeftFillIcon,
+  RightIcon,
+  RightFillIcon,
+  DoubleRightIcon,
+  DoubleRightFillIcon,
+  UpIcon,
+  UpFillIcon,
+  DoubleUpIcon,
+  DoubleUpFillIcon,
+  DownIcon,
+  DownFillIcon,
+  DoubleDownIcon,
+  DoubleDownFillIcon,
+  LeftRightIcon,
+  UpDownIcon,
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  ArrowUpIcon,
+  ArrowDownIcon,
+  CalendarIcon,
+  CalendarFillIcon,
+  TodayIcon,
+  TodayFillIcon,
+  ClockIcon,
+  ClockFillIcon,
+  ListIcon,
+  OrderListIcon,
+  ListFilterIcon,
+  ClearAllIcon,
+  GridIcon,
+  GridFillIcon,
+  SaveIcon,
+  SaveFillIcon,
+  UndoIcon,
+  RedoIcon,
+  CloudIcon,
+  CloudFillIcon,
+  CloudDownloadIcon,
+  CloudUploadIcon,
+  DownloadIcon,
+  UploadIcon,
+  CircleIcon,
+  CircleFillIcon,
+  ReloadIcon,
+  UnloadIcon,
+  SyncIcon,
+  HomeIcon,
+  HomeFillIcon,
+  ElementIcon,
+  SmileIcon,
+  SmileFillIcon,
+  ButtonIcon,
+  LinkIcon,
+  ExLinkIcon,
+  ContainerIcon,
+  NavContainerIcon,
+  PopupIcon,
+  FormIcon,
+  FormItemIcon,
+  MagnifyingGlassIcon,
+  MagnifyingGlassPlusIcon,
+  MagnifyingGlassPlusFillIcon,
+  MagnifyingGlassMinusIcon,
+  MagnifyingGlassMinusFillIcon,
+  TextBoxIcon,
+  TabContainerIcon,
+  SlideContainerIcon,
+  SplitContainerIcon,
+  LoadingIcon,
+  LabelIcon,
+  LabelFillIcon,
+  StepperIcon,
+  VerticalDividerIcon,
+  HorizontalDividerIcon,
+  TooltipIcon,
+  BadgeIcon,
+  CardIcon,
+  SignInIcon,
+  SignOutIcon,
+  FolderIcon,
+  FolderFillIcon,
+  FolderAddIcon,
+  FolderAddFillIcon,
+  FolderDeleteIcon,
+  FolderDeleteFillIcon,
+  FileIcon,
+  FileFillIcon,
+  FileAddIcon,
+  FileAddFillIcon,
+  FileDeleteIcon,
+  FileDeleteFillIcon,
+  ExclamationIcon,
+  ExclamationCircleIcon,
+  ExclamationCircleFillIcon,
+  ExclamationTriangleIcon,
+  ExclamationTriangleFillIcon,
+  ExclamationDiamondIcon,
+  ExclamationDiamondFillIcon,
+  QuestionIcon,
+  QuestionCircleIcon,
+  QuestionCircleFillIcon,
+  UserIcon,
+  UserFillIcon,
+  UserAddIcon,
+  UserMinusIcon,
+  UsersIcon,
+  UsersFillIcon,
+  PowerIcon,
+  TrashCanIcon,
+  TrashCanFillIcon,
+  DeleteIcon,
+  DeleteFillIcon,
+  DeleteBackIcon,
+  DeleteBackFillIcon,
+  CheckIcon,
+  CheckCircleIcon,
+  CheckCircleFillIcon,
+  ShareIcon,
+  ShareFillIcon,
+  BookmarkIcon,
+  BookmarkFillIcon,
+  GearIcon,
+  GearFillIcon,
+  PinIcon,
+  PinFillIcon,
+  MailIcon,
+  MailFillIcon,
+  StarIcon,
+  StarFillIcon,
+  StarHalfFillIcon,
+  HeartIcon,
+  HeartFillIcon,
+  HeartHalfFillIcon,
+  FilterIcon,
+  FilterFillIcon,
+  LocationIcon,
+  LocationFillIcon,
+  CameraIcon,
+  CameraFillIcon,
+];
+
+function IconsComponent() {
+  return (
+    <section>
+      <Details summary="Icons">
+        <div className="details-content:">
+          <ul className="flex flex-row flex-wrap gap-4 p-2">
+            {icons.map(Icon => {
+              const IconlessName = Icon.name.match(/(.*)Icon/)?.[1];
+
+              return (
+                <li key={Icon.name}>
+                  <h3 className="flex flex-row gap-2">
+                    {Icon.name} <Icon />
+                  </h3>
+                  <div className="flex gap-2 w-[300px]">
+                    <Button>
+                      <Icon />
+                    </Button>
+                    <Button
+                      color="sub"
+                      appearance="outline"
+                      round
+                    >
+                      <Icon />
+                    </Button>
+                    <Button color="secondary">
+                      <span>{IconlessName}</span>
+                      <Icon />
+                    </Button>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </Details>
     </section>
   );
 };

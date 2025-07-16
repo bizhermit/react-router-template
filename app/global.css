@@ -100,14 +100,42 @@
     background-color: var(--color-input-bg);
   }
 
+  .details {
+    &::details-content {
+      display: grid;
+      grid-template-rows: 0fr;
+      overflow: hidden;
+      transition: grid-template-rows .2s, content-visibility .2s allow-discrete, overlay .2s allow-discrete;
+    }
+
+    &[open] {
+      &::details-content {
+        grid-template-rows: 1fr;
+      }
+    }
+  }
+
+  summary {
+    cursor: pointer;
+    user-select: none;
+    touch-action: none;
+  }
+
   ::placeholder {
     color: var(--color-placeholder);
   }
 
 }
 
-
 @layer components {
+  .icon {
+    width: 1.6rem;
+    fill: currentColor;
+    stroke: currentColor;
+    stroke-width: 0;
+    stroke-linecap: round;
+  }
+
   .loading-bar {
     @apply fixed top-0 left-0 w-full h-1 z-[9999] overflow-hidden bg-transparent;
 
