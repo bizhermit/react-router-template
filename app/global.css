@@ -33,8 +33,8 @@
 
   /* input */
   --color-input: #111;
-  --color-input-bg: #fff;
-  --color-input-bd: #000;
+  --color-input-bg: #f9f9f9;
+  --color-input-bd: #555;
   --color-input-err: #111;
   --color-input-err-bg: #fdd;
   --color-input-err-bd: #f00;
@@ -63,17 +63,17 @@
   --color-primary-fg: #ddd;
   --color-secondary: #14a389;
   --color-secondary-fg: #ddd;
-  --color-sub: #889;
+  --color-sub: #778;
   --color-sub-fg: #ddd;
   --color-danger: #e85151;
   --color-danger-fg: #ddd;
   --color-input: #ddd;
   --color-input-bg: #222;
+  --color-input-bd: #bbb;
   --color-input-err: #ddd;
   --color-input-err-bg: #322;
   --color-input-err-bd: #f57;
   --color-error: #f57;
-  --color-input-bd: #ccc;
   --color-hover: #024a70;
   --color-active: #024a70;
 }

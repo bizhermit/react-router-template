@@ -312,44 +312,12 @@ export default function Page(props: Route.ComponentProps) {
           </fetcher.Form>
         </SchemaProvider>
       </section>
-      <ColorComponents />
       <ThemeComponent />
       <LangComponent />
       <IndexedDBComponent />
       <StreamCompoment />
       <IconsComponent />
     </main>
-  );
-};
-
-function ColorComponents() {
-  const colors = ["primary", "secondary", "sub", "danger"] as const;
-  return (
-    <section>
-      <Details summary="Color">
-        <ul>
-          {colors.map(color => {
-            return (
-              <li key={color}>
-                <h2
-                  className={clsx(
-                    color === "primary" && "text-primary",
-                    color === "secondary" && "text-secondary",
-                    color === "sub" && "text-sub",
-                    color === "danger" && "text-danger",
-                  )}
-                >
-                  {color}
-                </h2>
-                <Button color={color}>FillButton</Button>
-                <Button color={color} appearance="outline">OutlineButton</Button>
-                <Button color={color} appearance="text">TextButton</Button>
-              </li>
-            );
-          })}
-        </ul>
-      </Details>
-    </section>
   );
 };
 
@@ -558,6 +526,8 @@ function DynamicSelectBoxComponent() {
 function ThemeComponent() {
   const { theme, setTheme } = useTheme();
 
+  const colors = ["primary", "secondary", "sub", "danger"] as const;
+
   return (
     <section>
       <Details summary="Theme">
@@ -587,6 +557,27 @@ function ThemeComponent() {
             {theme}
           </span>
         </div>
+        <ul>
+          {colors.map(color => {
+            return (
+              <li key={color}>
+                <h2
+                  className={clsx(
+                    color === "primary" && "text-primary",
+                    color === "secondary" && "text-secondary",
+                    color === "sub" && "text-sub",
+                    color === "danger" && "text-danger",
+                  )}
+                >
+                  {color}
+                </h2>
+                <Button color={color}>FillButton</Button>
+                <Button color={color} appearance="outline">OutlineButton</Button>
+                <Button color={color} appearance="text">TextButton</Button>
+              </li>
+            );
+          })}
+        </ul>
       </Details>
     </section>
   );
@@ -619,24 +610,25 @@ function LangComponent() {
           <span>dangerouslySetInnerHTML</span>
           <div dangerouslySetInnerHTML={{ __html: t("htmlText") }} />
         </p> */}
-        <div className="flex gap-3">
-          <button
-            type="button"
+        <div className="flex">
+          <Button
+            appearance={locale.lang === "ja" ? "fill" : "outline"}
+            className="rounded-tr-none rounded-br-none"
             onClick={() => {
               locale.switch("ja");
             }}
           >
-            ja
-          </button>
-          /
-          <button
-            type="button"
+            日本語
+          </Button>
+          <Button
+            appearance={locale.lang === "en" ? "fill" : "outline"}
+            className="rounded-tl-none rounded-bl-none"
             onClick={() => {
               locale.switch("en");
             }}
           >
-            en
-          </button>
+            English
+          </Button>
         </div>
       </Details>
     </section>
