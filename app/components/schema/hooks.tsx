@@ -1,5 +1,4 @@
 import { createContext, use, useCallback, useContext, useId, useLayoutEffect, useMemo, useRef, useState, type FormEvent, type FormHTMLAttributes, type ReactNode, type RefObject } from "react";
-import { unstable_usePrompt } from "react-router";
 import { useText } from "~/i18n/hooks";
 import { parseWithSchema } from ".";
 import type { InputWrapProps } from "../elements/form/common";
@@ -112,6 +111,7 @@ interface Props<S extends Record<string, Schema.$Any>> {
   actionResults?: Record<string, Schema.Result> | null | undefined;
   dep?: Record<string, unknown>;
   preventPrompt?: boolean;
+  onChangeEffected?: (effected: boolean) => void;
 };
 
 export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>) {
@@ -174,6 +174,7 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
     }
     bindData.current = new SchemaData(submission.data, ({ items }) => {
       isEffected.current = true;
+      props.onChangeEffected?.(isEffected.current);
       const params: SchemaEffectParams_Value = { type: "value", items };
       subscribes.current.forEach(f => f(params));
     });
@@ -183,6 +184,7 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
   const { schema, hasFile } = useMemo(() => {
     isInitialize.current = true;
     isEffected.current = false;
+    props.onChangeEffected?.(isEffected.current);
     dep.current = props.dep ?? EMPTY_STRUCT;
     const submission = refresh("init", argData);
     return {
@@ -269,7 +271,7 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
     result: Schema.Result | null | undefined
   ) {
     let change = false;
-    if (bindData.current._set(name, value)) {
+    if (bindData.current.set(name, value)) {
       change = true;
     }
     if (setResultImpl(name, result)) {
@@ -423,23 +425,8 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
     isInitialize.current = false;
   }, [argData]);
 
-  unstable_usePrompt({
-    when: () => {
-      return !props.preventPrompt && isEffected.current;
-    },
-    message: env.current.t("formPrompt") || "",
-  });
-
   useLayoutEffect(() => {
     isValidScripts.current = true;
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (!props.preventPrompt && isEffected.current) {
-        e.preventDefault();
-        e.returnValue = "";
-      }
-    };
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, []);
 
   function getFormProps(method: "get" | "post" | "put") {
