@@ -730,7 +730,7 @@ function StreamCompoment() {
   const abortController = useAbortController();
 
   async function fetchStream(timeout?: number) {
-    await abortController.start(async (signal) => {
+    await abortController.start(async (signal, setAbortCallback) => {
       try {
         const res = await fetch("/sandbox/stream", {
           method: "POST",
@@ -738,8 +738,12 @@ function StreamCompoment() {
         });
         if (!res.ok) throw new Error("response error");
         const reader = res.body?.getReader();
-        const decorder = new TextDecoder();
 
+        setAbortCallback(() => {
+          reader?.cancel("client aborted");
+        });
+
+        const decorder = new TextDecoder();
         while (true) {
           const { done, value } = await reader!.read();
           if (done) break;
@@ -793,7 +797,7 @@ function StreamCompoment() {
               unlock();
             }}
           >
-            start(timeout: 5000ms)
+            start(timeout: 5s)
           </Button>
           <Button
             disabled={!isProcessing}

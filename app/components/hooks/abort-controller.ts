@@ -1,10 +1,15 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type State = "idle" | "processing" | "aborted" | "disposed";
 
-export function useAbortController() {
+interface Options {
+  preventAbortOnUnmount?: boolean;
+};
+
+export function useAbortController(options?: Options) {
   const controller = useRef<AbortController | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const abortCallbackRef = useRef<((reason: unknown) => void) | null>(null);
   const [state, setState] = useState<State>("idle");
 
   function create(timeout?: number) {
@@ -30,6 +35,10 @@ export function useAbortController() {
       console.warn("Cannot abort: the AbortController has already been disposed or was never created.");
       return false;
     }
+    if (abortCallbackRef.current) {
+      abortCallbackRef.current(reason);
+      abortCallbackRef.current = null;
+    }
     controller.current.abort(reason);
     controller.current = null;
     if (timeoutRef.current) {
@@ -43,6 +52,7 @@ export function useAbortController() {
   function dispose() {
     if (controller.current) {
       controller.current = null;
+      abortCallbackRef.current = null;
       setState("disposed");
     }
     if (timeoutRef.current) {
@@ -51,13 +61,28 @@ export function useAbortController() {
     }
   };
 
-  async function start<T>(process: (signal: AbortSignal) => Promise<T>, timeout?: number) {
+  function setAbortCallback(callback: typeof abortCallbackRef.current) {
+    abortCallbackRef.current = callback;
+  };
+
+  async function start<T>(process: (
+    signal: AbortSignal,
+    setAbortCallback: (callback: typeof abortCallbackRef.current) => void
+  ) => Promise<T>, timeout?: number) {
     try {
-      return await process(create(timeout)) as T;
+      setAbortCallback(null);
+      return await process(create(timeout), setAbortCallback) as T;
     } finally {
       dispose();
     }
   };
+
+  useEffect(() => {
+    return () => {
+      if (options?.preventAbortOnUnmount) return;
+      abort("unmount");
+    };
+  }, []);
 
   return {
     state,
@@ -65,5 +90,6 @@ export function useAbortController() {
     create,
     abort,
     dispose,
+    setAbortCallback,
   } as const;
 };
