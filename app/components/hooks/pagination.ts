@@ -10,6 +10,7 @@ export const usePagination = <T>(props: PaginationProps<T>) => {
   const maxPage = Math.max(1, Math.ceil((props.value?.length ?? 0) / props.limit));
   const [page, setPage] = useState<number>(() => Math.min(maxPage, Math.max(1, props.initPage ?? 1)));
   const hasValue = props.value != null;
+  const length = props.value?.length ?? 0;
 
   useEffect(() => {
     setPage(c => Math.min(maxPage, c));
@@ -23,12 +24,12 @@ export const usePagination = <T>(props: PaginationProps<T>) => {
   return {
     originValue: props.value,
     value,
-    length: props.value?.length,
+    length,
     page,
     maxPage,
     limit: props.limit,
     hasValue,
-    noData: (props.value?.length ?? 0) < 1,
+    noData: hasValue ? length === 0 : false,
     setPage: function (page: number) {
       setPage(Math.max(1, Math.min(page, maxPage)));
     },
