@@ -160,7 +160,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
       case "value-result":
       case "value": {
         function update(
-          $: Schema.DataItem<Schema.$Any> | undefined,
+          $: Schema.DataItem | undefined,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           valueSetter: Dispatch<SetStateAction<any>>,
           resultSetter: Dispatch<SetStateAction<Schema.Result | null | undefined>>,
@@ -191,7 +191,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
 
         const results: Array<{ name: string; result: Schema.Result | null | undefined; }> = [];
         function updateWithRefs(
-          $: Schema.DataItem<Schema.$Any> | undefined,
+          $: Schema.DataItem | undefined,
           refs: Array<RefObject<Array<string>>>,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           valueGetter: () => any,
@@ -260,7 +260,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
       }
       case "result": {
         function update(
-          $: Schema.DataItem<Schema.$Any> | undefined,
+          $: Schema.DataItem | undefined,
           resultSetter: Dispatch<SetStateAction<Schema.Result | null | undefined>>,
         ) {
           if (!$?.name) return false;
@@ -301,7 +301,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
 
   const isValidScripts = schema.isValidScripts.current;
 
-  function getModeImpl($: Schema.DataItem<Schema.$Any> | undefined): Schema.Mode {
+  function getModeImpl($: Schema.DataItem | undefined): Schema.Mode {
     if (!$) return "hidden";
     return getSchemaItemMode($, schema);
   };
@@ -431,7 +431,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
   const [secondValue, setSecondValue] = useState(getSecondValue);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  function getResultImpl($: Schema.DataItem<Schema.$Any> | undefined, valueGetter: () => any) {
+  function getResultImpl($: Schema.DataItem | undefined, valueGetter: () => any) {
     if (!$) return undefined;
     return getSchemaItemResult($, schema, valueGetter);
   };
@@ -478,7 +478,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
 
   const [secondResult, setSecondResult] = useState(getSecondResult);
 
-  function getRequiredImpl($: Schema.DataItem<Schema.$Any> | undefined) {
+  function getRequiredImpl($: Schema.DataItem | undefined) {
     if (!$) return false;
     return getSchemaItemRequired($, schema);
   };
@@ -526,7 +526,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
   const [secondRequired, setSecondRequired] = useState(getSecondRequired);
 
   function getCommonParams(
-    $: Schema.DataItem<Schema.$Any> | undefined
+    $: Schema.DataItem | undefined
   ): Schema.DynamicValidationValueParams {
     return {
       name: $?.name || "",
@@ -906,7 +906,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
     if (!schema.isInitialize.current) {
       const updateResults: Parameters<typeof schema.setResults>[0] = [];
       function resetResult(
-        $: Schema.DataItem<Schema.$Any> | undefined,
+        $: Schema.DataItem | undefined,
         r: Schema.Result | null | undefined
       ) {
         if (!$?.name) return;
@@ -925,7 +925,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
     }
     return () => {
       const updateResults: Parameters<typeof schema.setResults>[0] = [];
-      function clearResult($: Schema.DataItem<Schema.$Any> | undefined) {
+      function clearResult($: Schema.DataItem | undefined) {
         if (!$?.name) return;
         updateResults.push({ name: $.name, result: undefined });
       }

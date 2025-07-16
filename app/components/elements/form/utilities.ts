@@ -19,7 +19,7 @@ export function getBooleanSource({
   ] satisfies Schema.Source<Schema.ValueType<typeof dataItem["_"]>>;
 };
 
-export function useSource<D extends Schema.DataItem<Schema.$Any>>({
+export function useSource<D extends Schema.DataItem>({
   dataItem,
   propsSource,
   getCommonParams,

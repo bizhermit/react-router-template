@@ -3,7 +3,7 @@ import { useSchemaEffect } from "~/components/schema/hooks";
 import { clsx } from "../utilities";
 
 export type InputMessageProps = HTMLAttributes<HTMLSpanElement> & {
-  $: Schema.DataItem<Schema.$Any>;
+  $: Schema.DataItem;
 };
 
 export function InputMessage({

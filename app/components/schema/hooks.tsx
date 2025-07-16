@@ -490,7 +490,7 @@ type SetValue<P extends Schema.$Any> =
   | ((currentValue: Schema.ValueType<P, true, true> | null | undefined) => Schema.ValueType<P, false>)
   ;
 
-export function useSchemaValue<D extends Schema.DataItem<Schema.$Any>>(dataItem: D) {
+export function useSchemaValue<D extends Schema.DataItem>(dataItem: D) {
   const schema = useSchemaEffect((params) => {
     switch (params.type) {
       case "refresh":
@@ -525,7 +525,7 @@ export function useSchemaValue<D extends Schema.DataItem<Schema.$Any>>(dataItem:
   ] as const;
 };
 
-export function useSchemaResult<D extends Schema.DataItem<Schema.$Any>>(dataItem: D) {
+export function useSchemaResult<D extends Schema.DataItem>(dataItem: D) {
   const schema = useSchemaEffect((params) => {
     switch (params.type) {
       case "refresh":
@@ -575,7 +575,7 @@ export interface InputWrapProps {
   hideMessage?: boolean;
 };
 
-export interface SchemaItemProps<D extends Schema.DataItem<Schema.$Any>> extends InputWrapProps {
+export interface SchemaItemProps<D extends Schema.DataItem> extends InputWrapProps {
   $: D;
   readOnly?: boolean;
 };
@@ -605,7 +605,7 @@ export function getDefaultState() {
 
 type SchemaEffectHookParams = ReturnType<typeof useSchemaEffect>;
 
-export function getSchemaItemMode($: Schema.DataItem<Schema.$Any>, schema: SchemaEffectHookParams) {
+export function getSchemaItemMode($: Schema.DataItem, schema: SchemaEffectHookParams) {
   let parent = $.parent;
   const modeParams: Schema.ModeParams = {
     data: schema.data.current,
@@ -622,7 +622,7 @@ export function getSchemaItemMode($: Schema.DataItem<Schema.$Any>, schema: Schem
 };
 
 export function getSchemaItemRequired(
-  $: Schema.DataItem<Schema.$Any>,
+  $: Schema.DataItem,
   schema: SchemaEffectHookParams,
 ) {
   if (typeof $._.required === "function") {
@@ -638,7 +638,7 @@ export function getSchemaItemRequired(
 };
 
 export function getSchemaItemResult(
-  $: Schema.DataItem<Schema.$Any>,
+  $: Schema.DataItem,
   schema: ReturnType<typeof useSchemaEffect>,
   getValue: () => unknown,
 ) {
@@ -649,7 +649,7 @@ export function getSchemaItemResult(
   return schemaItemValidation($, schema, getValue());
 };
 
-export function parseSchemaItemValue<D extends Schema.DataItem<Schema.$Any>>(
+export function parseSchemaItemValue<D extends Schema.DataItem>(
   $: D,
   schema: SchemaEffectHookParams,
   value: unknown,
@@ -665,7 +665,7 @@ export function parseSchemaItemValue<D extends Schema.DataItem<Schema.$Any>>(
   };
 };
 
-export function schemaItemValidation<D extends Schema.DataItem<Schema.$Any>>(
+export function schemaItemValidation<D extends Schema.DataItem>(
   $: D,
   schema: SchemaEffectHookParams,
   value: unknown,
@@ -687,7 +687,7 @@ export function schemaItemValidation<D extends Schema.DataItem<Schema.$Any>>(
   return r;
 };
 
-export function schemaItemEffect<D extends Schema.DataItem<Schema.$Any>>(
+export function schemaItemEffect<D extends Schema.DataItem>(
   $: D,
   schema: SchemaEffectHookParams,
   value: unknown,
@@ -704,14 +704,14 @@ export function schemaItemEffect<D extends Schema.DataItem<Schema.$Any>>(
 };
 
 export function optimizeRefs(
-  $: Schema.DataItem<Schema.$Any>,
+  $: Schema.DataItem,
   refs: Array<string> | undefined
 ): Array<string> {
   if (!refs) return [];
   return refs.map(ref => getRelativeName($.name, ref));
 };
 
-export function useSchemaItem<D extends Schema.DataItem<Schema.$Any>>({
+export function useSchemaItem<D extends Schema.DataItem>({
   $,
   ...props
 }: SchemaItemProps<D>, options: {
@@ -935,6 +935,7 @@ export function useSchemaArray<D extends Schema.DataItem<Schema.$Array>>(dataIte
 }) {
   type ArrayType = Exclude<Schema.ValueType<D["_"], true, true>, null | undefined>;
   type LaxArrayType = Schema.ValueType<D["_"], false, false>;
+  type NonNullLaxArrayType = Exclude<LaxArrayType, null | undefined>;
 
   const schemaItem = useSchemaItem<D>({ $: dataItem, readOnly: options?.readOnly }, {
     watchChildEffect: options?.watchChildValue
@@ -948,7 +949,7 @@ export function useSchemaArray<D extends Schema.DataItem<Schema.$Array>>(dataIte
   const [keyRev, setKeyRev] = useState(0);
 
   function push(
-    value: Partial<ArrayType[number]>,
+    value: Partial<NonNullLaxArrayType[number]>,
     options?: {
       position?: "first" | "last";
     }
@@ -961,7 +962,7 @@ export function useSchemaArray<D extends Schema.DataItem<Schema.$Array>>(dataIte
   };
 
   function bulkPush(
-    values: Array<Partial<ArrayType[number]>>,
+    values: Array<Partial<NonNullLaxArrayType[number]>>,
     options?: {
       position?: "first" | "last";
     }

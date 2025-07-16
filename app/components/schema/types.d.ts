@@ -405,7 +405,7 @@ namespace Schema {
     | $Struct
     ;
 
-  type DataItem<P extends $Any> = {
+  type DataItem<P extends $Any = $Any> = {
     label: string | undefined;
     name: string;
     parent?: DataItem<$Struct | $Array>;

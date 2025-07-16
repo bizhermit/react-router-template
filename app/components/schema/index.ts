@@ -15,7 +15,7 @@ export function parseWithSchema<$Schema extends Record<string, Schema.$Any>>(par
   const dep = params.dep ?? {};
   const validations: (() => void)[] = [];
   const results: Record<string, Schema.Result> = {};
-  const dataItems: Record<string, Schema.DataItem<Schema.$Any>> = {};
+  const dataItems: Record<string, Schema.DataItem> = {};
   let hasFile = false;
 
   function parseItem({ item, name, parent }: {
@@ -72,7 +72,7 @@ export function parseWithSchema<$Schema extends Record<string, Schema.$Any>>(par
       if (!params.createDataItems && val == null) return null!;
     }
 
-    const dataItem: Schema.DataItem<Schema.$Any> = (() => {
+    const dataItem: Schema.DataItem = (() => {
       switch (item.type) {
         case "date":
         case "month":
