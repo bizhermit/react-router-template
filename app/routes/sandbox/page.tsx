@@ -285,6 +285,7 @@ export default function Page(props: Route.ComponentProps) {
           color="sub"
           appearance="outline"
           className="ml-auto"
+        // disabled
         >
           <SignOutIcon />
           <span>index</span>
