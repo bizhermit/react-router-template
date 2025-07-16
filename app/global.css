@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:where(html[data-theme="dark"]));
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 @theme {
   /* https://tailwindcss.com/docs/theme */
@@ -54,31 +54,28 @@
   --image-up: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M10,67.5l40,-40 40,40' stroke='currentColor' stroke-width='0.75rem' fill='none' stroke-linecap='round'/></svg>");
 }
 
-:root {
-  @media (prefers-color-scheme: dark) {
-    color-scheme: dark;
-
-    --color-bg: #2c2c2c;
-    --color-fg: #ddd;
-    --color-shadow: #888;
-    --color-primary: #4085ca;
-    --color-primary-fg: #ddd;
-    --color-secondary: #14a389;
-    --color-secondary-fg: #ddd;
-    --color-sub: #889;
-    --color-sub-fg: #ddd;
-    --color-danger: #e85151;
-    --color-danger-fg: #ddd;
-    --color-input: #ddd;
-    --color-input-bg: #222;
-    --color-input-err: #ddd;
-    --color-input-err-bg: #322;
-    --color-input-err-bd: #f57;
-    --color-error: #f57;
-    --color-input-bd: #ccc;
-    --color-hover: #024a70;
-    --color-active: #024a70;
-  }
+@utility dark-theme-vars {
+  color-scheme: dark;
+  --color-bg: #2c2c2c;
+  --color-fg: #ddd;
+  --color-shadow: #888;
+  --color-primary: #4085ca;
+  --color-primary-fg: #ddd;
+  --color-secondary: #14a389;
+  --color-secondary-fg: #ddd;
+  --color-sub: #889;
+  --color-sub-fg: #ddd;
+  --color-danger: #e85151;
+  --color-danger-fg: #ddd;
+  --color-input: #ddd;
+  --color-input-bg: #222;
+  --color-input-err: #ddd;
+  --color-input-err-bg: #322;
+  --color-input-err-bd: #f57;
+  --color-error: #f57;
+  --color-input-bd: #ccc;
+  --color-hover: #024a70;
+  --color-active: #024a70;
 }
 
 @layer base {
@@ -88,8 +85,14 @@
     color: var(--color-fg);
     font-size: 62.5%;
 
-    @media (prefers-color-scheme: dark) {
-      color-scheme: dark;
+    &[data-theme="dark"] {
+      @apply dark-theme-vars;
+    }
+
+    &[data-theme="auto"] {
+      @media (prefers-color-scheme: dark) {
+        @apply dark-theme-vars;
+      }
     }
   }
 
