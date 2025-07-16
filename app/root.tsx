@@ -9,6 +9,7 @@ import {
 
 import type { ReactNode } from "react";
 import type { Route } from "./+types/root";
+import { useTheme } from "./components/providers/theme";
 import "./global.css";
 import { useLocale } from "./i18n/hooks";
 import { I18nCookieLocator } from "./i18n/provider";
@@ -28,10 +29,14 @@ export const links: Route.LinksFunction = () => [
 
 export function Layout({ children }: { children: ReactNode; }) {
   const { lang } = useLocale();
+  const { theme } = useTheme();
 
   return (
     <I18nCookieLocator>
-      <html lang={lang}>
+      <html
+        lang={lang}
+        data-theme={theme}
+      >
         <head>
           <meta charSet="utf-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1" />

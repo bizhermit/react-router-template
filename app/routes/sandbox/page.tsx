@@ -22,6 +22,7 @@ import { usePageExitPropmt } from "~/components/hooks/page-exit-prompt";
 import getIndexedDB, { type IndexedDBController, type IndexedDBStores } from "~/components/indexeddb/client";
 import { formatDate } from "~/components/objects/date";
 import { parseNumber } from "~/components/objects/numeric";
+import { useTheme } from "~/components/providers/theme";
 import { $schema } from "~/components/schema";
 import { $array } from "~/components/schema/array";
 import { $bool } from "~/components/schema/boolean";
@@ -312,6 +313,7 @@ export default function Page(props: Route.ComponentProps) {
         </SchemaProvider>
       </section>
       <ColorComponents />
+      <ThemeComponent />
       <LangComponent />
       <IndexedDBComponent />
       <StreamCompoment />
@@ -550,6 +552,43 @@ function DynamicSelectBoxComponent() {
         />
       </FormItem>
     </div>
+  );
+};
+
+function ThemeComponent() {
+  const { theme, setTheme } = useTheme();
+
+  return (
+    <section>
+      <Details summary="Theme">
+        <div className="flex flex-row gap-2">
+          <Button
+            onClick={() => {
+              setTheme("light");
+            }}
+          >
+            light
+          </Button>
+          <Button
+            onClick={() => {
+              setTheme("dark");
+            }}
+          >
+            dark
+          </Button>
+          <Button
+            onClick={() => {
+              setTheme("auto");
+            }}
+          >
+            auto
+          </Button>
+          <span>
+            {theme}
+          </span>
+        </div>
+      </Details>
+    </section>
   );
 };
 

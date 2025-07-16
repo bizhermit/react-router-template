@@ -1,13 +1,16 @@
 import { startTransition, StrictMode } from "react";
 import { hydrateRoot } from "react-dom/client";
 import { HydratedRouter } from "react-router/dom";
-import { I18nProvider } from "./i18n/provider";
-import { loadI18nAsClient } from "./i18n/client";
+import { getCookie } from "./components/cookie/client";
+import { ThemeProvider } from "./components/providers/theme";
 import { ValidScriptsProvider } from "./components/providers/valid-scripts";
+import { loadI18nAsClient } from "./i18n/client";
+import { I18nProvider } from "./i18n/provider";
 
 async function hydrate() {
   const i18n = await loadI18nAsClient();
   const isValidScripts = document.cookie.includes("js=t");
+  const theme = getCookie("theme");
 
   startTransition(() => {
     hydrateRoot(
@@ -16,13 +19,15 @@ async function hydrate() {
         locale={i18n.locale}
         resource={i18n.resource}
       >
-        <ValidScriptsProvider
-          initValid={isValidScripts}
-        >
-          <StrictMode>
-            <HydratedRouter />
-          </StrictMode>
-        </ValidScriptsProvider>
+        <ThemeProvider defaultTheme={theme}>
+          <ValidScriptsProvider
+            initValid={isValidScripts}
+          >
+            <StrictMode>
+              <HydratedRouter />
+            </StrictMode>
+          </ValidScriptsProvider>
+        </ThemeProvider>
       </I18nProvider>
     );
   });

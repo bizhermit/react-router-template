@@ -3,6 +3,8 @@ import { isbot } from "isbot";
 import { renderToPipeableStream } from "react-dom/server";
 import { ServerRouter, type AppLoadContext, type EntryContext } from "react-router";
 import { PassThrough } from "stream";
+import { cookieStore } from "./components/cookie/server";
+import { ThemeProvider } from "./components/providers/theme";
 import { ValidScriptsProvider } from "./components/providers/valid-scripts";
 import { I18nProvider } from "./i18n/provider";
 import { loadI18nAsServer } from "./i18n/server";
@@ -102,22 +104,26 @@ export default async function handleRequest(
 
   return new Promise((resolve, reject) => {
     let didError = false;
-    const isValidScripts = request.headers.get("cookie")?.includes("js=t");
+    const cookie = cookieStore(request);
+    const isValidScripts = cookie.getCookie("js") === "t";
+    const theme = cookie.getCookie("theme");
 
     const { pipe, abort } = renderToPipeableStream(
       <I18nProvider
         locale={i18n.locale}
         resource={i18n.resource}
       >
-        <ValidScriptsProvider
-          initValid={isValidScripts}
-        >
-          <i18n.Payload />
-          <ServerRouter
-            context={reactRouterContext}
-            url={request.url}
-          />
-        </ValidScriptsProvider>
+        <ThemeProvider defaultTheme={theme}>
+          <ValidScriptsProvider
+            initValid={isValidScripts}
+          >
+            <i18n.Payload />
+            <ServerRouter
+              context={reactRouterContext}
+              url={request.url}
+            />
+          </ValidScriptsProvider>
+        </ThemeProvider>
       </I18nProvider>,
       {
         [callbackName]: () => {
