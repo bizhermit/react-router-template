@@ -130,8 +130,29 @@ npm run format
 
 ### Playwright
 
+初回のみ依存関係のインストールが必要です。  
+
 ```bash
+bash ./.devcontainer/initialize-playwright.sh
+```
+
+```bash
+# 1. Webアプリケーションサーバーをビルドする（すでにビルド済みなら必要なし）
+npm run build
+
+# 2. Webアプリケーションサーバーを起動する（すでに起動済みなら必要なし）
+npm run start
+
+# 3. Playwright実行
 npm run playwright
+```
+
+※ 各画面のスクリーンショットが、`./.playwright/screenshot/`に保存されます。  
+
+### ロジックテスト
+
+```bash
+npm run test
 ```
 
 ※ 各画面のスクリーンショットが、`./.playwright/screenshot/`に保存されます。  

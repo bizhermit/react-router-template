@@ -59,6 +59,4 @@ networks:
     name: template
     driver: bridge
 volumes:
-  template_node_node_modules:
-  template_node_react-router:
   template_postgres:
