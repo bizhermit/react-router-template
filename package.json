@@ -5,7 +5,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npm run generate-i18n-types && npx prisma generate && npx react-router build",
     "dev": "npm run generate-i18n-types && npx react-router dev --host",
     "start": "npx react-router-serve ./build/server/index.js",
@@ -14,7 +13,8 @@
     "typecheck": "npm run generate-i18n-types && npx react-router typegen && tsc && npx eslint",
     "generate-i18n-types": "node ./scripts/generate-i18n-types.mjs",
     "format": "npx eslint --fix",
-    "playwright": "npx playwright test"
+    "playwright": "npx playwright test",
+    "test": "npx vitest run app"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.10.0",
