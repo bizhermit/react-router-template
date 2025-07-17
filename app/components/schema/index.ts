@@ -157,9 +157,6 @@ export function parseWithSchema<$Schema extends Record<string, Schema.$Any>>(par
           parent: dataItem as Schema.DataItem<Schema.$Struct>,
         });
         break;
-      case "file":
-        console.log("hasFile", true);
-        break;
       default:
         break;
     };
