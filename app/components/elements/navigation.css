@@ -201,6 +201,10 @@
     }
 
     .nav-wrap {
+      &:has(>.nav-header .nav-header-main:empty) {
+        --header-height: 0;
+      }
+
       &:has(.nav-scaling:checked) {
         ---nav-width: var(--nav-min-width);
 

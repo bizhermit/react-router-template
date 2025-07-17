@@ -97,6 +97,7 @@ export default tseslint.config({
     ],
     "@stylistic/indent-binary-ops": "off",
     "@stylistic/jsx-indent-props": "warn",
+    "@stylistic/jsx-curly-brace-presence": "warn",
     "@stylistic/comma-dangle": [
       "warn",
       {

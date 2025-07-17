@@ -252,7 +252,11 @@ export async function action(args: Route.ActionArgs) {
 export default function Page(props: Route.ComponentProps) {
   return (
     <Navigation
-      header="Sandbox"
+      header={
+        <span className="text-lg font-bold px-4">
+          Sandbox
+        </span>
+      }
       footer={
         <div className="w-full text-sm text-center p-1">
           &copy;&nbsp;2024&nbsp;bizhermit.com

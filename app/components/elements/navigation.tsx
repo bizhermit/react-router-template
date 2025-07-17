@@ -6,12 +6,14 @@ interface NavigationProps {
   className?: string;
   id?: string;
   header?: ReactNode;
-  headerProps?: Omit<HTMLAttributes<HTMLElement>, "children">;
+  headerProps?: Omit<HTMLAttributes<HTMLDivElement>, "children">;
   footer?: ReactNode;
   footerProps?: Omit<HTMLAttributes<HTMLElement>, "children">;
-  content: ReactNode;
+  content?: ReactNode;
   contentTag?: "main" | "div";
-  children: ReactNode;
+  contentProps?: Omit<HTMLAttributes<HTMLElement>, "children">;
+  navigationProps?: Omit<HTMLAttributes<HTMLElement>, "children">;
+  children?: ReactNode;
 };
 
 export function Navigation(props: NavigationProps) {
@@ -21,7 +23,12 @@ export function Navigation(props: NavigationProps) {
   const scalingId = `${props.id || id}_scaling`;
 
   return (
-    <div className={clsx("nav-wrap", props.className)}>
+    <div
+      className={clsx(
+        "nav-wrap",
+        props.className
+      )}
+    >
       <input
         className="nav-toggle"
         type="checkbox"
@@ -46,7 +53,13 @@ export function Navigation(props: NavigationProps) {
             <MenuRightIcon className="nav-widen" />
           </label>
         </div>
-        <div className="nav-nav-main">
+        <div
+          {...props.navigationProps}
+          className={clsx(
+            "nav-nav-main",
+            props.navigationProps?.className
+          )}
+        >
           {props.children}
         </div>
       </nav>
@@ -58,16 +71,34 @@ export function Navigation(props: NavigationProps) {
           <MenuIcon className="nav-menu" />
           <CrossIcon className="nav-menu-cross" />
         </label>
-        <div className="nav-header-main">
+        <div
+          {...props.headerProps}
+          className={clsx(
+            "nav-header-main",
+            props.headerProps?.className
+          )}
+        >
           {props.header}
         </div>
       </header>
-      <Tag className="nav-content">
+      <Tag
+        {...props.contentProps}
+        className={clsx(
+          "nav-content",
+          props.contentProps?.className
+        )}
+      >
         {props.content}
       </Tag>
       {
         props.footer &&
-        <footer className="nav-footer">
+        <footer
+          {...props.footerProps}
+          className={clsx(
+            "nav-footer",
+            props.footerProps?.className
+          )}
+        >
           {props.footer}
         </footer>
       }
