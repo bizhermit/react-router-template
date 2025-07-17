@@ -64,13 +64,13 @@
 
 ### 使い方
 
-#### サーバーサイド
+#### サーバーサイド（ランタイム参照）
 
 ```ts
 const timezone = process.env.TZ;
 ```
 
-#### クライアントサイドおよびサーバーサイド
+#### クライアントサイドおよびサーバーサイド（ビルド時固定）
 
 ```ts
 const apiUrl = import.meta.env.VITE_API_URL;
