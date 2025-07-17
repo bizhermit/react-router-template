@@ -23,6 +23,13 @@
   --color-sub-fg: #f4f4f4;
   --color-danger: #f05454;
   --color-danger-fg: #f4f4f4;
+  --color-header-bg: #e0e0e4;
+  --color-header-fg: #111;
+  --color-footer-bg: #e0e0e4;
+  --color-footer-fg: #111;
+  --color-nav-bg: #e0e0e4;
+  --color-nav-fg: #111;
+  --color-mask: rgba(0, 0, 0, 0.2);
 
   /* loadingbar */
   --spacing-loadingbar1: 25%;
@@ -67,6 +74,13 @@
   --color-sub-fg: #ddd;
   --color-danger: #e85151;
   --color-danger-fg: #ddd;
+  --color-header-bg: #1c1c1f;
+  --color-header-fg: #ddd;
+  --color-footer-bg: #1c1c1f;
+  --color-footer-fg: #ddd;
+  --color-nav-bg: #1c1c1f;
+  --color-nav-fg: #ddd;
+  --color-mask: rgba(192, 192, 192, 0.2);
   --color-input: #ddd;
   --color-input-bg: #222;
   --color-input-bd: #bbb;
@@ -198,4 +212,5 @@
 }
 
 @import "./components//elements/button.css";
+@import "./components//elements/navigation.css";
 @import "./components/elements/form/style.css";

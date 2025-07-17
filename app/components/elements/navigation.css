@@ -1,0 +1,201 @@
+@layer components {
+
+  .nav-wrap {
+    --nav-min-width: 3.6rem;
+    --nav-width: 26rem;
+    --header-height: var(--nav-min-width);
+    --height: 100%;
+    ---nav-width: var(--nav-width);
+
+    width: 100%;
+    min-height: var(--height);
+    padding-left: var(---nav-width);
+    transition: padding-left 0.2s;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: flex-start;
+    align-items: stretch;
+  }
+
+  body {
+    >.nav-wrap {
+      --height: 100dvh;
+    }
+  }
+
+  .nav-toggle,
+  .nav-scaling {
+    display: none;
+  }
+
+  .nav-btn {
+    width: var(--nav-min-width);
+    height: var(--nav-min-width);
+    display: grid;
+    place-items: center;
+    user-select: none;
+    cursor: pointer;
+  }
+
+  .nav-header {
+    z-index: 1;
+    position: sticky;
+    height: var(--header-height);
+    top: 0;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+    align-items: center;
+    background-color: var(--color-header-bg);
+    color: var(--color-header-fg);
+  }
+
+  .nav-menu-cross {
+    display: none;
+  }
+
+  .nav-footer {
+    z-index: 0;
+    background-color: var(--color-footer-bg);
+    color: var(--color-footer-fg);
+  }
+
+  .nav-content {
+    z-index: 0;
+    flex: 1 0 0rem;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+    max-width: 100%;
+    min-height: auto;
+  }
+
+  .nav-nav {
+    z-index: 2;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(---nav-width);
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: contain;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: flex-start;
+    align-items: stretch;
+    pointer-events: none;
+    padding-top: var(--header-height);
+    transition: width 0.2s, padding-top 0.2s;
+  }
+
+  .nav-btns-scaling {
+    height: var(--nav-min-width);
+    transition: height 0.2s;
+    pointer-events: all;
+    background-color: var(--color-nav-bg);
+    color: var(--color-nav-fg);
+  }
+
+  .nav-btn-scaling {
+    margin-left: auto;
+  }
+
+  .nav-widen {
+    display: none;
+  }
+
+  .nav-scaling {
+    &:checked {
+      &~.nav-nav {
+        .nav-btn-scaling {
+          >.nav-narrow {
+            display: none;
+          }
+
+          >.nav-widen {
+            display: unset;
+          }
+        }
+      }
+    }
+  }
+
+  .nav-nav-main {
+    z-index: 1;
+    flex: 1 0 0 rem;
+    min-height: 100%;
+    width: 100%;
+    overflow: visible;
+    pointer-events: all;
+    background-color: var(--color-nav-bg);
+    color: var(--color-nav-fg);
+  }
+
+  .nav-mask {
+    position: fixed;
+    z-index: 2;
+    top: var(--header-height);
+    left: 0;
+    width: 100%;
+    height: calc(var(--height) - var(--header-height));
+    background-color: var(--color-mask);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s, display 0.2s allow-discrete, overlay 0.2s allow-discrete;
+    display: none;
+  }
+
+  /* ヘッダーメニューアイコンボタンで開閉 */
+  @media screen and (max-width: 800px) {
+    .nav-wrap {
+      ---nav-width: 0;
+    }
+
+    .nav-btns-scaling {
+      height: 0;
+    }
+
+    .nav-toggle {
+      &:checked {
+        &~.nav-header {
+          .nav-menu-cross {
+            display: unset;
+          }
+
+          .nav-menu {
+            display: none;
+          }
+        }
+
+        &~.nav-mask {
+          display: unset;
+          opacity: 1;
+          pointer-events: unset;
+        }
+
+        &~.nav-nav {
+          ---nav-width: var(--nav-width);
+        }
+      }
+    }
+  }
+
+  /* 常時展開 */
+  @media screen and (min-width: 800px) {
+    .nav-btn-toggle {
+      display: none;
+    }
+
+    .nav-nav {
+      padding-top: 0;
+    }
+
+    .nav-wrap {
+      &:has(.nav-scaling:checked) {
+        ---nav-width: var(--nav-min-width);
+      }
+    }
+  }
+
+}
