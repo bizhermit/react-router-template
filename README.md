@@ -138,9 +138,12 @@ bash docker-compose.sh up
 bash docker-compose.sh up --build
 ```
 
-#### シェルスクリプトから実行できない場合
+#### シェルスクリプトから実行しない場合
 
-- `./.container/.env`と.`./.env*`を適切に設定してください。
+`./.container/.env`と.`./.env*`を適切に設定してください。  
+
+- `./.container/.env`：`docker-compose.yml`および実行コンテナ内に展開する環境変数
+- `./.env*`：Webアプリケーションビルド時に使用する環境変数
 
 ## 開発規約
 

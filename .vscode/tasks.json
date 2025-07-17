@@ -8,13 +8,13 @@
       "command": "git switch main && git pull && git fetch --prune && git branch -vv | grep ': gone]' | awk '{print $1}' | xargs -r git branch -d"
     },
     {
-      "label": "dev",
+      "label": "Start WebApp(dev)",
       "group": "none",
       "type": "shell",
       "command": "npm run dev"
     },
     {
-      "label": "prod start",
+      "label": "Start WebApp",
       "group": "none",
       "type": "shell",
       "command": "npm run build && npm run start"
