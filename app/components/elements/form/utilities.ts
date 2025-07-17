@@ -47,7 +47,7 @@ export function useSource<D extends Schema.DataItem>({
   });
 
   function resetDataItemSource() {
-    if (propsSource !== null && "source" in dataItem._) {
+    if (propsSource === null && "source" in dataItem._) {
       setSource((getValidationValue(getCommonParams(), dataItem._.source) as T) || null);
     }
   };
