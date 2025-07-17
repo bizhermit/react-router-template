@@ -50,6 +50,15 @@
     color: var(--color-header-fg);
   }
 
+  .nav-header-main {
+    flex: 1 0 0rem;
+    height: 100%;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: flex-start;
+    align-items: center;
+  }
+
   .nav-menu-cross {
     display: none;
   }
@@ -126,7 +135,7 @@
     flex: 1 0 0 rem;
     min-height: 100%;
     width: 100%;
-    overflow: visible;
+    overflow: auto;
     pointer-events: all;
     background-color: var(--color-nav-bg);
     color: var(--color-nav-fg);
@@ -194,6 +203,12 @@
     .nav-wrap {
       &:has(.nav-scaling:checked) {
         ---nav-width: var(--nav-min-width);
+
+        >.nav-nav {
+          >.nav-nav-main {
+            overflow: hidden;
+          }
+        }
       }
     }
   }

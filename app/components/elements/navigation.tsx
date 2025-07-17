@@ -58,7 +58,9 @@ export function Navigation(props: NavigationProps) {
           <MenuIcon className="nav-menu" />
           <CrossIcon className="nav-menu-cross" />
         </label>
-        {props.header}
+        <div className="nav-header-main">
+          {props.header}
+        </div>
       </header>
       <Tag className="nav-content">
         {props.content}
