@@ -127,6 +127,15 @@ npm run typecheck
 ```bash
 npm run format
 ```
+
+### Playwright
+
+```bash
+npm run playwright
+```
+
+※ 各画面のスクリーンショットが、`./.playwright/screenshot/`に保存されます。  
+
 ### 本番起動
 
 環境変数の使いまわしをするため、dockerコマンドではなくシェルスクリプトを使用してください。
