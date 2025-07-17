@@ -1,0 +1,77 @@
+@layer components {
+
+  .msgbox-dialog {
+    inset: 0;
+    top: 2rem;
+    margin: 0 auto;
+    overflow: hidden;
+    border-radius: 5px;
+  }
+
+  .msgbox {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: flex-start;
+    align-items: stretch;
+    padding: 1rem;
+    width: min(30rem, 80dvw);
+    background-color: var(--color-bg);
+    color: var(--color-fg);
+
+    ---msgbox-bg: var(--color-primary);
+    ---msgbox-fg: var(--color-primary-fg);
+
+    &[data-color="secondary"] {
+      ---msgbox-bg: var(--color-secondary);
+      ---msgbox-fg: var(--color-secondary-fg);
+    }
+
+    &[data-color="sub"] {
+      ---msgbox-bg: var(--color-sub);
+      ---msgbox-fg: var(--color-sub-fg);
+    }
+
+    &[data-color="danger"] {
+      ---msgbox-bg: var(--color-danger);
+      ---msgbox-fg: var(--color-danger-fg);
+    }
+
+  }
+
+  .msgbox-header,
+  .msgbox-body {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+  }
+
+  .msgbox-header {
+    background-color: var(---msgbox-bg, inherit);
+    color: var(---msgbox-fg, inherit);
+    padding: 0.5rem 1rem;
+    font-weight: bold;
+    font-size: 2rem;
+    border-radius: 3px;
+  }
+
+  .msgbox-body {
+    padding: 2rem 1rem;
+    border-bottom: 1px solid var(--color-shadow);
+    margin-bottom: 1rem;
+
+    &:first-child {
+      padding-top: 1rem;
+    }
+  }
+
+  .msgbox-footer {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+    align-items: center;
+    margin-left: auto;
+    gap: 1rem;
+  }
+
+}

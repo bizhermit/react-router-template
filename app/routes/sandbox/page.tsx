@@ -18,6 +18,7 @@ import { TextArea } from "~/components/elements/form/text-area";
 import { TextBox } from "~/components/elements/form/text-box";
 import { ArrowDownIcon, ArrowLeftIcon, ArrowRightIcon, ArrowUpIcon, BadgeIcon, BookmarkFillIcon, BookmarkIcon, ButtonIcon, CalendarFillIcon, CalendarIcon, CameraFillIcon, CameraIcon, CardIcon, CheckCircleFillIcon, CheckCircleIcon, CheckIcon, ChocolateMenuFillIcon, ChocolateMenuIcon, CircleFillIcon, CircleIcon, ClearAllIcon, ClockFillIcon, ClockIcon, CloudDownloadIcon, CloudFillIcon, CloudIcon, CloudUploadIcon, ContainerIcon, CrossCircleFillIcon, CrossCircleIcon, CrossIcon, DeleteBackFillIcon, DeleteBackIcon, DeleteFillIcon, DeleteIcon, DoubleDownFillIcon, DoubleDownIcon, DoubleLeftFillIcon, DoubleLeftIcon, DoubleRightFillIcon, DoubleRightIcon, DoubleUpFillIcon, DoubleUpIcon, DownFillIcon, DownIcon, DownloadIcon, ElementIcon, ExclamationCircleFillIcon, ExclamationCircleIcon, ExclamationDiamondFillIcon, ExclamationDiamondIcon, ExclamationIcon, ExclamationTriangleFillIcon, ExclamationTriangleIcon, ExLinkIcon, FileAddFillIcon, FileAddIcon, FileDeleteFillIcon, FileDeleteIcon, FileFillIcon, FileIcon, FilterFillIcon, FilterIcon, FolderAddFillIcon, FolderAddIcon, FolderDeleteFillIcon, FolderDeleteIcon, FolderFillIcon, FolderIcon, FormIcon, FormItemIcon, GearFillIcon, GearIcon, GridFillIcon, GridIcon, HeartFillIcon, HeartHalfFillIcon, HeartIcon, HomeFillIcon, HomeIcon, HorizontalDividerIcon, KebabMenuIcon, LabelFillIcon, LabelIcon, LeftFillIcon, LeftIcon, LeftRightIcon, LinkIcon, ListFilterIcon, ListIcon, LoadingIcon, LocationFillIcon, LocationIcon, MagnifyingGlassIcon, MagnifyingGlassMinusFillIcon, MagnifyingGlassMinusIcon, MagnifyingGlassPlusFillIcon, MagnifyingGlassPlusIcon, MailFillIcon, MailIcon, MeatballsMenuIcon, MenuIcon, MenuLeftIcon, MenuLeftRightIcon, MenuRightIcon, MinusCircleFillIcon, MinusCircleIcon, MinusIcon, NavContainerIcon, OrderListIcon, PinFillIcon, PinIcon, PlusCircleFillIcon, PlusCircleIcon, PlusIcon, PopupIcon, PowerIcon, QuestionCircleFillIcon, QuestionCircleIcon, QuestionIcon, RedoIcon, ReloadIcon, RightFillIcon, RightIcon, SaveFillIcon, SaveIcon, ShareFillIcon, ShareIcon, SignInIcon, SignOutIcon, SlideContainerIcon, SmileFillIcon, SmileIcon, SplitContainerIcon, StarFillIcon, StarHalfFillIcon, StarIcon, StepperIcon, SyncIcon, TabContainerIcon, TextBoxIcon, TodayFillIcon, TodayIcon, TooltipIcon, TrashCanFillIcon, TrashCanIcon, UndoIcon, UnloadIcon, UpDownIcon, UpFillIcon, UpIcon, UploadIcon, UserAddIcon, UserFillIcon, UserIcon, UserMinusIcon, UsersFillIcon, UsersIcon, VerticalDividerIcon } from "~/components/elements/icon";
 import { LinkButton } from "~/components/elements/link-button";
+import { $alert, $confirm } from "~/components/elements/message-box";
 import { NavLayout, useNavLayout } from "~/components/elements/navigation";
 import { clsx } from "~/components/elements/utilities";
 import { useAbortController } from "~/components/hooks/abort-controller";
@@ -1123,34 +1124,60 @@ function DialogComponent() {
   return (
     <section>
       <Details summary="Dialog">
-        <Button
-          onClick={() => {
-            dialog.showModal();
-          }}
-        >
-          showModal
-        </Button>
-        <Button
-          onClick={() => {
-            dialog.show();
-          }}
-        >
-          show
-        </Button>
-        <Button
-          onClick={() => {
-            dialog.close();
-          }}
-        >
-          close
-        </Button>
-        <Button
-          onClick={() => {
-            setCount(c => c + 1);
-          }}
-        >
-          countup
-        </Button>
+        <div className="flex flex-row gap-2">
+          <Button
+            onClick={() => {
+              dialog.showModal();
+            }}
+          >
+            showModal
+          </Button>
+          <Button
+            onClick={() => {
+              dialog.show();
+            }}
+          >
+            show
+          </Button>
+          <Button
+            onClick={() => {
+              dialog.close();
+            }}
+          >
+            close
+          </Button>
+          <Button
+            onClick={() => {
+              setCount(c => c + 1);
+            }}
+          >
+            countup
+          </Button>
+          <Button
+            onClick={async ({ unlock }) => {
+              await $alert({
+                body: "Alert",
+                color: "danger",
+              });
+              unlock();
+            }}
+          >
+            alert
+          </Button>
+          <Button
+            onClick={async ({ unlock }) => {
+              const ret = await $confirm({
+                header: "Confirm",
+                body: "ConfirmConfirmConfirm",
+                color: "secondary",
+              });
+              console.log("confirm", ret);
+              unlock();
+            }}
+          >
+            confirm
+          </Button>
+        </div>
         <dialog.Dialog>
           <span>{count}</span>
           <Button

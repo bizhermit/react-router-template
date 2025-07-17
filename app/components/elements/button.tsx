@@ -3,7 +3,7 @@ import { clsx } from "./utilities";
 
 export interface ButtonOptions {
   disabled?: boolean;
-  color?: "primary" | "secondary" | "sub" | "danger";
+  color?: StyleColor;
   appearance?: "fill" | "outline" | "text";
   round?: boolean;
   onClick?: (parmas: {
