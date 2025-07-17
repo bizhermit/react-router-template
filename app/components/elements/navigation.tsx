@@ -2,7 +2,7 @@ import { createContext, use, useId, useRef, type HTMLAttributes, type ReactNode 
 import { CrossIcon, MenuIcon, MenuLeftIcon, MenuRightIcon } from "./icon";
 import { clsx } from "./utilities";
 
-interface NavigationContextProps {
+interface NavContextProps {
   id: string;
   toggleId: string;
   scalingId: string;
@@ -10,13 +10,13 @@ interface NavigationContextProps {
   scalingNav: (narrow: boolean) => void;
 };
 
-const NavigationContext = createContext<NavigationContextProps | undefined>(undefined);
+const NavLayoutContext = createContext<NavContextProps | undefined>(undefined);
 
-export function useNav() {
-  return use(NavigationContext);
+export function useNavLayout() {
+  return use(NavLayoutContext);
 };
 
-interface NavigationProps {
+interface NavLayoutProps {
   id?: string;
   className?: string;
   header?: ReactNode;
@@ -30,7 +30,7 @@ interface NavigationProps {
   children?: ReactNode;
 };
 
-export function Navigation(props: NavigationProps) {
+export function NavLayout(props: NavLayoutProps) {
   const Tag = props.contentTag || "main";
   const id = useId();
   const toggleId = `${props.id || id}_toggle`;
@@ -48,7 +48,7 @@ export function Navigation(props: NavigationProps) {
   };
 
   return (
-    <NavigationContext
+    <NavLayoutContext
       value={{
         id,
         toggleId,
@@ -139,6 +139,6 @@ export function Navigation(props: NavigationProps) {
           </footer>
         }
       </div>
-    </NavigationContext>
+    </NavLayoutContext>
   );
 };
