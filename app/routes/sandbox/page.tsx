@@ -3,6 +3,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { data, Link, useFetcher } from "react-router";
 import { Button } from "~/components/elements/button";
 import { Details } from "~/components/elements/details";
+import { useDialog } from "~/components/elements/dialog";
 import { CheckBox } from "~/components/elements/form/check-box";
 import { CheckList } from "~/components/elements/form/check-list";
 import { FormItem } from "~/components/elements/form/common";
@@ -374,6 +375,7 @@ function Contents(props: Route.ComponentProps) {
       <IndexedDBComponent />
       <StreamCompoment />
       <IconsComponent />
+      <DialogComponent />
     </div>
   );
 };
@@ -1109,6 +1111,56 @@ function IconsComponent() {
             })}
           </ul>
         </div>
+      </Details>
+    </section>
+  );
+};
+
+function DialogComponent() {
+  const dialog = useDialog();
+  const [count, setCount] = useState(0);
+
+  return (
+    <section>
+      <Details summary="Dialog">
+        <Button
+          onClick={() => {
+            dialog.showModal();
+          }}
+        >
+          showModal
+        </Button>
+        <Button
+          onClick={() => {
+            dialog.show();
+          }}
+        >
+          show
+        </Button>
+        <Button
+          onClick={() => {
+            dialog.close();
+          }}
+        >
+          close
+        </Button>
+        <Button
+          onClick={() => {
+            setCount(c => c + 1);
+          }}
+        >
+          countup
+        </Button>
+        <dialog.Dialog>
+          <span>{count}</span>
+          <Button
+            onClick={() => {
+              dialog.close();
+            }}
+          >
+            close
+          </Button>
+        </dialog.Dialog>
       </Details>
     </section>
   );
