@@ -21,8 +21,7 @@
 ### 初回セットアップ
 
 1. 任意のフォルダに当リポジトリをクローンする
-2. dockerおよびdocker-composeを実行可能状態にする
-   - RancherDesktopを起動する
+2. dockerおよびdocker-composeを実行可能状態に（RancherDesktopを起動）する
 3. [環境変数](#環境変数)を設定する
 4. 開発コンテナ（Dev Containers）を起動する
 
@@ -133,6 +132,7 @@ npm run format
 初回のみ依存関係のインストールが必要です。  
 
 ```bash
+# 依存関係のインストール
 bash ./.devcontainer/initialize-playwright.sh
 ```
 
@@ -159,7 +159,7 @@ npm run test
 
 ### 本番起動
 
-環境変数の使いまわしをするため、dockerコマンドではなくシェルスクリプトを使用してください。
+環境変数ファイルの使いまわしをするため、dockerコマンドではなくシェルスクリプトを使用してください。
 
 ```bash
 bash docker-compose.sh up
