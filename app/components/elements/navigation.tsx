@@ -1,10 +1,24 @@
-import { useId, type HTMLAttributes, type ReactNode } from "react";
+import { createContext, use, useId, useRef, type HTMLAttributes, type ReactNode } from "react";
 import { CrossIcon, MenuIcon, MenuLeftIcon, MenuRightIcon } from "./icon";
 import { clsx } from "./utilities";
 
+interface NavigationContextProps {
+  id: string;
+  toggleId: string;
+  scalingId: string;
+  toggleMenu: (open: boolean) => void;
+  scalingNav: (narrow: boolean) => void;
+};
+
+const NavigationContext = createContext<NavigationContextProps | undefined>(undefined);
+
+export function useNav() {
+  return use(NavigationContext);
+};
+
 interface NavigationProps {
-  className?: string;
   id?: string;
+  className?: string;
   header?: ReactNode;
   headerProps?: Omit<HTMLAttributes<HTMLDivElement>, "children">;
   footer?: ReactNode;
@@ -22,86 +36,109 @@ export function Navigation(props: NavigationProps) {
   const toggleId = `${props.id || id}_toggle`;
   const scalingId = `${props.id || id}_scaling`;
 
+  const toggleRef = useRef<HTMLInputElement>(null!);
+  const scalingRef = useRef<HTMLInputElement>(null!);
+
+  function toggleMenu(open: boolean) {
+    toggleRef.current.checked = open;
+  };
+
+  function scalingNav(narrow: boolean) {
+    scalingRef.current.checked = narrow;
+  };
+
   return (
-    <div
-      className={clsx(
-        "nav-wrap",
-        props.className
-      )}
+    <NavigationContext
+      value={{
+        id,
+        toggleId,
+        scalingId,
+        toggleMenu,
+        scalingNav,
+      }}
     >
-      <input
-        className="nav-toggle"
-        type="checkbox"
-        id={toggleId}
-      />
-      <input
-        className="nav-scaling"
-        type="checkbox"
-        id={scalingId}
-      />
-      <label
-        className="nav-mask"
-        htmlFor={toggleId}
-      />
-      <nav className="nav-nav">
-        <div className="nav-btns-scaling">
-          <label
-            className="nav-btn nav-btn-scaling"
-            htmlFor={scalingId}
-          >
-            <MenuLeftIcon className="nav-narrow" />
-            <MenuRightIcon className="nav-widen" />
-          </label>
-        </div>
-        <div
-          {...props.navigationProps}
-          className={clsx(
-            "nav-nav-main",
-            props.navigationProps?.className
-          )}
-        >
-          {props.children}
-        </div>
-      </nav>
-      <header className="nav-header">
-        <label
-          className="nav-btn nav-btn-toggle"
-          htmlFor={toggleId}
-        >
-          <MenuIcon className="nav-menu" />
-          <CrossIcon className="nav-menu-cross" />
-        </label>
-        <div
-          {...props.headerProps}
-          className={clsx(
-            "nav-header-main",
-            props.headerProps?.className
-          )}
-        >
-          {props.header}
-        </div>
-      </header>
-      <Tag
-        {...props.contentProps}
+      <div
         className={clsx(
-          "nav-content",
-          props.contentProps?.className
+          "nav-wrap",
+          props.className
         )}
       >
-        {props.content}
-      </Tag>
-      {
-        props.footer &&
-        <footer
-          {...props.footerProps}
+        <input
+          className="nav-toggle"
+          type="checkbox"
+          id={toggleId}
+          ref={toggleRef}
+        />
+        <input
+          className="nav-scaling"
+          type="checkbox"
+          id={scalingId}
+          ref={scalingRef}
+        />
+        <label
+          className="nav-mask"
+          htmlFor={toggleId}
+        />
+        <nav className="nav-nav">
+          <div className="nav-btns-scaling">
+            <label
+              className="nav-btn nav-btn-scaling"
+              htmlFor={scalingId}
+            >
+              <MenuLeftIcon className="nav-narrow" />
+              <MenuRightIcon className="nav-widen" />
+            </label>
+          </div>
+          <div
+            {...props.navigationProps}
+            className={clsx(
+              "nav-nav-main",
+              props.navigationProps?.className
+            )}
+          >
+            {props.children}
+          </div>
+        </nav>
+        <header className="nav-header">
+          <label
+            className="nav-btn nav-btn-toggle"
+            htmlFor={toggleId}
+          >
+            <MenuIcon className="nav-menu" />
+            <CrossIcon className="nav-menu-cross" />
+          </label>
+          <div
+            {...props.headerProps}
+            className={clsx(
+              "nav-header-main",
+              props.headerProps?.className
+            )}
+          >
+            {props.header}
+          </div>
+        </header>
+        <Tag
+          {...props.contentProps}
           className={clsx(
-            "nav-footer",
-            props.footerProps?.className
+            "nav-content",
+            props.contentProps?.className
           )}
         >
-          {props.footer}
-        </footer>
-      }
-    </div>
+          {props.content}
+        </Tag>
+        {
+          props.footer &&
+          <footer
+            {...props.footerProps}
+            className={clsx(
+              "nav-footer",
+              props.footerProps?.className
+            )}
+          >
+            {props.footer}
+          </footer>
+        }
+      </div>
+    </NavigationContext>
   );
 };
