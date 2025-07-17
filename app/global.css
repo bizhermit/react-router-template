@@ -212,7 +212,7 @@
 }
 
 @import "./components/elements/button.css";
-@import "./components/elements/navigation.css";
+@import "./components/elements/nav-layout.css";
 @import "./components/elements/dialog.css";
 @import "./components/elements/message-box.css";
 @import "./components/elements/form/style.css";
