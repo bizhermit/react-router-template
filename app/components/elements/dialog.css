@@ -26,6 +26,7 @@
     min-height: 0;
     max-width: 100dvw;
     max-height: 100dvh;
+    border-radius: 4px;
     background-color: var(--color-bg);
     color: var(--color-fg);
     filter: drop-shadow(0 0 3px var(--color-shadow));
