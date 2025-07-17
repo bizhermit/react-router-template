@@ -11,6 +11,13 @@ interface MessageBoxProps {
   color?: StyleColor;
 };
 
+function optimizeEndOfLines(content: ReactNode) {
+  if (typeof content !== "string") return content;
+  return content.split(/\r\n|\r|\n/g).map((t, i) => {
+    return <span key={i}>{t}</span>;
+  });
+};
+
 function MessageBox(props: MessageBoxProps) {
   return (
     <div
@@ -21,13 +28,13 @@ function MessageBox(props: MessageBoxProps) {
       {
         props.header &&
         <div className="msgbox-header">
-          {props.header}
+          {optimizeEndOfLines(props.header)}
         </div>
       }
       {
         props.body &&
         <div className="msgbox-body">
-          {props.body}
+          {optimizeEndOfLines(props.body)}
         </div>
       }
       {
@@ -101,11 +108,15 @@ function openMessage(props: OpenMessageProps) {
   } as const;
 };
 
-interface AlertProps {
+interface MessageBaseProps {
   header?: ReactNode;
   body?: ReactNode;
-  buttonText?: ReactNode;
   color?: StyleColor;
+  t?: I18nGetter;
+};
+
+interface AlertProps extends MessageBaseProps {
+  buttonText?: ReactNode;
 };
 
 export function $alert(props: AlertProps) {
@@ -128,7 +139,7 @@ export function $alert(props: AlertProps) {
                     resolve();
                   }}
                 >
-                  {props.buttonText ?? "OK"}
+                  {props.buttonText ?? (props.t?.("OK") || "OK")}
                 </Button>
               </>
             }
@@ -139,12 +150,9 @@ export function $alert(props: AlertProps) {
   });
 };
 
-interface ConfirmProps {
-  header?: ReactNode;
-  body?: ReactNode;
+interface ConfirmProps extends MessageBaseProps {
   positiveButtonText?: ReactNode;
   nevativeButtonText?: ReactNode;
-  color?: StyleColor;
 };
 
 export function $confirm(props: ConfirmProps) {
@@ -166,7 +174,7 @@ export function $confirm(props: ConfirmProps) {
                     resolve(true);
                   }}
                 >
-                  {props.positiveButtonText ?? "OK"}
+                  {props.positiveButtonText ?? (props.t?.("OK") || "OK")}
                 </Button>
                 <Button
                   autoFocus
@@ -177,7 +185,7 @@ export function $confirm(props: ConfirmProps) {
                     resolve(false);
                   }}
                 >
-                  {props.nevativeButtonText ?? "Cancel"}
+                  {props.nevativeButtonText ?? (props.t?.("Cancel") || "キャンセル")}
                 </Button>
               </>
             }

@@ -12,6 +12,11 @@
     z-index: 99999;
   }
 
+  .dialog::backdrop {
+    background-color: var(--color-mask);
+    backdrop-filter: blur(0.4px);
+  }
+
   .dialog {
     --header-height: 0;
     position: fixed;

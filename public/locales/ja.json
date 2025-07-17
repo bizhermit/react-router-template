@@ -2,6 +2,8 @@
   "halloWorld": "こんにちは世界。",
   "replaceText": "{{hoge}}の{{hoge}}による{{hoge}}のための…って何回{{hoge}}って言えば気が済むの？ {{fuga}}回{hoge}を置き換えた。",
   "htmlText": "この文章で<b>ここ</b>だけ太文字にして、<u>ここ</u>には下線、<i>ここ</i>は斜めに、<replace1>ここ</replace1>はコンポーネントで置き換えられるようにしたい。<br>あと改行もしたい。<script>alert(1)</script>はdangerouslySetInnerHTMLを使わなければ問題ない。",
+  "OK": "OK",
+  "Cancel": "キャンセル",
   "format_datetime": "yyyy/MM/dd hh:mm:ss",
   "format_sdatetime": "yyyy/MM/dd hh:mm",
   "format_date": "yyyy/MM/dd",

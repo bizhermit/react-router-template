@@ -9,6 +9,8 @@ interface I18N_Texts {
   "format_month": null;
   "replaceText": "hoge" | "fuga";
   "htmlText": null;
+  "OK": null;
+  "Cancel": null;
   "formPrompt": null;
   "default_label": null;
   "required_input": "label";

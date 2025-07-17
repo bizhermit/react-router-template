@@ -149,6 +149,7 @@
     width: 100%;
     height: calc(var(--height) - var(--header-height));
     background-color: var(--color-mask);
+    backdrop-filter: blur(0.4px);
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.2s, display 0.2s allow-discrete, overlay 0.2s allow-discrete;

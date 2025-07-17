@@ -1120,6 +1120,7 @@ function IconsComponent() {
 function DialogComponent() {
   const dialog = useDialog();
   const [count, setCount] = useState(0);
+  const t = useText();
 
   return (
     <section>
@@ -1168,8 +1169,15 @@ function DialogComponent() {
             onClick={async ({ unlock }) => {
               const ret = await $confirm({
                 header: "Confirm",
-                body: "ConfirmConfirmConfirm",
-                color: "secondary",
+                body: (
+                  <>
+                    <span className="w-full text-left">confirm</span>
+                    <span className="w-full text-center">confirm</span>
+                    <span className="w-full text-right">confirm</span>
+                  </>
+                ),
+                color: "sub",
+                t,
               });
               console.log("confirm", ret);
               unlock();
@@ -1177,8 +1185,18 @@ function DialogComponent() {
           >
             confirm
           </Button>
+          <Button
+            onClick={() => {
+              $alert({
+                header: "Alert",
+                body: "1\n2\n3\n4\n",
+              });
+            }}
+          >
+            alert eol
+          </Button>
         </div>
-        <dialog.Dialog>
+        <dialog.Dialog className="p-4 grid items-center gap-4">
           <span>{count}</span>
           <Button
             onClick={() => {
