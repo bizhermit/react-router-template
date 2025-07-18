@@ -1,6 +1,7 @@
 import { createContext, use, useId, useRef, type FocusEvent, type HTMLAttributes, type KeyboardEvent, type ReactNode } from "react";
 import { containElement } from "../dom/contain";
 import { getNextFocusableElement, getPrevFocusableElement } from "../dom/focus";
+import { FocusTrap } from "./focus-trap";
 import { CrossIcon, MenuIcon, MenuLeftIcon, MenuRightIcon } from "./icon";
 import { clsx } from "./utilities";
 
@@ -146,125 +147,117 @@ export function NavLayout(props: NavLayoutProps) {
         scalingNav,
       }}
     >
-      <div
-        className={clsx(
-          "nav-wrap",
-          props.className
-        )}
-        onKeyDown={handleKeydown}
-        tabIndex={-1}
+      <FocusTrap
+        onFocusHead={false}
+        onFocusLast={handleEndFocus}
       >
-        <input
-          className="nav-toggle"
-          type="checkbox"
-          id={toggleId}
-          ref={toggleRef}
+        <div
+          className={clsx(
+            "nav-wrap",
+            props.className
+          )}
+          onKeyDown={handleKeydown}
           tabIndex={-1}
-          aria-hidden
-        />
-        <input
-          className="nav-scaling"
-          type="checkbox"
-          id={scalingId}
-          ref={scalingRef}
-          tabIndex={-1}
-          aria-hidden
-        />
-        <label
-          className="nav-mask"
-          htmlFor={toggleId}
-          aria-hidden
-        />
-        <header
-          className="nav-header"
-          ref={headerRef}
         >
-          <label
-            className="nav-btn nav-btn-toggle"
-            htmlFor={toggleId}
-            tabIndex={0}
-            onKeyDown={handleKeydownLabelButton}
-          >
-            <MenuIcon className="nav-menu" />
-            <CrossIcon className="nav-menu-cross" />
-          </label>
-          <div
-            {...props.headerProps}
-            className={clsx(
-              "nav-header-main",
-              props.headerProps?.className
-            )}
-          >
-            {props.header}
-          </div>
-        </header>
-        <nav
-          className="nav-nav"
-          ref={navRef}
-        >
-          <div
-            tabIndex={0}
-            onFocus={handleNavStartFocus}
-            className="fixed"
-            data-nav="nav-start"
+          <input
+            className="nav-toggle"
+            type="checkbox"
+            id={toggleId}
+            ref={toggleRef}
+            tabIndex={-1}
+            aria-hidden
           />
-          <div className="nav-btns-scaling">
+          <input
+            className="nav-scaling"
+            type="checkbox"
+            id={scalingId}
+            ref={scalingRef}
+            tabIndex={-1}
+            aria-hidden
+          />
+          <label
+            className="nav-mask"
+            htmlFor={toggleId}
+            aria-hidden
+          />
+          <header
+            className="nav-header"
+            ref={headerRef}
+          >
             <label
-              className="nav-btn nav-btn-scaling"
-              htmlFor={scalingId}
+              className="nav-btn nav-btn-toggle"
+              htmlFor={toggleId}
               tabIndex={0}
               onKeyDown={handleKeydownLabelButton}
             >
-              <MenuLeftIcon className="nav-narrow" />
-              <MenuRightIcon className="nav-widen" />
+              <MenuIcon className="nav-menu" />
+              <CrossIcon className="nav-menu-cross" />
             </label>
-          </div>
-          <div
-            {...props.navigationProps}
+            <div
+              {...props.headerProps}
+              className={clsx(
+                "nav-header-main",
+                props.headerProps?.className
+              )}
+            >
+              {props.header}
+            </div>
+          </header>
+          <nav
+            className="nav-nav"
+            ref={navRef}
+          >
+            <FocusTrap
+              onFocusHead={handleNavStartFocus}
+              onFocusLast={handleNavEndFocus}
+            >
+              <div className="nav-btns-scaling">
+                <label
+                  className="nav-btn nav-btn-scaling"
+                  htmlFor={scalingId}
+                  tabIndex={0}
+                  onKeyDown={handleKeydownLabelButton}
+                >
+                  <MenuLeftIcon className="nav-narrow" />
+                  <MenuRightIcon className="nav-widen" />
+                </label>
+              </div>
+              <div
+                {...props.navigationProps}
+                className={clsx(
+                  "nav-nav-main",
+                  props.navigationProps?.className
+                )}
+              >
+                {props.children}
+              </div>
+            </FocusTrap>
+          </nav>
+          <Tag
+            {...props.contentProps}
+            ref={bodyRef}
             className={clsx(
-              "nav-nav-main",
-              props.navigationProps?.className
+              "nav-content",
+              props.contentProps?.className
             )}
           >
-            {props.children}
-          </div>
-          <div
-            tabIndex={0}
-            onFocus={handleNavEndFocus}
-            className="fixed"
-            data-nav="nav-end"
-          />
-        </nav>
-        <Tag
-          {...props.contentProps}
-          ref={bodyRef}
-          className={clsx(
-            "nav-content",
-            props.contentProps?.className
-          )}
-        >
-          {props.content}
-        </Tag>
-        {
-          props.footer &&
-          <footer
-            {...props.footerProps}
-            ref={footerRef}
-            className={clsx(
-              "nav-footer",
-              props.footerProps?.className
-            )}
-          >
-            {props.footer}
-          </footer>
-        }
-        <div
-          tabIndex={0}
-          onFocus={handleEndFocus}
-          className="fixed"
-          data-nav="end"
-        />
-      </div>
+            {props.content}
+          </Tag>
+          {
+            props.footer &&
+            <footer
+              {...props.footerProps}
+              ref={footerRef}
+              className={clsx(
+                "nav-footer",
+                props.footerProps?.className
+              )}
+            >
+              {props.footer}
+            </footer>
+          }
+        </div>
+      </FocusTrap>
     </NavLayoutContext>
   );
 };
