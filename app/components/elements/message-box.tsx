@@ -60,6 +60,7 @@ interface OpenMessageProps {
   modeless?: boolean;
   setupElement: (element: HTMLDialogElement) => void;
   component: (props: { close: (value?: unknown) => Promise<void>; }) => ReactNode;
+  escapeValue?: unknown;
   closeCallback?: (value: unknown) => void;
 };
 
@@ -71,7 +72,10 @@ function openMessage(props: OpenMessageProps) {
   document.body.appendChild(elem);
 
   function keydownHandler(e: KeyboardEvent) {
-    if (e.key === "Escape") e.preventDefault();
+    if (e.key === "Escape") {
+      e.preventDefault();
+      close(props.escapeValue);
+    }
   };
   elem.addEventListener("keydown", keydownHandler);
 
@@ -210,6 +214,7 @@ export function $confirm(props: ConfirmProps) {
           elem.setAttribute("aria-describedby", bodyId);
         }
       },
+      escapeValue: false,
       closeCallback: (v) => {
         resolve(v as boolean);
       },
