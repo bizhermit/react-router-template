@@ -28,6 +28,7 @@
   }
 
   .ipt-field {
+    position: relative;
     flex-wrap: nowrap;
     justify-content: stretch;
     align-items: stretch;
@@ -116,6 +117,7 @@
 
   .ipt-label {
     vertical-align: top;
+    position: relative;
     min-width: 0;
     max-width: 100%;
     min-height: var(--spacing-input);
@@ -271,6 +273,7 @@
     position: relative;
     width: calc(var(--spacing-input) * 1.6);
     height: var(--spacing-input);
+    outline: none;
 
     &::before {
       position: absolute;

@@ -1,6 +1,6 @@
 import { useRef, type ChangeEvent, type ReactNode } from "react";
 import { useSchemaItem } from "~/components/schema/hooks";
-import { InputLabel, InputLabelText, type InputWrapProps } from "./common";
+import { DummyFocus, InputLabel, InputLabelText, type InputWrapProps } from "./common";
 
 export type CheckBoxProps<D extends Schema.DataItem<Schema.$Boolean>> = InputWrapProps & {
   $: D;
@@ -67,11 +67,14 @@ export function CheckBox<D extends Schema.DataItem<Schema.$Boolean>>({
       </InputLabelText>
       {
         !state.current.disabled && state.current.readonly &&
-        <input
-          type="hidden"
-          name={name}
-          value={value as string || undefined}
-        />
+        <>
+          <input
+            type="hidden"
+            name={name}
+            value={value as string || undefined}
+          />
+          <DummyFocus />
+        </>
       }
     </InputLabel>
   );

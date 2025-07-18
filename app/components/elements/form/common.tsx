@@ -159,6 +159,15 @@ export function Placeholder({
   );
 };
 
+export function DummyFocus() {
+  return (
+    <div
+      tabIndex={0}
+      className="absolute outline-none inset-0 z-10"
+    />
+  );
+};
+
 type FormItemProps =
   & HTMLAttributes<HTMLDivElement>
   & {

@@ -2,7 +2,7 @@ import { useRef, type ChangeEvent, type ReactNode } from "react";
 import { isEmpty } from "~/components/objects";
 import { useSchemaItem } from "~/components/schema/hooks";
 import { clsx, ZERO_WIDTH_SPACE } from "../utilities";
-import { InputField, Placeholder, type InputWrapProps } from "./common";
+import { DummyFocus, InputField, Placeholder, type InputWrapProps } from "./common";
 import { useSource } from "./utilities";
 
 type SelectBoxSchemaProps = Schema.$String | Schema.$Number | Schema.$Boolean;
@@ -124,11 +124,14 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
       />
       {
         !state.current.disabled && state.current.readonly &&
-        <input
-          type="hidden"
-          name={name}
-          value={value as string || undefined}
-        />
+        <>
+          <input
+            type="hidden"
+            name={name}
+            value={value as string || undefined}
+          />
+          <DummyFocus />
+        </>
       }
     </InputField>
   );

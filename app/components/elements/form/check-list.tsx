@@ -1,6 +1,6 @@
 import { useRef, type ChangeEvent } from "react";
 import { useSchemaItem } from "~/components/schema/hooks";
-import { InputGroup, InputLabel, InputLabelText, type InputWrapProps } from "./common";
+import { DummyFocus, InputGroup, InputLabel, InputLabelText, type InputWrapProps } from "./common";
 import { useSource } from "./utilities";
 
 type CheckListItemSchemaProps = Schema.$String | Schema.$Number | Schema.$Boolean;
@@ -66,6 +66,8 @@ export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemS
     setValue(newValue);
   };
 
+  const isReadOnly = !state.current.disabled && state.current.readonly;
+
   return (
     <InputGroup
       {...props}
@@ -99,6 +101,17 @@ export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemS
             <InputLabelText>
               {item.text}
             </InputLabelText>
+            {
+              isReadOnly &&
+              <>
+                <input
+                  type="hidden"
+                  name={omitOnSubmit ? undefined : name}
+                  value={isChecked ? key : ""}
+                />
+                <DummyFocus />
+              </>
+            }
           </InputLabel>
         );
       })}

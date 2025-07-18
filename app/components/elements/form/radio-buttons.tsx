@@ -1,6 +1,6 @@
 import { useRef, type ChangeEvent, type MouseEvent } from "react";
 import { useSchemaItem } from "~/components/schema/hooks";
-import { InputGroup, InputLabel, InputLabelText, type InputWrapProps } from "./common";
+import { DummyFocus, InputGroup, InputLabel, InputLabelText, type InputWrapProps } from "./common";
 import { useSource } from "./utilities";
 
 type RadioButtonsSchemaProps = Schema.$String | Schema.$Number | Schema.$Boolean;
@@ -70,6 +70,8 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
     setValue(undefined);
   };
 
+  const isReadOnly = !state.current.disabled && state.current.readonly;
+
   return (
     <InputGroup
       {...props}
@@ -79,8 +81,10 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
         result,
       }}
     >
-      {source?.map(item => {
+      {source?.map((item, index) => {
         const key = String(item.value);
+        const isSelected = item.value === value;
+
         return (
           <InputLabel key={key}>
             <input
@@ -92,7 +96,7 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
               aria-readonly={state.current.readonly}
               required={required}
               value={key}
-              defaultChecked={item.value === value}
+              defaultChecked={isSelected}
               onChange={handleChange}
               onClick={handleClick}
               aria-label={`${label ? `${label} - ` : ""}${item.text}`}
@@ -102,11 +106,15 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
             <InputLabelText>
               {item.text}
             </InputLabelText>
+            {
+              isReadOnly && ((value == null && index === 0) || isSelected) &&
+              <DummyFocus />
+            }
           </InputLabel>
         );
       })}
       {
-        !state.current.disabled && state.current.readonly &&
+        isReadOnly &&
         <input
           type="hidden"
           name={omitOnSubmit ? undefined : name}
