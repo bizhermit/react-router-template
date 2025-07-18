@@ -2,11 +2,14 @@ import { type ReactNode, type RefObject } from "react";
 import { createRoot } from "react-dom/client";
 import { preventScroll } from "../dom/prevent-scroll";
 import { Button } from "./button";
+import { CrossIcon } from "./icon";
 
 interface MessageBoxProps {
   ref?: RefObject<HTMLDivElement>;
   header?: ReactNode;
+  headerId?: string;
   body?: ReactNode;
+  bodyId?: string;
   footer?: ReactNode;
   color?: StyleColor;
 };
@@ -27,13 +30,19 @@ function MessageBox(props: MessageBoxProps) {
     >
       {
         props.header &&
-        <div className="msgbox-header">
+        <div
+          className="msgbox-header"
+          id={props.headerId}
+        >
           {optimizeEndOfLines(props.header)}
         </div>
       }
       {
         props.body &&
-        <div className="msgbox-body">
+        <div
+          className="msgbox-body"
+          id={props.bodyId}
+        >
           {optimizeEndOfLines(props.body)}
         </div>
       }
@@ -48,15 +57,16 @@ function MessageBox(props: MessageBoxProps) {
 };
 
 interface OpenMessageProps {
-  role: string;
-  component: (props: { close: () => Promise<void>; }) => ReactNode;
+  modeless?: boolean;
+  setupElement: (element: HTMLDialogElement) => void;
+  component: (props: { close: (value?: unknown) => Promise<void>; }) => ReactNode;
+  closeCallback?: (value: unknown) => void;
 };
 
 function openMessage(props: OpenMessageProps) {
   const elem = document.createElement("dialog");
   elem.classList.add("dialog", "msgbox-dialog");
-  elem.role = props.role;
-  elem.ariaModal = "true";
+  props.setupElement(elem);
   const root = createRoot(elem);
   document.body.appendChild(elem);
 
@@ -65,13 +75,13 @@ function openMessage(props: OpenMessageProps) {
   };
   elem.addEventListener("keydown", keydownHandler);
 
-  const releaseScroll = preventScroll();
+  const releaseScroll = props.modeless ? undefined : preventScroll();
 
   const state = {
     closing: false,
     closed: false,
   };
-  function close() {
+  function close(value: unknown) {
     state.closing = true;
     return new Promise<void>(resolve => {
       function unmount(e?: TransitionEvent) {
@@ -82,7 +92,7 @@ function openMessage(props: OpenMessageProps) {
         elem.removeEventListener("transitionend", unmount);
         elem.removeEventListener("keydown", keydownHandler);
         root.unmount();
-        releaseScroll();
+        releaseScroll?.();
         document.body.removeChild(elem);
         resolve();
         state.closing = false;
@@ -96,11 +106,16 @@ function openMessage(props: OpenMessageProps) {
         if (!state.closed) unmount();
       }, 300);
       elem.close();
+      props.closeCallback?.(value);
     });
   };
 
   root.render(props.component({ close }));
-  elem.showModal();
+  if (props.modeless) {
+    elem.show();
+  } else {
+    elem.showModal();
+  }
 
   return {
     state,
@@ -119,24 +134,44 @@ interface AlertProps extends MessageBaseProps {
   buttonText?: ReactNode;
 };
 
+const ALERT_HEADER_ID = "$alert-title";
+const ALERT_BODY_ID = "$alert-body";
+let alertIncrementId = 0;
+
 export function $alert(props: AlertProps) {
   return new Promise<void>((resolve) => {
+    const id = alertIncrementId++;
+    const headerId = `${ALERT_HEADER_ID}_${id}`;
+    const bodyId = `${ALERT_BODY_ID}_${id}`;
     openMessage({
-      role: "alert",
+      setupElement: (elem) => {
+        elem.role = "alertDialog";
+        elem.ariaModal = "true";
+        if (props.header) {
+          elem.setAttribute("aria-labelledby", headerId);
+        }
+        if (props.body) {
+          elem.setAttribute("aria-describedby", bodyId);
+        }
+      },
+      closeCallback: () => {
+        resolve();
+      },
       component: ({ close }) => {
         return (
           <MessageBox
             color={props.color}
             header={props.header}
+            headerId={headerId}
             body={props.body}
+            bodyId={bodyId}
             footer={
               <>
                 <Button
                   autoFocus
                   color={props.color}
                   onClick={async () => {
-                    await close();
-                    resolve();
+                    close();
                   }}
                 >
                   {props.buttonText ?? (props.t?.("OK") || "OK")}
@@ -155,23 +190,43 @@ interface ConfirmProps extends MessageBaseProps {
   nevativeButtonText?: ReactNode;
 };
 
+const CONFIRM_HEADER_ID = "$confirm-title";
+const CONFIRM_BODY_ID = "$confirm-body";
+let confirmIncrementId = 0;
+
 export function $confirm(props: ConfirmProps) {
   return new Promise<boolean>((resolve) => {
+    const id = confirmIncrementId++;
+    const headerId = `${CONFIRM_HEADER_ID}_${id}`;
+    const bodyId = `${CONFIRM_BODY_ID}_${id}`;
     openMessage({
-      role: "alert",
+      setupElement: (elem) => {
+        elem.role = "alertDialog";
+        elem.ariaModal = "true";
+        if (props.header) {
+          elem.setAttribute("aria-labelledby", headerId);
+        }
+        if (props.body) {
+          elem.setAttribute("aria-describedby", bodyId);
+        }
+      },
+      closeCallback: (v) => {
+        resolve(v as boolean);
+      },
       component: ({ close }) => {
         return (
           <MessageBox
             color={props.color}
             header={props.header}
+            headerId={headerId}
             body={props.body}
+            bodyId={bodyId}
             footer={
               <>
                 <Button
                   color={props.color}
                   onClick={async () => {
-                    close();
-                    resolve(true);
+                    close(true);
                   }}
                 >
                   {props.positiveButtonText ?? (props.t?.("OK") || "OK")}
@@ -181,8 +236,7 @@ export function $confirm(props: ConfirmProps) {
                   appearance="outline"
                   color={props.color}
                   onClick={async () => {
-                    close();
-                    resolve(false);
+                    close(false);
                   }}
                 >
                   {props.nevativeButtonText ?? (props.t?.("Cancel") || "キャンセル")}
@@ -190,6 +244,56 @@ export function $confirm(props: ConfirmProps) {
               </>
             }
           />
+        );
+      },
+    });
+  });
+};
+
+interface ToastProps extends Omit<MessageBaseProps, "header"> {
+  duration?: number | false;
+  role?: "status" | "alert";
+};
+
+export function $toast(props: ToastProps) {
+  return new Promise<void>((resolve) => {
+    let timeout: NodeJS.Timeout | null;
+    openMessage({
+      modeless: true,
+      setupElement: (elem) => {
+        elem.role = props.role ?? "status";
+        elem.setAttribute("aria-alive", props.role === "alert" ? "assertive" : "polite");
+      },
+      closeCallback: () => {
+        if (timeout) {
+          clearTimeout(timeout);
+          timeout = null;
+        }
+        resolve();
+      },
+      component: ({ close }) => {
+        if (props.duration !== false) {
+          timeout = setTimeout(() => {
+            close();
+          }, props.duration ?? 10000);
+        }
+        return (
+          <div className="msgbox-toast">
+            <div
+              className="msgbox-toast-body"
+            >
+              {optimizeEndOfLines(props.body)}
+            </div>
+            <Button
+              appearance="text"
+              color={props.color}
+              onClick={() => {
+                close();
+              }}
+            >
+              <CrossIcon />
+            </Button>
+          </div>
         );
       },
     });

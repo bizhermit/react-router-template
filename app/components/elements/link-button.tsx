@@ -22,7 +22,7 @@ export function LinkButton({
       {...props}
       role="button"
       aria-disabled={disabled}
-      data-color={color || "primary"}
+      data-color={color}
       data-appearance={appearance || "fill"}
       data-round={round}
       onClick={handleClick}

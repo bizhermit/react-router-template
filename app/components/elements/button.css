@@ -1,8 +1,8 @@
 @layer components {
 
   :is(.btn, a[role="button"], label[role="button"]) {
-    ---btn-bg: var(--color-primary);
-    ---btn-fg: var(--color-primary-fg);
+    ---btn-bg: var(--color-fg);
+    ---btn-fg: var(--color-bg);
 
     position: relative;
     vertical-align: top;
@@ -20,6 +20,11 @@
 
     &[data-round="true"] {
       border-radius: 9999px;
+    }
+
+    &[data-color="primary"] {
+      ---btn-bg: var(--color-primary);
+      ---btn-fg: var(--color-primary-fg);
     }
 
     &[data-color="secondary"] {

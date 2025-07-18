@@ -45,7 +45,7 @@ export function Button({
         className,
       )}
       disabled={props.disabled || disabled}
-      data-color={color || "primary"}
+      data-color={color}
       data-appearance={appearance || "fill"}
       data-round={round}
       onClick={handleClick}
