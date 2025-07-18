@@ -69,6 +69,7 @@ function resetSelectValue<V>(
 export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
   $: _$,
   placeholder,
+  omitOnSubmit,
   ...props
 }: DateSelectBoxProps<P>) {
   const id = useId();
@@ -1053,6 +1054,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
         onChange={handleYearChange}
         result={yearResult}
         placeholder={placeholder?.[0]}
+        omitOnSubmit={omitOnSubmit}
       >
         {yearOptions}
       </SplittedSelect>
@@ -1068,6 +1070,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
         onChange={handleMonthChange}
         result={monthResult}
         placeholder={placeholder?.[1]}
+        omitOnSubmit={omitOnSubmit}
       >
         {monthOptions}
       </SplittedSelect>
@@ -1086,6 +1089,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
             onChange={handleDayChange}
             result={dayResult}
             placeholder={placeholder?.[2]}
+            omitOnSubmit={omitOnSubmit}
           >
             {dayOptions}
           </SplittedSelect>
@@ -1106,6 +1110,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
             onChange={handleHourChange}
             result={hourResult}
             placeholder={placeholder?.[3]}
+            omitOnSubmit={omitOnSubmit}
           >
             {hourOptions}
           </SplittedSelect>
@@ -1121,6 +1126,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
             onChange={handleMinuteChange}
             result={minuteResult}
             placeholder={placeholder?.[4]}
+            omitOnSubmit={omitOnSubmit}
           >
             {minuteOptions}
           </SplittedSelect>
@@ -1139,6 +1145,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
                 onChange={handleSecondChange}
                 result={secondResult}
                 placeholder={placeholder?.[5]}
+                omitOnSubmit={omitOnSubmit}
               >
                 {secondOptions}
               </SplittedSelect>
@@ -1164,6 +1171,7 @@ interface SplittedSelectProps {
   onChange: (e: ChangeEvent<HTMLSelectElement>) => void;
   result: Schema.Result | null | undefined;
   placeholder: string | undefined;
+  omitOnSubmit: boolean | undefined;
   children: ReactNode;
 };
 
@@ -1178,6 +1186,7 @@ function SplittedSelect({
   onChange,
   result,
   placeholder,
+  omitOnSubmit,
   children,
 }: SplittedSelectProps) {
   const state = useRef(getDefaultState());
@@ -1201,7 +1210,7 @@ function SplittedSelect({
       <select
         ref={ref}
         className="ipt-main ipt-select"
-        name={$?.name}
+        name={omitOnSubmit ? undefined : $?.name}
         required={required}
         disabled={!state.current.enabled}
         aria-disabled={state.current.disabled}

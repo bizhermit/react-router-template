@@ -31,6 +31,7 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
     errormessage,
     env,
     getCommonParams,
+    omitOnSubmit,
     props,
   } = useSchemaItem<Schema.DataItem<RadioButtonsSchemaProps>>($props, {
     effect: function ({ value }) {
@@ -108,7 +109,7 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
         !state.current.disabled && state.current.readonly &&
         <input
           type="hidden"
-          name={name}
+          name={omitOnSubmit ? undefined : name}
           value={value as string || undefined}
         />
       }

@@ -41,6 +41,7 @@ export function FileBox<D extends Schema.DataItem<Schema.$File>>({
     errormessage,
     validScripts,
     getCommonParams,
+    omitOnSubmit,
     props,
   } = useSchemaItem<Schema.DataItem<Schema.$File>>($props, {
     effect: function ({ value }) {
@@ -128,7 +129,7 @@ export function FileBox<D extends Schema.DataItem<Schema.$File>>({
           )}
           ref={ref}
           type="file"
-          name={name}
+          name={omitOnSubmit ? undefined : name}
           title={validScripts ? (valueType === "url" ? (value as string) : undefined) : undefined}
           disabled={state.current.disabled}
           aria-disabled={state.current.disabled}

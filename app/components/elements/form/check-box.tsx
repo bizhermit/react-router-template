@@ -24,6 +24,7 @@ export function CheckBox<D extends Schema.DataItem<Schema.$Boolean>>({
     label,
     invalid,
     errormessage,
+    omitOnSubmit,
     props,
   } = useSchemaItem<Schema.DataItem<Schema.$Boolean>>($props, {
     effect: function ({ value }) {
@@ -50,7 +51,7 @@ export function CheckBox<D extends Schema.DataItem<Schema.$Boolean>>({
         className="ipt-point ipt-check"
         ref={ref}
         type="checkbox"
-        name={name}
+        name={omitOnSubmit ? undefined : name}
         disabled={!state.current.enabled}
         aria-disabled={state.current.disabled}
         aria-readonly={state.current.readonly}

@@ -42,6 +42,7 @@ export function TextArea<D extends Schema.DataItem<Schema.$String>>({
     invalid,
     errormessage,
     getCommonParams,
+    omitOnSubmit,
     props,
   } = useSchemaItem<Schema.DataItem<Schema.$String>>($props, {
     effect: function ({ value }) {
@@ -86,7 +87,7 @@ export function TextArea<D extends Schema.DataItem<Schema.$String>>({
       <textarea
         className={`ipt-main py-input-pad-y min-h-input min-w-input ${getResizeClassName(resize)}`}
         ref={ref}
-        name={name}
+        name={omitOnSubmit ? undefined : name}
         disabled={state.current.disabled}
         readOnly={state.current.readonly}
         required={required}

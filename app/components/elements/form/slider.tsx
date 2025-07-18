@@ -32,6 +32,7 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
     errormessage,
     getCommonParams,
     env,
+    omitOnSubmit,
     props,
   } = useSchemaItem<Schema.DataItem<Schema.$Number>>($props, {
     effect: function ({ value }) {
@@ -86,7 +87,7 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
         className="ipt-slider"
         ref={ref}
         type="range"
-        name={name}
+        name={omitOnSubmit ? undefined : name}
         disabled={state.current.disabled}
         readOnly={state.current.readonly}
         required={required}

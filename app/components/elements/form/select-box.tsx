@@ -37,6 +37,7 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
     errormessage,
     env,
     getCommonParams,
+    omitOnSubmit,
     props,
   } = useSchemaItem<Schema.DataItem<SelectBoxSchemaProps>>($props, {
     effect: function ({ value }) {
@@ -72,7 +73,7 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
       <select
         className="ipt-main ipt-select"
         ref={ref}
-        name={name}
+        name={omitOnSubmit ? undefined : name}
         disabled={!state.current.enabled}
         aria-disabled={state.current.disabled}
         aria-readonly={state.current.readonly}

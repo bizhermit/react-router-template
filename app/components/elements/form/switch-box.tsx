@@ -24,6 +24,7 @@ export function SwitchBox<D extends Schema.DataItem<Schema.$Boolean>>({
     label,
     invalid,
     errormessage,
+    omitOnSubmit,
     props,
   } = useSchemaItem<Schema.DataItem<Schema.$Boolean>>($props, {
     effect: function ({ value }) {
@@ -50,7 +51,7 @@ export function SwitchBox<D extends Schema.DataItem<Schema.$Boolean>>({
         className="ipt-switch"
         ref={ref}
         type="checkbox"
-        name={name}
+        name={omitOnSubmit ? undefined : name}
         disabled={!state.current.enabled}
         aria-disabled={state.current.disabled}
         aria-readonly={state.current.readonly}
@@ -68,7 +69,7 @@ export function SwitchBox<D extends Schema.DataItem<Schema.$Boolean>>({
         !state.current.disabled && state.current.readonly &&
         <input
           type="hidden"
-          name={name}
+          name={omitOnSubmit ? undefined : name}
           value={value as string || undefined}
         />
       }

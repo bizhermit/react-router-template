@@ -47,6 +47,7 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
     validScripts,
     getCommonParams,
     env,
+    omitOnSubmit,
     props,
   } = useSchemaItem<Schema.DataItem<Schema.$Number>>($props, {
     effect: function ({ value, result }) {
@@ -240,7 +241,7 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
         ref={ref}
         type={validScripts ? "text" : "number"}
         inputMode={inputMode}
-        name={validScripts ? undefined : name}
+        name={validScripts ? undefined : (omitOnSubmit ? undefined : name)}
         disabled={state.current.disabled}
         readOnly={state.current.readonly}
         required={required}
@@ -293,7 +294,7 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
             />
           </div>
           <input
-            name={name}
+            name={omitOnSubmit ? undefined : name}
             type="hidden"
             disabled={state.current.disabled}
             value={value ?? ""}

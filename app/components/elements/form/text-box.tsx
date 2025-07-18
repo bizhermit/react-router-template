@@ -50,6 +50,7 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
     errormessage,
     getCommonParams,
     env,
+    omitOnSubmit,
     props,
   } = useSchemaItem<Schema.DataItem<Schema.$String>>($props, {
     effect: function ({ value }) {
@@ -107,7 +108,7 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
         className="ipt-main"
         ref={ref}
         type={patternProps.type || "text"}
-        name={name}
+        name={omitOnSubmit ? undefined : name}
         disabled={state.current.disabled}
         readOnly={state.current.readonly}
         required={required}

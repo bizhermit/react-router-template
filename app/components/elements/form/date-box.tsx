@@ -33,6 +33,7 @@ export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
     getCommonParams,
     setRefs,
     env,
+    omitOnSubmit,
     props,
   } = useSchemaItem<Schema.DataItem<DateBoxSchemaProps>>($props, {
     effect: function ({ value }) {
@@ -124,7 +125,7 @@ export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
         className="ipt-main"
         ref={ref}
         type={type === "datetime" ? "datetime-local" : type}
-        name={name}
+        name={omitOnSubmit ? undefined : name}
         placeholder={placeholder}
         disabled={state.current.disabled}
         readOnly={state.current.readonly}

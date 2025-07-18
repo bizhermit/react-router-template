@@ -29,6 +29,7 @@ export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemS
     errormessage,
     env,
     getCommonParams,
+    omitOnSubmit,
     props,
   } = useSchemaItem<Schema.DataItem<Schema.$Array>>($props, {
     effect: function ({ value }) {
@@ -83,7 +84,7 @@ export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemS
             <input
               className="ipt-point ipt-check"
               type="checkbox"
-              name={name}
+              name={omitOnSubmit ? undefined : name}
               disabled={!state.current.enabled}
               aria-disabled={state.current.disabled}
               aria-readonly={state.current.readonly}

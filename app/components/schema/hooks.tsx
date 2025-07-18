@@ -702,6 +702,7 @@ export function optimizeRefs(
 
 export function useSchemaItem<D extends Schema.DataItem>({
   $,
+  omitOnSubmit,
   ...props
 }: SchemaItemProps<D>, options: {
   effect?: (params: {
@@ -915,6 +916,7 @@ export function useSchemaItem<D extends Schema.DataItem>({
     validScripts: schema.isValidScripts.current,
     getCommonParams,
     setRefs,
+    omitOnSubmit,
   } as const;
 };
 
