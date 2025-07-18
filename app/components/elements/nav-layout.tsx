@@ -125,6 +125,17 @@ export function NavLayout(props: NavLayoutProps) {
     }
   };
 
+  function handleKeydownLabelButton(e: KeyboardEvent<HTMLLabelElement>) {
+    if (e.key === " " || e.key === "Spacebar") {
+      e.preventDefault();
+      const id = e.currentTarget.getAttribute("for");
+      if (!id) return;
+      const elem = document.getElementById(id);
+      if (!elem) return;
+      (elem as HTMLInputElement).checked = !(elem as HTMLInputElement).checked;
+    }
+  };
+
   return (
     <NavLayoutContext
       value={{
@@ -172,6 +183,7 @@ export function NavLayout(props: NavLayoutProps) {
             className="nav-btn nav-btn-toggle"
             htmlFor={toggleId}
             tabIndex={0}
+            onKeyDown={handleKeydownLabelButton}
           >
             <MenuIcon className="nav-menu" />
             <CrossIcon className="nav-menu-cross" />
@@ -201,6 +213,7 @@ export function NavLayout(props: NavLayoutProps) {
               className="nav-btn nav-btn-scaling"
               htmlFor={scalingId}
               tabIndex={0}
+              onKeyDown={handleKeydownLabelButton}
             >
               <MenuLeftIcon className="nav-narrow" />
               <MenuRightIcon className="nav-widen" />
