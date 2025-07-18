@@ -294,6 +294,8 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
         items,
       };
       subscribes.current.forEach(f => f(params));
+      isEffected.current = true;
+      props.onChangeEffected?.(isEffected.current);
     }
     return change;
   };
@@ -311,6 +313,8 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
         items,
       };
       subscribes.current.forEach(f => f(params));
+      isEffected.current = true;
+      props.onChangeEffected?.(isEffected.current);
     }
     return change;
   };
