@@ -145,8 +145,8 @@ export function $alert(props: AlertProps) {
     const bodyId = `${ALERT_BODY_ID}_${id}`;
     openMessage({
       setupElement: (elem) => {
-        elem.role = "alertDialog";
-        elem.ariaModal = "true";
+        elem.setAttribute("role", "alertdialog");
+        elem.setAttribute("aria-modal", "true");
         if (props.header) {
           elem.setAttribute("aria-labelledby", headerId);
         }
@@ -201,8 +201,8 @@ export function $confirm(props: ConfirmProps) {
     const bodyId = `${CONFIRM_BODY_ID}_${id}`;
     openMessage({
       setupElement: (elem) => {
-        elem.role = "alertDialog";
-        elem.ariaModal = "true";
+        elem.setAttribute("role", "alertdialog");
+        elem.setAttribute("aria-modal", "true");
         if (props.header) {
           elem.setAttribute("aria-labelledby", headerId);
         }
@@ -261,8 +261,8 @@ export function $toast(props: ToastProps) {
     openMessage({
       modeless: true,
       setupElement: (elem) => {
-        elem.role = props.role ?? "status";
-        elem.setAttribute("aria-alive", props.role === "alert" ? "assertive" : "polite");
+        elem.setAttribute("role", props.role ?? "status");
+        elem.setAttribute("aria-live", props.role === "alert" ? "assertive" : "polite");
       },
       closeCallback: () => {
         if (timeout) {
