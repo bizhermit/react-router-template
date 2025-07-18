@@ -297,6 +297,8 @@
     }
 
     &:enabled {
+      cursor: pointer;
+
       &::before {
         background-color: var(--color-input-bg);
       }
