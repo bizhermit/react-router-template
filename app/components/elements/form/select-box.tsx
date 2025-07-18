@@ -116,12 +116,14 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
           !state.current.enabled && "opacity-0"
         )}
       />
-      {!state.current.disabled && state.current.readonly &&
+      {
+        !state.current.disabled && state.current.readonly &&
         <input
           type="hidden"
           name={name}
           value={value as string || undefined}
-        />}
+        />
+      }
     </InputField>
   );
 };

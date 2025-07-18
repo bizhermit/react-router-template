@@ -94,6 +94,7 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
         min={min}
         max={max}
         step={$step}
+        value={value == null ? "" : String(value)}
         onChange={handleChange}
         aria-label={label}
         aria-invalid={invalid}
@@ -106,6 +107,14 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
         <span className="ipt-slider-label">
           {value}
         </span>
+      }
+      {
+        !state.current.disabled && state.current.readonly &&
+        <input
+          type="hidden"
+          name={name}
+          value={value == null ? "" : String(value)}
+        />
       }
       {
         source &&
