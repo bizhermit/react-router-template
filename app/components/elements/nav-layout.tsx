@@ -195,6 +195,7 @@ export function NavLayout(props: NavLayoutProps) {
             tabIndex={0}
             onFocus={handleNavStartFocus}
             className="fixed"
+            data-nav="nav-start"
           />
           <div className="nav-btns-scaling">
             <label
@@ -219,6 +220,7 @@ export function NavLayout(props: NavLayoutProps) {
             tabIndex={0}
             onFocus={handleNavEndFocus}
             className="fixed"
+            data-nav="nav-end"
           />
         </nav>
         <Tag
@@ -248,6 +250,7 @@ export function NavLayout(props: NavLayoutProps) {
           tabIndex={0}
           onFocus={handleEndFocus}
           className="fixed"
+          data-nav="end"
         />
       </div>
     </NavLayoutContext>

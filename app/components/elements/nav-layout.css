@@ -79,6 +79,10 @@
     align-items: flex-start;
     max-width: 100%;
     min-height: auto;
+
+    * {
+      scroll-margin-top: var(--header-height);
+    }
   }
 
   .nav-nav {
