@@ -319,4 +319,50 @@
     mask-repeat: no-repeat;
   }
 
+  .ipt-slider-wrap {
+    gap: 1rem;
+    padding-inline: calc(var(--spacing-input) * 0.2);
+  }
+
+  .ipt-slider {
+    appearance: none;
+    outline: none;
+
+    &::-webkit-slider-runnable-track {
+      height: calc(var(--spacing-input) * 0.3);
+      border: 1px solid var(--color-input-bd);
+      border-radius: 9999px;
+      background-color: var(--color-input-bg);
+    }
+
+    &::-moz-range-track {
+      height: calc(var(--spacing-input) * 0.3);
+      border: 1px solid var(--color-input-bd);
+      border-radius: 9999px;
+      background-color: var(--color-input-bg);
+    }
+
+    &::-webkit-slider-thumb {
+      appearance: none;
+      width: calc(var(--spacing-input) * 0.6);
+      height: calc(var(--spacing-input) * 0.6);
+      margin-top: calc(var(--spacing-input) * -0.15 - 1px);
+      /* borderの太さ分(片側)+trakとの差(片側) */
+      background-color: var(--color-input);
+      border-radius: 9999px;
+      cursor: pointer;
+    }
+
+    &::-moz-range-thumb {
+      appearance: none;
+      width: calc(var(--spacing-input) * 0.6);
+      height: calc(var(--spacing-input) * 0.6);
+      margin-top: calc(var(--spacing-input) * -0.15 - 1px);
+      /* borderの太さ分(片側)+trakとの差(片側) */
+      background-color: var(--color-input);
+      border-radius: 9999px;
+      cursor: pointer;
+    }
+  }
+
 }

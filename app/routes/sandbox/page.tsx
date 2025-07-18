@@ -15,6 +15,7 @@ import { FileBox } from "~/components/elements/form/file-box";
 import { NumberBox } from "~/components/elements/form/number-box";
 import { RadioButtons } from "~/components/elements/form/radio-buttons";
 import { SelectBox } from "~/components/elements/form/select-box";
+import { Slider } from "~/components/elements/form/slider";
 import { SwitchBox } from "~/components/elements/form/switch-box";
 import { TextArea } from "~/components/elements/form/text-area";
 import { TextBox } from "~/components/elements/form/text-box";
@@ -102,7 +103,7 @@ const schema = $schema({
       { value: 20 },
     ],
   }),
-  // age: $num({ required: true }),
+  range: $num({ required: true }),
   generation: $num({
     source: [
       { value: 0, text: "無印" },
@@ -544,6 +545,11 @@ function Component2() {
       <FormItem>
         <CheckList
           $={dataItems.array}
+        />
+      </FormItem>
+      <FormItem>
+        <Slider
+          $={dataItems.range}
         />
       </FormItem>
     </div>
