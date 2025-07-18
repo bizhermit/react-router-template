@@ -223,6 +223,7 @@
 
     .nav-nav {
       padding-top: 0;
+      width: var(--nav-width);
     }
 
     .nav-wrap {
@@ -234,6 +235,8 @@
         ---nav-width: var(--nav-min-width);
 
         >.nav-nav {
+          width: var(---nav-width);
+
           >.nav-nav-main {
             overflow: hidden;
           }
