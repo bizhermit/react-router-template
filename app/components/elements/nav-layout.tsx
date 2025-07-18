@@ -63,7 +63,7 @@ export function NavLayout(props: NavLayoutProps) {
     return width < 800 ? "s" : "m";
   };
 
-  function handleNavStartFocus(e: FocusEvent<HTMLDivElement>) {
+  function handleFocusNavHead(e: FocusEvent<HTMLDivElement>) {
     const mode = getCurrentMode();
     if (mode !== "s") {
       if (containElement(navRef.current, e.relatedTarget)) {
@@ -88,7 +88,7 @@ export function NavLayout(props: NavLayoutProps) {
     }
   };
 
-  function handleNavEndFocus(e: FocusEvent<HTMLDivElement>) {
+  function handleFocusNavLast(e: FocusEvent<HTMLDivElement>) {
     const mode = getCurrentMode();
     if (mode !== "s") {
       if (containElement(navRef.current, e.relatedTarget)) {
@@ -109,7 +109,7 @@ export function NavLayout(props: NavLayoutProps) {
     }
   };
 
-  function handleEndFocus(e: FocusEvent<HTMLDivElement>) {
+  function handleFocusLast(e: FocusEvent<HTMLDivElement>) {
     const mode = getCurrentMode();
     if (mode !== "s") {
       if (e.relatedTarget == null) {
@@ -149,7 +149,7 @@ export function NavLayout(props: NavLayoutProps) {
     >
       <FocusTrap
         onFocusHead={false}
-        onFocusLast={handleEndFocus}
+        onFocusLast={handleFocusLast}
       >
         <div
           className={clsx(
@@ -208,8 +208,8 @@ export function NavLayout(props: NavLayoutProps) {
             ref={navRef}
           >
             <FocusTrap
-              onFocusHead={handleNavStartFocus}
-              onFocusLast={handleNavEndFocus}
+              onFocusHead={handleFocusNavHead}
+              onFocusLast={handleFocusNavLast}
             >
               <div className="nav-btns-scaling">
                 <label
