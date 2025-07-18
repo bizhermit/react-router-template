@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-restricted-imports
 import { Link as $Link, type LinkProps as $LinkProps } from "react-router";
 import { clsx } from "./utilities";
 

@@ -173,6 +173,7 @@ export default tseslint.config({
         allow: ["warn", "error"],
       },
     ],
+    "@stylistic/quote-props": "warn",
     // Typescript
     "@typescript-eslint/no-empty-object-type": "off",
     "no-unused-expressions": "off",
@@ -193,6 +194,18 @@ export default tseslint.config({
         destructuredArrayIgnorePattern: "^_",
         ignoreRestSiblings: true,
         varsIgnorePattern: "^_",
+      },
+    ],
+    "no-restricted-imports": [
+      "warn",
+      {
+        paths: [
+          {
+            name: "react-router",
+            importNames: ["Link"],
+            message: `"react-router"のLinkを使用しています。"~/components/elements/link"を使用してください。`,
+          },
+        ],
       },
     ],
     "@typescript-eslint/no-explicit-any": "warn",

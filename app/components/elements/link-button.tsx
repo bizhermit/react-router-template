@@ -1,4 +1,5 @@
 import type { MouseEvent } from "react";
+// eslint-disable-next-line no-restricted-imports
 import { Link, type LinkProps } from "react-router";
 import type { ButtonOptions } from "./button";
 
