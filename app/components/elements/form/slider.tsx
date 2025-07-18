@@ -10,6 +10,9 @@ export type SliderProps<D extends Schema.DataItem<Schema.$Number>> = InputWrapPr
   hideValueLabel?: boolean;
 };
 
+const DEFAULT_MIN = 0;
+const DEFAULT_MAX = 100;
+
 export function Slider<D extends Schema.DataItem<Schema.$Number>>({
   source: propsSource,
   step,
@@ -48,13 +51,13 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
   });
 
   function getMin() {
-    return getValidationValue(getCommonParams(), dataItem._.min);
+    return getValidationValue(getCommonParams(), dataItem._.min) ?? DEFAULT_MIN;
   };
 
   const [min, setMin] = useState(getMin);
 
   function getMax() {
-    return getValidationValue(getCommonParams(), dataItem._.max);
+    return getValidationValue(getCommonParams(), dataItem._.max) ?? DEFAULT_MAX;
   };
 
   const [max, setMax] = useState(getMax);
