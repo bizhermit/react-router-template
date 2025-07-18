@@ -43,9 +43,11 @@ export function InputField({
           aria-hidden
           className={clsx(
             "ipt-field-appearance",
-            core?.state.current.enabled && "ipt-field-enabled",
-            core?.state.current.disabled && "ipt-field-disabled",
-            core?.state.current.readonly && "ipt-field-readonly",
+            core?.state.current.disabled ?
+              "ipt-field-disabled" :
+              core?.state.current.readonly ?
+                "ipt-field-readonly" :
+                "ipt-field-enabled",
           )}
         >
           <legend>{ZERO_WIDTH_SPACE}</legend>
@@ -133,12 +135,23 @@ export function InputLabelText({
   return <span className="ipt-label-text">{children}</span>;
 }
 
+interface PlaceholderProps {
+  validScripts: boolean;
+  state: RefObject<Record<Schema.Mode, boolean>>;
+  children?: string;
+};
+
 export function Placeholder({
+  validScripts,
+  state,
   children,
-}: { children?: string; }) {
+}: PlaceholderProps) {
   if (!children) return null;
+  if (validScripts && state.current.disabled) return null;
   return (
-    <div className="ipt-placeholder">
+    <div
+      className="ipt-placeholder"
+    >
       <span className="w-full overflow-hidden">
         {children}
       </span>

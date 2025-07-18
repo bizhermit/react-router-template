@@ -38,6 +38,7 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
     env,
     getCommonParams,
     omitOnSubmit,
+    validScripts,
     props,
   } = useSchemaItem<Schema.DataItem<SelectBoxSchemaProps>>($props, {
     effect: function ({ value }) {
@@ -109,7 +110,12 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
           </>
         }
       </select>
-      <Placeholder>{placeholder}</Placeholder>
+      <Placeholder
+        validScripts={validScripts}
+        state={state}
+      >
+        {placeholder}
+      </Placeholder>
       <div
         className={clsx(
           "ipt-btn",

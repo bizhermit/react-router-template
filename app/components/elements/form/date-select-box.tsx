@@ -1055,6 +1055,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
         result={yearResult}
         placeholder={placeholder?.[0]}
         omitOnSubmit={omitOnSubmit}
+        validScripts={isValidScripts}
       >
         {yearOptions}
       </SplittedSelect>
@@ -1071,6 +1072,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
         result={monthResult}
         placeholder={placeholder?.[1]}
         omitOnSubmit={omitOnSubmit}
+        validScripts={isValidScripts}
       >
         {monthOptions}
       </SplittedSelect>
@@ -1090,6 +1092,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
             result={dayResult}
             placeholder={placeholder?.[2]}
             omitOnSubmit={omitOnSubmit}
+            validScripts={isValidScripts}
           >
             {dayOptions}
           </SplittedSelect>
@@ -1111,6 +1114,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
             result={hourResult}
             placeholder={placeholder?.[3]}
             omitOnSubmit={omitOnSubmit}
+            validScripts={isValidScripts}
           >
             {hourOptions}
           </SplittedSelect>
@@ -1127,6 +1131,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
             result={minuteResult}
             placeholder={placeholder?.[4]}
             omitOnSubmit={omitOnSubmit}
+            validScripts={isValidScripts}
           >
             {minuteOptions}
           </SplittedSelect>
@@ -1146,6 +1151,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
                 result={secondResult}
                 placeholder={placeholder?.[5]}
                 omitOnSubmit={omitOnSubmit}
+                validScripts={isValidScripts}
               >
                 {secondOptions}
               </SplittedSelect>
@@ -1172,6 +1178,7 @@ interface SplittedSelectProps {
   result: Schema.Result | null | undefined;
   placeholder: string | undefined;
   omitOnSubmit: boolean | undefined;
+  validScripts: boolean;
   children: ReactNode;
 };
 
@@ -1187,6 +1194,7 @@ function SplittedSelect({
   result,
   placeholder,
   omitOnSubmit,
+  validScripts,
   children,
 }: SplittedSelectProps) {
   const state = useRef(getDefaultState());
@@ -1229,7 +1237,12 @@ function SplittedSelect({
         </option>
         {children}
       </select>
-      <Placeholder>{placeholder}</Placeholder>
+      <Placeholder
+        validScripts={validScripts}
+        state={state}
+      >
+        {placeholder}
+      </Placeholder>
       <div
         className={clsx(
           "ipt-btn",

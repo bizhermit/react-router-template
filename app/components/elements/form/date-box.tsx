@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { parseTypedDateString } from "~/components/schema/date";
 import { useSchemaItem } from "~/components/schema/hooks";
+import { clsx } from "../utilities";
 import { getValidationValue, InputField, type InputWrapProps } from "./common";
 import { useSource } from "./utilities";
 
@@ -34,6 +35,7 @@ export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
     setRefs,
     env,
     omitOnSubmit,
+    validScripts,
     props,
   } = useSchemaItem<Schema.DataItem<DateBoxSchemaProps>>($props, {
     effect: function ({ value }) {
@@ -122,7 +124,10 @@ export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
       }}
     >
       <input
-        className="ipt-main"
+        className={clsx(
+          "ipt-main",
+          validScripts && "ipt-date",
+        )}
         ref={ref}
         type={type === "datetime" ? "datetime-local" : type}
         name={omitOnSubmit ? undefined : name}
@@ -139,6 +144,7 @@ export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
         aria-label={label}
         aria-invalid={invalid}
         aria-errormessage={errormessage}
+        data-hasvalue={!!value}
         list={dataListId}
       />
       {

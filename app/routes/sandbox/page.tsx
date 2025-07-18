@@ -11,6 +11,7 @@ import { CheckList } from "~/components/elements/form/check-list";
 import { FormItem } from "~/components/elements/form/common";
 import { DateBox } from "~/components/elements/form/date-box";
 import { DateSelectBox } from "~/components/elements/form/date-select-box";
+import { FieldSet } from "~/components/elements/form/fieldset";
 import { FileBox } from "~/components/elements/form/file-box";
 import { NumberBox } from "~/components/elements/form/number-box";
 import { RadioButtons } from "~/components/elements/form/radio-buttons";
@@ -26,6 +27,7 @@ import { NavLayout, useNavLayout } from "~/components/elements/nav-layout";
 import { clsx } from "~/components/elements/utilities";
 import { useAbortController } from "~/components/hooks/abort-controller";
 import { usePageExitPropmt } from "~/components/hooks/page-exit-prompt";
+import { useToggle } from "~/components/hooks/toggle";
 import getIndexedDB, { type IndexedDBController, type IndexedDBStores } from "~/components/indexeddb/client";
 import { formatDate } from "~/components/objects/date";
 import { parseNumber } from "~/components/objects/numeric";
@@ -330,6 +332,9 @@ function Contents(props: Route.ComponentProps) {
         undefined,
   });
 
+  const formReadonly = useToggle();
+  const formDisabled = useToggle();
+
   // console.log(dataItems);
 
   return (
@@ -348,14 +353,33 @@ function Contents(props: Route.ComponentProps) {
         </LinkButton>
       </div>
       <section>
+        <Button
+          onClick={() => {
+            formReadonly.toggle();
+          }}
+        >
+          readonly: {formReadonly.flag ? "on" : "off"}
+        </Button>
+        <Button
+          onClick={() => {
+            formDisabled.toggle();
+          }}
+        >
+          disabled: {formDisabled.flag ? "on" : "off"}
+        </Button>
         <SchemaProvider>
           <fetcher.Form
             {...getFormProps("post", {
               encType: "multipart/form-data",
             })}
           >
-            <Component1 />
-            <Component2 />
+            <FieldSet
+              disabled={formDisabled.flag}
+              readOnly={formReadonly.flag}
+            >
+              <Component1 />
+              <Component2 />
+            </FieldSet>
             <div className="flex gap-2">
               <Button
                 type="submit"

@@ -41,7 +41,7 @@
     &:has(:is(input[aria-invalid="true"]:not([type="hidden"]), select[aria-invalid="true"], textarea[aria-invalid="true"])) {
       color: var(--color-input-err);
 
-      >.ipt-field-appearance {
+      >.ipt-field-enabled {
         background-color: var(--color-input-err-bg);
         border-color: var(--color-input-err-bd);
       }
@@ -51,8 +51,7 @@
   .ipt-field-appearance {
     position: absolute;
     inset: 0;
-    border-width: 1px;
-    border-style: solid;
+    border: 1px solid var(--color-input-bd);
     border-radius: var(--radius-input);
     pointer-events: none;
     z-index: -1;
@@ -61,9 +60,8 @@
     transition: background-color 0.2s, border-color 0.2s;
   }
 
-  :is(.ipt-field-enabled, .ipt-field-readonly) {
+  .ipt-field-enabled {
     background-color: var(--color-input-bg);
-    border-color: var(--color-input-bd);
   }
 
   .ipt-field-disabled {
@@ -91,9 +89,27 @@
     background-color: transparent;
     padding-inline: var(--spacing-input-pad-x);
 
+    &:disabled {
+      &::placeholder {
+        opacity: 0;
+      }
+    }
+
     &:not([type="date"], [type="month"], [type="time"], [type="datetime-local"]) {
       &::-webkit-calendar-picker-indicator {
         display: none !important;
+      }
+    }
+  }
+
+  .ipt-date {
+    &[data-hasvalue="false"] {
+      color: var(--color-placeholder);
+    }
+
+    &:disabled {
+      &[data-hasvalue="false"] {
+        color: transparent;
       }
     }
   }
@@ -140,8 +156,7 @@
       position: absolute;
       inset: 20%;
       content: "";
-      background-color: var(--color-input-bg);
-      border: 1px solid transparent;
+      border: 1px solid var(--color-input-bd);
       transition: border-color 0.2s;
     }
 
@@ -154,7 +169,7 @@
 
     &:enabled {
       &::before {
-        border-color: var(--color-input-bd);
+        background-color: var(--color-input-bg);
       }
 
       &[aria-invalid="true"] {
@@ -251,6 +266,7 @@
   }
 
   .ipt-switch {
+    -webkit-appearance: none;
     appearance: none;
     position: relative;
     width: calc(var(--spacing-input) * 1.6);
@@ -262,7 +278,6 @@
       inset: calc(var(--spacing-input) * 0.2);
       border: 1px solid var(--color-input-bd);
       border-radius: 9999px;
-      background-color: var(--color-input-bg);
     }
 
     &::after {
@@ -276,6 +291,12 @@
       border-radius: 9999px;
       background-color: var(--color-input);
       transition: left 0.2s;
+    }
+
+    &:enabled {
+      &::before {
+        background-color: var(--color-input-bg);
+      }
     }
 
     &:checked {
@@ -325,6 +346,7 @@
   }
 
   .ipt-slider {
+    -webkit-appearance: none;
     appearance: none;
     outline: none;
 
@@ -332,17 +354,16 @@
       height: calc(var(--spacing-input) * 0.3);
       border: 1px solid var(--color-input-bd);
       border-radius: 9999px;
-      background-color: var(--color-input-bg);
     }
 
     &::-moz-range-track {
       height: calc(var(--spacing-input) * 0.3);
       border: 1px solid var(--color-input-bd);
       border-radius: 9999px;
-      background-color: var(--color-input-bg);
     }
 
     &::-webkit-slider-thumb {
+      -webkit-appearance: none;
       appearance: none;
       width: calc(var(--spacing-input) * 0.6);
       height: calc(var(--spacing-input) * 0.6);
@@ -350,7 +371,6 @@
       /* borderの太さ分(片側)+trakとの差(片側) */
       background-color: var(--color-input);
       border-radius: 9999px;
-      cursor: pointer;
     }
 
     &::-moz-range-thumb {
@@ -361,7 +381,24 @@
       /* borderの太さ分(片側)+trakとの差(片側) */
       background-color: var(--color-input);
       border-radius: 9999px;
-      cursor: pointer;
+    }
+
+    &:enabled {
+      &::-webkit-slider-runnable-track {
+        background-color: var(--color-input-bg);
+      }
+
+      &::-moz-range-track {
+        background-color: var(--color-input-bg);
+      }
+
+      &::-webkit-slider-thumb {
+        cursor: pointer;
+      }
+
+      &::-moz-range-thumb {
+        cursor: pointer;
+      }
     }
   }
 
