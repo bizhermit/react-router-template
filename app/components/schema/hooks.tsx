@@ -173,8 +173,10 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
       }
     }
     bindData.current = new SchemaData(submission.data, ({ items }) => {
-      isEffected.current = true;
-      props.onChangeEffected?.(isEffected.current);
+      if (!isEffected.current) {
+        isEffected.current = true;
+        props.onChangeEffected?.(isEffected.current);
+      }
       const params: SchemaEffectParams_Value = { type: "value", items };
       subscribes.current.forEach(f => f(params));
     });
@@ -183,8 +185,10 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
 
   const { schema } = useMemo(() => {
     isInitialize.current = true;
-    isEffected.current = false;
-    props.onChangeEffected?.(isEffected.current);
+    if (isEffected.current) {
+      isEffected.current = false;
+      props.onChangeEffected?.(isEffected.current);
+    }
     dep.current = props.dep ?? EMPTY_STRUCT;
     refresh("init", argData);
     return {
@@ -294,8 +298,10 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
         items,
       };
       subscribes.current.forEach(f => f(params));
-      isEffected.current = true;
-      props.onChangeEffected?.(isEffected.current);
+      if (!isEffected.current) {
+        isEffected.current = true;
+        props.onChangeEffected?.(isEffected.current);
+      }
     }
     return change;
   };
@@ -313,8 +319,10 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
         items,
       };
       subscribes.current.forEach(f => f(params));
-      isEffected.current = true;
-      props.onChangeEffected?.(isEffected.current);
+      if (!isEffected.current) {
+        isEffected.current = true;
+        props.onChangeEffected?.(isEffected.current);
+      }
     }
     return change;
   };
@@ -354,7 +362,7 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
           behavior: "smooth",
           block: "nearest",
         });
-      }, 0);
+      }, 100);
     }
     return submission;
   };
