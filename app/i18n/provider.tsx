@@ -1,5 +1,6 @@
 import { use, useEffect, useRef, useState, type ReactNode } from "react";
 import { useLocation, useNavigate, useRevalidator } from "react-router";
+import { LoadingBar } from "~/components/elements/loading";
 import { DEFAULT_LOCALE, LOCALE_KEY } from "./config";
 import { I18nContext, I18nLangContext, type SwitchLocaleOptions } from "./hooks";
 
@@ -88,7 +89,7 @@ export function I18nUrlLocator(props: {
 
   return (
     <>
-      {(isSwitching || needRefresh) && <div className="loading-bar" />}
+      {(isSwitching || needRefresh) && <LoadingBar />}
       <I18nLangContext
         value={{
           locale: currentLocale || i18n.locale,
@@ -121,7 +122,7 @@ export function I18nCookieLocator(props: {
 
   return (
     <>
-      {isSwitching && <div className="loading-bar" />}
+      {isSwitching && <LoadingBar />}
       <I18nLangContext
         value={{
           locale: i18n.locale,
