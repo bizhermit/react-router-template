@@ -1,4 +1,4 @@
-import { createContext, use, useId, useRef, type HTMLAttributes, type ReactNode } from "react";
+import { createContext, use, useId, useRef, type HTMLAttributes, type KeyboardEvent, type ReactNode } from "react";
 import { CrossIcon, MenuIcon, MenuLeftIcon, MenuRightIcon } from "./icon";
 import { clsx } from "./utilities";
 
@@ -33,8 +33,8 @@ interface NavLayoutProps {
 export function NavLayout(props: NavLayoutProps) {
   const Tag = props.contentTag || "main";
   const id = useId();
-  const toggleId = `${props.id || id}_toggle`;
-  const scalingId = `${props.id || id}_scaling`;
+  const toggleId = `${props.id || "nav"}_toggle`;
+  const scalingId = `${props.id || "nav"}_scaling`;
 
   const toggleRef = useRef<HTMLInputElement>(null!);
   const scalingRef = useRef<HTMLInputElement>(null!);
@@ -45,6 +45,10 @@ export function NavLayout(props: NavLayoutProps) {
 
   function scalingNav(narrow: boolean) {
     scalingRef.current.checked = narrow;
+  };
+
+  function handleKeydown(e: KeyboardEvent<HTMLDivElement>) {
+    if (e.key === "Escape") toggleRef.current.checked = false;
   };
 
   return (
@@ -62,28 +66,57 @@ export function NavLayout(props: NavLayoutProps) {
           "nav-wrap",
           props.className
         )}
+        onKeyDown={handleKeydown}
+        tabIndex={-1}
       >
         <input
           className="nav-toggle"
           type="checkbox"
           id={toggleId}
           ref={toggleRef}
+          tabIndex={-1}
+          aria-hidden
         />
         <input
           className="nav-scaling"
           type="checkbox"
           id={scalingId}
           ref={scalingRef}
+          tabIndex={-1}
+          aria-hidden
         />
         <label
           className="nav-mask"
           htmlFor={toggleId}
+          aria-hidden
         />
-        <nav className="nav-nav">
+        <header className="nav-header">
+          <label
+            className="nav-btn nav-btn-toggle"
+            htmlFor={toggleId}
+            tabIndex={0}
+          >
+            <MenuIcon className="nav-menu" />
+            <CrossIcon className="nav-menu-cross" />
+          </label>
+          <div
+            {...props.headerProps}
+            className={clsx(
+              "nav-header-main",
+              props.headerProps?.className
+            )}
+          >
+            {props.header}
+          </div>
+        </header>
+        <nav
+          className="nav-nav"
+        >
           <div className="nav-btns-scaling">
             <label
               className="nav-btn nav-btn-scaling"
               htmlFor={scalingId}
+              tabIndex={0}
             >
               <MenuLeftIcon className="nav-narrow" />
               <MenuRightIcon className="nav-widen" />
@@ -99,24 +132,6 @@ export function NavLayout(props: NavLayoutProps) {
             {props.children}
           </div>
         </nav>
-        <header className="nav-header">
-          <label
-            className="nav-btn nav-btn-toggle"
-            htmlFor={toggleId}
-          >
-            <MenuIcon className="nav-menu" />
-            <CrossIcon className="nav-menu-cross" />
-          </label>
-          <div
-            {...props.headerProps}
-            className={clsx(
-              "nav-header-main",
-              props.headerProps?.className
-            )}
-          >
-            {props.header}
-          </div>
-        </header>
         <Tag
           {...props.contentProps}
           className={clsx(

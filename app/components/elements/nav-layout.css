@@ -15,6 +15,7 @@
     flex-flow: column nowrap;
     justify-content: flex-start;
     align-items: stretch;
+    outline: none;
   }
 
   body {
