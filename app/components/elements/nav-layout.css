@@ -100,7 +100,7 @@
     align-items: stretch;
     pointer-events: none;
     padding-top: var(--header-height);
-    transition: width 0.2s, padding-top 0.2s;
+    transition: width 0.2s, padding-top 0.2s, display .2s allow-discrete, overlay .2s allow-discrete;
   }
 
   .nav-btns-scaling {
@@ -167,6 +167,10 @@
       ---nav-width: 0;
     }
 
+    .nav-nav {
+      display: none;
+    }
+
     .nav-btns-scaling {
       height: 0;
     }
@@ -194,10 +198,21 @@
         }
 
         &~.nav-nav {
+          display: unset;
           ---nav-width: var(--nav-width);
         }
       }
     }
+
+  }
+
+  @starting-style {
+
+    .nav-nav {
+      display: flex;
+      width: 0;
+    }
+
   }
 
   /* 常時展開 */
