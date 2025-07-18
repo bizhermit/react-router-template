@@ -59,8 +59,7 @@ export function NavLayout(props: NavLayoutProps) {
 
   function getCurrentMode() {
     const width = window.innerWidth;
-    if (width < 800) return "s";
-    return "m";
+    return width < 800 ? "s" : "m";
   };
 
   function handleNavStartFocus(e: FocusEvent<HTMLDivElement>) {
