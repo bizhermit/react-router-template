@@ -91,8 +91,9 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
         ref={ref}
         type="range"
         name={omitOnSubmit ? undefined : name}
-        disabled={state.current.disabled}
-        readOnly={state.current.readonly}
+        disabled={!state.current.enabled}
+        aria-disabled={state.current.disabled}
+        aria-readonly={state.current.readonly}
         required={required}
         min={min}
         max={max}
