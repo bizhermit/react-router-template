@@ -33,15 +33,12 @@ export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemS
   } = useSchemaItem<Schema.DataItem<Schema.$Array>>($props, {
     effect: function ({ value }) {
       if (!ref.current) return;
-      const sv = String(value ?? "");
-      const target = ref.current.querySelector(`input[type="radio"][value="${sv}"]`) as HTMLInputElement;
-      if (target) {
-        target.checked = true;
-      } else {
-        ref.current.querySelectorAll(`input[type="radio"]:checked`).forEach(elem => {
-          (elem as HTMLInputElement).checked = false;
-        });
-      }
+      const arr = ((value == null || !Array.isArray(value)) ? [] : value).map(v => v == null ? "" : String(v));
+      ref.current.querySelectorAll(`input[type="checkbox"]`).forEach(elem => {
+        const v = (elem as HTMLInputElement).value;
+        const isChecked = arr.some(av => av === v);
+        (elem as HTMLInputElement).checked = isChecked;
+      });
     },
     effectContext: function () {
       resetDataItemSource();
