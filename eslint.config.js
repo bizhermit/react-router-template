@@ -166,6 +166,12 @@ export default tseslint.config({
     "no-control-regex": "off",
     "no-empty": "warn",
     "no-empty-pattern": "warn",
+    "no-console": [
+      "warn",
+      {
+        allow: ["warn", "error"],
+      },
+    ],
     // Typescript
     "@typescript-eslint/no-empty-object-type": "off",
     "no-unused-expressions": "off",

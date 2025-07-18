@@ -1,4 +1,6 @@
+/* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { useEffect, useState, type ReactNode } from "react";
 import { data, Link, useFetcher } from "react-router";
 import { Button } from "~/components/elements/button";

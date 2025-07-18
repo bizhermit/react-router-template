@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 import sleep from "~/components/utilities/sleep";
 import type { Route } from "./+types/stream-api";
 
