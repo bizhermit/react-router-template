@@ -270,7 +270,7 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
     result: Schema.Result | null | undefined
   ) {
     let change = false;
-    if (bindData.current.set(name, value)) {
+    if (bindData.current._set(name, value)) {
       change = true;
     }
     if (setResultImpl(name, result)) {
