@@ -158,13 +158,17 @@
   }
 
   /* ヘッダーメニューアイコンボタンで開閉 */
-  @media screen and (max-width: 800px) {
+  @media screen and (max-width: 799.98px) {
     .nav-wrap {
       ---nav-width: 0;
     }
 
     .nav-btns-scaling {
       height: 0;
+    }
+
+    .nav-btn-scaling {
+      display: none;
     }
 
     .nav-toggle {

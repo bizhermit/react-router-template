@@ -1,4 +1,6 @@
-import { createContext, use, useId, useRef, type HTMLAttributes, type KeyboardEvent, type ReactNode } from "react";
+import { createContext, use, useId, useRef, type FocusEvent, type HTMLAttributes, type KeyboardEvent, type ReactNode } from "react";
+import { containElement } from "../dom/contain";
+import { getNextFocusableElement, getPrevFocusableElement } from "../dom/focus";
 import { CrossIcon, MenuIcon, MenuLeftIcon, MenuRightIcon } from "./icon";
 import { clsx } from "./utilities";
 
@@ -38,6 +40,10 @@ export function NavLayout(props: NavLayoutProps) {
 
   const toggleRef = useRef<HTMLInputElement>(null!);
   const scalingRef = useRef<HTMLInputElement>(null!);
+  const headerRef = useRef<HTMLElement>(null!);
+  const navRef = useRef<HTMLElement>(null!);
+  const bodyRef = useRef<HTMLDivElement>(null!);
+  const footerRef = useRef<HTMLDivElement>(null!);
 
   function toggleMenu(open: boolean) {
     toggleRef.current.checked = open;
@@ -49,6 +55,75 @@ export function NavLayout(props: NavLayoutProps) {
 
   function handleKeydown(e: KeyboardEvent<HTMLDivElement>) {
     if (e.key === "Escape") toggleRef.current.checked = false;
+  };
+
+  function getCurrentMode() {
+    const width = window.innerWidth;
+    if (width < 800) return "s";
+    return "m";
+  };
+
+  function handleNavStartFocus(e: FocusEvent<HTMLDivElement>) {
+    const mode = getCurrentMode();
+    if (mode !== "s") {
+      if (containElement(navRef.current, e.relatedTarget)) {
+        getPrevFocusableElement(e.target, [
+          bodyRef.current,
+          footerRef.current,
+          headerRef.current,
+        ])?.focus();
+      } else {
+        getNextFocusableElement(e.target, navRef.current)?.focus();
+      }
+      return;
+    }
+    if (toggleRef.current.checked) {
+      if (containElement(navRef.current, e.relatedTarget)) {
+        getPrevFocusableElement(e.target, headerRef.current)?.focus();
+      } else {
+        getNextFocusableElement(e.target, navRef.current)?.focus();
+      }
+    } else {
+      getNextFocusableElement(null, bodyRef.current)?.focus();
+    }
+  };
+
+  function handleNavEndFocus(e: FocusEvent<HTMLDivElement>) {
+    const mode = getCurrentMode();
+    if (mode !== "s") {
+      if (containElement(navRef.current, e.relatedTarget)) {
+        getNextFocusableElement(e.target, bodyRef.current)?.focus();
+      } else {
+        getPrevFocusableElement(e.target, navRef.current)?.focus();
+      }
+      return;
+    }
+    if (toggleRef.current.checked) {
+      if (containElement(navRef.current, e.relatedTarget)) {
+        getNextFocusableElement(e.target, headerRef.current)?.focus();
+      } else {
+        getPrevFocusableElement(e.target, navRef.current)?.focus();
+      }
+    } else {
+      getNextFocusableElement(null, headerRef.current)?.focus();
+    }
+  };
+
+  function handleEndFocus(e: FocusEvent<HTMLDivElement>) {
+    const mode = getCurrentMode();
+    if (mode !== "s") {
+      if (e.relatedTarget == null) {
+        getPrevFocusableElement(e.target, bodyRef.current)?.focus();
+      } else {
+        getNextFocusableElement(null, [headerRef.current, navRef.current])?.focus();
+      }
+      return;
+    }
+    if (toggleRef.current.checked) {
+      getPrevFocusableElement(e.target, navRef.current)?.focus();
+    } else {
+      getNextFocusableElement(null, headerRef.current)?.focus();
+    }
   };
 
   return (
@@ -90,7 +165,10 @@ export function NavLayout(props: NavLayoutProps) {
           htmlFor={toggleId}
           aria-hidden
         />
-        <header className="nav-header">
+        <header
+          className="nav-header"
+          ref={headerRef}
+        >
           <label
             className="nav-btn nav-btn-toggle"
             htmlFor={toggleId}
@@ -111,7 +189,13 @@ export function NavLayout(props: NavLayoutProps) {
         </header>
         <nav
           className="nav-nav"
+          ref={navRef}
         >
+          <div
+            tabIndex={0}
+            onFocus={handleNavStartFocus}
+            className="fixed"
+          />
           <div className="nav-btns-scaling">
             <label
               className="nav-btn nav-btn-scaling"
@@ -131,9 +215,15 @@ export function NavLayout(props: NavLayoutProps) {
           >
             {props.children}
           </div>
+          <div
+            tabIndex={0}
+            onFocus={handleNavEndFocus}
+            className="fixed"
+          />
         </nav>
         <Tag
           {...props.contentProps}
+          ref={bodyRef}
           className={clsx(
             "nav-content",
             props.contentProps?.className
@@ -145,6 +235,7 @@ export function NavLayout(props: NavLayoutProps) {
           props.footer &&
           <footer
             {...props.footerProps}
+            ref={footerRef}
             className={clsx(
               "nav-footer",
               props.footerProps?.className
@@ -153,6 +244,11 @@ export function NavLayout(props: NavLayoutProps) {
             {props.footer}
           </footer>
         }
+        <div
+          tabIndex={0}
+          onFocus={handleEndFocus}
+          className="fixed"
+        />
       </div>
     </NavLayoutContext>
   );
