@@ -30,6 +30,8 @@
   --color-nav-bg: #e0e0e4;
   --color-nav-fg: #111;
   --color-mask: rgba(0, 0, 0, 0.2);
+  --color-link: #0000EE;
+  --color-link-visited: #551A8B;
 
   /* loadingbar */
   --spacing-loadingbar1: 25%;
@@ -81,6 +83,8 @@
   --color-nav-bg: #1c1c1f;
   --color-nav-fg: #ddd;
   --color-mask: rgba(192, 192, 192, 0.2);
+  --color-link: #8ab4f8;
+  --color-link-visited: #c58af9;
   --color-input: #ddd;
   --color-input-bg: #222;
   --color-input-bd: #bbb;
@@ -117,6 +121,15 @@
   option {
     border-radius: none;
     background-color: var(--color-input-bg);
+  }
+
+  .link {
+    text-decoration: underline;
+    color: var(--color-link);
+
+    &:is(:visited, [data-visited="true"]) {
+      color: var(--color-link-visited);
+    }
   }
 
   .details {
