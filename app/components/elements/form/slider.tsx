@@ -7,11 +7,13 @@ export type SliderProps<D extends Schema.DataItem<Schema.$Number>> = InputWrapPr
   $: D;
   source?: Schema.Source<Schema.ValueType<D["_"]>>;
   step?: number;
+  hideValueLabel?: boolean;
 };
 
 export function Slider<D extends Schema.DataItem<Schema.$Number>>({
   source: propsSource,
   step,
+  hideValueLabel,
   ...$props
 }: SliderProps<D>) {
   const ref = useRef<HTMLInputElement>(null!);
@@ -23,13 +25,11 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
     state,
     required,
     value,
-    getValue,
     setValue,
     result,
     label,
     invalid,
     errormessage,
-    validScripts,
     getCommonParams,
     env,
     props,
@@ -100,9 +100,12 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
         list={dataListId}
         title={value == null ? undefined : String(value)}
       />
-      <span className="ipt-slider-label">
-        {value}
-      </span>
+      {
+        !hideValueLabel &&
+        <span className="ipt-slider-label">
+          {value}
+        </span>
+      }
       {
         source &&
         <datalist id={dataListId}>
