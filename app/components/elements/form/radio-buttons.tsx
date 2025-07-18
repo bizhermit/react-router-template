@@ -1,6 +1,6 @@
 import { useRef, type ChangeEvent, type MouseEvent } from "react";
 import { useSchemaItem } from "~/components/schema/hooks";
-import { DummyFocus, InputGroup, InputLabel, InputLabelText, type InputWrapProps } from "./common";
+import { InputDummyFocus, InputGroup, InputLabel, InputLabelText, type InputWrapProps } from "./common";
 import { useSource } from "./utilities";
 
 type RadioButtonsSchemaProps = Schema.$String | Schema.$Number | Schema.$Boolean;
@@ -108,7 +108,7 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
             </InputLabelText>
             {
               isReadOnly && ((value == null && index === 0) || isSelected) &&
-              <DummyFocus />
+              <InputDummyFocus />
             }
           </InputLabel>
         );

@@ -1,6 +1,6 @@
 import { useRef, type ChangeEvent } from "react";
 import { useSchemaItem } from "~/components/schema/hooks";
-import { DummyFocus, InputGroup, InputLabel, InputLabelText, type InputWrapProps } from "./common";
+import { InputDummyFocus, InputGroup, InputLabel, InputLabelText, type InputWrapProps } from "./common";
 import { useSource } from "./utilities";
 
 type CheckListItemSchemaProps = Schema.$String | Schema.$Number | Schema.$Boolean;
@@ -109,7 +109,7 @@ export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemS
                   name={omitOnSubmit ? undefined : name}
                   value={isChecked ? key : ""}
                 />
-                <DummyFocus />
+                <InputDummyFocus />
               </>
             }
           </InputLabel>

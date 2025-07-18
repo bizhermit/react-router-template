@@ -3,7 +3,7 @@ import { formatDate, parseDate } from "~/components/objects/date";
 import { parseTimeNums, parseTypedDate } from "~/components/schema/date";
 import { getDefaultState, getSchemaItemMode, getSchemaItemRequired, getSchemaItemResult, optimizeRefs, schemaItemEffect, schemaItemValidation, useFieldSet, useSchemaEffect, type SchemaEffectParams_Result, type SchemaEffectParams_ValueResult } from "~/components/schema/hooks";
 import { clsx, ZERO_WIDTH_SPACE } from "../utilities";
-import { DummyFocus, getValidationValue, InputField, InputGroup, Placeholder, type InputWrapProps } from "./common";
+import { getValidationValue, InputDummyFocus, InputField, InputGroup, Placeholder, type InputWrapProps } from "./common";
 
 export type DateSelectBoxProps<D extends Schema.DataItem<Schema.$SplitDate>> = InputWrapProps & {
   $: D;
@@ -1257,7 +1257,7 @@ function SplittedSelect({
             name={$?.name}
             value={value ?? ""}
           />
-          <DummyFocus />
+          <InputDummyFocus />
         </>
       }
     </InputField>

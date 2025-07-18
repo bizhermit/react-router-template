@@ -159,11 +159,11 @@ export function Placeholder({
   );
 };
 
-export function DummyFocus() {
+export function InputDummyFocus() {
   return (
     <div
       tabIndex={0}
-      className="absolute outline-none inset-0 z-10"
+      className="absolute inset-0 z-10 select-none outline-none"
     />
   );
 };

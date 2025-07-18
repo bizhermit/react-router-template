@@ -1,6 +1,6 @@
 import { useRef, useState, type ChangeEvent } from "react";
 import { useSchemaItem } from "~/components/schema/hooks";
-import { DummyFocus, getValidationValue, InputLabel, type InputWrapProps } from "./common";
+import { getValidationValue, InputDummyFocus, InputLabel, type InputWrapProps } from "./common";
 import { useSource } from "./utilities";
 
 export type SliderProps<D extends Schema.DataItem<Schema.$Number>> = InputWrapProps & {
@@ -120,7 +120,7 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
             name={name}
             value={value == null ? "" : String(value)}
           />
-          <DummyFocus />
+          <InputDummyFocus />
         </>
       }
       {
