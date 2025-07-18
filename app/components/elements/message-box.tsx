@@ -2,6 +2,7 @@ import { type ReactNode, type RefObject } from "react";
 import { createRoot } from "react-dom/client";
 import { preventScroll } from "../dom/prevent-scroll";
 import { Button } from "./button";
+import { FocusTrap } from "./focus-trap";
 import { CrossIcon } from "./icon";
 
 interface MessageBoxProps {
@@ -23,36 +24,38 @@ function optimizeEndOfLines(content: ReactNode) {
 
 function MessageBox(props: MessageBoxProps) {
   return (
-    <div
-      className="msgbox"
-      data-color={props.color}
-      ref={props.ref}
-    >
-      {
-        props.header &&
-        <div
-          className="msgbox-header"
-          id={props.headerId}
-        >
-          {optimizeEndOfLines(props.header)}
-        </div>
-      }
-      {
-        props.body &&
-        <div
-          className="msgbox-body"
-          id={props.bodyId}
-        >
-          {optimizeEndOfLines(props.body)}
-        </div>
-      }
-      {
-        props.footer &&
-        <div className="msgbox-footer">
-          {props.footer}
-        </div>
-      }
-    </div>
+    <FocusTrap>
+      <div
+        className="msgbox"
+        data-color={props.color}
+        ref={props.ref}
+      >
+        {
+          props.header &&
+          <div
+            className="msgbox-header"
+            id={props.headerId}
+          >
+            {optimizeEndOfLines(props.header)}
+          </div>
+        }
+        {
+          props.body &&
+          <div
+            className="msgbox-body"
+            id={props.bodyId}
+          >
+            {optimizeEndOfLines(props.body)}
+          </div>
+        }
+        {
+          props.footer &&
+          <div className="msgbox-footer">
+            {props.footer}
+          </div>
+        }
+      </div>
+    </FocusTrap>
   );
 };
 

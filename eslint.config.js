@@ -161,6 +161,7 @@ export default tseslint.config({
         allow: "single-line",
       },
     ],
+    "@stylistic/jsx-closing-bracket-location": "warn",
     "@stylistic/no-trailing-spaces": "warn",
     "no-fallthrough": "warn",
     "no-control-regex": "off",

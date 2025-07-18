@@ -1,7 +1,7 @@
 const FOCUSABLE_SELECTOR = [
   `a[href]`,
-  `button:not([disabled])`,
-  `input:not([disabled])`,
+  `button:not([disabled],[tabindex="-1"])`,
+  `input:not([disabled],[type="hidden"])`,
   `textarea:not([disabled])`,
   `select:not([disabled])`,
   `summary`,
@@ -17,7 +17,23 @@ export function getFocusableElements(scope?: HTMLElement | HTMLElement[]) {
     Array.from((scope ?? document).querySelectorAll(FOCUSABLE_SELECTOR)) as HTMLElement[];
 
   return elems.filter(elem => {
-    return elem != null && elem.offsetParent !== null && getComputedStyle(elem).visibility !== "hidden";
+    if (elem == null) return false;
+    const style = getComputedStyle(elem);
+    if (style.display === "none") return false;
+    if (style.visibility === "hidden") return false;
+    let parent = elem.parentElement;
+    while (parent) {
+      switch (parent.tagName) {
+        case "DETAILS":
+        case "DIALOG":
+          if (!parent.hasAttribute("open")) return false;
+          break;
+        default:
+          break;
+      }
+      parent = parent.parentElement;
+    }
+    return true;
   });
 }
 

@@ -2,7 +2,6 @@ export function containElement(parent: Element, target: Element | null | undefin
   if (target == null) return false;
   let elem: Element | null = target;
   while (elem) {
-    if (elem == null) break;
     elem = elem.parentElement;
     if (elem === parent) return true;
   }
