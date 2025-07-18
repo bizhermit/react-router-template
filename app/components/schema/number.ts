@@ -208,6 +208,7 @@ export function $num<Props extends Schema.NumberProps>(props?: Props) {
     refs: props?.refs,
     parser: props?.parser ?? NUMBER_PARSER,
     source: props?.source as Schema.GetSource<Props["source"]>,
+    sourceValidation: sourceValidation as Schema.GetValidationValue<Props, "sourceValidation">,
     validators,
     required: required as Schema.GetValidationValue<Props, "required">,
     min,

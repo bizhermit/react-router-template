@@ -157,6 +157,7 @@ namespace Schema {
     label: string | undefined;
     parser: Parser<V>;
     source: Source<V> | DynamicValidationValue<Source<V>> | undefined;
+    sourceValidation: $ValidationValue<boolean>;
     validators: Array<Validator<V>>;
     required: $ValidationValue<boolean>;
     length: $ValidationValue<number>;
@@ -181,6 +182,7 @@ namespace Schema {
     label: string | undefined;
     parser: Parser<V>;
     source: Source<V> | DynamicValidationValue<Source<V>> | undefined;
+    sourceValidation: $ValidationValue<boolean>;
     validators: Array<Validator<V>>;
     required: $ValidationValue<boolean>;
     min: $ValidationValue<number>;
@@ -369,6 +371,7 @@ namespace Schema {
     label: string | undefined;
     prop: Prop;
     source: Source<unknown> | DynamicValidationValue<Source<unknown>> | undefined;
+    sourceValidation: $ValidationValue<boolean>;
     key: ((value: Record<string, unknown>) => string) | undefined;
     parser: Parser<unknown[]>;
     validators: Array<Validator<unknown[]>>;
@@ -446,7 +449,11 @@ namespace Schema {
     Strict extends boolean = true,
     Optional extends boolean = false
   > =
-    Props extends { source: Array<{ value: infer V; }>; } ? (
+    Props extends {
+      source: Array<{ value: infer V; }>;
+      type: "str" | "num" | "date" | "month" | "datetime";
+      sourceValidation: true | [true, unknown?] | null | undefined;
+    } ? (
       RequiredValue<V, Props["required"], Optional>
     ) : Props extends { type: infer T; } ? (
       T extends "str" ? (
@@ -483,6 +490,13 @@ namespace Schema {
         File | Blob | string | null | undefined
       ) :
       T extends "arr" ? (
+        Props extends {
+          source: Array<{ value: infer V; }>;
+          sourceValidation: true | [true, unknown?] | null | undefined;
+        } ? (
+          Strict extends true ? RequiredValue<V[], Props["required"], Optional> :
+          V[] | null | undefined
+        ) :
         Strict extends true ? RequiredValue<ValueType<Props["prop"], Strict, Optional>[], Props["required"], Optional> :
         ValueType<Props["prop"], Strict, Optional>[] | null | undefined
       ) :

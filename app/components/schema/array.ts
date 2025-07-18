@@ -210,6 +210,7 @@ export function $array<Props extends Schema.ArrayProps>(props: Props) {
     mode: props?.mode,
     refs: props?.refs,
     source: props.source as Schema.GetSource<Props["source"]>,
+    sourceValidation,
     parser: props.parser ?? ARRAY_PARSER,
     validators,
     required: required as Schema.GetValidationValue<Props, "required">,

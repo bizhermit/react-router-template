@@ -392,6 +392,7 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
     parser: props?.parser ?? STRING_PARSER,
     validators,
     required: required as Schema.GetValidationValue<Props, "required">,
+    sourceValidation: sourceValidation as Schema.GetValidationValue<Props, "sourceValidation">,
     length,
     minLength,
     maxLength,
