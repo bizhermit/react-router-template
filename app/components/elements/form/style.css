@@ -32,6 +32,7 @@
     flex-wrap: nowrap;
     justify-content: stretch;
     align-items: stretch;
+    user-select: none;
 
     &:focus-within {
       >.ipt-field-appearance {
@@ -466,6 +467,7 @@
     height: 100%;
     overflow: visible;
     pointer-events: all;
+    user-select: none;
     color: var(--color-placeholder);
 
     &::before {
