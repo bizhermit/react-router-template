@@ -946,7 +946,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
     state.current = "hidden";
   } else if (fs.disabled || mode === "disabled") {
     state.current = "disabled";
-  } else if (fs.readOnly || mode === "readonly") {
+  } else if (fs.readOnly || mode === "readonly" || schema.state === "loading" || schema.state === "submitting") {
     state.current = "readonly";
   } else {
     state.current = "enabled";
