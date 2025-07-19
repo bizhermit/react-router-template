@@ -497,7 +497,8 @@ export function useSchemaValue<D extends Schema.DataItem>(dataItem: D) {
       case "refresh":
         setValue(getValue);
         break;
-      case "value": {
+      case "value":
+      case "value-result": {
         const item = params.items.find(item => item.name === dataItem.name);
         if (item) {
           setValue(item.value as Schema.ValueType<D["_"]>);
