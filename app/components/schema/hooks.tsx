@@ -1,4 +1,4 @@
-import { createContext, use, useCallback, useContext, useId, useLayoutEffect, useMemo, useRef, useState, type FormEvent, type FormHTMLAttributes, type ReactNode, type RefObject } from "react";
+import { createContext, use, useCallback, useContext, useId, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type FormEvent, type FormHTMLAttributes, type ReactNode, type RefObject } from "react";
 import { useText } from "~/i18n/hooks";
 import { parseWithSchema } from ".";
 import type { InputWrapProps } from "../elements/form/common";
@@ -352,6 +352,7 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.stopPropagation();
     if (isProcessing) {
+      e.preventDefault();
       console.warn("form is processing");
       return null;
     };
@@ -398,9 +399,22 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
     reset();
   };
 
+  const stateRef = useRef(props.state);
+  const stateSubscribeRef = useRef<() => void>(() => { });
+
   const SchemaProvider = useCallback((p: {
     children?: ReactNode;
   }) => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const state = useSyncExternalStore((listener) => {
+      stateSubscribeRef.current = listener;
+      return () => { };
+    }, () => {
+      return stateRef.current;
+    }, () => {
+      return stateRef.current;
+    });
+
     return (
       <SchemaContext
         value={{
@@ -420,12 +434,17 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
           isInitialize,
           isFirstLoad,
           isValidScripts,
-          state: props.state,
+          state,
         }}
       >
         {p.children}
       </SchemaContext>
     );
+  }, []);
+
+  useLayoutEffect(() => {
+    stateRef.current = props.state;
+    stateSubscribeRef.current();
   }, [props.state]);
 
   useLayoutEffect(() => {
