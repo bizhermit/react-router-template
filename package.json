@@ -12,6 +12,7 @@
     "prisma": "npx prisma studio",
     "typecheck": "npm run generate-i18n-types && npx react-router typegen && tsc && npx eslint",
     "generate-i18n-types": "node ./scripts/generate-i18n-types.mjs",
+    "generate-openapi-types": "npx openapi-typescript ./docs/api/openapi.yaml -o ./app/api/types+.d.ts && npx eslint ./app/api/types+.d.ts --fix",
     "format": "npx eslint --fix",
     "playwright": "npx playwright test",
     "test": "npx vitest run app"
@@ -41,6 +42,7 @@
     "eslint": "^9.30.1",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
+    "openapi-typescript": "^7.8.0",
     "prisma": "^6.11.1",
     "react-router-devtools": "^5.0.5",
     "sass-embedded": "^1.87.0",

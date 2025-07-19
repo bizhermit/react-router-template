@@ -1,0 +1,105 @@
+openapi: 3.1.0
+info:
+  title: API
+  description: API
+  version: 0.0.0
+servers:
+  - url: https//localhost:8080
+paths:
+  /health:
+    get:
+      summary: ヘルスチェック
+      responses:
+        '200':
+          description: ヘルスチェック
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  now:
+                    type: string
+                required:
+                  - now
+  /tasks:
+    get:
+      summary: タスク一覧の取得
+      responses:
+        '200':
+          description: タスクの一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Task'
+    post:
+      summary: タスクの作成
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewTask'
+      responses:
+        '201':
+          description: タスクの作成成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+  /tasks/{id}:
+    get:
+      summary: タスクの詳細取得
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 単一のタスク
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '404':
+          description: タスクが見つかりません
+    delete:
+      summary: タスクの削除
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: 削除成功
+
+components:
+  schemas:
+    Task:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        completed:
+          type: boolean
+      required:
+        - id
+        - title
+        - completed
+    NewTask:
+      type: object
+      properties:
+        title:
+          type: string
+        completed:
+          type: boolean
+          default: false
+      required:
+        - title
