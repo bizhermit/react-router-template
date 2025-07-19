@@ -319,6 +319,10 @@
         &::after {
           border-color: var(--color-input-err-bd);
         }
+
+        &:checked {
+          background-color: var(--color-primary);
+        }
       }
     }
 
@@ -427,13 +431,7 @@
     }
 
     &:enabled {
-      &::-webkit-slider-runnable-track {
-        ---track-bg: var(--color-input-bg);
-      }
-
-      &::-moz-range-track {
-        ---track-bg: var(--color-input-bg);
-      }
+      ---track-bg: var(--color-input-bg);
 
       &::-webkit-slider-thumb {
         cursor: pointer;
@@ -441,6 +439,18 @@
 
       &::-moz-range-thumb {
         cursor: pointer;
+      }
+
+      &[aria-invalid="true"] {
+        ---track-bg: var(--color-input-err-bg);
+
+        &::-webkit-slider-runnable-track {
+          border-color: var(--color-input-err-bd);
+        }
+
+        &::-moz-range-track {
+          border-color: var(--color-input-err-bd);
+        }
       }
     }
 
