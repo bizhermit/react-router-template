@@ -7,7 +7,8 @@ export type SliderProps<D extends Schema.DataItem<Schema.$Number>> = InputWrapPr
   $: D;
   source?: Schema.Source<Schema.ValueType<D["_"]>>;
   step?: number;
-  hideValueLabel?: boolean;
+  showValueText?: boolean;
+  hideScales?: boolean;
 };
 
 const DEFAULT_MIN = 0;
@@ -16,7 +17,8 @@ const DEFAULT_MAX = 100;
 export function Slider<D extends Schema.DataItem<Schema.$Number>>({
   source: propsSource,
   step,
-  hideValueLabel,
+  showValueText,
+  hideScales,
   ...$props
 }: SliderProps<D>) {
   const ref = useRef<HTMLInputElement>(null!);
@@ -72,13 +74,20 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
 
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
     if (!state.current.enabled) return;
-    const rawValue = e.currentTarget.value;
-    setValue(rawValue as `${number}`);
+    setValue(e.currentTarget.value as `${number}`);
+  };
+
+  function handleClickOption(v: number | null | undefined) {
+    if (!state.current.enabled) return;
+    setValue(v);
+  };
+
+  function getRate(value: number | null | undefined) {
+    if (value == null) return 0;
+    return Math.round(((value - min) / (max - min)) * 100);
   };
 
   const dataListId = source == null ? undefined : `${name}_dl`;
-
-  const rate = value == null ? 0 : (((value - min) / (max - min)) * 100);
 
   return (
     <InputLabel
@@ -92,7 +101,7 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
       <input
         className="ipt-slider"
         style={validScripts ? {
-          "--rate": `${rate}%`,
+          "--rate": `${getRate(value)}%`,
         } as CSSProperties : undefined}
         ref={ref}
         type="range"
@@ -113,7 +122,7 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
         title={value == null ? undefined : String(value)}
       />
       {
-        !hideValueLabel && value != null &&
+        showValueText && value != null &&
         <span className="ipt-slider-label">
           {value}
         </span>
@@ -131,18 +140,41 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
       }
       {
         source &&
-        <datalist id={dataListId}>
-          {source.map(item => {
-            return (
-              <option
-                key={item.value}
-                value={item.value ?? ""}
-              >
-                {item.text}
-              </option>
-            );
-          })}
-        </datalist>
+        <>
+          <datalist id={dataListId}>
+            {source.map(item => {
+              return (
+                <option
+                  key={item.value}
+                  value={item.value ?? ""}
+                >
+                  {item.text}
+                </option>
+              );
+            })}
+          </datalist>
+          {
+            !hideScales &&
+            <ul className="ipt-slider-scales">
+              {source.map(item => {
+                return (
+                  <li
+                    key={item.value}
+                    className="ipt-slider-tick"
+                    style={{
+                      "--rate": `${getRate(item.value)}%`,
+                    } as CSSProperties}
+                    onClick={() => {
+                      handleClickOption(item.value);
+                    }}
+                  >
+                    {item.text}
+                  </li>
+                );
+              })}
+            </ul>
+          }
+        </>
       }
     </InputLabel>
   );

@@ -118,11 +118,6 @@
     font-size: 1.6rem;
   }
 
-  option {
-    border-radius: none;
-    background-color: var(--color-input-bg);
-  }
-
   .link {
     text-decoration: underline;
     color: var(--color-link);

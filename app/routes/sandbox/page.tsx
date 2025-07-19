@@ -111,6 +111,14 @@ const schema = $schema({
     min: 0,
     max: 100,
     float: 0,
+    sourceValidation: false,
+    source: [
+      { value: 0, text: "0" },
+      { value: 25, text: "" },
+      { value: 50, text: "50" },
+      { value: 75, text: "" },
+      { value: 100, text: "100" },
+    ],
   }),
   generation: $num({
     source: [
@@ -581,6 +589,7 @@ function Component2() {
         <Slider
           $={dataItems.range}
           omitOnSubmit
+          showValueText
         />
       </FormItem>
       <FormItem>
