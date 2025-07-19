@@ -291,9 +291,9 @@
       height: calc(var(--spacing-input) * 0.45);
       top: calc(50% - var(--spacing-input) * 0.225);
       left: calc(var(--spacing-input) * 0.3);
-      border: 1px solid var(--color-input);
+      border: 1px solid var(--color-input-bd);
       border-radius: 9999px;
-      background-color: var(--color-input);
+      background-color: var(--color-input-bg);
       transition: left 0.2s;
     }
 
@@ -381,12 +381,12 @@
       appearance: none;
       width: calc(var(--spacing-input) * 0.5);
       height: calc(var(--spacing-input) * 0.5);
-      background-color: var(--color-input);
+      background-color: var(--color-input-bg);
       border-radius: 9999px;
       /* margin-top: block方向borderの太さ分(片側)+trackとの差(片側) */
       margin-top: calc(var(--spacing-input) * -0.125 - 1px);
       /* box-shadow: inline方向trackのborderの太さ分(片側)との差 */
-      box-shadow: 0 0 0 1px var(--color-input);
+      box-shadow: 0 0 0 0.5px var(--color-input-bd);
     }
 
     &::-moz-range-thumb {
@@ -399,7 +399,7 @@
       /* margin-top: block方向borderの太さ分(片側)+trackとの差(片側) */
       margin-top: calc(var(--spacing-input) * -0.125 - 1px);
       /* box-shadow: inline方向trackのborderの太さ分(片側)との差 */
-      box-shadow: 0 0 0 1px var(--color-input);
+      box-shadow: 0 0 0 0.5px var(--color-input-bd);
     }
 
     &:enabled {
