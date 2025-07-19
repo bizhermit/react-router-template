@@ -9,7 +9,7 @@ function FILE_PARSER({
   value,
   env,
   label,
-}: Schema.ParserParams<Schema.$File>): Schema.ParserResult<File | string> {
+}: Schema.ParserParams): Schema.ParserResult<File | string> {
   if (value == null) return { value };
   if (value instanceof File) {
     if (value.size === 0) return { value: undefined };

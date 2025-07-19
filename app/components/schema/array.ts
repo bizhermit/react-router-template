@@ -1,16 +1,12 @@
 import { getInvalidValueTextKey, getRequiredTextKey, getValidationArray } from "./utilities";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function ARRAY_PARSER({ value, dataItem }: Schema.ParserParams<Schema.$Array>): Schema.ParserResult<Array<any>> {
+function ARRAY_PARSER({ value }: Schema.ParserParams): Schema.ParserResult<Array<any>> {
   if (value == null || value === "") {
     return { value: undefined };
   }
   if (Array.isArray(value)) {
-    if (dataItem._.autoRemoveNull) {
-      return { value: value.filter(v => !!v) };
-    } else {
-      return { value: value };
-    }
+    return { value: value };
   }
   return { value: [value] };
 };

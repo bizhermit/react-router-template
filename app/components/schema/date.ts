@@ -6,7 +6,7 @@ function SPLIT_DATE_PARSER({
   value,
   env,
   label,
-}: Schema.ParserParams<Schema.$SplitDate>): Schema.ParserResult<number> {
+}: Schema.ParserParams): Schema.ParserResult<number> {
   const [num, succeeded] = parseNumber(value);
   if (succeeded) return { value: num };
   return {
@@ -387,7 +387,7 @@ function MONTH_PARSER({
   value,
   env,
   label,
-}: Schema.ParserParams<Schema.$Month>): Schema.ParserResult<Schema.MonthString> {
+}: Schema.ParserParams): Schema.ParserResult<Schema.MonthString> {
   if (value == null || value === "") {
     return { value: undefined };
   }
@@ -462,7 +462,7 @@ function DATE_PARSER({
   value,
   env,
   label,
-}: Schema.ParserParams<Schema.$Date>): Schema.ParserResult<Schema.DateString> {
+}: Schema.ParserParams): Schema.ParserResult<Schema.DateString> {
   if (value == null || value === "") {
     return { value: undefined };
   }
@@ -566,7 +566,7 @@ function DATETIME_HM_PARSER({
   value,
   env,
   label,
-}: Schema.ParserParams<Schema.$DateTime>): Schema.ParserResult<Schema.DateTime_HM_String> {
+}: Schema.ParserParams): Schema.ParserResult<Schema.DateTime_HM_String> {
   if (value == null || value === "") {
     return { value: undefined };
   }
@@ -590,7 +590,7 @@ function DATETIME_HMS_PARSER({
   value,
   env,
   label,
-}: Schema.ParserParams<Schema.$DateTime>): Schema.ParserResult<Schema.DateTime_HMS_String> {
+}: Schema.ParserParams): Schema.ParserResult<Schema.DateTime_HMS_String> {
   if (value == null || value === "") {
     return { value: undefined };
   }

@@ -1,7 +1,7 @@
 import { getRequiredTextKey, getValidationArray } from "./utilities";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function STRUCT_PARSER({ value }: Schema.ParserParams<Schema.$Struct>): Schema.ParserResult<Record<string, any>> {
+function STRUCT_PARSER({ value }: Schema.ParserParams): Schema.ParserResult<Record<string, any>> {
   return { value: value as Record<string, unknown> };
 };
 

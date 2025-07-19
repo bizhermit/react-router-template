@@ -29,12 +29,11 @@ namespace Schema {
     (params: ModeParams): Mode;
   };
 
-  interface ParserParams<S extends $Any> {
+  interface ParserParams {
     value: unknown;
     dep: Record<string, unknown>;
     env: Env;
     label: string | undefined;
-    dataItem: DataItem<S>;
   };
 
   interface ParserResult<V> {

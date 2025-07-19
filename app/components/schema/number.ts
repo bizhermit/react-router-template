@@ -1,7 +1,7 @@
 import { parseNumber } from "../objects/numeric";
 import { getInvalidValueTextKey, getRequiredTextKey, getValidationArray } from "./utilities";
 
-function NUMBER_PARSER({ value, env, label }: Schema.ParserParams<Schema.$Number>): Schema.ParserResult<number> {
+function NUMBER_PARSER({ value, env, label }: Schema.ParserParams): Schema.ParserResult<number> {
   const [num, succeeded] = parseNumber(value);
   if (succeeded) return { value: num };
   return {
