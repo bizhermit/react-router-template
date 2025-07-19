@@ -366,21 +366,23 @@ function Contents(props: Route.ComponentProps) {
           <span>index</span>
         </LinkButton>
       </div>
-      <section>
-        <Button
-          onClick={() => {
-            formReadonly.toggle();
-          }}
-        >
-          readonly: {formReadonly.flag ? "on" : "off"}
-        </Button>
-        <Button
-          onClick={() => {
-            formDisabled.toggle();
-          }}
-        >
-          disabled: {formDisabled.flag ? "on" : "off"}
-        </Button>
+      <section className="flex flex-col gap-2">
+        <div className="flex flex-row gap-2">
+          <Button
+            onClick={() => {
+              formReadonly.toggle();
+            }}
+          >
+            readonly: {formReadonly.flag ? "on" : "off"}
+          </Button>
+          <Button
+            onClick={() => {
+              formDisabled.toggle();
+            }}
+          >
+            disabled: {formDisabled.flag ? "on" : "off"}
+          </Button>
+        </div>
         <SchemaProvider>
           <fetcher.Form
             {...getFormProps("post", {
@@ -491,20 +493,31 @@ function Component1() {
   );
 };
 
-function Component2() {
+function FormValueSetterComponent() {
   const { dataItems } = useSchemaContext<typeof schema>();
 
   const [value, setValue] = useSchemaValue(dataItems.range);
 
   return (
-    <div className="flex flex-row flex-wrap gap-2">
+    <>
       <Button
         onClick={() => {
           setValue(40);
         }}
       >
-        set month
+        set value
       </Button>
+      <span>{value}</span>
+    </>
+  );
+};
+
+function Component2() {
+  const { dataItems } = useSchemaContext<typeof schema>();
+  console.log("render");
+  return (
+    <div className="flex flex-row flex-wrap gap-2">
+      <FormValueSetterComponent />
       <FormItem>
         <TextBox
           $={dataItems.text}
