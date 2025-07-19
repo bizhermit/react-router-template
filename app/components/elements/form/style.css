@@ -309,6 +309,17 @@
       &::before {
         background-color: var(--color-input-bg);
       }
+
+      &[aria-invalid="true"] {
+        &::before {
+          background-color: var(--color-input-err-bg);
+          border-color: var(--color-input-err-bd);
+        }
+
+        &::after {
+          border-color: var(--color-input-err-bd);
+        }
+      }
     }
 
     &:checked {
