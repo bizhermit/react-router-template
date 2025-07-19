@@ -59,7 +59,7 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
   });
 
   function handleChange(e: ChangeEvent<HTMLSelectElement>) {
-    if (!state.current.enabled) return;
+    if (state.current !== "enabled") return;
     setValue(e.target.value);
   };
 
@@ -75,9 +75,9 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
         className="ipt-main ipt-select"
         ref={ref}
         name={omitOnSubmit ? undefined : name}
-        disabled={!state.current.enabled}
-        aria-disabled={state.current.disabled}
-        aria-readonly={state.current.readonly}
+        disabled={state.current !== "enabled"}
+        aria-disabled={state.current === "disabled"}
+        aria-readonly={state.current === "readonly"}
         required={required}
         defaultValue={value as string || undefined}
         onChange={handleChange}
@@ -119,11 +119,11 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
       <div
         className={clsx(
           "ipt-btn",
-          !state.current.enabled && "opacity-0"
+          state.current !== "enabled" && "opacity-0"
         )}
       />
       {
-        !state.current.disabled && state.current.readonly &&
+        state.current === "readonly" &&
         <>
           <input
             type="hidden"

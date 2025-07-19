@@ -1,7 +1,7 @@
 import { useId, useLayoutEffect, useMemo, useRef, useState, type ChangeEvent, type Dispatch, type ReactNode, type RefObject, type SetStateAction } from "react";
 import { formatDate, parseDate } from "~/components/objects/date";
 import { parseTimeNums, parseTypedDate } from "~/components/schema/date";
-import { getDefaultState, getSchemaItemMode, getSchemaItemRequired, getSchemaItemResult, optimizeRefs, schemaItemEffect, schemaItemValidation, useFieldSet, useSchemaEffect, type SchemaEffectParams_Result, type SchemaEffectParams_ValueResult } from "~/components/schema/hooks";
+import { getSchemaItemMode, getSchemaItemRequired, getSchemaItemResult, optimizeRefs, schemaItemEffect, schemaItemValidation, useFieldSet, useSchemaEffect, type SchemaEffectParams_Result, type SchemaEffectParams_ValueResult } from "~/components/schema/hooks";
 import { clsx, ZERO_WIDTH_SPACE } from "../utilities";
 import { getValidationValue, InputDummyFocus, InputField, InputGroup, Placeholder, type InputWrapProps } from "./common";
 
@@ -941,24 +941,30 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
     };
   }, []);
 
-  const state = useRef(getDefaultState());
-  state.current.hidden = mode === "hidden";
-  state.current.disabled = fs.disabled || mode === "disabled";
-  state.current.readonly = fs.readOnly || mode === "readonly";
-  state.current.enabled = !state.current.hidden
-    && !state.current.disabled
-    && !state.current.readonly;
+  const state = useRef<Schema.Mode>("enabled");
+  if (mode === "hidden") {
+    state.current = "hidden";
+  } else if (fs.disabled || mode === "disabled") {
+    state.current = "disabled";
+  } else if (fs.readOnly || mode === "readonly") {
+    state.current = "readonly";
+  } else {
+    state.current = "enabled";
+  }
 
   function mergeState(
-    targetState: RefObject<Record<Schema.Mode, boolean>>,
+    targetState: RefObject<Schema.Mode>,
     targetMode: Schema.Mode
   ) {
-    targetState.current.hidden = state.current.hidden || targetMode === "hidden";
-    targetState.current.disabled = state.current.disabled || targetMode === "disabled";
-    targetState.current.readonly = state.current.readonly || targetMode === "readonly";
-    targetState.current.enabled = !targetState.current.hidden
-      && !targetState.current.disabled
-      && !targetState.current.readonly;
+    if (state.current === "hidden" || targetMode === "hidden") {
+      targetState.current = "hidden";
+    } else if (state.current === "disabled" || targetMode === "disabled") {
+      targetState.current = "disabled";
+    } else if (state.current === "readonly" || targetMode === "readonly") {
+      targetState.current = "readonly";
+    } else {
+      targetState.current = "enabled";
+    }
   };
 
   function handleChangeImpl($: Schema.DataItem<Schema.$SplitDate> | undefined, v: string) {
@@ -1166,7 +1172,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
 interface SplittedSelectProps {
   ref: RefObject<HTMLSelectElement>;
   mergeState: (
-    targetState: RefObject<Record<Schema.Mode, boolean>>,
+    targetState: RefObject<Schema.Mode>,
     targetMode: Schema.Mode
   ) => void;
   coreResult: Schema.Result | null | undefined;
@@ -1197,11 +1203,11 @@ function SplittedSelect({
   validScripts,
   children,
 }: SplittedSelectProps) {
-  const state = useRef(getDefaultState());
+  const state = useRef<Schema.Mode>("enabled");
   mergeState(state, mode);
 
   function handleChange(e: ChangeEvent<HTMLSelectElement>) {
-    if (!state.current.enabled || !$) return;
+    if (state.current !== "enabled" || !$) return;
     onChange(e);
   };
 
@@ -1220,9 +1226,9 @@ function SplittedSelect({
         className="ipt-main ipt-select"
         name={omitOnSubmit ? undefined : $?.name}
         required={required}
-        disabled={!state.current.enabled}
-        aria-disabled={state.current.disabled}
-        aria-readonly={state.current.readonly}
+        disabled={state.current !== "enabled"}
+        aria-disabled={state.current === "disabled"}
+        aria-readonly={state.current === "readonly"}
         defaultValue={value ?? ""}
         aria-label={$?.label}
         aria-invalid={isInvalid}
@@ -1246,11 +1252,11 @@ function SplittedSelect({
       <div
         className={clsx(
           "ipt-btn",
-          !state.current.enabled && "opacity-0"
+          state.current !== "enabled" && "opacity-0"
         )}
       />
       {
-        state.current.readonly && $?.name &&
+        state.current === "readonly" && $?.name &&
         <>
           <input
             type="hidden"

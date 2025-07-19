@@ -43,6 +43,7 @@ import { $num } from "~/components/schema/number";
 import { getPayload } from "~/components/schema/server";
 import { $str } from "~/components/schema/string";
 import { $struct } from "~/components/schema/struct";
+import sleep from "~/components/utilities/sleep";
 import { useLocale, useText } from "~/i18n/hooks";
 import { Text } from "~/i18n/react-component";
 import type { Route } from "./+types/page";
@@ -264,6 +265,8 @@ export async function action(args: Route.ActionArgs) {
   console.log(performance.now() - start);
   console.log("-----------------");
 
+  await sleep(5000);
+
   return data({
     data: submittion.data,
     results: submittion.results,
@@ -331,6 +334,7 @@ function Contents(props: Route.ComponentProps) {
     getFormProps,
   } = useSchema({
     schema,
+    state: fetcher.state,
     onChangeEffected: handleConfirmEnabled,
     // loaderData: props.loaderData ? props.loaderData.data : undefined,
     actionData: fetcher.data ?

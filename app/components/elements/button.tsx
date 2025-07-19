@@ -26,7 +26,7 @@ export function Button({
   const disabledRef = useRef(disabled);
 
   function handleClick(e: MouseEvent<HTMLButtonElement>) {
-    if (props.disabled || disabledRef.current || e.currentTarget.disabled) {
+    if (props.disabled || disabledRef.current || e.currentTarget.matches(":disabled")) {
       e.preventDefault();
       return;
     }

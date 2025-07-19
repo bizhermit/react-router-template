@@ -77,22 +77,22 @@ export function FileBox<D extends Schema.DataItem<Schema.$File>>({
   const [maxSize, setMaxSize] = useState(getMaxSize);
 
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    if (!state.current.enabled) return;
+    if (state.current !== "enabled") return;
     setValue(e.target.files?.[0]);
   };
 
   function handleDragEnter(e: DragEvent<HTMLInputElement>) {
-    if (!state.current.enabled) return;
+    if (state.current !== "enabled") return;
     e.currentTarget.parentElement?.classList.add(...draggingClassName);
   };
 
   function handleDragLeave(e: DragEvent<HTMLInputElement>) {
-    if (!state.current.enabled) return;
+    if (state.current !== "enabled") return;
     e.currentTarget.parentElement?.classList.remove(...draggingClassName);
   };
 
   function handleDrop(e: DragEvent<HTMLInputElement>) {
-    if (!state.current.enabled) {
+    if (state.current !== "enabled") {
       e.preventDefault();
       return;
     }
@@ -100,11 +100,11 @@ export function FileBox<D extends Schema.DataItem<Schema.$File>>({
   };
 
   function handleClick(e: MouseEvent<HTMLInputElement>) {
-    if (!state.current.enabled) e.preventDefault();
+    if (state.current !== "enabled") e.preventDefault();
   };
 
   function handleKeydown(e: KeyboardEvent<HTMLInputElement>) {
-    if (!state.current.enabled) {
+    if (state.current !== "enabled") {
       if (e.key === "Enter" || e.key === " ") e.preventDefault();
       return;
     }
@@ -124,16 +124,16 @@ export function FileBox<D extends Schema.DataItem<Schema.$File>>({
         <input
           className={clsx(
             "ipt-file",
-            state.current.enabled && "cursor-pointer",
+            state.current === "enabled" && "cursor-pointer",
             validScripts && placeholder && "absolute opacity-0",
           )}
           ref={ref}
           type="file"
           name={omitOnSubmit ? undefined : name}
           title={validScripts ? (valueType === "url" ? (value as string) : undefined) : undefined}
-          disabled={state.current.disabled}
-          aria-disabled={state.current.disabled}
-          aria-readonly={state.current.readonly}
+          disabled={state.current === "disabled"}
+          aria-disabled={state.current === "disabled"}
+          aria-readonly={state.current === "readonly"}
           required={required}
           aria-required={validScripts ? (required && valueType !== "url") : required}
           accept={accept}

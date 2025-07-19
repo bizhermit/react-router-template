@@ -72,7 +72,7 @@ export function TextArea<D extends Schema.DataItem<Schema.$String>>({
   const [maxLen, setMaxLen] = useState<number | undefined>(getMaxLen);
 
   function handleChange(e: ChangeEvent<HTMLTextAreaElement>) {
-    if (!state.current.enabled) return;
+    if (state.current !== "enabled") return;
     setValue(e.target.value);
   };
 
@@ -88,8 +88,8 @@ export function TextArea<D extends Schema.DataItem<Schema.$String>>({
         className={`ipt-main py-input-pad-y min-h-input min-w-input ${getResizeClassName(resize)}`}
         ref={ref}
         name={omitOnSubmit ? undefined : name}
-        disabled={state.current.disabled}
-        readOnly={state.current.readonly}
+        disabled={state.current === "disabled"}
+        readOnly={state.current === "readonly"}
         required={required}
         minLength={minLen}
         maxLength={maxLen}

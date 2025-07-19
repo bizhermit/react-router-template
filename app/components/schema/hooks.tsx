@@ -52,6 +52,8 @@ interface FormItemMountProps {
   name: string;
 };
 
+export type FormState = "idle" | "loading" | "submitting";
+
 interface SchemaContextProps<S extends Record<string, Schema.$Any> = Record<string, Schema.$Any>> {
   env: Schema.Env;
   data: RefObject<SchemaData>;
@@ -80,6 +82,7 @@ interface SchemaContextProps<S extends Record<string, Schema.$Any> = Record<stri
   isInitialize: RefObject<boolean>;
   isFirstLoad: RefObject<boolean>;
   isValidScripts: RefObject<boolean>;
+  state: FormState | undefined;
 };
 
 export const SchemaContext = createContext<SchemaContextProps>({
@@ -99,12 +102,14 @@ export const SchemaContext = createContext<SchemaContextProps>({
   isInitialize: { current: true },
   isFirstLoad: { current: true },
   isValidScripts: { current: false },
+  state: undefined,
 });
 
 const EMPTY_STRUCT = {} as const;
 
 interface Props<S extends Record<string, Schema.$Any>> {
   schema: S;
+  state?: FormState;
   loaderData?: Record<string, unknown> | null | undefined;
   actionData?: Record<string, unknown> | null | undefined;
   loaderResults?: Record<string, Schema.Result> | null | undefined;
@@ -405,12 +410,13 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
           isInitialize,
           isFirstLoad,
           isValidScripts,
+          state: props.state,
         }}
       >
         {p.children}
       </SchemaContext>
     );
-  }, []);
+  }, [props.state]);
 
   useLayoutEffect(() => {
     if (isInitialize.current) return;
@@ -883,13 +889,16 @@ export function useSchemaItem<D extends Schema.DataItem>({
     };
   }, []);
 
-  const stateRef = useRef(getDefaultState());
-  stateRef.current.hidden = mode === "hidden";
-  stateRef.current.disabled = fs.disabled || mode === "disabled";
-  stateRef.current.readonly = fs.readOnly || mode === "readonly";
-  stateRef.current.enabled = !stateRef.current.hidden
-    && !stateRef.current.disabled
-    && !stateRef.current.readonly;
+  const stateRef = useRef<Schema.Mode>("enabled");
+  if (mode === "hidden") {
+    stateRef.current = "hidden";
+  } else if (fs.disabled || mode === "disabled") {
+    stateRef.current = "disabled";
+  } else if (fs.readOnly || mode === "readonly") {
+    stateRef.current = "readonly";
+  } else {
+    stateRef.current = "enabled";
+  }
   const isInvalid = result?.type === "e";
 
   function set(value: Schema.ValueType<D["_"], false> | null | undefined) {
@@ -954,7 +963,7 @@ export function useSchemaArray<D extends Schema.DataItem<Schema.$Array>>(dataIte
       position?: "first" | "last";
     }
   ) {
-    if (!schemaItem.state.current.enabled) return;
+    if (schemaItem.state.current !== "enabled") return;
     const arr = schemaItem.getValue() ?? [] as ArrayType;
     const isFirst = options?.position === "first";
     schemaItem.setValue((isFirst ? [value, ...arr] : [...arr, value]) as LaxArrayType);
@@ -967,7 +976,7 @@ export function useSchemaArray<D extends Schema.DataItem<Schema.$Array>>(dataIte
       position?: "first" | "last";
     }
   ) {
-    if (!schemaItem.state.current.enabled) return;
+    if (schemaItem.state.current !== "enabled") return;
     const arr = schemaItem.getValue() ?? [];
     const isFirst = options?.position === "first";
     schemaItem.setValue((isFirst ? [...values, ...arr] : [...arr, ...values]) as LaxArrayType);
@@ -975,7 +984,7 @@ export function useSchemaArray<D extends Schema.DataItem<Schema.$Array>>(dataIte
   }
 
   function remove(index: number) {
-    if (!schemaItem.state.current.enabled) return;
+    if (schemaItem.state.current !== "enabled") return;
     const arr = schemaItem.getValue() ?? [] as ArrayType;
     if (arr == null) return;
     const isLast = index === (arr.length - 1);
@@ -986,19 +995,19 @@ export function useSchemaArray<D extends Schema.DataItem<Schema.$Array>>(dataIte
   };
 
   function removeFirst() {
-    if (!schemaItem.state.current.enabled) return;
+    if (schemaItem.state.current !== "enabled") return;
     remove(0);
   };
 
   function removeLast() {
-    if (!schemaItem.state.current.enabled) return;
+    if (schemaItem.state.current !== "enabled") return;
     const arr = schemaItem.getValue();
     if (arr == null) return;
     remove(arr.length - 1);
   };
 
   function removeAll() {
-    if (!schemaItem.state.current.enabled) return;
+    if (schemaItem.state.current !== "enabled") return;
     const arr = schemaItem.getValue();
     if (arr == null || arr.length === 0) return;
     schemaItem.setValue([] as LaxArrayType);

@@ -88,7 +88,7 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
   });
 
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    if (!state.current.enabled) return;
+    if (state.current !== "enabled") return;
     setValue(e.target.value);
   };
 
@@ -109,8 +109,8 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
         ref={ref}
         type={patternProps.type || "text"}
         name={omitOnSubmit ? undefined : name}
-        disabled={state.current.disabled}
-        readOnly={state.current.readonly}
+        disabled={state.current === "disabled"}
+        readOnly={state.current === "readonly"}
         required={required}
         minLength={minLen}
         maxLength={maxLen}

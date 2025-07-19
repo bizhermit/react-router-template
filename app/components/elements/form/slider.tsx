@@ -73,12 +73,12 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
   });
 
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    if (!state.current.enabled) return;
+    if (state.current !== "enabled") return;
     setValue(e.currentTarget.value as `${number}`);
   };
 
   function handleClickOption(v: number | null | undefined) {
-    if (!state.current.enabled) return;
+    if (state.current !== "enabled") return;
     setValue(v);
   };
 
@@ -106,9 +106,9 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
         ref={ref}
         type="range"
         name={omitOnSubmit ? undefined : name}
-        disabled={!state.current.enabled}
-        aria-disabled={state.current.disabled}
-        aria-readonly={state.current.readonly}
+        disabled={state.current !== "enabled"}
+        aria-disabled={state.current === "disabled"}
+        aria-readonly={state.current === "readonly"}
         required={required}
         min={min}
         max={max}
@@ -128,7 +128,7 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
         </span>
       }
       {
-        !state.current.disabled && state.current.readonly &&
+        state.current === "readonly" &&
         <>
           <input
             type="hidden"

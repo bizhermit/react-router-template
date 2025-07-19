@@ -35,7 +35,7 @@ export function SwitchBox<D extends Schema.DataItem<Schema.$Boolean>>({
   });
 
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    if (!state.current.enabled) return;
+    if (state.current !== "enabled") return;
     setValue(e.target.checked ? dataItem._.trueValue : dataItem._.falseValue);
   };
 
@@ -52,9 +52,9 @@ export function SwitchBox<D extends Schema.DataItem<Schema.$Boolean>>({
         ref={ref}
         type="checkbox"
         name={omitOnSubmit ? undefined : name}
-        disabled={!state.current.enabled}
-        aria-disabled={state.current.disabled}
-        aria-readonly={state.current.readonly}
+        disabled={state.current !== "enabled"}
+        aria-disabled={state.current === "disabled"}
+        aria-readonly={state.current === "readonly"}
         required={required}
         defaultChecked={value === dataItem._.trueValue}
         onChange={handleChange}
@@ -66,7 +66,7 @@ export function SwitchBox<D extends Schema.DataItem<Schema.$Boolean>>({
         {children}
       </InputLabelText>
       {
-        !state.current.disabled && state.current.readonly &&
+        state.current === "readonly" &&
         <>
           <input
             type="hidden"

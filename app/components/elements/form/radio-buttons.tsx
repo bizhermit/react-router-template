@@ -59,18 +59,16 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
   });
 
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    if (!state.current.enabled) return;
+    if (state.current !== "enabled") return;
     setValue(e.target.value);
   };
 
   function handleClick(e: MouseEvent<HTMLInputElement>) {
-    if (!state.current.enabled) return;
+    if (state.current !== "enabled") return;
     if (required) return;
     e.currentTarget.checked = false;
     setValue(undefined);
   };
-
-  const isReadOnly = !state.current.disabled && state.current.readonly;
 
   return (
     <InputGroup
@@ -91,9 +89,9 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
               className="ipt-point ipt-radio"
               type="radio"
               name={name}
-              disabled={!state.current.enabled}
-              aria-disabled={state.current.disabled}
-              aria-readonly={state.current.readonly}
+              disabled={state.current !== "enabled"}
+              aria-disabled={state.current === "disabled"}
+              aria-readonly={state.current === "readonly"}
               required={required}
               value={key}
               defaultChecked={isSelected}
@@ -107,14 +105,14 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
               {item.text}
             </InputLabelText>
             {
-              isReadOnly && ((value == null && index === 0) || isSelected) &&
+              state.current === "readonly" && ((value == null && index === 0) || isSelected) &&
               <InputDummyFocus />
             }
           </InputLabel>
         );
       })}
       {
-        isReadOnly &&
+        state.current === "readonly" &&
         <input
           type="hidden"
           name={omitOnSubmit ? undefined : name}

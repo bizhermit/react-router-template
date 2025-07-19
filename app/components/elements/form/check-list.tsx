@@ -55,7 +55,7 @@ export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemS
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function handleChange(e: ChangeEvent<HTMLInputElement>, v: any) {
-    if (!state.current.enabled) return;
+    if (state.current !== "enabled") return;
     const newValue = [...value ?? []];
     const index = newValue.findIndex(item => item === v);
     if (index < 0) {
@@ -65,8 +65,6 @@ export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemS
     }
     setValue(newValue);
   };
-
-  const isReadOnly = !state.current.disabled && state.current.readonly;
 
   return (
     <InputGroup
@@ -87,9 +85,9 @@ export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemS
               className="ipt-point ipt-check"
               type="checkbox"
               name={omitOnSubmit ? undefined : name}
-              disabled={!state.current.enabled}
-              aria-disabled={state.current.disabled}
-              aria-readonly={state.current.readonly}
+              disabled={state.current !== "enabled"}
+              aria-disabled={state.current === "disabled"}
+              aria-readonly={state.current === "readonly"}
               required={required}
               value={key}
               defaultChecked={isChecked}
@@ -102,7 +100,7 @@ export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemS
               {item.text}
             </InputLabelText>
             {
-              isReadOnly &&
+              state.current === "readonly" &&
               <>
                 <input
                   type="hidden"

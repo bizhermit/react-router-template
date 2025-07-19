@@ -10,7 +10,7 @@ export type InputWrapProps = {
 type CoreProps = {
   core?: {
     classNames?: string;
-    state: RefObject<Record<Schema.Mode, boolean>>;
+    state: RefObject<Schema.Mode>;
     result?: Schema.Result | null | undefined;
   };
 };
@@ -27,7 +27,7 @@ export function InputField({
   children,
   ...props
 }: InputFieldProps) {
-  if (core?.state.current.hidden) return null;
+  if (core?.state.current === "hidden") return null;
 
   return (
     <>
@@ -43,9 +43,9 @@ export function InputField({
           aria-hidden
           className={clsx(
             "ipt-field-appearance",
-            core?.state.current.disabled ?
+            core?.state.current === "disabled" ?
               "ipt-field-disabled" :
-              core?.state.current.readonly ?
+              core?.state.current === "readonly" ?
                 "ipt-field-readonly" :
                 "ipt-field-enabled",
           )}
@@ -55,7 +55,7 @@ export function InputField({
         {children}
       </div>
       {
-        !hideMessage && core?.state.current.enabled &&
+        !hideMessage && core?.state.current === "enabled" &&
         <InputMessageSpan result={core.result} />
       }
     </>
@@ -77,7 +77,7 @@ export function InputGroup({
   ref,
   ...props
 }: InputGroupProps) {
-  if (core?.state.current.hidden) return null;
+  if (core?.state.current === "hidden") return null;
   return (
     <>
       <div
@@ -90,7 +90,7 @@ export function InputGroup({
         )}
       />
       {
-        !hideMessage && core?.state.current.enabled &&
+        !hideMessage && core?.state.current === "enabled" &&
         <InputMessageSpan result={core.result} />
       }
     </>
@@ -108,7 +108,7 @@ export function InputLabel({
   core,
   ...props
 }: InputLabelProps) {
-  if (core?.state.current.hidden) return null;
+  if (core?.state.current === "hidden") return null;
 
   return (
     <>
@@ -121,7 +121,7 @@ export function InputLabel({
         )}
       />
       {
-        !hideMessage && core?.state.current.enabled &&
+        !hideMessage && core?.state.current === "enabled" &&
         <InputMessageSpan result={core.result} />
       }
     </>
@@ -137,7 +137,7 @@ export function InputLabelText({
 
 interface PlaceholderProps {
   validScripts: boolean;
-  state: RefObject<Record<Schema.Mode, boolean>>;
+  state: RefObject<Schema.Mode>;
   children?: string;
 };
 
@@ -147,7 +147,7 @@ export function Placeholder({
   children,
 }: PlaceholderProps) {
   if (!children) return null;
-  if (validScripts && state.current.disabled) return null;
+  if (validScripts && state.current === "disabled") return null;
   return (
     <div
       className="ipt-placeholder"

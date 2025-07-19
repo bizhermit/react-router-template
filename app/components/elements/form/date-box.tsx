@@ -2,7 +2,7 @@ import { useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { parseTypedDateString } from "~/components/schema/date";
 import { useSchemaItem } from "~/components/schema/hooks";
 import { clsx } from "../utilities";
-import { getValidationValue, InputField, type InputWrapProps } from "./common";
+import { getValidationValue, InputDummyFocus, InputField, type InputWrapProps } from "./common";
 import { useSource } from "./utilities";
 
 type DateBoxSchemaProps = Schema.$Date | Schema.$Month | Schema.$DateTime;
@@ -89,12 +89,12 @@ export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
   };
 
   function handleChange() {
-    if (!state.current.enabled) return;
+    if (state.current !== "enabled") return;
     applyInputedValue();
   };
 
   function handleKeydown(e: KeyboardEvent<HTMLInputElement>) {
-    if (!state.current.enabled) return;
+    if (state.current !== "enabled") return;
     if (e.key === "Enter") applyInputedValue();
   };
 
@@ -132,8 +132,9 @@ export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
         type={type === "datetime" ? "datetime-local" : type}
         name={omitOnSubmit ? undefined : name}
         placeholder={placeholder}
-        disabled={state.current.disabled}
-        readOnly={state.current.readonly}
+        disabled={state.current !== "enabled"}
+        aria-disabled={state.current === "disabled"}
+        aria-readonly={state.current === "readonly"}
         required={required}
         min={min}
         max={max}
@@ -147,6 +148,17 @@ export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
         data-hasvalue={!!value}
         list={dataListId}
       />
+      {
+        state.current === "readonly" &&
+        <>
+          <input
+            type="hidden"
+            name={name}
+            value={value as string || undefined}
+          />
+          <InputDummyFocus />
+        </>
+      }
       {
         source &&
         <datalist id={dataListId}>

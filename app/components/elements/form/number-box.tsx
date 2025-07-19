@@ -108,13 +108,13 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
   }, [float]);
 
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    if (!state.current.enabled) return;
+    if (state.current !== "enabled") return;
     const rawValue = e.currentTarget.value;
     setValue(rawValue as `${number}`);
   };
 
   function handleFocus(e: FocusEvent<HTMLInputElement>) {
-    if (!state.current.enabled) return;
+    if (state.current !== "enabled") return;
     if (preventParse(result)) return;
     const num = parse(getValue());
     e.currentTarget.value = num == null || isNaN(num) ? "" : String(num);
@@ -171,13 +171,13 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
   function handleKeydown(e: KeyboardEvent<HTMLInputElement>) {
     switch (e.key) {
       case "ArrowUp":
-        if (state.current.enabled) {
+        if (state.current === "enabled") {
           increment();
           e.preventDefault();
         }
         break;
       case "ArrowDown":
-        if (state.current.enabled) {
+        if (state.current === "enabled") {
           decrement();
           e.preventDefault();
         }
@@ -192,7 +192,7 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
   };
 
   function handleMousedown(mode: "up" | "down") {
-    if (!state.current.enabled) return;
+    if (state.current !== "enabled") return;
     if (mode === "up") increment();
     else decrement();
     let finished = false;
@@ -242,8 +242,8 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
         type={validScripts ? "text" : "number"}
         inputMode={inputMode}
         name={validScripts ? undefined : (omitOnSubmit ? undefined : name)}
-        disabled={state.current.disabled}
-        readOnly={state.current.readonly}
+        disabled={state.current === "disabled"}
+        readOnly={state.current === "readonly"}
         required={required}
         min={min}
         max={max}
@@ -267,7 +267,7 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
           <div
             className={clsx(
               "ipt-outer-spin-button",
-              !state.current.enabled && "opacity-0"
+              state.current !== "enabled" && "opacity-0"
             )}
           >
             <button
@@ -276,9 +276,9 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
               tabIndex={-1}
               className={clsx(
                 "ipt-inner-spin-button mask-[var(--image-up)] mask-bottom",
-                state.current.enabled && "cursor-pointer",
+                state.current === "enabled" && "cursor-pointer",
               )}
-              disabled={!state.current.enabled}
+              disabled={state.current !== "enabled"}
               onMouseDown={handleMousedownIncrement}
             />
             <button
@@ -287,16 +287,16 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
               tabIndex={-1}
               className={clsx(
                 "ipt-inner-spin-button mask-[var(--image-down)] mask-top",
-                state.current.enabled && "cursor-pointer",
+                state.current === "enabled" && "cursor-pointer",
               )}
-              disabled={!state.current.enabled}
+              disabled={state.current !== "enabled"}
               onMouseDown={handleMousedownDecrement}
             />
           </div>
           <input
             name={omitOnSubmit ? undefined : name}
             type="hidden"
-            disabled={state.current.disabled}
+            disabled={state.current === "disabled"}
             value={value ?? ""}
           />
         </>
