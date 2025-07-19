@@ -98,6 +98,10 @@ export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
     if (e.key === "Enter") applyInputedValue();
   };
 
+  function handleBlur() {
+    ref.current.value = ref.current.value || ""; // NOTE: 日付が揃っていない場合はクリア
+  };
+
   const defaultValue = useMemo(() => {
     return parseTypedDateString(
       value,
@@ -141,6 +145,7 @@ export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
         defaultValue={defaultValue}
         onChange={handleChange}
         onKeyDown={handleKeydown}
+        onBlur={handleBlur}
         step={type === "datetime" ? (dataItem._.time === "hm" ? 60 : undefined) : undefined}
         aria-label={label}
         aria-invalid={invalid}
