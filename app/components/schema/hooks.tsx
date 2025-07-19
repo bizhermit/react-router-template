@@ -1,6 +1,7 @@
 import { createContext, use, useCallback, useContext, useId, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type FormEvent, type FormHTMLAttributes, type ReactNode, type RefObject } from "react";
 import { useText } from "~/i18n/hooks";
 import { parseWithSchema } from ".";
+import { getFocusableElement } from "../dom/focus";
 import type { InputWrapProps } from "../elements/form/common";
 import { clone } from "../objects";
 import { ValidScriptsContext } from "../providers/valid-scripts";
@@ -370,10 +371,14 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
             };
           })
           .sort((elem1, elem2) => elem1.top - elem2.top)[0]?.elem;
-        topElem?.scrollIntoView({
-          behavior: "smooth",
-          block: "nearest",
-        });
+        if (topElem) {
+          topElem.scrollIntoView({
+            behavior: "smooth",
+            block: "nearest",
+          });
+          topElem.focus();
+          getFocusableElement(topElem)?.focus();
+        }
       }, 100);
     }
     return submission;
