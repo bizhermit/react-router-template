@@ -3,6 +3,7 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { data, useFetcher } from "react-router";
+import { api } from "~/api/fetch";
 import { Button } from "~/components/elements/button";
 import { Details } from "~/components/elements/details";
 import { useDialog } from "~/components/elements/dialog";
@@ -264,6 +265,8 @@ export async function action(args: Route.ActionArgs) {
   console.log(submittion);
   console.log(performance.now() - start);
   console.log("-----------------");
+
+  api.get("/health");
 
   await sleep(5000);
 
