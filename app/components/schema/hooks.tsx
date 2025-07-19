@@ -376,7 +376,6 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
             behavior: "smooth",
             block: "nearest",
           });
-          topElem.focus();
           getFocusableElement(topElem)?.focus();
         }
       }, 100);
