@@ -1,4 +1,4 @@
-import { useRef, useState, type ChangeEvent } from "react";
+import { useRef, useState, type ChangeEvent, type CSSProperties } from "react";
 import { useSchemaItem } from "~/components/schema/hooks";
 import { getValidationValue, InputDummyFocus, InputLabel, type InputWrapProps } from "./common";
 import { useSource } from "./utilities";
@@ -36,6 +36,7 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
     getCommonParams,
     env,
     omitOnSubmit,
+    validScripts,
     props,
   } = useSchemaItem<Schema.DataItem<Schema.$Number>>($props, {
     effect: function ({ value }) {
@@ -77,6 +78,8 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
 
   const dataListId = source == null ? undefined : `${name}_dl`;
 
+  const rate = value == null ? 0 : (((value - min) / (max - min)) * 100);
+
   return (
     <InputLabel
       {...props}
@@ -88,6 +91,9 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
     >
       <input
         className="ipt-slider"
+        style={validScripts ? {
+          "--rate": `${rate}%`,
+        } as CSSProperties : undefined}
         ref={ref}
         type="range"
         name={omitOnSubmit ? undefined : name}

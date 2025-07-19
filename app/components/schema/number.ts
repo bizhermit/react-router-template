@@ -139,7 +139,7 @@ export function $num<Props extends Schema.NumberProps>(props?: Props) {
         validators.push((p) => {
           if (p.value == null) return null;
           const m = max(p);
-          if (p.value >= m) return null;
+          if (p.value <= m) return null;
           return {
             type: "e",
             code: "maxLength",
@@ -149,7 +149,7 @@ export function $num<Props extends Schema.NumberProps>(props?: Props) {
       } else {
         validators.push((p) => {
           if (p.value == null) return null;
-          if (p.value >= max) return null;
+          if (p.value <= max) return null;
           return {
             type: "e",
             code: "maxLength",

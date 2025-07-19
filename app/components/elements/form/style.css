@@ -281,6 +281,7 @@
       inset: calc(var(--spacing-input) * 0.2);
       border: 1px solid var(--color-input-bd);
       border-radius: 9999px;
+      transition: background-color 0.2s;
     }
 
     &::after {
@@ -290,7 +291,7 @@
       height: calc(var(--spacing-input) * 0.45);
       top: calc(50% - var(--spacing-input) * 0.225);
       left: calc(var(--spacing-input) * 0.3);
-      border: 1px solid var(--color-input-bd);
+      border: 1px solid var(--color-input);
       border-radius: 9999px;
       background-color: var(--color-input);
       transition: left 0.2s;
@@ -305,6 +306,10 @@
     }
 
     &:checked {
+      &::before {
+        background-color: var(--color-primary);
+      }
+
       &::after {
         left: calc(var(--spacing-input) * 0.85);
       }
@@ -354,47 +359,56 @@
     -webkit-appearance: none;
     appearance: none;
     outline: none;
+    ---track-bg: transparent;
+    ---track-rate-bg: var(--color-primary);
 
     &::-webkit-slider-runnable-track {
-      height: calc(var(--spacing-input) * 0.3);
+      height: calc(var(--spacing-input) * 0.25);
       border: 1px solid var(--color-input-bd);
       border-radius: 9999px;
+      background: linear-gradient(to right, var(---track-rate-bg) 0%, var(---track-rate-bg) var(--rate, 0%), var(---track-bg) var(--rate, 0%), var(---track-bg) 100%);
     }
 
     &::-moz-range-track {
-      height: calc(var(--spacing-input) * 0.3);
+      height: calc(var(--spacing-input) * 0.25);
       border: 1px solid var(--color-input-bd);
       border-radius: 9999px;
+      background: linear-gradient(to right, var(---track-rate-bg) 0%, var(---track-rate-bg) var(--rate, 0%), var(---track-bg) var(--rate, 0%), var(---track-bg) 100%);
     }
 
     &::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;
-      width: calc(var(--spacing-input) * 0.6);
-      height: calc(var(--spacing-input) * 0.6);
-      margin-top: calc(var(--spacing-input) * -0.15 - 1px);
-      /* borderの太さ分(片側)+trakとの差(片側) */
+      width: calc(var(--spacing-input) * 0.5);
+      height: calc(var(--spacing-input) * 0.5);
       background-color: var(--color-input);
       border-radius: 9999px;
+      /* margin-top: block方向borderの太さ分(片側)+trackとの差(片側) */
+      margin-top: calc(var(--spacing-input) * -0.125 - 1px);
+      /* box-shadow: inline方向trackのborderの太さ分(片側)との差 */
+      box-shadow: 0 0 0 1px var(--color-input);
     }
 
     &::-moz-range-thumb {
+      -webkit-appearance: none;
       appearance: none;
-      width: calc(var(--spacing-input) * 0.6);
-      height: calc(var(--spacing-input) * 0.6);
-      margin-top: calc(var(--spacing-input) * -0.15 - 1px);
-      /* borderの太さ分(片側)+trakとの差(片側) */
+      width: calc(var(--spacing-input) * 0.5);
+      height: calc(var(--spacing-input) * 0.5);
       background-color: var(--color-input);
       border-radius: 9999px;
+      /* margin-top: block方向borderの太さ分(片側)+trackとの差(片側) */
+      margin-top: calc(var(--spacing-input) * -0.125 - 1px);
+      /* box-shadow: inline方向trackのborderの太さ分(片側)との差 */
+      box-shadow: 0 0 0 1px var(--color-input);
     }
 
     &:enabled {
       &::-webkit-slider-runnable-track {
-        background-color: var(--color-input-bg);
+        ---track-bg: var(--color-input-bg);
       }
 
       &::-moz-range-track {
-        background-color: var(--color-input-bg);
+        ---track-bg: var(--color-input-bg);
       }
 
       &::-webkit-slider-thumb {

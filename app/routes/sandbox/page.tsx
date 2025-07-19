@@ -106,7 +106,12 @@ const schema = $schema({
       { value: 20 },
     ],
   }),
-  range: $num({ required: true }),
+  range: $num({
+    required: true,
+    min: 0,
+    max: 100,
+    float: 0,
+  }),
   generation: $num({
     source: [
       { value: 0, text: "無印" },
@@ -481,13 +486,13 @@ function Component1() {
 function Component2() {
   const { dataItems } = useSchemaContext<typeof schema>();
 
-  const [birthMonth, setBirthMonth] = useSchemaValue(dataItems.birth_month);
+  const [value, setValue] = useSchemaValue(dataItems.range);
 
   return (
     <div className="flex flex-row flex-wrap gap-2">
       <Button
         onClick={() => {
-          setBirthMonth("1");
+          setValue(40);
         }}
       >
         set month
@@ -574,6 +579,12 @@ function Component2() {
       </FormItem>
       <FormItem>
         <Slider
+          $={dataItems.range}
+          omitOnSubmit
+        />
+      </FormItem>
+      <FormItem>
+        <NumberBox
           $={dataItems.range}
         />
       </FormItem>
