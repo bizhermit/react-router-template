@@ -131,6 +131,7 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
   const isFirstLoad = useRef(true);
   const isValidScripts = useRef(scripts.valid);
   const isEffected = useRef(false);
+  const isProcessing = props.state === "loading" || props.state === "submitting";
 
   const subscribes = useRef<Array<(params: SchemaEffectParams) => void>>([]);
   const results = useRef<Record<string, Schema.Result>>({});
@@ -350,6 +351,11 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.stopPropagation();
+    if (isProcessing) {
+      console.warn("form is processing");
+      return null;
+    };
+
     const submission = validation();
     if (submission.hasError) {
       e.preventDefault();
@@ -373,6 +379,10 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
   };
 
   const reset = useCallback(() => {
+    if (isProcessing) {
+      console.warn("form is processing");
+      return;
+    }
     refresh("reset", loaderDataRef.current);
     const params: SchemaEffectParams_Refresh = {
       type: "refresh",

@@ -137,7 +137,7 @@ function getStringPatternChecker(pattern: Schema.StrPattern): ((str: string) => 
   }
 };
 
-function STRING_PARSER({ value }: Schema.ParserParams): Schema.ParserResult<string> {
+function STRING_PARSER({ value }: Schema.ParserParams<Schema.$String>): Schema.ParserResult<string> {
   return {
     value: (value == null || value === "") ? undefined : typeof value === "string" ? value : String(value),
   };
