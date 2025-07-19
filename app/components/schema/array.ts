@@ -205,7 +205,6 @@ export function $array<Props extends Schema.ArrayProps>(props: Props) {
     type: "arr",
     actionType,
     prop: props.prop as Props["prop"],
-    autoRemoveNull: props.autoRemoveNull ?? true,
     key,
     label: props?.label,
     mode: props?.mode,

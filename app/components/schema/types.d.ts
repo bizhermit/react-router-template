@@ -357,7 +357,6 @@ namespace Schema {
   interface ArrayProps<Prop extends $Any = $Any> extends BaseProps {
     prop: Prop;
     parser?: Parser<ValueType<Prop>[]>;
-    autoRemoveNull?: boolean;
     required?: Validation<boolean, ValueType<Prop>[]>;
     source?: Source<ValueType<Prop>> | DynamicValidationValue<Source<ValueType<Prop>>>;
     sourceValidation?: Validation<boolean, ValueType<Prop>, { source: Source<ValueType<Prop>>; }>;
@@ -371,7 +370,6 @@ namespace Schema {
     type: "arr";
     label: string | undefined;
     prop: Prop;
-    autoRemoveNull: boolean;
     source: Source<unknown> | DynamicValidationValue<Source<unknown>> | undefined;
     sourceValidation: $ValidationValue<boolean>;
     key: ((value: Record<string, unknown>) => string) | undefined;
