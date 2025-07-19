@@ -894,7 +894,7 @@ export function useSchemaItem<D extends Schema.DataItem>({
     stateRef.current = "hidden";
   } else if (fs.disabled || mode === "disabled") {
     stateRef.current = "disabled";
-  } else if (fs.readOnly || mode === "readonly") {
+  } else if (fs.readOnly || mode === "readonly" || schema.state === "loading" || schema.state === "submitting") {
     stateRef.current = "readonly";
   } else {
     stateRef.current = "enabled";
@@ -935,6 +935,7 @@ export function useSchemaItem<D extends Schema.DataItem>({
     getCommonParams,
     setRefs,
     omitOnSubmit,
+    formState: schema.state,
   } as const;
 };
 
