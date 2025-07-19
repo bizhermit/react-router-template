@@ -56,6 +56,7 @@ export function CheckBox<D extends Schema.DataItem<Schema.$Boolean>>({
         aria-disabled={state.current === "disabled"}
         aria-readonly={state.current === "readonly"}
         required={required}
+        value={String(dataItem._.trueValue)}
         defaultChecked={value === dataItem._.trueValue}
         onChange={handleChange}
         aria-label={label}
