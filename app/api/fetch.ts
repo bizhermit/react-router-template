@@ -123,6 +123,7 @@ async function responseParser<P extends Api.Path, M extends string>(res: Respons
         return undefined;
       }
     })(),
+    _: res,
   } as unknown as (Api.SuccessResponse<P, M> | Api.ErrorResponse<P, M>);
 };
 
