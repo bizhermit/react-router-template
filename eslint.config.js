@@ -120,6 +120,7 @@ export default tseslint.config({
         switches: "never",
       },
     ],
+    "@stylistic/space-in-parens": "warn",
     "@stylistic/space-before-function-paren": [
       "warn",
       {

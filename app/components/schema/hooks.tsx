@@ -495,7 +495,7 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
     SchemaProvider,
     dataItems: dataItems.current,
     getData: function () {
-      return clone(bindData.current.getData());
+      return clone<Schema.PartialSchemaValue<S>>(bindData.current.getData());
     },
     handleSubmit,
     handleReset,

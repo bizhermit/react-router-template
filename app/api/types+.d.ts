@@ -52,7 +52,12 @@ export interface paths {
     /** タスク一覧の取得 */
     get: {
       parameters: {
-        query?: never;
+        query?: {
+          /** @description １ページあたりの件数 */
+          limit?: number;
+          /** @description ページ番号 */
+          page?: number;
+        };
         header?: never;
         path?: never;
         cookie?: never;
@@ -65,7 +70,13 @@ export interface paths {
             [name: string]: unknown;
           };
           content: {
-            "application/json": components["schemas"]["Task"][];
+            "application/json": {
+              /** @example 1 */
+              page: number;
+              /** @example 100 */
+              total: number;
+              items: components["schemas"]["Task"][];
+            };
           };
         };
       };
@@ -130,6 +141,11 @@ export interface paths {
             "application/json": components["schemas"]["Task"];
           };
         };
+        201: {
+          content: {
+            "application/json": components["schemas"]["NewTask"];
+          };
+        };
         /** @description タスクが見つかりません */
         404: {
           headers: {
@@ -139,7 +155,23 @@ export interface paths {
         };
       };
     };
-    put?: never;
+    /** タスクの更新 */
+    put: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: number;
+        };
+        cookie?: never;
+      };
+      requestBody: {
+        content: {
+          "application/json": components["schemas"]["NewTask"];
+        };
+      };
+      responses: never;
+    };
     post?: never;
     /** タスクの削除 */
     delete: {

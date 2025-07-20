@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
@@ -266,8 +267,6 @@ export async function action(args: Route.ActionArgs) {
   console.log(performance.now() - start);
   console.log("-----------------");
 
-  api.get("/health");
-
   await sleep(5000);
 
   return data({
@@ -335,6 +334,7 @@ function Contents(props: Route.ComponentProps) {
     handleSubmit,
     handleReset,
     getFormProps,
+    getData,
   } = useSchema({
     schema,
     state: fetcher.state,
@@ -375,6 +375,13 @@ function Contents(props: Route.ComponentProps) {
       </div>
       <section className="flex flex-col gap-2">
         <div className="flex flex-row gap-2">
+          <Button
+            onClick={() => {
+              console.log(getData());
+            }}
+          >
+            show data
+          </Button>
           <Button
             onClick={() => {
               formReadonly.toggle();
@@ -427,6 +434,7 @@ function Contents(props: Route.ComponentProps) {
       <StreamCompoment />
       <IconsComponent />
       <DialogComponent />
+      <FetchComponent />
     </div>
   );
 };
@@ -1295,6 +1303,59 @@ function DialogComponent() {
             close
           </Button>
         </dialog.Dialog>
+      </Details>
+    </section>
+  );
+};
+
+function FetchComponent() {
+  return (
+    <section>
+      <Details summary="Fetch">
+        <div className="flex flex-row gap-2">
+          <Button
+            onClick={async ({ unlock }) => {
+              try {
+                const res = await api.get("/tasks/{id}", { id: 1 });
+                console.log(res);
+                if (!res.ok) {
+                  return;
+                }
+
+                if (res.status === 200) {
+                  // res.data.
+                  res.statusText;
+                } else {
+                  res.status;
+                  // res.data.
+                }
+              } catch (e) {
+                console.warn(e);
+              } finally {
+                unlock();
+              }
+            }}
+          >
+            get
+          </Button>
+          <Button
+            onClick={async ({ unlock }) => {
+              try {
+                const res = await api.post("/tasks", {
+                  title: "sample task",
+                  completed: false,
+                });
+                console.log(res);
+              } catch (e) {
+                console.warn(e);
+              } finally {
+                unlock();
+              }
+            }}
+          >
+            post
+          </Button>
+        </div>
       </Details>
     </section>
   );

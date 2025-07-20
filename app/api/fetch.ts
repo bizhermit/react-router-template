@@ -1,14 +1,175 @@
+import { clone, getObjectType } from "~/components/objects";
+import { formatDate } from "~/components/objects/date";
+import { convertBlobToFile, convertFileToBase64 } from "~/components/objects/file";
+
+function replacePathParams(
+  path: string,
+  params: Record<string, unknown> | null | undefined,
+) {
+  if (params == null) {
+    return {
+      path,
+      params,
+    };
+  };
+  const p = clone(params);
+  const ret = path.replace(/\{(.*?)\}/g, (text, key) => {
+    const v = p[key];
+    if (v == null) throw new Error(`not set path param: ${key}`);
+    delete p[key];
+    return String(v);
+  });
+  return {
+    path: ret,
+    params: p,
+  };
+};
+
+function parseQueryString(params: Record<string, unknown> | null | undefined) {
+  if (params == null) return null;
+  const d: Record<string, string> = {};
+  function querySafe(name: string, value: unknown) {
+    if (value == null) return;
+    function setOrPush(v: unknown) {
+      if (v == null) return;
+      d[name] = String(v);
+    };
+
+    if (typeof value !== "object") {
+      setOrPush(value);
+      return;
+    };
+    switch (getObjectType(value)) {
+      case "Array":
+        (value as Array<unknown>).forEach((item, index) => {
+          querySafe(`${name}[${index}]`, item);
+        });
+        break;
+      case "Object":
+        for (const key in (value as Record<string, unknown>)) {
+          querySafe(`${name}.${key}`, (value as Record<string, unknown>)[key]);
+        }
+        break;
+      case "Date":
+        setOrPush(formatDate((value as Date)));
+        break;
+      case "Map":
+        querySafe(name, [...value as unknown as Map<unknown, unknown>].reduce((pv, cv) => {
+          pv[cv[0] as string | number] = cv[1];
+          return pv;
+        }, {} as Record<string, unknown>));
+        break;
+      case "Set":
+        querySafe(name, [...value as unknown as Set<unknown>]);
+        break;
+      default:
+        break;
+    }
+  }
+  for (const key in params) {
+    querySafe(key, params[key]);
+  }
+  return new URLSearchParams(d).toString();
+};
+
+async function requestBodyStringfy(params: Record<string, unknown> | null | undefined) {
+  if (params == null) return undefined;
+  async function bodySafe(v: unknown): Promise<unknown> {
+    if (v == null || typeof v !== "object") return v;
+    switch (getObjectType(v)) {
+      case "File":
+        return (await convertFileToBase64(v as File)) || undefined;
+      case "Blob":
+        return (await convertFileToBase64(convertBlobToFile(v as Blob, ""))) || undefined;
+      case "Array": {
+        const r: Array<unknown> = [];
+        for (let i = 0, il = (v as Array<unknown>).length; i < il; i++) {
+          r[i] = await bodySafe((v as Array<unknown>)[i]);
+        }
+        return r;
+      }
+      case "Object": {
+        const r: Record<string | number | symbol, unknown> = {};
+        for (const key in v as Record<string, unknown>) {
+          r[key] = await bodySafe((v as Record<string, unknown>)[key]);
+        }
+        return r;
+      }
+      case "Map": {
+        return bodySafe([...v as unknown as Map<unknown, unknown>]);
+      }
+      case "Set":
+        return bodySafe([...v as unknown as Set<unknown>]);
+      default:
+        return v;
+    }
+  };
+  return JSON.stringify(await bodySafe(params));
+}
+
+async function responseParser<P extends Api.Path, M extends string>(res: Response) {
+  if (!res.ok) {
+    return {
+      ok: false,
+      status: res.status,
+      statusText: res.statusText,
+      data: await res.json(),
+    } as unknown as Api.ErrorResponse<P, M>;
+  }
+  return {
+    ok: true,
+    status: res.status,
+    statusText: res.statusText,
+    data: await res.json(),
+  } as unknown as Api.SuccessResponse<P, M>;
+};
+
+async function post<P extends Api.Path, M extends string>(
+  path: P,
+  method: M,
+  params: Api.MergeParams<[Api.PathParams<P, M>, Api.BodyParams<P, M>]> | undefined
+) {
+  const replaced = replacePathParams(path, params);
+  const res = await fetch(replaced.path, {
+    method,
+    body: await requestBodyStringfy(params),
+  });
+  return responseParser<P, M>(res);
+};
+
 export const api = {
-  get: function <P extends GetApiPath>(path: P) {
-
+  get: async function <P extends Api.GetPath>(
+    path: P,
+    params?: Api.MergeParams<[Api.PathParams<P, "get">, Api.QueryParams<P, "get">]>,
+  ) {
+    const replaced = replacePathParams(path, params);
+    if (replaced.params) {
+      const query = parseQueryString(replaced.params);
+      if (query) {
+        replaced.path += `?${query}`;
+      }
+    }
+    const res = await fetch(replaced.path, {
+      method: "get",
+    });
+    return responseParser<P, "get">(res);
   },
-  put: function <P extends PutApiPath>(path: P) {
-
+  post: async function <P extends Api.PostPath>(
+    path: P,
+    params: Api.MergeParams<[Api.PathParams<P, "post">, Api.BodyParams<P, "post">]>,
+  ) {
+    return post(path, "post", params);
   },
-  post: function <P extends PostApiPath>(path: P) {
-
+  put: async function <P extends Api.PutPath>(
+    path: P,
+    params: Api.MergeParams<[Api.PathParams<P, "put">, Api.BodyParams<P, "put">]>
+  ) {
+    return post(path, "put", params);
   },
-  delete: function <P extends DeleteApiPath>(path: P) {
-
+  delete: async function <P extends Api.DeletePath>(
+    path: P,
+    params?: Api.MergeParams<[Api.PathParams<P, "delete">, Api.BodyParams<P, "delete">]>,
+  ) {
+    return post(path, "delete", params);
   },
 } as const;

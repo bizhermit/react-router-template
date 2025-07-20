@@ -8,6 +8,8 @@ type ObjectType =
   | "Date"
   | "Array"
   | "Object"
+  | "File"
+  | "Blob"
   | "Map"
   | "Set"
   | "RegExp";
