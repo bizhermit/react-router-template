@@ -65,10 +65,12 @@ namespace Api {
 
   type SuccessResponse<P extends Path, M extends string> = {
     ok: true;
+    _: Response;
   } & SuccessResponses<_[P][M]["responses"]>;
 
   type ErrorResponse<P extends Path, M extends string> = {
     ok: false;
+    _: Response;
   } & ErrorResponses<_[P][M]["responses"]>;
 
 };
