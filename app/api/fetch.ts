@@ -6,19 +6,20 @@ function replacePathParams(
   path: string,
   params: Record<string, unknown> | null | undefined,
 ) {
-  if (params == null) {
-    return {
-      path,
-      params,
-    };
-  };
   const p = clone(params);
+  const errs: string[] = [];
   const ret = path.replace(/\{(.*?)\}/g, (text, key) => {
-    const v = p[key];
-    if (v == null) throw new Error(`not set path param: ${key}`);
-    delete p[key];
-    return String(v);
+    const v = p?.[key];
+    if (v == null) {
+      errs.push(key);
+      return "";
+    }
+    delete p![key];
+    return encodeURIComponent(String(v));
   });
+  if (errs.length > 0) {
+    throw new Error(`Missing path parameter${errs.length > 1 ? "s" : ""}: ${errs.map(e => `'${e}'`).join(", ")}`);
+  };
   return {
     path: ret,
     params: p,
@@ -108,20 +109,21 @@ async function requestBodyStringfy(params: Record<string, unknown> | null | unde
 }
 
 async function responseParser<P extends Api.Path, M extends string>(res: Response) {
-  if (!res.ok) {
-    return {
-      ok: false,
-      status: res.status,
-      statusText: res.statusText,
-      data: await res.json(),
-    } as unknown as Api.ErrorResponse<P, M>;
-  }
   return {
-    ok: true,
+    ok: res.ok,
     status: res.status,
     statusText: res.statusText,
-    data: await res.json(),
-  } as unknown as Api.SuccessResponse<P, M>;
+    data: await (async () => {
+      if (res.status === 204) return undefined;
+      const text = await res.text();
+      if (text == null) return undefined;
+      try {
+        return JSON.parse(text);
+      } catch {
+        return undefined;
+      }
+    })(),
+  } as unknown as (Api.SuccessResponse<P, M> | Api.ErrorResponse<P, M>);
 };
 
 async function post<P extends Api.Path, M extends string>(
@@ -133,6 +135,9 @@ async function post<P extends Api.Path, M extends string>(
   const res = await fetch(replaced.path, {
     method,
     body: await requestBodyStringfy(params),
+    headers: {
+      "Content-Type": "application/json",
+    },
   });
   return responseParser<P, M>(res);
 };

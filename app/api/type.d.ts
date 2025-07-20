@@ -23,7 +23,8 @@ namespace Api {
 
   type QueryParams<P extends string, M extends string> = _[P][M]["parameters"]["query"];
 
-  type BodyParams<P extends string, M extends string> = _[P][M]["requestBody"]["content"]["application/json"];
+  type BodyParams<P extends Path, M extends string> =
+    _[P][M]["requestBody"] extends { content: infer C; } ? C[keyof C] : never;
 
   type FilterByPrefix<T, Prefix extends string> =
     T extends number ? (

@@ -1316,7 +1316,7 @@ function FetchComponent() {
           <Button
             onClick={async ({ unlock }) => {
               try {
-                const res = await api.get("/tasks/{id}", { id: 1 });
+                const res = await api.get("/tasks/{id}", { id: 2 });
                 console.log(res);
                 if (!res.ok) {
                   return;
@@ -1324,13 +1324,13 @@ function FetchComponent() {
 
                 if (res.status === 200) {
                   // res.data.
-                  res.statusText;
+                  res.data;
                 } else {
                   res.status;
                   // res.data.
                 }
               } catch (e) {
-                console.warn(e);
+                console.error(e);
               } finally {
                 unlock();
               }
@@ -1347,7 +1347,7 @@ function FetchComponent() {
                 });
                 console.log(res);
               } catch (e) {
-                console.warn(e);
+                console.error(e);
               } finally {
                 unlock();
               }
