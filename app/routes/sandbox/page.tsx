@@ -1323,11 +1323,9 @@ function FetchComponent() {
                 }
 
                 if (res.status === 200) {
-                  // res.data.
                   res.data;
                 } else {
-                  res.status;
-                  // res.data.
+                  res.data;
                 }
               } catch (e) {
                 console.error(e);

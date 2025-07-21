@@ -52,6 +52,7 @@ namespace Schema {
     data: Data;
     dep: Record<string, unknown>;
     env: Env;
+    getSource: () => (Source<V> | undefined);
   };
 
   interface Validator<V> {

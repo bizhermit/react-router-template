@@ -22,54 +22,16 @@ export function parseWithSchema<$Schema extends Record<string, Schema.$Any>>(par
     name: string | number;
     parent: Schema.DataItem<Schema.$Struct | Schema.$Array> | undefined;
   }) {
-    let fn: string | undefined = undefined, val: unknown = undefined;
+    const fullName = name == null ?
+      undefined :
+      parent?._?.type === "struct" ?
+        `${parent.name}.${name}` :
+        parent?._?.type === "arr" ?
+          `${parent.name}[${name}]` :
+          `${name}`;
+
+    let val: unknown = undefined;
     const label = item.label ? params.env.t(item.label as I18nTextKey) : undefined;
-
-    if (name != null) {
-      fn = parent?._?.type === "struct"
-        ? `${parent.name}.${name}` :
-        parent?._?.type === "arr"
-          ? `${parent.name}[${name}]`
-          : `${name}`;
-
-      val = data._get(fn)[0];
-
-      let result: Schema.Result | null | undefined = undefined;
-
-      const parsed = item.parser({
-        value: val,
-        dep,
-        env: params.env,
-        label,
-      });
-      result = parsed.result;
-
-      if (val !== parsed.value) {
-        data._set(fn, val = parsed.value);
-      }
-
-      if (result?.type !== "e") {
-        validations?.push(() => {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const validationParams: Schema.ValidationParams<any> = {
-            name: fn!,
-            label,
-            data,
-            dep,
-            env: params.env,
-            value: val,
-          };
-          let r: Schema.Result | undefined | null = undefined;
-          for (const vali of item.validators) {
-            r = vali(validationParams);
-            if (r) break;
-          }
-          if (r) results[fn!] = r;
-        });
-      }
-
-      if (!params.createDataItems && val == null) return null!;
-    }
 
     const dataItem: Schema.DataItem = (() => {
       switch (item.type) {
@@ -79,7 +41,7 @@ export function parseWithSchema<$Schema extends Record<string, Schema.$Any>>(par
           const splitKey = Object.keys(item._splits)[0] as Schema.SplitDateTarget | undefined;
           if (splitKey) {
             const di = item._splits[splitKey]!.core;
-            di.name = fn!;
+            di.name = fullName!;
             di.parent = parent;
             return di;
           }
@@ -87,7 +49,7 @@ export function parseWithSchema<$Schema extends Record<string, Schema.$Any>>(par
         // eslint-disable-next-line no-fallthrough
         default:
           return {
-            name: fn!,
+            name: fullName!,
             label,
             parent,
             _: item,
@@ -136,6 +98,67 @@ export function parseWithSchema<$Schema extends Record<string, Schema.$Any>>(par
         (dataItem as Schema.DataItem<Schema.$SplitDate>).core = dateDataItem;
         break;
       }
+      default:
+        break;
+    };
+
+    if (fullName) {
+      val = data._get(fullName)[0];
+
+      let result: Schema.Result | null | undefined = undefined;
+
+      const parsed = item.parser({
+        value: val,
+        dep,
+        env: params.env,
+        label,
+      });
+      result = parsed.result;
+
+      if (val !== parsed.value) {
+        data._set(fullName, val = parsed.value);
+      }
+
+      if (result?.type !== "e") {
+        validations?.push(() => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const validationParams: Schema.ValidationParams<any> = {
+            name: fullName,
+            label,
+            data,
+            dep,
+            env: params.env,
+            value: val,
+            getSource: () => {
+              if ("source" in item) {
+                const source = item.source;
+                if (typeof source === "function") {
+                  return source({
+                    data,
+                    dep,
+                    env: params.env,
+                    label,
+                    name: fullName,
+                  });
+                }
+                return source;
+              }
+              return undefined;
+            },
+          };
+          let r: Schema.Result | undefined | null = undefined;
+          for (const vali of item.validators) {
+            r = vali(validationParams);
+            if (r) break;
+          }
+          if (r) results[fullName] = r;
+        });
+      }
+    }
+
+    if (!params.createDataItems && val == null) return null!;
+
+    switch (item.type) {
       case "arr":
         (dataItem as Schema.DataItem<Schema.$Array>).generateDataItem = function (index) {
           return parseItem({
@@ -159,7 +182,7 @@ export function parseWithSchema<$Schema extends Record<string, Schema.$Any>>(par
         break;
       default:
         break;
-    };
+    }
 
     return dataItem;
   };

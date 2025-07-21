@@ -11,7 +11,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** ヘルスチェック */
+        /** ヘルスチェック */
     get: {
       parameters: {
         query?: never;
@@ -21,7 +21,7 @@ export interface paths {
       };
       requestBody?: never;
       responses: {
-        /** @description ヘルスチェック */
+                /** @description ヘルスチェック */
         200: {
           headers: {
             [name: string]: unknown;
@@ -49,13 +49,13 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** タスク一覧の取得 */
+        /** タスク一覧の取得 */
     get: {
       parameters: {
         query?: {
-          /** @description １ページあたりの件数 */
+                    /** @description １ページあたりの件数 */
           limit?: number;
-          /** @description ページ番号 */
+                    /** @description ページ番号 */
           page?: number;
         };
         header?: never;
@@ -64,16 +64,16 @@ export interface paths {
       };
       requestBody?: never;
       responses: {
-        /** @description タスクの一覧 */
+                /** @description タスクの一覧 */
         200: {
           headers: {
             [name: string]: unknown;
           };
           content: {
             "application/json": {
-              /** @example 1 */
+                            /** @example 1 */
               page: number;
-              /** @example 100 */
+                            /** @example 100 */
               total: number;
               items: components["schemas"]["Task"][];
             };
@@ -82,7 +82,7 @@ export interface paths {
       };
     };
     put?: never;
-    /** タスクの作成 */
+        /** タスクの作成 */
     post: {
       parameters: {
         query?: never;
@@ -96,7 +96,7 @@ export interface paths {
         };
       };
       responses: {
-        /** @description タスクの作成成功 */
+                /** @description タスクの作成成功 */
         201: {
           headers: {
             [name: string]: unknown;
@@ -120,7 +120,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** タスクの詳細取得 */
+        /** タスクの詳細取得 */
     get: {
       parameters: {
         query?: never;
@@ -132,7 +132,7 @@ export interface paths {
       };
       requestBody?: never;
       responses: {
-        /** @description 単一のタスク */
+                /** @description 単一のタスク */
         200: {
           headers: {
             [name: string]: unknown;
@@ -141,12 +141,16 @@ export interface paths {
             "application/json": components["schemas"]["Task"];
           };
         };
+                /** @description ダミー */
         201: {
+          headers: {
+            [name: string]: unknown;
+          };
           content: {
             "application/json": components["schemas"]["NewTask"];
           };
         };
-        /** @description タスクが見つかりません */
+                /** @description タスクが見つかりません */
         404: {
           headers: {
             [name: string]: unknown;
@@ -155,7 +159,7 @@ export interface paths {
         };
       };
     };
-    /** タスクの更新 */
+        /** タスクの更新 */
     put: {
       parameters: {
         query?: never;
@@ -173,7 +177,7 @@ export interface paths {
       responses: never;
     };
     post?: never;
-    /** タスクの削除 */
+        /** タスクの削除 */
     delete: {
       parameters: {
         query?: never;
@@ -185,7 +189,7 @@ export interface paths {
       };
       requestBody?: never;
       responses: {
-        /** @description 削除成功 */
+                /** @description 削除成功 */
         204: {
           headers: {
             [name: string]: unknown;
@@ -210,7 +214,7 @@ export interface components {
     };
     NewTask: {
       title: string;
-      /** @default false */
+            /** @default false */
       completed: boolean;
     };
   };

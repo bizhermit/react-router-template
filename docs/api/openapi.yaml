@@ -94,6 +94,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Task'
+        '201':
+          description: ダミー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NewTask'
         '404':
           description: タスクが見つかりません
     put:

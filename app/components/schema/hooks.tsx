@@ -716,6 +716,22 @@ export function schemaItemValidation<D extends Schema.DataItem>(
     dep: schema.dep.current,
     env: schema.env,
     value,
+    getSource: () => {
+      if ("source" in $["_"]) {
+        const source = $._.source;
+        if (typeof source === "function") {
+          return source({
+            data: schema.data.current,
+            dep: schema.dep.current,
+            env: schema.env,
+            label: $.label,
+            name: $.name,
+          });
+        }
+        return source;
+      }
+      return undefined;
+    },
   };
   for (const vali of $._.validators) {
     r = vali(params);
