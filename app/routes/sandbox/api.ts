@@ -16,5 +16,6 @@ export async function action() {
     id: 1,
     title: "sample",
     body: "sample body",
+    updated_at: "2025-11-11T11:11:11.111",
   } satisfies Post);
 };
