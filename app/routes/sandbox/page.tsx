@@ -1316,7 +1316,25 @@ function FetchComponent() {
           <Button
             onClick={async ({ unlock }) => {
               try {
-                const res = await api.get("/tasks/{id}", { id: 2 });
+                const res = await api.get("/health");
+                if (!res.ok) {
+                  return;
+                }
+                const date = new Date(res.data.now);
+                console.log(date.toLocaleString());
+              } catch (e) {
+                console.error(e);
+              } finally {
+                unlock();
+              }
+            }}
+          >
+            health
+          </Button>
+          <Button
+            onClick={async ({ unlock }) => {
+              try {
+                const res = await api.get("/sandbox/api/{id}", { id: 2 });
                 console.log(res);
                 if (!res.ok) {
                   return;
@@ -1339,9 +1357,9 @@ function FetchComponent() {
           <Button
             onClick={async ({ unlock }) => {
               try {
-                const res = await api.post("/tasks", {
-                  title: "sample task",
-                  completed: false,
+                const res = await api.post("/sandbox/api", {
+                  title: "sample title",
+                  body: "sample body",
                 });
                 console.log(res);
               } catch (e) {
@@ -1352,6 +1370,39 @@ function FetchComponent() {
             }}
           >
             post
+          </Button>
+          <Button
+            onClick={async ({ unlock }) => {
+              try {
+                const res = await api.put("/sandbox/api/{id}", {
+                  id: 1,
+                  title: "sample",
+                  body: "sample",
+                  updated_at: "2025-11-11T11:11:11.111",
+                });
+                console.log(res);
+              } catch (e) {
+                console.error(e);
+              } finally {
+                unlock();
+              }
+            }}
+          >
+            put
+          </Button>
+          <Button
+            onClick={async ({ unlock }) => {
+              try {
+                const res = await api.delete("/sandbox/api/{id}", { id: 2 });
+                console.log(res);
+              } catch (e) {
+                console.error(e);
+              } finally {
+                unlock();
+              }
+            }}
+          >
+            delete
           </Button>
         </div>
       </Details>

@@ -168,7 +168,7 @@ export const api = {
   },
   put: async function <P extends Api.PutPath>(
     path: P,
-    params: Api.MergeParams<[Api.PathParams<P, "put">, Api.BodyParams<P, "put">]>
+    params: Api.MergeParams<[Api.PathParams<P, "put">, Api.BodyParams<P, "put">]>,
   ) {
     return post(path, "put", params);
   },

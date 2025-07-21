@@ -10,7 +10,10 @@ namespace Api {
 
   type MergeParams<T extends readonly unknown[]> = (
     T extends [infer Head, ...infer Tail] ?
-    MergeParams<Tail> & (Head extends { [v: unknown]: unknown; } ? Head : {}) : {}
+    MergeParams<Tail> & (
+      [Head] extends [never] ? {} :
+      Head extends { [v: unknown]: unknown; } ? Head : {}
+    ) : {}
   );
 
   type GetPath = MethodPaths<_, "get">;

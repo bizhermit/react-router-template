@@ -7,9 +7,12 @@ export default [
   //   route("home", "routes/home/page.tsx"),
   // ]),
   route("csp-report", "routes/csp-report.tsx"),
+  route("health", "routes/health.ts"),
   ...prefix("sandbox", [
     index("routes/sandbox/page.tsx"),
-    route("stream", "routes/sandbox/stream-api.ts"),
+    route("/api", "routes/sandbox/api.ts"),
+    route("/api/:id", "routes/sandbox/api-detail.ts"),
+    route("/stream", "routes/sandbox/stream-api.ts"),
   ]),
   route("*", "routes/fallback.tsx"),
 ] satisfies RouteConfig;
