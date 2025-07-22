@@ -25,6 +25,7 @@
         "clinyong.vscode-css-modules",
         "Prisma.prisma",
         "bradlc.vscode-tailwindcss",
+        "ms-playwright.playwright",
         "AndrewButson.vscode-openapi-viewer",
         "ritwickdey.LiveServer",
         "jock.svg"

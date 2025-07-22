@@ -6,7 +6,7 @@ function ARRAY_PARSER({ value }: Schema.ParserParams): Schema.ParserResult<Array
     return { value: undefined };
   }
   if (Array.isArray(value)) {
-    return { value: value };
+    return { value };
   }
   return { value: [value] };
 };
