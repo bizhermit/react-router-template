@@ -3,6 +3,7 @@ import { isEmpty } from "~/components/objects";
 import { useSchemaItem } from "~/components/schema/hooks";
 import { clsx, ZERO_WIDTH_SPACE } from "../utilities";
 import { InputDummyFocus, InputField, Placeholder, type InputWrapProps } from "./common";
+import type { FormItemHookProps } from "./hooks";
 import { useSource } from "./utilities";
 
 type SelectBoxSchemaProps = Schema.$String | Schema.$Number | Schema.$Boolean;
@@ -12,6 +13,7 @@ export type SelectBoxProps<D extends Schema.DataItem<SelectBoxSchemaProps>> = In
   placeholder?: string;
   emptyText?: string;
   source?: Schema.Source<Schema.ValueType<D["_"]>>;
+  hook?: FormItemHookProps;
   children?: ReactNode;
 };
 
@@ -20,9 +22,11 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
   emptyText,
   children,
   source: propsSource,
+  hook,
   ...$props
 }: SelectBoxProps<D>) {
   const ref = useRef<HTMLSelectElement>(null!);
+  const dummyRef = useRef<HTMLDivElement | null>(null);
 
   const {
     name,
@@ -62,6 +66,10 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
     if (state.current !== "enabled") return;
     setValue(e.target.value);
   };
+
+  if (hook) {
+    hook.focus = () => (dummyRef.current ?? ref.current).focus();
+  }
 
   return (
     <InputField
@@ -130,7 +138,7 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
             name={name}
             value={value as string || undefined}
           />
-          <InputDummyFocus />
+          <InputDummyFocus ref={dummyRef} />
         </>
       }
     </InputField>

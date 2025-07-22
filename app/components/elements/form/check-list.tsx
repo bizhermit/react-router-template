@@ -1,6 +1,7 @@
 import { useRef, type ChangeEvent } from "react";
 import { useSchemaItem } from "~/components/schema/hooks";
 import { InputDummyFocus, InputGroup, InputLabel, InputLabelText, type InputWrapProps } from "./common";
+import type { FormItemHookProps } from "./hooks";
 import { useSource } from "./utilities";
 
 type CheckListItemSchemaProps = Schema.$String | Schema.$Number | Schema.$Boolean;
@@ -8,13 +9,16 @@ type CheckListItemSchemaProps = Schema.$String | Schema.$Number | Schema.$Boolea
 export type CheckListProps<D extends Schema.DataItem<Schema.$Array<CheckListItemSchemaProps>>> = InputWrapProps & {
   $: D;
   source?: Schema.Source<Schema.ValueType<D["_"]>>;
+  hook?: FormItemHookProps;
 };
 
 export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemSchemaProps>>>({
   source: propsSource,
+  hook,
   ...$props
 }: CheckListProps<D>) {
   const ref = useRef<HTMLDivElement>(null!);
+  const dummyRef = useRef<HTMLDivElement | null>(null);
 
   const {
     name,
@@ -66,6 +70,14 @@ export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemS
     setValue(newValue);
   };
 
+  if (hook) {
+    hook.focus = () => {
+      if (dummyRef.current) return dummyRef.current.focus();
+      const checkedElem = ref.current.querySelector(`input[type="checkbox"]:checked`) ?? ref.current.querySelector(`input[type="checkbox"]`);
+      (checkedElem as HTMLInputElement | null)?.focus();
+    };
+  }
+
   return (
     <InputGroup
       {...props}
@@ -75,7 +87,7 @@ export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemS
         result,
       }}
     >
-      {source?.map(item => {
+      {source?.map((item, index) => {
         const key = String(item.value);
         const isChecked = value?.some(v => v === item.value);
 
@@ -107,7 +119,9 @@ export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemS
                   name={omitOnSubmit ? undefined : name}
                   value={isChecked ? key : ""}
                 />
-                <InputDummyFocus />
+                <InputDummyFocus
+                  ref={index === 0 ? dummyRef : undefined}
+                />
               </>
             }
           </InputLabel>

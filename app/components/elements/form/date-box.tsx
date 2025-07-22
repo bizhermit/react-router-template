@@ -3,6 +3,7 @@ import { parseTypedDateString } from "~/components/schema/date";
 import { useSchemaItem } from "~/components/schema/hooks";
 import { clsx } from "../utilities";
 import { getValidationValue, InputDummyFocus, InputField, type InputWrapProps } from "./common";
+import type { FormItemHookProps } from "./hooks";
 import { useSource } from "./utilities";
 
 type DateBoxSchemaProps = Schema.$Date | Schema.$Month | Schema.$DateTime;
@@ -11,14 +12,17 @@ export type DateBoxProps<D extends Schema.DataItem<DateBoxSchemaProps>> = InputW
   $: D;
   source?: Schema.Source<Schema.ValueType<D["_"]>>;
   placeholder?: string;
+  hook?: FormItemHookProps;
 };
 
 export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
   placeholder,
   source: propsSource,
+  hook,
   ...$props
 }: DateBoxProps<P>) {
   const ref = useRef<HTMLInputElement>(null!);
+  const dummyRef = useRef<HTMLDivElement | null>(null);
 
   const {
     name,
@@ -119,6 +123,10 @@ export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
 
   const dataListId = source == null ? undefined : `${name}_dl`;
 
+  if (hook) {
+    hook.focus = () => (dummyRef.current ?? ref.current).focus();
+  }
+
   return (
     <InputField
       {...props}
@@ -161,7 +169,7 @@ export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
             name={name}
             value={value as string || undefined}
           />
-          <InputDummyFocus />
+          <InputDummyFocus ref={dummyRef} />
         </>
       }
       {

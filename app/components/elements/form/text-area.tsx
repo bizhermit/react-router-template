@@ -1,6 +1,7 @@
 import { useRef, useState, type ChangeEvent } from "react";
 import { useSchemaItem } from "~/components/schema/hooks";
 import { getValidationValue, InputField, type InputWrapProps } from "./common";
+import type { FormItemHookProps } from "./hooks";
 
 type Resize = "none" | "vertical" | "horizontal" | "both";
 
@@ -10,6 +11,7 @@ export type TextAreaProps<D extends Schema.DataItem<Schema.$String>> = InputWrap
   rows?: number;
   cols?: number;
   resize?: Resize;
+  hook?: FormItemHookProps;
 };
 
 function getResizeClassName(resize: Resize | undefined) {
@@ -26,6 +28,7 @@ export function TextArea<D extends Schema.DataItem<Schema.$String>>({
   rows,
   cols,
   resize,
+  hook,
   ...$props
 }: TextAreaProps<D>) {
   const ref = useRef<HTMLTextAreaElement>(null!);
@@ -75,6 +78,10 @@ export function TextArea<D extends Schema.DataItem<Schema.$String>>({
     if (state.current !== "enabled") return;
     setValue(e.target.value);
   };
+
+  if (hook) {
+    hook.focus = () => ref.current.focus();
+  }
 
   return (
     <InputField

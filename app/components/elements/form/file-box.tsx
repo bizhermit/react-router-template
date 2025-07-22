@@ -3,10 +3,12 @@ import { convertBase64ToFile } from "~/components/objects/file";
 import { useSchemaItem } from "~/components/schema/hooks";
 import { clsx } from "../utilities";
 import { getValidationValue, InputField, type InputWrapProps } from "./common";
+import type { FormItemHookProps } from "./hooks";
 
 export type FileBoxProps<D extends Schema.DataItem<Schema.$File>> = InputWrapProps & {
   $: D;
   placeholder?: ReactNode;
+  hook?: FormItemHookProps;
 } & (
     | {
       viewMode?: "link";
@@ -24,6 +26,7 @@ export function FileBox<D extends Schema.DataItem<Schema.$File>>({
   placeholder,
   viewMode,
   onViewClick,
+  hook,
   ...$props
 }: FileBoxProps<D>) {
   const ref = useRef<HTMLInputElement>(null!);
@@ -111,6 +114,10 @@ export function FileBox<D extends Schema.DataItem<Schema.$File>>({
   }
 
   const valueType = typeof value === "string" ? "url" : value == null ? undefined : "file";
+
+  if (hook) {
+    hook.focus = () => ref.current.focus();
+  }
 
   return (
     <>

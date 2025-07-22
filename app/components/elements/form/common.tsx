@@ -3,6 +3,7 @@ import { clsx, ZERO_WIDTH_SPACE } from "../utilities";
 import { InputMessageSpan } from "./message";
 
 export type InputWrapProps = {
+  className?: string;
   hideMessage?: boolean;
   omitOnSubmit?: boolean;
 };
@@ -159,9 +160,10 @@ export function Placeholder({
   );
 };
 
-export function InputDummyFocus() {
+export function InputDummyFocus(props: { ref?: RefObject<HTMLDivElement | null>; }) {
   return (
     <div
+      ref={props.ref}
       tabIndex={0}
       className="absolute inset-0 z-10 select-none outline-none"
     />

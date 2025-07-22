@@ -4,6 +4,7 @@ import { parseTimeNums, parseTypedDate } from "~/components/schema/date";
 import { getSchemaItemMode, getSchemaItemRequired, getSchemaItemResult, optimizeRefs, schemaItemEffect, schemaItemValidation, useFieldSet, useSchemaEffect, type SchemaEffectParams_Result, type SchemaEffectParams_ValueResult } from "~/components/schema/hooks";
 import { clsx, ZERO_WIDTH_SPACE } from "../utilities";
 import { getValidationValue, InputDummyFocus, InputField, InputGroup, Placeholder, type InputWrapProps } from "./common";
+import type { FormItemHookProps } from "./hooks";
 
 export type DateSelectBoxProps<D extends Schema.DataItem<Schema.$SplitDate>> = InputWrapProps & {
   $: D;
@@ -13,6 +14,7 @@ export type DateSelectBoxProps<D extends Schema.DataItem<Schema.$SplitDate>> = I
   | [string, string, string, string]
   | [string, string, string, string, string]
   | [string, string, string, string, string, string];
+  hook?: FormItemHookProps;
 };
 
 const DEFAULT_MIN_DATE = new Date("1900-01-01T00:00:00");
@@ -70,6 +72,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
   $: _$,
   placeholder,
   omitOnSubmit,
+  hook,
   ...props
 }: DateSelectBoxProps<P>) {
   const id = useId();
@@ -86,6 +89,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
   const $minute = $date.splits.m;
   const $second = $date.splits.s;
 
+  const dummyRef = useRef<HTMLDivElement | null>(null);
   const yearSelectRef = useRef<HTMLSelectElement>(null!);
   const monthSelectRef = useRef<HTMLSelectElement>(null!);
   const daySelectRef = useRef<HTMLSelectElement>(null!);
@@ -1032,6 +1036,10 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
     secondResult,
   );
 
+  if (hook) {
+    hook.focus = () => (dummyRef.current ?? yearSelectRef.current).focus();
+  }
+
   return (
     <InputGroup
       {...props}
@@ -1051,6 +1059,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
       }
       <SplittedSelect
         ref={yearSelectRef}
+        dummyRef={dummyRef}
         mergeState={mergeState}
         coreResult={result}
         $={$year}
@@ -1171,6 +1180,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
 
 interface SplittedSelectProps {
   ref: RefObject<HTMLSelectElement>;
+  dummyRef?: RefObject<HTMLDivElement | null>;
   mergeState: (
     targetState: RefObject<Schema.Mode>,
     targetMode: Schema.Mode
@@ -1190,6 +1200,7 @@ interface SplittedSelectProps {
 
 function SplittedSelect({
   ref,
+  dummyRef,
   mergeState,
   coreResult,
   $,
@@ -1263,7 +1274,7 @@ function SplittedSelect({
             name={$?.name}
             value={value ?? ""}
           />
-          <InputDummyFocus />
+          <InputDummyFocus ref={dummyRef} />
         </>
       }
     </InputField>

@@ -2,6 +2,7 @@ import { useMemo, useRef, useState, type ChangeEvent, type FocusEvent, type Keyb
 import { useSchemaItem } from "~/components/schema/hooks";
 import { clsx } from "../utilities";
 import { getValidationValue, InputField, type InputWrapProps } from "./common";
+import type { FormItemHookProps } from "./hooks";
 import { useSource } from "./utilities";
 
 export type NumberBoxProps<D extends Schema.DataItem<Schema.$Number>> = InputWrapProps & {
@@ -9,6 +10,7 @@ export type NumberBoxProps<D extends Schema.DataItem<Schema.$Number>> = InputWra
   placeholder?: string;
   source?: Schema.Source<Schema.ValueType<D["_"]>>;
   step?: number;
+  hook?: FormItemHookProps;
 };
 
 const UP_DOWN_ROOP_WAIT = 500;
@@ -25,6 +27,7 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
   placeholder,
   source: propsSource,
   step,
+  hook,
   ...$props
 }: NumberBoxProps<D>) {
   const ref = useRef<HTMLInputElement>(null!);
@@ -224,6 +227,10 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
   };
 
   const dataListId = source == null ? undefined : `${name}_dl`;
+
+  if (hook) {
+    hook.focus = () => ref.current.focus();
+  }
 
   return (
     <InputField

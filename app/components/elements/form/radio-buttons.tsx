@@ -1,6 +1,7 @@
 import { useRef, type ChangeEvent, type MouseEvent } from "react";
 import { useSchemaItem } from "~/components/schema/hooks";
 import { InputDummyFocus, InputGroup, InputLabel, InputLabelText, type InputWrapProps } from "./common";
+import type { FormItemHookProps } from "./hooks";
 import { useSource } from "./utilities";
 
 type RadioButtonsSchemaProps = Schema.$String | Schema.$Number | Schema.$Boolean;
@@ -10,13 +11,16 @@ export type RadioButtonsProps<D extends Schema.DataItem<RadioButtonsSchemaProps>
   & {
     $: D;
     source?: Schema.Source<Schema.ValueType<D["_"]>>;
+    hook?: FormItemHookProps;
   };
 
 export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>({
   source: propsSource,
+  hook,
   ...$props
 }: RadioButtonsProps<D>) {
   const ref = useRef<HTMLDivElement>(null!);
+  const dummyRef = useRef<HTMLDivElement | null>(null);
 
   const {
     name,
@@ -70,6 +74,14 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
     setValue(undefined);
   };
 
+  if (hook) {
+    hook.focus = () => {
+      if (dummyRef.current) return dummyRef.current.focus();
+      const checkedElem = ref.current.querySelector(`input[type="radio"]:checked`) ?? ref.current.querySelector(`input[type="radio"]`);
+      (checkedElem as HTMLInputElement | null)?.focus();
+    };
+  }
+
   return (
     <InputGroup
       {...props}
@@ -106,7 +118,7 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
             </InputLabelText>
             {
               state.current === "readonly" && ((value == null && index === 0) || isSelected) &&
-              <InputDummyFocus />
+              <InputDummyFocus ref={dummyRef} />
             }
           </InputLabel>
         );

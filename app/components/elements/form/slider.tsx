@@ -1,6 +1,7 @@
 import { useRef, useState, type ChangeEvent, type CSSProperties } from "react";
 import { useSchemaItem } from "~/components/schema/hooks";
 import { getValidationValue, InputDummyFocus, InputLabel, type InputWrapProps } from "./common";
+import type { FormItemHookProps } from "./hooks";
 import { useSource } from "./utilities";
 
 export type SliderProps<D extends Schema.DataItem<Schema.$Number>> = InputWrapProps & {
@@ -9,6 +10,7 @@ export type SliderProps<D extends Schema.DataItem<Schema.$Number>> = InputWrapPr
   step?: number;
   showValueText?: boolean;
   hideScales?: boolean;
+  hook?: FormItemHookProps;
 };
 
 const DEFAULT_MIN = 0;
@@ -19,9 +21,11 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
   step,
   showValueText,
   hideScales,
+  hook,
   ...$props
 }: SliderProps<D>) {
   const ref = useRef<HTMLInputElement>(null!);
+  const dummyRef = useRef<HTMLDivElement | null>(null);
   const $step = Math.abs(step || 1);
 
   const {
@@ -89,6 +93,10 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
 
   const dataListId = source == null ? undefined : `${name}_dl`;
 
+  if (hook) {
+    hook.focus = () => (dummyRef.current ?? ref.current).focus();
+  }
+
   return (
     <InputLabel
       {...props}
@@ -135,7 +143,7 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
             name={name}
             value={value == null ? "" : String(value)}
           />
-          <InputDummyFocus />
+          <InputDummyFocus ref={dummyRef} />
         </>
       }
       {

@@ -1,12 +1,14 @@
 import { useRef, useState, type ChangeEvent, type HTMLAttributes, type HTMLInputTypeAttribute } from "react";
 import { useSchemaItem } from "~/components/schema/hooks";
 import { getValidationValue, InputField, type InputWrapProps } from "./common";
+import type { FormItemHookProps } from "./hooks";
 import { useSource } from "./utilities";
 
 export type TextBoxProps<D extends Schema.DataItem<Schema.$String>> = InputWrapProps & {
   $: D;
   placeholder?: string;
   source?: Schema.Source<Schema.ValueType<D["_"]>>;
+  hook?: FormItemHookProps;
 };
 
 function getPatternInputProps(pattern: Schema.StringProps["pattern"]): { type?: HTMLInputTypeAttribute; inputMode?: HTMLAttributes<HTMLInputElement>["inputMode"]; } {
@@ -33,6 +35,7 @@ function getPatternInputProps(pattern: Schema.StringProps["pattern"]): { type?: 
 export function TextBox<D extends Schema.DataItem<Schema.$String>>({
   placeholder,
   source: propsSource,
+  hook,
   ...$props
 }: TextBoxProps<D>) {
   const ref = useRef<HTMLInputElement>(null!);
@@ -95,6 +98,10 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
   const patternProps = getPatternInputProps(dataItem._.pattern);
 
   const dataListId = source == null ? undefined : `${name}_dl`;
+
+  if (hook) {
+    hook.focus = () => ref.current.focus();
+  }
 
   return (
     <InputField

@@ -1,14 +1,17 @@
 import { useRef, type ChangeEvent, type ReactNode } from "react";
 import { useSchemaItem } from "~/components/schema/hooks";
 import { InputDummyFocus, InputLabel, InputLabelText, type InputWrapProps } from "./common";
+import type { FormItemHookProps } from "./hooks";
 
 export type SwitchBoxProps<D extends Schema.DataItem<Schema.$Boolean>> = InputWrapProps & {
   $: D;
+  hook?: FormItemHookProps;
   children?: ReactNode;
 };
 
 export function SwitchBox<D extends Schema.DataItem<Schema.$Boolean>>({
   children,
+  hook,
   ...$props
 }: SwitchBoxProps<D>) {
   const ref = useRef<HTMLInputElement>(null!);
@@ -38,6 +41,10 @@ export function SwitchBox<D extends Schema.DataItem<Schema.$Boolean>>({
     if (state.current !== "enabled") return;
     setValue(e.target.checked ? dataItem._.trueValue : dataItem._.falseValue);
   };
+
+  if (hook) {
+    hook.focus = () => ref.current.focus();
+  }
 
   return (
     <InputLabel
