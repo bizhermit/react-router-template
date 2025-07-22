@@ -1,15 +1,18 @@
-import { useRef, useState, type ButtonHTMLAttributes, type MouseEvent } from "react";
+import { useRef, useState, type ButtonHTMLAttributes, type MouseEvent, type RefObject } from "react";
 import { clsx } from "./utilities";
 
+export interface ButtonClickParams {
+  event: MouseEvent<HTMLButtonElement>;
+  unlock: (focus?: boolean) => void;
+};
+
 export interface ButtonOptions {
+  ref?: RefObject<HTMLButtonElement>;
   disabled?: boolean;
   color?: StyleColor;
   appearance?: "fill" | "outline" | "text";
   round?: boolean;
-  onClick?: (parmas: {
-    event: MouseEvent<HTMLButtonElement>;
-    unlock: (focus?: boolean) => void;
-  }) => (void | Promise<void>);
+  onClick?: (parmas: ButtonClickParams) => (void | Promise<void>);
 };
 
 type ButtonProps = Overwrite<ButtonHTMLAttributes<HTMLButtonElement>, ButtonOptions>;

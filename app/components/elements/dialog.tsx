@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useRef, useState, type DialogHTMLAttributes, type KeyboardEvent, type MouseEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type DialogHTMLAttributes, type KeyboardEvent, type MouseEvent, type RefObject } from "react";
 import { preventScroll } from "../dom/prevent-scroll";
 import throttle from "../utilities/throttle";
 import { clsx } from "./utilities";
 
 interface DialogAnchor {
-  element: HTMLElement;
+  element: RefObject<HTMLElement>;
   x?: "inner" | "outer" | "center" | "inner-left" | "inner-right" | "outer-left" | "outer-right";
   y?: "inner" | "outer" | "center" | "inner-top" | "inner-bottom" | "outer-top" | "outer-bottom";
   flexible?: boolean;
@@ -53,7 +53,7 @@ export function useDialog(options?: DialogOptions & {
 
     const parseStyleNum = (num: number) => `${num}px`;
 
-    rect = anchor.element.getBoundingClientRect() ?? document.documentElement.getBoundingClientRect();
+    rect = anchor.element?.current.getBoundingClientRect() ?? document.documentElement.getBoundingClientRect();
 
     switch (anchor.width) {
       case "fill":

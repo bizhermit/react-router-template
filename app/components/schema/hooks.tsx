@@ -479,13 +479,13 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
     isValidScripts.current = true;
   }, []);
 
-  function getFormProps(method: "get" | "post" | "put", options: {
+  function getFormProps(method: "get" | "post" | "put", options?: {
     encType?: "application/x-www-form-urlencoded" | "multipart/form-data";
   }) {
     return {
       method,
       noValidate: true,
-      encType: options.encType,
+      encType: options?.encType,
       onSubmit: handleSubmit,
       onReset: handleReset,
     } satisfies FormHTMLAttributes<HTMLFormElement>;
