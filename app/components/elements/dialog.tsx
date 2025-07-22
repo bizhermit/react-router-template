@@ -4,7 +4,7 @@ import throttle from "../utilities/throttle";
 import { clsx } from "./utilities";
 
 interface DialogAnchor {
-  element: RefObject<HTMLElement>;
+  element?: RefObject<HTMLElement>;
   x?: "inner" | "outer" | "center" | "inner-left" | "inner-right" | "outer-left" | "outer-right";
   y?: "inner" | "outer" | "center" | "inner-top" | "inner-bottom" | "outer-top" | "outer-bottom";
   flexible?: boolean;
