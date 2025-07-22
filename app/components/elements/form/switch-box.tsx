@@ -12,6 +12,7 @@ export type SwitchBoxProps<D extends Schema.DataItem<Schema.$Boolean>> = InputWr
 export function SwitchBox<D extends Schema.DataItem<Schema.$Boolean>>({
   children,
   hook,
+  autoFocus,
   ...$props
 }: SwitchBoxProps<D>) {
   const ref = useRef<HTMLInputElement>(null!);
@@ -69,6 +70,7 @@ export function SwitchBox<D extends Schema.DataItem<Schema.$Boolean>>({
         aria-label={label}
         aria-invalid={invalid}
         aria-errormessage={errormessage}
+        autoFocus={autoFocus}
       />
       <InputLabelText>
         {children}

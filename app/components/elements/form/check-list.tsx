@@ -13,6 +13,7 @@ export type CheckListProps<D extends Schema.DataItem<Schema.$Array<CheckListItem
 };
 
 export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemSchemaProps>>>({
+  autoFocus,
   source: propsSource,
   hook,
   ...$props
@@ -107,6 +108,7 @@ export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemS
               aria-label={`${label ? `${label} - ` : ""}${item.text}`}
               aria-invalid={invalid}
               aria-errormessage={errormessage}
+              autoFocus={autoFocus ? index === 0 : undefined}
             />
             <InputLabelText>
               {item.text}

@@ -72,6 +72,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
   $: _$,
   placeholder,
   omitOnSubmit,
+  autoFocus,
   hook,
   ...props
 }: DateSelectBoxProps<P>) {
@@ -1071,6 +1072,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
         placeholder={placeholder?.[0]}
         omitOnSubmit={omitOnSubmit}
         validScripts={isValidScripts}
+        autoFocus={autoFocus}
       >
         {yearOptions}
       </SplittedSelect>
@@ -1195,6 +1197,7 @@ interface SplittedSelectProps {
   placeholder: string | undefined;
   omitOnSubmit: boolean | undefined;
   validScripts: boolean;
+  autoFocus?: boolean;
   children: ReactNode;
 };
 

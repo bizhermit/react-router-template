@@ -35,6 +35,7 @@ function getPatternInputProps(pattern: Schema.StringProps["pattern"]): { type?: 
 export function TextBox<D extends Schema.DataItem<Schema.$String>>({
   placeholder,
   source: propsSource,
+  autoFocus,
   hook,
   ...$props
 }: TextBoxProps<D>) {
@@ -129,6 +130,7 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
         aria-invalid={invalid}
         aria-errormessage={errormessage}
         list={dataListId}
+        autoFocus={autoFocus}
       />
       {
         source &&

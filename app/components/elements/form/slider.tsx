@@ -21,6 +21,7 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
   step,
   showValueText,
   hideScales,
+  autoFocus,
   hook,
   ...$props
 }: SliderProps<D>) {
@@ -128,6 +129,7 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
         aria-errormessage={errormessage}
         list={dataListId}
         title={value == null ? undefined : String(value)}
+        autoFocus={autoFocus}
       />
       {
         showValueText && value != null &&

@@ -22,6 +22,7 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
   emptyText,
   children,
   source: propsSource,
+  autoFocus,
   hook,
   ...$props
 }: SelectBoxProps<D>) {
@@ -92,6 +93,7 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
         aria-label={label}
         aria-invalid={invalid}
         aria-errormessage={errormessage}
+        autoFocus={autoFocus}
       >
         {
           children ?? <>

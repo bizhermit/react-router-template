@@ -4,6 +4,7 @@ import { InputMessageSpan } from "./message";
 
 export type InputWrapProps = {
   className?: string;
+  autoFocus?: boolean;
   hideMessage?: boolean;
   omitOnSubmit?: boolean;
 };

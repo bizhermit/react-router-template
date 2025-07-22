@@ -27,6 +27,7 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
   placeholder,
   source: propsSource,
   step,
+  autoFocus,
   hook,
   ...$props
 }: NumberBoxProps<D>) {
@@ -267,6 +268,7 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
         aria-invalid={invalid}
         aria-errormessage={errormessage}
         list={dataListId}
+        autoFocus={autoFocus}
       />
       {
         validScripts &&

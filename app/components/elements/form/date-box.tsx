@@ -17,6 +17,7 @@ export type DateBoxProps<D extends Schema.DataItem<DateBoxSchemaProps>> = InputW
 
 export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
   placeholder,
+  autoFocus,
   source: propsSource,
   hook,
   ...$props
@@ -160,6 +161,7 @@ export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
         aria-errormessage={errormessage}
         data-hasvalue={!!value}
         list={dataListId}
+        autoFocus={autoFocus}
       />
       {
         state.current === "readonly" &&

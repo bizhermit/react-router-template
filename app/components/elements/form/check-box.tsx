@@ -10,6 +10,7 @@ export type CheckBoxProps<D extends Schema.DataItem<Schema.$Boolean>> = InputWra
 };
 
 export function CheckBox<D extends Schema.DataItem<Schema.$Boolean>>({
+  autoFocus,
   hook,
   children,
   ...$props
@@ -69,6 +70,7 @@ export function CheckBox<D extends Schema.DataItem<Schema.$Boolean>>({
         aria-label={label}
         aria-invalid={invalid}
         aria-errormessage={errormessage}
+        autoFocus={autoFocus}
       />
       <InputLabelText>
         {children}

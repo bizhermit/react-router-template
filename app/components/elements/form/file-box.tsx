@@ -26,6 +26,7 @@ export function FileBox<D extends Schema.DataItem<Schema.$File>>({
   placeholder,
   viewMode,
   onViewClick,
+  autoFocus,
   hook,
   ...$props
 }: FileBoxProps<D>) {
@@ -154,6 +155,7 @@ export function FileBox<D extends Schema.DataItem<Schema.$File>>({
           aria-label={label}
           aria-invalid={invalid}
           aria-errormessage={errormessage}
+          autoFocus={autoFocus}
         />
         {
           validScripts && placeholder &&

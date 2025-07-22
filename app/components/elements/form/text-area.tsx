@@ -28,6 +28,7 @@ export function TextArea<D extends Schema.DataItem<Schema.$String>>({
   rows,
   cols,
   resize,
+  autoFocus,
   hook,
   ...$props
 }: TextAreaProps<D>) {
@@ -108,6 +109,7 @@ export function TextArea<D extends Schema.DataItem<Schema.$String>>({
         aria-label={label}
         aria-invalid={invalid}
         aria-errormessage={errormessage}
+        autoFocus={autoFocus}
       />
     </InputField>
   );

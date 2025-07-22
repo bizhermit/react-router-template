@@ -16,6 +16,7 @@ export type RadioButtonsProps<D extends Schema.DataItem<RadioButtonsSchemaProps>
 
 export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>({
   source: propsSource,
+  autoFocus,
   hook,
   ...$props
 }: RadioButtonsProps<D>) {
@@ -74,6 +75,8 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
     setValue(undefined);
   };
 
+  const hasValue = value != null;
+
   if (hook) {
     hook.focus = () => {
       if (dummyRef.current) return dummyRef.current.focus();
@@ -112,6 +115,7 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
               aria-label={`${label ? `${label} - ` : ""}${item.text}`}
               aria-invalid={invalid}
               aria-errormessage={errormessage}
+              autoFocus={autoFocus ? (hasValue ? isSelected : index === 0) : undefined}
             />
             <InputLabelText>
               {item.text}
