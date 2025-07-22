@@ -90,6 +90,7 @@
     outline: none;
     background-color: transparent;
     padding-inline: var(--spacing-input-pad-x);
+    width: 100%;
 
     &:disabled {
       &::placeholder {
