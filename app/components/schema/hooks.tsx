@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { createContext, use, useCallback, useContext, useId, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type FormEvent, type FormHTMLAttributes, type ReactNode, type RefObject } from "react";
 import { useText } from "~/i18n/hooks";
 import { parseWithSchema } from ".";
@@ -111,11 +113,11 @@ const EMPTY_STRUCT = {} as const;
 interface Props<S extends Record<string, Schema.$Any>> {
   schema: S;
   state?: FormState;
-  loaderData?: Record<string, unknown> | null | undefined;
-  actionData?: Record<string, unknown> | null | undefined;
+  loaderData?: Record<string, any> | null | undefined;
+  actionData?: Record<string, any> | null | undefined;
   loaderResults?: Record<string, Schema.Result> | null | undefined;
   actionResults?: Record<string, Schema.Result> | null | undefined;
-  dep?: Record<string, unknown>;
+  dep?: Record<string, any>;
   preventPrompt?: boolean;
   onChangeEffected?: (effected: boolean) => void;
 };
@@ -708,7 +710,7 @@ export function schemaItemValidation<D extends Schema.DataItem>(
   value: unknown,
 ) {
   let r: Schema.Result | null | undefined;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   const params: Schema.ValidationParams<any> = {
     name: $.name,
     label: $.label,
@@ -1073,7 +1075,7 @@ export function useSchemaArray<D extends Schema.DataItem<Schema.$Array>>(dataIte
   }) => T) {
     return schemaItem.value?.map((value, index) => {
       const di = dataItem.generateDataItem(index) as Schema.DataItem<D["_"]["prop"]>;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
       const key = typeof dataItem._.key === "function" ? dataItem._.key(value as any) :
         (value && dataItem._.key) ? (value as Record<string, string>)[dataItem._.key] : `${keyRev}_${index}`;
       return func({
