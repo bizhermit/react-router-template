@@ -1,7 +1,5 @@
 namespace Api {
 
-  type _ = import("./types+").paths;
-
   type MethodPaths<P extends Record<string, unknown>, M extends string> = {
     [K in keyof P]: M extends keyof P[K] ? (
       P[K][M] extends { [v: unknown]: unknown; } ? K : never
@@ -16,18 +14,18 @@ namespace Api {
     ) : {}
   );
 
-  type GetPath = MethodPaths<_, "get">;
-  type PostPath = MethodPaths<_, "post">;
-  type PutPath = MethodPaths<_, "put">;
-  type DeletePath = MethodPaths<_, "delete">;
-  type Path = keyof _;
+  type GetPath<OpenApi> = MethodPaths<OpenApi, "get">;
+  type PostPath<OpenApi> = MethodPaths<OpenApi, "post">;
+  type PutPath<OpenApi> = MethodPaths<OpenApi, "put">;
+  type DeletePath<OpenApi> = MethodPaths<OpenApi, "delete">;
+  type Path<OpenApi> = keyof OpenApi;
 
-  type PathParams<P extends string, M extends string> = _[P][M]["parameters"]["path"];
+  type PathParams<OpenApi, P extends string | number | symbol, M extends string> = OpenApi[P][M]["parameters"]["path"];
 
-  type QueryParams<P extends string, M extends string> = _[P][M]["parameters"]["query"];
+  type QueryParams<OpenApi, P extends string | number | symbol, M extends string> = OpenApi[P][M]["parameters"]["query"];
 
-  type BodyParams<P extends Path, M extends string> =
-    _[P][M]["requestBody"] extends { content: infer C; } ? C[keyof C] : never;
+  type BodyParams<OpenApi, P extends Path, M extends string> =
+    OpenApi[P][M]["requestBody"] extends { content: infer C; } ? C[keyof C] : never;
 
   type FilterByPrefix<T, Prefix extends string> =
     T extends number ? (
@@ -66,14 +64,14 @@ namespace Api {
     [K in keyof T]: K extends Exclude<keyof T, FilterByPrefix<keyof T, "2">> ? ResponseEntry<K, T[K]> : never;
   }[keyof T];
 
-  type SuccessResponse<P extends Path, M extends string> = {
+  type SuccessResponse<OpenApi, P extends Path, M extends string> = {
     ok: true;
     _: Response;
-  } & SuccessResponses<_[P][M]["responses"]>;
+  } & SuccessResponses<OpenApi[P][M]["responses"]>;
 
-  type ErrorResponse<P extends Path, M extends string> = {
+  type ErrorResponse<OpenApi, P extends Path, M extends string> = {
     ok: false;
     _: Response;
-  } & ErrorResponses<_[P][M]["responses"]>;
+  } & ErrorResponses<OpenApi[P][M]["responses"]>;
 
 };

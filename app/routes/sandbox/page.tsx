@@ -4,7 +4,6 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { data, useFetcher } from "react-router";
-import { api } from "~/api/fetch";
 import { Button } from "~/components/elements/button";
 import { Details } from "~/components/elements/details";
 import { useDialog } from "~/components/elements/dialog";
@@ -46,6 +45,7 @@ import { getPayload } from "~/components/schema/server";
 import { $str } from "~/components/schema/string";
 import { $struct } from "~/components/schema/struct";
 import sleep from "~/components/utilities/sleep";
+import { internalApi } from "~/features/api/internal";
 import { useLocale, useText } from "~/i18n/hooks";
 import { Text } from "~/i18n/react-component";
 import type { Route } from "./+types/page";
@@ -1316,7 +1316,7 @@ function FetchComponent() {
           <Button
             onClick={async ({ unlock }) => {
               try {
-                const res = await api.get("/health");
+                const res = await internalApi.get("/health");
                 if (!res.ok) {
                   return;
                 }
@@ -1334,7 +1334,7 @@ function FetchComponent() {
           <Button
             onClick={async ({ unlock }) => {
               try {
-                const res = await api.get("/sandbox/api/{id}", { id: 2 });
+                const res = await internalApi.get("/sandbox/api/{id}", { id: 1 });
                 console.log(res);
                 if (!res.ok) {
                   return;
@@ -1357,7 +1357,7 @@ function FetchComponent() {
           <Button
             onClick={async ({ unlock }) => {
               try {
-                const res = await api.post("/sandbox/api", {
+                const res = await internalApi.post("/sandbox/api", {
                   title: "sample title",
                   body: "sample body",
                 });
@@ -1374,7 +1374,7 @@ function FetchComponent() {
           <Button
             onClick={async ({ unlock }) => {
               try {
-                const res = await api.put("/sandbox/api/{id}", {
+                const res = await internalApi.put("/sandbox/api/{id}", {
                   id: 1,
                   title: "sample",
                   body: "sample",
@@ -1393,7 +1393,7 @@ function FetchComponent() {
           <Button
             onClick={async ({ unlock }) => {
               try {
-                const res = await api.delete("/sandbox/api/{id}", { id: 2 });
+                const res = await internalApi.delete("/sandbox/api/{id}", { id: 2 });
                 console.log(res);
               } catch (e) {
                 console.error(e);

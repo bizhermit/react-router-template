@@ -1,0 +1,167 @@
+openapi: 3.1.0
+info:
+  title: internal API
+  description: internal API
+  version: 0.0.0
+servers:
+  - url: https//localhost:3000
+paths:
+  /health:
+    get:
+      summary: ヘルスチェック
+      responses:
+        '200':
+          description: ヘルスチェック
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  now:
+                    type: number
+                required:
+                  - now
+        '404':
+          description:
+  /sandbox/api:
+    get:
+      summary: 一覧の取得
+      parameters:
+        - name: limit
+          in: query
+          description: １ページあたりの件数
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 10
+        - name: page
+          in: query
+          description: ページ番号
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+      responses:
+        '200':
+          description: 一覧
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  page:
+                    type: integer
+                    example: 1
+                  total:
+                    type: integer
+                    example: 100
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Sandbox'
+                required:
+                  - page
+                  - total
+                  - items
+    post:
+      summary: 詳細作成
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewSandBox'
+      responses:
+        '201':
+          description: 作成成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sandbox'
+  /sandbox/api/{id}:
+    get:
+      summary: 詳細取得
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 詳細
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sandbox'
+        '201':
+          description: ダミー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NewSandBox'
+        '404':
+          description: 見つかりません
+    put:
+      summary: 更新
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Sandbox'
+      responses:
+        '200':
+          description: 詳細
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sandbox'
+    delete:
+      summary: 削除
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: 削除成功
+
+components:
+  schemas:
+    Sandbox:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        body:
+          type: string
+        updated_at:
+          type: string
+      required:
+        - id
+        - title
+        - body
+        - updated_at
+    NewSandBox:
+      type: object
+      properties:
+        title:
+          type: string
+        body:
+          type: string
+      required:
+        - title
+        - body

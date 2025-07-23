@@ -108,74 +108,80 @@ async function requestBodyStringfy(params: Record<string, unknown> | null | unde
   return JSON.stringify(await bodySafe(params));
 }
 
-async function responseParser<P extends Api.Path, M extends string>(res: Response) {
-  return {
-    ok: res.ok,
-    status: res.status,
-    statusText: res.statusText,
-    data: await (async () => {
-      if (res.status === 204) return undefined;
-      const text = await res.text();
-      if (text == null) return undefined;
-      try {
-        return JSON.parse(text);
-      } catch {
-        return undefined;
-      }
-    })(),
-    _: res,
-  } as unknown as (Api.SuccessResponse<P, M> | Api.ErrorResponse<P, M>);
-};
+export function generateApiAccessor<ApiPaths>(options?: {
+  baseUrl?: string;
+}) {
+  const baseUrl = (options?.baseUrl || "").replace(/\/+$/, "").replace(/\\/g, "/");
 
-async function post<P extends Api.Path, M extends string>(
-  path: P,
-  method: M,
-  params: Api.MergeParams<[Api.PathParams<P, M>, Api.BodyParams<P, M>]> | undefined
-) {
-  const replaced = replacePathParams(path, params);
-  const res = await fetch(replaced.path, {
-    method,
-    body: await requestBodyStringfy(params),
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-  return responseParser<P, M>(res);
-};
+  async function responseParser<P extends Api.Path<ApiPaths>, M extends string>(res: Response) {
+    return {
+      ok: res.ok,
+      status: res.status,
+      statusText: res.statusText,
+      data: await (async () => {
+        if (res.status === 204) return undefined;
+        const text = await res.text();
+        if (text == null) return undefined;
+        try {
+          return JSON.parse(text);
+        } catch {
+          return undefined;
+        }
+      })(),
+      _: res,
+    } as unknown as (Api.SuccessResponse<ApiPaths, P, M> | Api.ErrorResponse<ApiPaths, P, M>);
+  };
 
-export const api = {
-  get: async function <P extends Api.GetPath>(
+  async function post<P extends Api.Path<ApiPaths>, M extends string>(
     path: P,
-    params?: Api.MergeParams<[Api.PathParams<P, "get">, Api.QueryParams<P, "get">]>,
+    method: M,
+    params: Api.MergeParams<[Api.PathParams<ApiPaths, P, M>, Api.BodyParams<ApiPaths, P, M>]> | undefined
   ) {
-    const replaced = replacePathParams(path, params);
-    if (replaced.params) {
-      const query = parseQueryString(replaced.params);
-      if (query) {
-        replaced.path += `?${query}`;
-      }
-    }
-    const res = await fetch(replaced.path, {
-      method: "get",
+    const replaced = replacePathParams(path as string, params);
+    const res = await fetch(`${baseUrl}${replaced.path}`, {
+      method,
+      body: await requestBodyStringfy(params),
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
-    return responseParser<P, "get">(res);
-  },
-  post: async function <P extends Api.PostPath>(
-    path: P,
-    params: Api.MergeParams<[Api.PathParams<P, "post">, Api.BodyParams<P, "post">]>,
-  ) {
-    return post(path, "post", params);
-  },
-  put: async function <P extends Api.PutPath>(
-    path: P,
-    params: Api.MergeParams<[Api.PathParams<P, "put">, Api.BodyParams<P, "put">]>,
-  ) {
-    return post(path, "put", params);
-  },
-  delete: async function <P extends Api.DeletePath>(
-    path: P,
-    params?: Api.MergeParams<[Api.PathParams<P, "delete">, Api.BodyParams<P, "delete">]>,
-  ) {
-    return post(path, "delete", params);
-  },
-} as const;
+    return responseParser<P, M>(res);
+  };
+
+  return {
+    get: async function <P extends Api.GetPath<ApiPaths>>(
+      path: P,
+      params?: Api.MergeParams<[Api.PathParams<ApiPaths, P, "get">, Api.QueryParams<ApiPaths, P, "get">]>,
+    ) {
+      const replaced = replacePathParams(path as string, params);
+      if (replaced.params) {
+        const query = parseQueryString(replaced.params);
+        if (query) {
+          replaced.path += `?${query}`;
+        }
+      }
+      const res = await fetch(`${baseUrl}${replaced.path}`, {
+        method: "get",
+      });
+      return responseParser<P, "get">(res);
+    },
+    post: async function <P extends Api.PostPath<ApiPaths>>(
+      path: P,
+      params: Api.MergeParams<[Api.PathParams<ApiPaths, P, "post">, Api.BodyParams<ApiPaths, P, "post">]>,
+    ) {
+      return post(path, "post", params);
+    },
+    put: async function <P extends Api.PutPath<ApiPaths>>(
+      path: P,
+      params: Api.MergeParams<[Api.PathParams<ApiPaths, P, "put">, Api.BodyParams<ApiPaths, P, "put">]>,
+    ) {
+      return post(path, "put", params);
+    },
+    delete: async function <P extends Api.DeletePath<ApiPaths>>(
+      path: P,
+      params?: Api.MergeParams<[Api.PathParams<ApiPaths, P, "delete">, Api.BodyParams<ApiPaths, P, "delete">]>,
+    ) {
+      return post(path, "delete", params);
+    },
+  } as const;
+};

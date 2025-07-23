@@ -1,7 +1,8 @@
 import { data } from "react-router";
+import type { InternalApiPaths } from "~/features/api/internal";
 
-type Get = Api.SuccessResponse<"/sandbox/api", "get">["data"];
-type Post = Api.SuccessResponse<"/sandbox/api", "post">["data"];
+type Get = Api.SuccessResponse<InternalApiPaths, "/sandbox/api", "get">["data"];
+type Post = Api.SuccessResponse<InternalApiPaths, "/sandbox/api", "post">["data"];
 
 export async function loader() {
   return data({
