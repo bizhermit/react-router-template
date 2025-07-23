@@ -17,8 +17,8 @@ export type TextAreaProps<D extends Schema.DataItem<Schema.$String>> = InputWrap
 function getResizeClassName(resize: Resize | undefined) {
   switch (resize) {
     case "none": return "resize-none";
-    case "vertical": return "resize-x";
-    case "horizontal": return "resize-y";
+    case "vertical": return "resize-y";
+    case "horizontal": return "resize-x";
     default: return "resize";
   }
 };
