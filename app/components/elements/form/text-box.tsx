@@ -1,4 +1,4 @@
-import { useRef, useState, type ChangeEvent, type HTMLAttributes, type HTMLInputTypeAttribute } from "react";
+import { useRef, useState, type ChangeEvent, type HTMLAttributes, type HTMLInputTypeAttribute, type InputHTMLAttributes } from "react";
 import { useSchemaItem } from "~/components/schema/hooks";
 import { getValidationValue, InputField, type InputWrapProps } from "./common";
 import type { FormItemHookProps } from "./hooks";
@@ -9,7 +9,11 @@ export type TextBoxProps<D extends Schema.DataItem<Schema.$String>> = InputWrapP
   placeholder?: string;
   source?: Schema.Source<Schema.ValueType<D["_"]>>;
   hook?: FormItemHookProps;
-};
+} & Pick<InputHTMLAttributes<HTMLInputElement>,
+  | "autoComplete"
+  | "autoCapitalize"
+  | "enterKeyHint"
+>;
 
 function getPatternInputProps(pattern: Schema.StringProps["pattern"]): { type?: HTMLInputTypeAttribute; inputMode?: HTMLAttributes<HTMLInputElement>["inputMode"]; } {
   if (pattern == null || typeof pattern !== "string") return {};
@@ -36,6 +40,9 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
   placeholder,
   source: propsSource,
   autoFocus,
+  autoComplete,
+  autoCapitalize,
+  enterKeyHint,
   hook,
   ...$props
 }: TextBoxProps<D>) {
@@ -131,6 +138,9 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
         aria-errormessage={errormessage}
         list={dataListId}
         autoFocus={autoFocus}
+        autoComplete={autoComplete || "off"}
+        autoCapitalize={autoCapitalize}
+        enterKeyHint={enterKeyHint}
       />
       {
         source &&

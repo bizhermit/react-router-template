@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState, type ChangeEvent, type FocusEvent, type KeyboardEvent } from "react";
+import { useMemo, useRef, useState, type ChangeEvent, type FocusEvent, type InputHTMLAttributes, type KeyboardEvent } from "react";
 import { useSchemaItem } from "~/components/schema/hooks";
 import { clsx } from "../utilities";
 import { getValidationValue, InputField, type InputWrapProps } from "./common";
@@ -11,7 +11,10 @@ export type NumberBoxProps<D extends Schema.DataItem<Schema.$Number>> = InputWra
   source?: Schema.Source<Schema.ValueType<D["_"]>>;
   step?: number;
   hook?: FormItemHookProps;
-};
+} & Pick<InputHTMLAttributes<HTMLInputElement>,
+  | "autoComplete"
+  | "enterKeyHint"
+>;
 
 const UP_DOWN_ROOP_WAIT = 500;
 const UP_DOWN_INTERVAL = 50;
@@ -28,6 +31,8 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
   source: propsSource,
   step,
   autoFocus,
+  autoComplete,
+  enterKeyHint,
   hook,
   ...$props
 }: NumberBoxProps<D>) {
@@ -269,6 +274,8 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
         aria-errormessage={errormessage}
         list={dataListId}
         autoFocus={autoFocus}
+        autoComplete={autoComplete || "off"}
+        enterKeyHint={enterKeyHint}
       />
       {
         validScripts &&
