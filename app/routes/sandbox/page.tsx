@@ -599,6 +599,8 @@ function Component2() {
       <FormItem>
         <TextArea
           $={dataItems.customMessageText}
+          rows="fit"
+          maxRows={5}
         />
       </FormItem>
       <FormItem>

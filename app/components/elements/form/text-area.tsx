@@ -8,11 +8,16 @@ type Resize = "none" | "vertical" | "horizontal" | "both";
 export type TextAreaProps<D extends Schema.DataItem<Schema.$String>> = InputWrapProps & {
   $: D;
   placeholder?: string;
-  rows?: number;
   cols?: number;
   resize?: Resize;
   hook?: FormItemHookProps;
-};
+} & ({
+  rows?: number;
+  maxRows?: undefined;
+} | {
+  rows: "fit";
+  maxRows?: number;
+});
 
 function getResizeClassName(resize: Resize | undefined) {
   switch (resize) {
@@ -23,9 +28,12 @@ function getResizeClassName(resize: Resize | undefined) {
   }
 };
 
+const DEFAULT_ROWS = 3;
+
 export function TextArea<D extends Schema.DataItem<Schema.$String>>({
   placeholder,
-  rows,
+  rows: propsRows,
+  maxRows,
   cols,
   resize,
   autoFocus,
@@ -84,6 +92,17 @@ export function TextArea<D extends Schema.DataItem<Schema.$String>>({
     hook.focus = () => ref.current.focus();
   }
 
+  const rows = (() => {
+    if (propsRows == null) return DEFAULT_ROWS;
+    if (propsRows === "fit") {
+      if (!value) return 1;
+      const len = Math.max(1, value.split(/\r\n|\r|\n/g).length);
+      if (maxRows == null) return len;
+      return Math.min(len, maxRows);
+    }
+    return propsRows;
+  })();
+
   return (
     <InputField
       {...props}
@@ -104,7 +123,7 @@ export function TextArea<D extends Schema.DataItem<Schema.$String>>({
         defaultValue={value || undefined}
         onChange={handleChange}
         placeholder={placeholder}
-        rows={rows ?? 3}
+        rows={rows}
         cols={cols}
         aria-label={label}
         aria-invalid={invalid}
