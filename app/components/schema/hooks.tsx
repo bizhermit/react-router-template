@@ -56,6 +56,7 @@ interface FormItemMountProps {
 };
 
 export type FormState = "idle" | "loading" | "submitting";
+export type SchemaValidationTrigger = "change" | "submit";
 
 interface SchemaContextProps<S extends Record<string, Schema.$Any> = Record<string, Schema.$Any>> {
   env: Schema.Env;
@@ -86,6 +87,7 @@ interface SchemaContextProps<S extends Record<string, Schema.$Any> = Record<stri
   isFirstLoad: RefObject<boolean>;
   isValidScripts: RefObject<boolean>;
   state: FormState | undefined;
+  validationTrigger: SchemaValidationTrigger;
 };
 
 export const SchemaContext = createContext<SchemaContextProps>({
@@ -106,6 +108,7 @@ export const SchemaContext = createContext<SchemaContextProps>({
   isFirstLoad: { current: true },
   isValidScripts: { current: false },
   state: undefined,
+  validationTrigger: "change",
 });
 
 const EMPTY_STRUCT = {} as const;
@@ -118,7 +121,7 @@ interface Props<S extends Record<string, Schema.$Any>> {
   loaderResults?: Record<string, Schema.Result> | null | undefined;
   actionResults?: Record<string, Schema.Result> | null | undefined;
   dep?: Record<string, any>;
-  preventPrompt?: boolean;
+  validationTrigger?: SchemaValidationTrigger;
   onChangeEffected?: (effected: boolean) => void;
 };
 
@@ -441,6 +444,7 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
           isFirstLoad,
           isValidScripts,
           state,
+          validationTrigger: props.validationTrigger || "change",
         }}
       >
         {p.children}
@@ -824,12 +828,16 @@ export function useSchemaItem<D extends Schema.DataItem>({
         if (item) {
           if (params.type === "value-result") {
             setValue(item.value);
-            setResult(item.result);
+            if (schema.validationTrigger === "change") {
+              setResult(item.result);
+            }
             options.effect?.(item);
           } else {
             const submission = effect(item.value);
             setValue(submission.value);
-            setResult(submission.result);
+            if (schema.validationTrigger === "change") {
+              setResult(submission.result);
+            }
             options.effect?.(submission);
           }
           isEffected.current = true;
@@ -957,7 +965,7 @@ export function useSchemaItem<D extends Schema.DataItem>({
     schema.setValueAndResult(
       $.name,
       submission.value,
-      submission.result
+      schema.validationTrigger === "change" ? submission.result : result,
     );
     return submission;
   };

@@ -178,11 +178,15 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
           if (!item) return false;
           if (params.type === "value-result") {
             resetSelectValue(item.value, valueSetter, selectRef);
-            resultSetter(item.result);
+            if (schema.validationTrigger === "change") {
+              resultSetter(item.result);
+            }
           } else {
             const submission = schemaItemEffect($, schema, item.value);
             resetSelectValue(submission.value, valueSetter, selectRef);
-            resultSetter(submission.result);
+            if (schema.validationTrigger === "change") {
+              resultSetter(submission.result);
+            }
           }
           isEffected.current = true;
           return true;
@@ -972,7 +976,11 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
     }
   };
 
-  function handleChangeImpl($: Schema.DataItem<Schema.$SplitDate> | undefined, v: string) {
+  function handleChangeImpl(
+    $: Schema.DataItem<Schema.$SplitDate> | undefined,
+    v: string,
+    currentResult: Schema.Result | null | undefined
+  ) {
     if (!$) return;
     const submission = schemaItemEffect<Schema.DataItem<Schema.$SplitDate>>($, schema, v);
     const num = submission.value;
@@ -986,14 +994,27 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
       s: t === "sdate-s" ? num : secondValue,
     });
     const dateSubmission = schemaItemEffect($date, schema, dateValue);
+    const isValidationTriggerChange = schema.validationTrigger === "change";
     if ($date.name) {
       schema.setValuesAndResults([
-        { name: $.name, value: submission.value, result: submission.result },
-        { name: $date.name, value: dateSubmission.value, result: dateSubmission.result },
+        {
+          name: $.name,
+          value: submission.value,
+          result: isValidationTriggerChange ? submission.result : currentResult,
+        },
+        {
+          name: $date.name,
+          value: dateSubmission.value,
+          result: isValidationTriggerChange ? dateSubmission.result : result,
+        },
       ]);
     } else {
       schema.setValuesAndResults([
-        { name: $.name, value: submission.value, result: submission.result },
+        {
+          name: $.name,
+          value: submission.value,
+          result: isValidationTriggerChange ? submission.result : currentResult,
+        },
       ]);
       setValue(dateSubmission.value);
       setResult(dateSubmission.result);
@@ -1001,27 +1022,27 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
   };
 
   function handleYearChange(e: ChangeEvent<HTMLSelectElement>) {
-    handleChangeImpl($year, e.target.value);
+    handleChangeImpl($year, e.target.value, yearResult);
   };
 
   function handleMonthChange(e: ChangeEvent<HTMLSelectElement>) {
-    handleChangeImpl($month, e.target.value);
+    handleChangeImpl($month, e.target.value, monthResult);
   };
 
   function handleDayChange(e: ChangeEvent<HTMLSelectElement>) {
-    handleChangeImpl($day, e.target.value);
+    handleChangeImpl($day, e.target.value, dayResult);
   };
 
   function handleHourChange(e: ChangeEvent<HTMLSelectElement>) {
-    handleChangeImpl($hour, e.target.value);
+    handleChangeImpl($hour, e.target.value, hourResult);
   };
 
   function handleMinuteChange(e: ChangeEvent<HTMLSelectElement>) {
-    handleChangeImpl($minute, e.target.value);
+    handleChangeImpl($minute, e.target.value, minuteResult);
   };
 
   function handleSecondChange(e: ChangeEvent<HTMLSelectElement>) {
-    handleChangeImpl($second, e.target.value);
+    handleChangeImpl($second, e.target.value, secondResult);
   };
 
   const dispayResult = selectBoxDisplayResult(

@@ -338,6 +338,7 @@ function Contents(props: Route.ComponentProps) {
   } = useSchema({
     schema,
     state: fetcher.state,
+    // validationTrigger: "submit",
     onChangeEffected: handleConfirmEnabled,
     // loaderData: props.loaderData ? props.loaderData.data : undefined,
     actionData: fetcher.data ?
@@ -511,13 +512,13 @@ function Component1() {
 function FormValueSetterComponent() {
   const { dataItems } = useSchemaContext<typeof schema>();
 
-  const [value, setValue] = useSchemaValue(dataItems.range);
+  const [value, setValue] = useSchemaValue(dataItems.birth_month);
 
   return (
     <>
       <Button
         onClick={() => {
-          setValue(40);
+          setValue(null);
         }}
       >
         set value
