@@ -76,8 +76,7 @@ export function getI18n(request: Request) {
     let text = (resource as Record<string, string>)[key];
     if (text == null) return key;
     if (params) {
-      Object.keys(params).forEach(k => {
-        const v = (params as Record<string, I18nReplaceValue>)[k];
+      Object.entries(params).forEach(([k, v]) => {
         if (v == null) return;
         text = text!.replace(new RegExp(`{{${k}}}`, "g"), String(v));
       });

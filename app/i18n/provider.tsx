@@ -18,8 +18,7 @@ export function I18nProvider(props: {
     let text = resourceRef.current[key];
     if (text == null) return key;
     if (params) {
-      Object.keys(params).forEach(k => {
-        const v = (params as Record<string, I18nReplaceValue>)[k];
+      Object.entries(params).forEach(([k, v]) => {
         if (v == null) return;
         text = text!.replace(new RegExp(`{{${k}}}`, "g"), String(v));
       });
