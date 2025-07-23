@@ -4,7 +4,7 @@ info:
   description: internal API
   version: 0.0.0
 servers:
-  - url: https//localhost:3000
+  - url: https://localhost:3000
 paths:
   /health:
     get:

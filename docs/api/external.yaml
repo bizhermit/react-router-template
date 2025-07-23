@@ -1,10 +1,10 @@
 openapi: 3.1.0
 info:
-  title: API
-  description: API
+  title: external API
+  description: external API
   version: 0.0.0
 servers:
-  - url: https//localhost:8080
+  - url: https://localhost:8080
 paths:
   /health:
     get:
