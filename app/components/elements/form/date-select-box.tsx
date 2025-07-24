@@ -114,20 +114,34 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
     switch (params.type) {
       case "refresh": {
         isEffected.current = false;
-        setValue(getValue);
-        resetSelectValue(getYearValue(), setYearValue, yearSelectRef);
-        resetSelectValue(getMonthValue(), setMonthValue, monthSelectRef);
-        resetSelectValue(getDayValue(), setDayValue, daySelectRef);
-        resetSelectValue(getHourValue(), setHourValue, hourSelectRef);
-        resetSelectValue(getMinuteValue(), setMinuteValue, minuteSelectRef);
-        resetSelectValue(getSecondValue(), setSecondValue, secondSelectRef);
-        setResult(getResult);
-        setYearResult(getYearResult);
-        setMonthResult(getMonthResult);
-        setDayResult(getDayResult);
-        setHourResult(getHourResult);
-        setMinuteResult(getMinuteResult);
-        setSecondResult(getSecondResult);
+        if ($date.name) {
+          setValue(params.data.get<Schema.DateValueString>($date.name));
+          setResult(params.results[$date.name]);
+        }
+        if ($year?.name) {
+          resetSelectValue(params.data.get<number>($year.name), setYearValue, yearSelectRef);
+          setYearResult(params.results[$year.name]);
+        }
+        if ($month?.name) {
+          resetSelectValue(params.data.get<number>($month.name), setMonthValue, monthSelectRef);
+          setMonthResult(params.results[$month.name]);
+        }
+        if ($day?.name) {
+          resetSelectValue(params.data.get<number>($day.name), setDayValue, daySelectRef);
+          setDayResult(params.results[$day.name]);
+        }
+        if ($hour?.name) {
+          resetSelectValue(params.data.get<number>($hour.name), setHourValue, hourSelectRef);
+          setHourResult(params.results[$hour.name]);
+        }
+        if ($minute?.name) {
+          resetSelectValue(params.data.get<number>($minute.name), setMinuteValue, minuteSelectRef);
+          setMinuteResult(params.results[$minute.name]);
+        }
+        if ($second?.name) {
+          resetSelectValue(params.data.get<number>($second.name), setSecondValue, secondSelectRef);
+          setSecondResult(params.results[$second.name]);
+        }
       }
       // eslint-disable-next-line no-fallthrough
       case "dep":
@@ -291,13 +305,13 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
         break;
       }
       case "validation":
-        setResult(getResult());
-        setYearResult(getYearResult());
-        setMonthResult(getMonthResult());
-        setDayResult(getDayResult());
-        setHourResult(getHourResult());
-        setMinuteResult(getMinuteResult());
-        setSecondResult(getSecondResult());
+        if ($date.name) setResult(params.results[$date.name]);
+        if ($year?.name) setYearResult(params.results[$year.name]);
+        if ($month?.name) setMonthResult(params.results[$month.name]);
+        if ($day?.name) setDayResult(params.results[$day.name]);
+        if ($hour?.name) setHourResult(params.results[$hour.name]);
+        if ($minute?.name) setMinuteResult(params.results[$minute.name]);
+        if ($second?.name) setSecondResult(params.results[$second.name]);
         break;
       default:
         break;

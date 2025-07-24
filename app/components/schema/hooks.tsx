@@ -800,8 +800,8 @@ export function useSchemaItem<D extends Schema.DataItem>({
     switch (params.type) {
       case "refresh": {
         isEffected.current = false;
-        const value = getValue();
-        const result = getResult();
+        const value = params.data.get<any>($.name);
+        const result = params.results[$.name];
         setValue(value);
         setResult(result);
         options.effect?.({ value, result });
@@ -876,7 +876,7 @@ export function useSchemaItem<D extends Schema.DataItem>({
         break;
       }
       case "validation":
-        setResult(getResult());
+        setResult(params.results[$.name]);
         break;
       default:
         break;
