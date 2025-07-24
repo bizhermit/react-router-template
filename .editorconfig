@@ -17,7 +17,7 @@ max_line_length = unset
 trim_trailing_whitespace = false
 
 # ignore
-[/{node_modules,dist,build,.react-router,.vscode}/**,*.{ts,tsx,js,jsx}]
+[/{node_modules,dist,build,.react-router,.playwright,.vscode}/**,*.{ts,tsx,js,jsx}]
 charset = unset
 insert_final_newline = unset
 end_of_line = unset
