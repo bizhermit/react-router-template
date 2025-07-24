@@ -1,5 +1,6 @@
 import { type ReactNode, type RefObject } from "react";
 import { createRoot } from "react-dom/client";
+import { parseToReactNode } from "~/i18n/react-component";
 import { preventScroll } from "../dom/prevent-scroll";
 import { Button } from "./button";
 import { FocusTrap } from "./focus-trap";
@@ -17,9 +18,7 @@ interface MessageBoxProps {
 
 function optimizeEndOfLines(content: ReactNode) {
   if (typeof content !== "string") return content;
-  return content.split(/\r\n|\r|\n/g).map((t, i) => {
-    return <span key={i}>{t}</span>;
-  });
+  return parseToReactNode(content);
 };
 
 function MessageBox(props: MessageBoxProps) {

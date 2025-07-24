@@ -96,7 +96,7 @@ export function TextArea<D extends Schema.DataItem<Schema.$String>>({
     if (propsRows == null) return DEFAULT_ROWS;
     if (propsRows === "fit") {
       if (!value) return 1;
-      const len = Math.max(1, value.split(/\r\n|\r|\n/g).length);
+      const len = Math.max(1, value.split(/\r?\n/).length);
       if (maxRows == null) return len;
       return Math.min(len, maxRows);
     }
