@@ -57,6 +57,7 @@ interface FormItemMountProps {
 
 export type FormState = "idle" | "loading" | "submitting";
 export type SchemaValidationTrigger = "change" | "submit";
+type ResetValidationMode = "default" | "clear" | "submission";
 
 interface SchemaContextProps<S extends Record<string, Schema.$Any> = Record<string, Schema.$Any>> {
   env: Schema.Env;
@@ -152,26 +153,27 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
     ?? (loaderDataRef.current = props.loaderData)
     ?? undefined;
 
-  function refresh(
-    mode: "init" | "reset",
-    data: Record<string, unknown> | null | undefined,
-  ) {
+  function refresh(params: {
+    data: Record<string, unknown> | null | undefined;
+    resultMode?: ResetValidationMode;
+  }) {
     const submission = parseWithSchema({
       schema: props.schema,
       env: env.current,
-      data,
+      data: params.data,
       dep: dep.current,
       createDataItems: !dataItems.current,
     });
     if (!dataItems.current) dataItems.current = submission.dataItems;
-    switch (mode) {
-      case "init":
-        results.current = props.actionResults ?? props.loaderResults ?? EMPTY_STRUCT;
+    switch (params.resultMode) {
+      case "clear":
+        results.current = {};
         break;
-      case "reset":
+      case "submission":
         results.current = submission.results;
         break;
       default:
+        results.current = props.actionResults ?? props.loaderResults ?? {};
         break;
     }
     for (const k in results.current) {
@@ -202,7 +204,7 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
       props.onChangeEffected?.(isEffected.current);
     }
     dep.current = props.dep ?? EMPTY_STRUCT;
-    refresh("init", argData);
+    refresh({ data: argData });
     return {
       schema: props.schema,
     };
@@ -389,11 +391,9 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
   };
 
   const reset = useCallback(() => {
-    if (isProcessing) {
-      console.warn("form is processing");
-      return;
-    }
-    refresh("reset", loaderDataRef.current);
+    refresh({
+      data: loaderDataRef.current,
+    });
     const params: SchemaEffectParams_Refresh = {
       type: "refresh",
       data: bindData.current,
@@ -405,6 +405,10 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
 
   function handleReset(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (isProcessing) {
+      console.warn("form is processing");
+      return;
+    }
     reset();
   };
 
