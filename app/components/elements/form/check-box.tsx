@@ -52,6 +52,8 @@ export function CheckBox<D extends Schema.DataItem<Schema.$Boolean>>({
     hook.focus = () => ref.current.focus();
   }
 
+  const colorClassName = getColorClassName(color);
+
   return (
     <InputLabel
       {...props}
@@ -59,12 +61,16 @@ export function CheckBox<D extends Schema.DataItem<Schema.$Boolean>>({
         state,
         result,
         classNames: appearance === "button" ?
-          clsx("ipt-label-button", getColorClassName(color)) :
+          clsx("ipt-label-button", colorClassName) :
           undefined,
       }}
     >
       <input
-        className={appearance === "checkbox" ? "ipt-point ipt-check" : "appearance-none"}
+        className={
+          appearance === "checkbox" ?
+            clsx("ipt-point ipt-check", colorClassName) :
+            "appearance-none"
+        }
         ref={ref}
         type="checkbox"
         name={omitOnSubmit ? undefined : name}

@@ -90,8 +90,12 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
     };
   }
 
+  const colorClassName = getColorClassName(color);
+  const radioClassName = appearance === "radio" ?
+    clsx("ipt-point ipt-radio", colorClassName) :
+    "appearance-none";
   const labelClassName = appearance === "button" ?
-    clsx("ipt-label-button", getColorClassName(color))
+    clsx("ipt-label-button", colorClassName)
     : undefined;
   const labelTextClassName = appearance === "button" ? "px-0" : undefined;
 
@@ -116,7 +120,7 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
             }}
           >
             <input
-              className={appearance === "radio" ? "ipt-point ipt-radio" : "appearance-none"}
+              className={radioClassName}
               type="radio"
               name={name}
               disabled={state.current !== "enabled"}

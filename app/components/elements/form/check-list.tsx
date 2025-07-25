@@ -84,9 +84,12 @@ export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemS
     };
   }
 
-  const checkBoxClassName = appearance === "checkbox" ? "ipt-point ipt-check" : "appearance-none";
+  const colorClassName = getColorClassName(color);
+  const checkBoxClassName = appearance === "checkbox" ?
+    clsx("ipt-point ipt-check", colorClassName) :
+    "appearance-none";
   const labelClassName = appearance === "button" ?
-    clsx("ipt-label-button", getColorClassName(color))
+    clsx("ipt-label-button", colorClassName)
     : undefined;
   const labelTextClassName = appearance === "button" ? "px-0" : undefined;
 

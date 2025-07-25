@@ -573,7 +573,7 @@ function Component2() {
         <RadioButtons
           $={dataItems.sourceText}
           // appearance="button"
-          color="sub"
+          color="primary"
         />
       </FormItem>
       <FormItem>

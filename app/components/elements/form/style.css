@@ -149,6 +149,9 @@
   }
 
   .ipt-point {
+    ---color: var(--color-input-bg);
+    ---color-fg: var(--color-input);
+
     -webkit-appearance: none;
     appearance: none;
     outline: none;
@@ -162,7 +165,7 @@
       inset: 20%;
       content: "";
       border: 1px solid var(--color-input-bd);
-      transition: border-color 0.2s;
+      transition: border-color 0.2s, background-color 0.2s;
     }
 
     &::after {
@@ -186,6 +189,10 @@
     }
 
     &:checked {
+      &::before {
+        background-color: var(---color);
+      }
+
       &::after {
         opacity: 1;
       }
@@ -312,7 +319,7 @@
 
     &::after {
       inset: calc(20% + 5px);
-      background-color: var(--color-input);
+      background-color: var(---color-fg);
       border-radius: 9999px;
     }
   }
@@ -325,7 +332,7 @@
     &::after {
       inset: 20%;
       border-radius: var(--radius-input);
-      background-color: var(--color-input);
+      background-color: var(---color-fg);
       mask: var(--image-check) center / contain no-repeat;
     }
   }
