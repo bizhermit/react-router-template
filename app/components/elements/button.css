@@ -36,12 +36,30 @@
       border: 1px solid var(---color);
       padding-inline: calc(var(--spacing-button) / 2 - 1px);
       color: var(---color);
+
+      &::before {
+        position: absolute;
+        inset: 0;
+        content: "";
+        background-color: var(---color);
+        opacity: 0.1;
+        transition: opacity 0.2s;
+      }
     }
 
     &[data-appearance="text"] {
       transition: opacity 0.2s;
       background-color: transparent;
       color: var(---color);
+
+      &::before {
+        position: absolute;
+        inset: 0;
+        content: "";
+        background-color: var(---color);
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
     }
 
     &:not(:is(:disabled, [aria-disabled="true"])) {
@@ -56,11 +74,14 @@
           }
 
           &[data-appearance="outline"] {
-            background-color: var(---color);
-            color: var(---color-fg);
+            &::before {
+              opacity: 0.2;
+            }
+          }
 
-            &:active {
-              opacity: 1;
+          &[data-appearance="text"] {
+            &::before {
+              opacity: 0.1;
             }
           }
         }
