@@ -96,6 +96,26 @@
   --color-active: #024a70;
 }
 
+@utility var-color-primary {
+  ---color: var(--color-primary);
+  ---color-fg: var(--color-primary-fg);
+}
+
+@utility var-color-secondary {
+  ---color: var(--color-secondary);
+  ---color-fg: var(--color-secondary-fg);
+}
+
+@utility var-color-sub {
+  ---color: var(--color-sub);
+  ---color-fg: var(--color-sub-fg);
+}
+
+@utility var-color-danger {
+  ---color: var(--color-danger);
+  ---color-fg: var(--color-danger-fg);
+}
+
 @layer base {
 
   html {

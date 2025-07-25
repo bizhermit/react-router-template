@@ -1,5 +1,6 @@
 import { useRef, type ChangeEvent, type MouseEvent } from "react";
 import { useSchemaItem } from "~/components/schema/hooks";
+import { clsx, getColorClassName } from "../utilities";
 import { InputDummyFocus, InputGroup, InputLabel, InputLabelText, type InputWrapProps } from "./common";
 import type { FormItemHookProps } from "./hooks";
 import { useSource } from "./utilities";
@@ -10,11 +11,15 @@ export type RadioButtonsProps<D extends Schema.DataItem<RadioButtonsSchemaProps>
   & InputWrapProps
   & {
     $: D;
+    appearance?: "radio" | "button";
+    color?: StyleColor;
     source?: Schema.Source<Schema.ValueType<D["_"]>>;
     hook?: FormItemHookProps;
   };
 
 export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>({
+  appearance = "radio",
+  color,
   source: propsSource,
   autoFocus,
   hook,
@@ -85,6 +90,11 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
     };
   }
 
+  const labelClassName = appearance === "button" ?
+    clsx("ipt-label-button", getColorClassName(color))
+    : undefined;
+  const labelTextClassName = appearance === "button" ? "px-0" : undefined;
+
   return (
     <InputGroup
       {...props}
@@ -99,9 +109,14 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
         const isSelected = item.value === value;
 
         return (
-          <InputLabel key={key}>
+          <InputLabel
+            key={key}
+            core={{
+              classNames: labelClassName,
+            }}
+          >
             <input
-              className="ipt-point ipt-radio"
+              className={appearance === "radio" ? "ipt-point ipt-radio" : "appearance-none"}
               type="radio"
               name={name}
               disabled={state.current !== "enabled"}
@@ -117,8 +132,10 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
               aria-errormessage={errormessage}
               autoFocus={autoFocus ? (hasValue ? isSelected : index === 0) : undefined}
             />
-            <InputLabelText>
-              {item.text}
+            <InputLabelText
+              className={labelTextClassName}
+            >
+              {item.node || item.text}
             </InputLabelText>
             {
               state.current === "readonly" && ((value == null && index === 0) || isSelected) &&

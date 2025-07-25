@@ -556,8 +556,10 @@ function Component2() {
       <FormItem>
         <CheckBox
           $={dataItems.check}
+          appearance="button"
+          color="secondary"
         >
-          Check
+          <HeartIcon />
         </CheckBox>
       </FormItem>
       <FormItem>
@@ -570,6 +572,8 @@ function Component2() {
       <FormItem>
         <RadioButtons
           $={dataItems.sourceText}
+          appearance="button"
+          color="sub"
         />
       </FormItem>
       <FormItem>
@@ -614,6 +618,8 @@ function Component2() {
       <FormItem>
         <CheckList
           $={dataItems.array}
+          appearance="button"
+          color="primary"
         />
       </FormItem>
       <FormItem>

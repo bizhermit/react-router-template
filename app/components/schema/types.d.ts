@@ -104,6 +104,7 @@ namespace Schema {
   interface SourceItem<V> {
     value: V;
     text?: string;
+    node?: React.ReactNode;
   };
 
   type Source<V> = SourceItem<V>[];

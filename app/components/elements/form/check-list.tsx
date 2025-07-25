@@ -1,5 +1,6 @@
 import { useRef, type ChangeEvent } from "react";
 import { useSchemaItem } from "~/components/schema/hooks";
+import { clsx, getColorClassName } from "../utilities";
 import { InputDummyFocus, InputGroup, InputLabel, InputLabelText, type InputWrapProps } from "./common";
 import type { FormItemHookProps } from "./hooks";
 import { useSource } from "./utilities";
@@ -8,11 +9,15 @@ type CheckListItemSchemaProps = Schema.$String | Schema.$Number | Schema.$Boolea
 
 export type CheckListProps<D extends Schema.DataItem<Schema.$Array<CheckListItemSchemaProps>>> = InputWrapProps & {
   $: D;
+  appearance?: "checkbox" | "button";
+  color?: StyleColor;
   source?: Schema.Source<Schema.ValueType<D["_"]>>;
   hook?: FormItemHookProps;
 };
 
 export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemSchemaProps>>>({
+  appearance = "checkbox",
+  color,
   autoFocus,
   source: propsSource,
   hook,
@@ -79,6 +84,12 @@ export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemS
     };
   }
 
+  const checkBoxClassName = appearance === "checkbox" ? "ipt-point ipt-check" : "appearance-none";
+  const labelClassName = appearance === "button" ?
+    clsx("ipt-label-button", getColorClassName(color))
+    : undefined;
+  const labelTextClassName = appearance === "button" ? "px-0" : undefined;
+
   return (
     <InputGroup
       {...props}
@@ -93,9 +104,14 @@ export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemS
         const isChecked = value?.some(v => v === item.value);
 
         return (
-          <InputLabel key={key}>
+          <InputLabel
+            key={key}
+            core={{
+              classNames: labelClassName,
+            }}
+          >
             <input
-              className="ipt-point ipt-check"
+              className={checkBoxClassName}
               type="checkbox"
               name={omitOnSubmit ? undefined : name}
               disabled={state.current !== "enabled"}
@@ -110,8 +126,10 @@ export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemS
               aria-errormessage={errormessage}
               autoFocus={autoFocus ? index === 0 : undefined}
             />
-            <InputLabelText>
-              {item.text}
+            <InputLabelText
+              className={labelTextClassName}
+            >
+              {item.node || item.text}
             </InputLabelText>
             {
               state.current === "readonly" &&
