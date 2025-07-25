@@ -556,7 +556,7 @@ function Component2() {
       <FormItem>
         <CheckBox
           $={dataItems.check}
-          appearance="button"
+          // appearance="button"
           color="secondary"
         >
           <HeartIcon />
@@ -572,7 +572,7 @@ function Component2() {
       <FormItem>
         <RadioButtons
           $={dataItems.sourceText}
-          appearance="button"
+          // appearance="button"
           color="sub"
         />
       </FormItem>
@@ -618,7 +618,7 @@ function Component2() {
       <FormItem>
         <CheckList
           $={dataItems.array}
-          appearance="button"
+          // appearance="button"
           color="primary"
         />
       </FormItem>
@@ -627,6 +627,7 @@ function Component2() {
           $={dataItems.range}
           omitOnSubmit
           showValueText
+          color="secondary"
         />
       </FormItem>
       <FormItem>

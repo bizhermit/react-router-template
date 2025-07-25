@@ -1,11 +1,13 @@
 import { useRef, useState, type ChangeEvent, type CSSProperties } from "react";
 import { useSchemaItem } from "~/components/schema/hooks";
+import { clsx, getColorClassName } from "../utilities";
 import { getValidationValue, InputDummyFocus, InputLabel, type InputWrapProps } from "./common";
 import type { FormItemHookProps } from "./hooks";
 import { useSource } from "./utilities";
 
 export type SliderProps<D extends Schema.DataItem<Schema.$Number>> = InputWrapProps & {
   $: D;
+  color?: StyleColor;
   source?: Schema.Source<Schema.ValueType<D["_"]>>;
   step?: number;
   showValueText?: boolean;
@@ -17,6 +19,7 @@ const DEFAULT_MIN = 0;
 const DEFAULT_MAX = 100;
 
 export function Slider<D extends Schema.DataItem<Schema.$Number>>({
+  color,
   source: propsSource,
   step,
   showValueText,
@@ -108,7 +111,7 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
       }}
     >
       <input
-        className="ipt-slider"
+        className={clsx("ipt-slider", getColorClassName(color))}
         style={validScripts ? {
           "--rate": `${getRate(value)}%`,
         } as CSSProperties : undefined}
