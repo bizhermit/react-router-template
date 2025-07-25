@@ -1,8 +1,8 @@
 @layer components {
 
   :is(.btn, a[role="button"], label[role="button"]) {
-    ---btn-bg: var(--color-fg);
-    ---btn-fg: var(--color-bg);
+    ---color: var(--color-fg);
+    ---color-fg: var(--color-bg);
 
     position: relative;
     vertical-align: top;
@@ -23,45 +23,25 @@
       border-radius: 9999px;
     }
 
-    &[data-color="primary"] {
-      ---btn-bg: var(--color-primary);
-      ---btn-fg: var(--color-primary-fg);
-    }
-
-    &[data-color="secondary"] {
-      ---btn-bg: var(--color-secondary);
-      ---btn-fg: var(--color-secondary-fg);
-    }
-
-    &[data-color="sub"] {
-      ---btn-bg: var(--color-sub);
-      ---btn-fg: var(--color-sub-fg);
-    }
-
-    &[data-color="danger"] {
-      ---btn-bg: var(--color-danger);
-      ---btn-fg: var(--color-danger-fg);
-    }
-
     &[data-appearance="fill"] {
       transition: opacity 0.2s;
-      background-color: var(---btn-bg);
+      background-color: var(---color);
 
-      color: var(---btn-fg);
+      color: var(---color-fg);
     }
 
     &[data-appearance="outline"] {
       transition: background-color 0.2s, color 0.2s, opacity 0.2s;
       background-color: transparent;
-      border: 1px solid var(---btn-bg);
+      border: 1px solid var(---color);
       padding-inline: calc(var(--spacing-button) / 2 - 1px);
-      color: var(---btn-bg);
+      color: var(---color);
     }
 
     &[data-appearance="text"] {
       transition: opacity 0.2s;
       background-color: transparent;
-      color: var(---btn-bg);
+      color: var(---color);
     }
 
     &:not(:is(:disabled, [aria-disabled="true"])) {
@@ -76,8 +56,8 @@
           }
 
           &[data-appearance="outline"] {
-            background-color: var(---btn-bg);
-            color: var(---btn-fg);
+            background-color: var(---color);
+            color: var(---color-fg);
 
             &:active {
               opacity: 1;

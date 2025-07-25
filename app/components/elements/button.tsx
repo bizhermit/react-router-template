@@ -1,5 +1,5 @@
 import { useRef, useState, type ButtonHTMLAttributes, type MouseEvent, type RefObject } from "react";
-import { clsx } from "./utilities";
+import { clsx, getColorClassName } from "./utilities";
 
 export interface ButtonClickParams {
   event: MouseEvent<HTMLButtonElement>;
@@ -45,10 +45,10 @@ export function Button({
       {...props}
       className={clsx(
         "btn",
+        getColorClassName(color),
         className,
       )}
       disabled={props.disabled || disabled}
-      data-color={color}
       data-appearance={appearance || "fill"}
       data-round={round}
       onClick={handleClick}

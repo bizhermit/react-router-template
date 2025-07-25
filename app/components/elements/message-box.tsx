@@ -5,6 +5,7 @@ import { preventScroll } from "../dom/prevent-scroll";
 import { Button } from "./button";
 import { FocusTrap } from "./focus-trap";
 import { CrossIcon } from "./icon";
+import { clsx, getColorClassName } from "./utilities";
 
 interface MessageBoxProps {
   ref?: RefObject<HTMLDivElement>;
@@ -25,8 +26,7 @@ function MessageBox(props: MessageBoxProps) {
   return (
     <FocusTrap>
       <div
-        className="msgbox"
-        data-color={props.color}
+        className={clsx("msgbox", getColorClassName(props.color))}
         ref={props.ref}
       >
         {

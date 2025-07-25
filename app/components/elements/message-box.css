@@ -8,6 +8,9 @@
   }
 
   .msgbox {
+    ---color: var(--color-primary);
+    ---color-fg: var(--color-primary-fg);
+
     display: flex;
     flex-flow: column nowrap;
     justify-content: flex-start;
@@ -16,25 +19,6 @@
     width: min(30rem, 80dvw);
     background-color: var(--color-bg);
     color: var(--color-fg);
-
-    ---msgbox-bg: var(--color-primary);
-    ---msgbox-fg: var(--color-primary-fg);
-
-    &[data-color="secondary"] {
-      ---msgbox-bg: var(--color-secondary);
-      ---msgbox-fg: var(--color-secondary-fg);
-    }
-
-    &[data-color="sub"] {
-      ---msgbox-bg: var(--color-sub);
-      ---msgbox-fg: var(--color-sub-fg);
-    }
-
-    &[data-color="danger"] {
-      ---msgbox-bg: var(--color-danger);
-      ---msgbox-fg: var(--color-danger-fg);
-    }
-
   }
 
   .msgbox-header,
@@ -46,8 +30,8 @@
   }
 
   .msgbox-header {
-    background-color: var(---msgbox-bg, inherit);
-    color: var(---msgbox-fg, inherit);
+    background-color: var(---color, inherit);
+    color: var(---color-fg, inherit);
     padding: 0.5rem 1rem;
     font-weight: bold;
     font-size: 2rem;
