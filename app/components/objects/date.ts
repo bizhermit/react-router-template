@@ -501,3 +501,70 @@ export class DateTime {
   }
 
 };
+
+export function addDay(date: Date, num: number) {
+  date.setDate(date.getDate() + num);
+  return date;
+}
+
+export function addMonth(date: Date, num: number) {
+  const d = date.getDate();
+  date.setMonth(date.getMonth() + num);
+  if (d !== date.getDate()) date.setDate(0);
+  return date;
+}
+
+export function addYear(date: Date, num: number) {
+  const d = date.getDate();
+  date.setFullYear(date.getFullYear() + num);
+  if (d !== date.getDate()) date.setDate(0);
+  return date;
+}
+
+export function getFirstDateAtMonth(date = new Date()) {
+  return new DateTime(date).setFirstDateAtMonth().getCloneDate();
+}
+
+export function getLastDateAtMonth(date = new Date()) {
+  return new DateTime(date).setLastDateAtMonth().getCloneDate();
+}
+
+export function getFirstDateAtYear(date = new Date()) {
+  return new DateTime(date).setFirstDateAtYear().getCloneDate();
+}
+
+export function getLastDateAtYear(date = new Date()) {
+  return new DateTime(date).setLastDateAtYear().getCloneDate();
+}
+
+export function getPrevDate(date = new Date()) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate() - 1);
+}
+
+export function getNextDate(date = new Date()) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
+}
+
+export function getPrevWeekDate(date = new Date()) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate() - 7);
+}
+
+export function getNextWeekDate(date = new Date()) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate() + 7);
+}
+
+export function getPrevMonthDate(date = new Date()) {
+  return new DateTime(date).setPrevMonth().getCloneDate();
+}
+
+export function getNextMonthDate(date = new Date()) {
+  return new DateTime(date).setNextMonth().getCloneDate();
+}
+
+export function getPrevYearDate(date = new Date()) {
+  return new DateTime(date).setPrevYear().getCloneDate();
+}
+
+export function getNextYearDate(date = new Date()) {
+  return new DateTime(date).setNextYear().getCloneDate();
+}
