@@ -61,7 +61,7 @@ export function parseDate(value: unknown) {
       if (diff !== 0) d.setTime(d.getTime() - (diff * 60000));
       return d;
     }
-    throw new Error("");
+    throw new Error(`Invalid date string: ${value}`);
   }
   if (typeof value === "number") {
     return new Date(value);
@@ -414,7 +414,8 @@ export class DateTime {
   }
 
   public removeTime() {
-    return this.date.setHours(0, 0, 0, 0);
+    this.date.setHours(0, 0, 0, 0);
+    return this;
   }
 
   public addYear(num: number) {
