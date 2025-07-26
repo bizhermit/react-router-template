@@ -480,10 +480,13 @@ function Component1() {
           bulk push
         </Button>
       </div>
-      <ul>
+      <ul className="flex flex-col gap-2 p-4">
         {array.map(params => {
           return (
-            <li key={params.key}>
+            <li
+              key={params.key}
+              className="flex flex-row gap-2 items-center"
+            >
               <span>
                 {JSON.stringify(params.value)}
               </span>
@@ -493,14 +496,15 @@ function Component1() {
               <NumberBox
                 $={params.dataItem.dataItems.age}
               />
-              <button
-                type="button"
+              <Button
+                appearance="outline"
+                color="danger"
                 onClick={() => {
                   params.remove();
                 }}
               >
-                delete
-              </button>
+                <DeleteIcon />
+              </Button>
             </li>
           );
         })}
@@ -556,10 +560,10 @@ function Component2() {
       <FormItem>
         <CheckBox
           $={dataItems.check}
-          // appearance="button"
-          color="secondary"
+        // appearance="button"
+        // color="secondary"
         >
-          <HeartIcon />
+          <HeartFillIcon className="text-pink-400 dark:text-pink-400" />
         </CheckBox>
       </FormItem>
       <FormItem>
