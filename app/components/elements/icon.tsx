@@ -1294,6 +1294,30 @@ export function FileDeleteFillIcon(p: IconProps) {
   );
 };
 
+export function DocumentIcon(p: IconProps) {
+  return (
+    <svg {...attrs(p)}>
+      <path d="
+      M2.25,1.25v17.25a0.75 0.75 0 0 0 0.75,0.75h14a0.75 0.75 0 0 0 0.75,-0.75v-12l-5.75,-5.75h-9a0.75 0.75 0 0 0 -0.75,0.75Z m1.5,1h6.5v5a0.75 0.75 0 0 0 0.75,0.75h5.25v9.75h-12.5Z M15.5,6.5h-3.75v-3.75Z
+      M5,8.5h10v1.5h-10Z M5,11.5h10v1.5h-10Z M5,14.5h10v1.5h-10Z
+      "
+      />
+    </svg>
+  );
+};
+
+export function DocumentFillIcon(p: IconProps) {
+  return (
+    <svg {...attrs(p)}>
+      <path d="
+      M2.25,1.25v17.25a0.75 0.75 0 0 0 0.75,0.75h14a0.75 0.75 0 0 0 0.75,-0.75v-12l-5.75,-5.75h-9a0.75 0.75 0 0 0 -0.75,0.75Z M15.5,6.5h-3.75v-3.75Z
+      M5,8.5h10v1.5h-10Z M5,11.5h10v1.5h-10Z M5,14.5h10v1.5h-10Z
+      "
+      />
+    </svg>
+  );
+};
+
 export function ExclamationIcon(p: IconProps) {
   return (
     <svg {...attrs(p)}>
