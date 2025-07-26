@@ -18,7 +18,7 @@ paths:
                 type: object
                 properties:
                   now:
-                    type: number
+                    type: string
                 required:
                   - now
         '404':

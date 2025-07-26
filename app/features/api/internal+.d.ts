@@ -28,7 +28,7 @@ export interface paths {
           };
           content: {
             "application/json": {
-              now: number;
+              now: string;
             };
           };
         };

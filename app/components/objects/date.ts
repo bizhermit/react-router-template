@@ -105,6 +105,10 @@ export class DateTime {
   private date: Date;
   private offset: number;
 
+  public static now(timezone?: number | TimeZone) {
+    return new DateTime(undefined, timezone);
+  }
+
   constructor(datetime?: string | number | Date | DateTime | null | undefined, timezone?: number | TimeZone) {
     this.date = new Date();
     this.offset = this.date.getTimezoneOffset();
@@ -241,7 +245,7 @@ export class DateTime {
   }
 
   public toString(pattern: string = "yyyy-MM-ddThh:mm:ss.SSSt", week?: Array<string>) {
-    return formatDate(this.date, pattern, week)?.replace(/t/g, this.getTimezone());
+    return formatDate(this.date, pattern, week)?.replace(/t/g, this.getTimezone()) || "";
   }
 
   private evacuateOffset<T>(func: () => T) {

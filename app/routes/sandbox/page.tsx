@@ -1336,8 +1336,7 @@ function FetchComponent() {
                 if (!res.ok) {
                   return;
                 }
-                const date = new Date(res.data.now);
-                console.log(date.toLocaleString());
+                console.log(res.data.now);
               } catch (e) {
                 console.error(e);
               } finally {
