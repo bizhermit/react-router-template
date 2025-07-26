@@ -20,12 +20,14 @@ export type TimeZone =
   | "Z"
   | "UTC"
   | "Asia/Tokyo"
+  | "America/Los_Angeles"
   ;
 
 const TIME_ZONE_OFFSET = {
   "Z": 0,
   "UTC": 0,
   "Asia/Tokyo": -540,
+  "America/Los_Angeles": 480,
 } satisfies Partial<Record<TimeZone, number>>;
 
 export function parseTimezoneOffset(tz: TimeZone | TimeZoneOffset) {
@@ -97,7 +99,7 @@ export function formatDate(date: string | number | Date | null | undefined, patt
     .replace(/w/g, (week ?? Week.ja_s)[d.getDay()]);
 };
 
-const env_tz = typeof process === "undefined" ? undefined : process.env.TZ?.trim() as TimeZone | undefined;
+const env_tz = typeof process === "undefined" ? undefined : process.env.TZ?.trim() as TimeZone | TimeZoneOffset | undefined;
 const env_offset = env_tz ? parseTimezoneOffset(env_tz) : new Date().getTimezoneOffset();
 
 export class DateTime {
@@ -105,17 +107,23 @@ export class DateTime {
   private date: Date;
   private offset: number;
 
-  public static now(timezone?: number | TimeZone) {
+  public static now(timezone?: number | TimeZone | TimeZoneOffset) {
     return new DateTime(undefined, timezone);
   }
 
-  constructor(datetime?: string | number | Date | DateTime | null | undefined, timezone?: number | TimeZone) {
+  constructor(
+    datetime?: string | number | Date | DateTime | null | undefined,
+    timezone?: number | TimeZone | TimeZoneOffset
+  ) {
     this.date = new Date();
     this.offset = this.date.getTimezoneOffset();
     this.set(datetime, timezone ?? env_offset);
   }
 
-  public set(datetime: string | number | Date | DateTime | null | undefined, timezone?: number | TimeZone) {
+  public set(
+    datetime: string | number | Date | DateTime | null | undefined,
+    timezone?: number | TimeZone | TimeZoneOffset
+  ) {
     const offset = (() => {
       if (timezone == null) return this.offset;
       if (typeof timezone === "number") return timezone;
