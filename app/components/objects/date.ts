@@ -97,7 +97,7 @@ export function formatDate(date: string | number | Date | null | undefined, patt
     .replace(/w/g, (week ?? Week.ja_s)[d.getDay()]);
 };
 
-const env_tz = process.env.TZ?.trim() as TimeZone | undefined;
+const env_tz = typeof process === "undefined" ? undefined : process.env.TZ?.trim() as TimeZone | undefined;
 const env_offset = env_tz ? parseTimezoneOffset(env_tz) : new Date().getTimezoneOffset();
 
 export class DateTime {
