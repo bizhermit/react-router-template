@@ -1,5 +1,4 @@
-import { expect } from "@playwright/test";
-import { describe, it } from "node:test";
+import { describe, expect, it } from "vitest";
 import { DateTime } from "./date";
 
 describe("datetime", () => {
