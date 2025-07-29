@@ -1,6 +1,7 @@
 version: '3.8'
 services:
   node:
+    platform: linux/amd64
     container_name: 'template_node_dev'
     build:
       context: '../'
