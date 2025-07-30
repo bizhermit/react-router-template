@@ -360,7 +360,8 @@ function Contents(props: Route.ComponentProps) {
   // console.log(dataItems);
 
   return (
-    <div className="flex flex-col gap-4 p-4">
+    <div className="relative flex flex-col gap-4 p-4">
+      {/* <LoadingBar color="primary" /> */}
       <div className="flex flex-row">
         <h1>Sandbox</h1>
         <LinkButton

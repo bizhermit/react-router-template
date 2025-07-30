@@ -22,7 +22,13 @@ export function Details({
     >
       {
         summary &&
-        <summary {...summaryProps}>
+        <summary
+          {...summaryProps}
+          className={clsx(
+            "summary",
+            summaryProps?.className,
+          )}
+        >
           {summary}
         </summary>
       }

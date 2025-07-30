@@ -1,0 +1,24 @@
+@layer components {
+
+  .details {
+    &::details-content {
+      display: grid;
+      grid-template-rows: 0fr;
+      overflow: hidden;
+      transition: grid-template-rows .2s, content-visibility .2s allow-discrete, overlay .2s allow-discrete;
+    }
+
+    &[open] {
+      &::details-content {
+        grid-template-rows: 1fr;
+      }
+    }
+  }
+
+  .summary {
+    cursor: pointer;
+    user-select: none;
+    touch-action: none;
+  }
+
+}

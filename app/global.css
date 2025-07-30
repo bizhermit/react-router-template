@@ -147,27 +147,6 @@
     }
   }
 
-  .details {
-    &::details-content {
-      display: grid;
-      grid-template-rows: 0fr;
-      overflow: hidden;
-      transition: grid-template-rows .2s, content-visibility .2s allow-discrete, overlay .2s allow-discrete;
-    }
-
-    &[open] {
-      &::details-content {
-        grid-template-rows: 1fr;
-      }
-    }
-  }
-
-  summary {
-    cursor: pointer;
-    user-select: none;
-    touch-action: none;
-  }
-
   ::placeholder {
     color: var(--color-placeholder);
   }
@@ -182,65 +161,12 @@
     stroke-width: 0;
     stroke-linecap: round;
   }
-
-  .loading-bar {
-    @apply fixed top-0 left-0 w-full h-1 z-[9999] overflow-hidden bg-transparent;
-
-    &::before,
-    &::after {
-      @apply absolute content-[""] h-full top-0;
-      @apply bg-blue-500;
-
-      animation-timing-function: ease-in-out;
-      animation-duration: 3s;
-      animation-iteration-count: infinite;
-      animation-direction: normal;
-    }
-
-    &::before {
-      @apply w-loadingbar1 -left-loadingbar1;
-      animation-name: loadingBar1;
-    }
-
-    &::after {
-      @apply w-loadingbar2 -left-loadingbar2;
-      animation-name: loadingBar2;
-      animation-delay: 1.2s;
-    }
-  }
-
 }
 
-@keyframes loadingBar1 {
-  0% {
-    left: calc(var(--spacing-loadingbar1) * -1);
-  }
-
-  70% {
-    left: calc(var(--spacing-loadingbar1) + 100%);
-  }
-
-  100% {
-    left: calc(var(--spacing-loadingbar1) + 100%);
-  }
-}
-
-@keyframes loadingBar2 {
-  0% {
-    left: calc(var(--spacing-loadingbar2) * -1);
-  }
-
-  70% {
-    left: calc(var(--spacing-loadingbar2) + 100%);
-  }
-
-  100% {
-    left: calc(var(--spacing-loadingbar2) + 100%);
-  }
-}
-
+@import "./components/elements/loading.css";
 @import "./components/elements/button.css";
 @import "./components/elements/nav-layout.css";
 @import "./components/elements/dialog.css";
 @import "./components/elements/message-box.css";
 @import "./components/elements/form/style.css";
+@import "./components/elements/details.css";

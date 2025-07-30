@@ -1,14 +1,25 @@
 import type { HTMLAttributes } from "react";
-import { clsx } from "./utilities";
+import { clsx, getColorClassName } from "./utilities";
+
+interface LoadingBarOptions {
+  color?: StyleColor;
+};
+
+type LoadingBarProps = HTMLAttributes<HTMLDivElement> & LoadingBarOptions;
 
 export function LoadingBar({
   className,
+  color,
   ...props
-}: HTMLAttributes<HTMLDivElement>) {
+}: LoadingBarProps) {
   return (
     <div
       {...props}
-      className={clsx("loading-bar", className)}
+      className={clsx(
+        "loading-bar",
+        getColorClassName(color),
+        className,
+      )}
     />
   );
 };
