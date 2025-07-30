@@ -1,5 +1,5 @@
 #!/bin/bash
 
-echo "node" | sudo -S chown node /workspace/node_modules && sudo -S chmod 777 /workspace/node_modules
-echo "node" | sudo -S chown node /workspace/.react-router && sudo -S chmod 777 /workspace/.react-router
-echo "node" | sudo -S chown node /workspace/.playwright && sudo -S chmod 777 /workspace/.playwright
+echo "node" | sudo -S chown -R node:node /workspace/node_modules
+echo "node" | sudo -S chown -R node:node /workspace/.react-router
+echo "node" | sudo -S chown -R node:node /workspace/.playwright
