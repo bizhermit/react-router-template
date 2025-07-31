@@ -5,6 +5,8 @@
     top: 2rem;
     margin: 0 auto;
     overflow: hidden;
+    background-color: var(--color-bga);
+    backdrop-filter: blur(5px);
   }
 
   .msgbox {
@@ -17,8 +19,6 @@
     align-items: stretch;
     padding: 1rem;
     width: min(30rem, 80dvw);
-    background-color: var(--color-bg);
-    color: var(--color-fg);
   }
 
   .msgbox-header,

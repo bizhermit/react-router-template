@@ -14,6 +14,7 @@
 
   --color-bg: #eee;
   --color-fg: #111;
+  --color-bga: #eeee;
   --color-shadow: rgba(0, 0, 0, 0.4);
   --color-primary: #4593ef;
   --color-primary-fg: #f4f4f4;
@@ -23,11 +24,11 @@
   --color-sub-fg: #f4f4f4;
   --color-danger: #f05454;
   --color-danger-fg: #f4f4f4;
-  --color-header-bg: #e0e0e4;
+  --color-header-bg: #e0e0e4d0;
   --color-header-fg: #111;
   --color-footer-bg: #e0e0e4;
   --color-footer-fg: #111;
-  --color-nav-bg: #e0e0e4;
+  --color-nav-bg: #e0e0e4d0;
   --color-nav-fg: #111;
   --color-mask: rgba(0, 0, 0, 0.2);
   --color-link: #0000EE;
@@ -67,6 +68,7 @@
   color-scheme: dark;
   --color-bg: #2c2c2c;
   --color-fg: #ddd;
+  --color-bga: #2c2c2cef;
   --color-shadow: rgba(255, 255, 255, 0.4);
   --color-primary: #4085ca;
   --color-primary-fg: #ddd;
@@ -76,11 +78,11 @@
   --color-sub-fg: #ddd;
   --color-danger: #e85151;
   --color-danger-fg: #ddd;
-  --color-header-bg: #1c1c1f;
+  --color-header-bg: #1c1c1fd0;
   --color-header-fg: #ddd;
   --color-footer-bg: #1c1c1f;
   --color-footer-fg: #ddd;
-  --color-nav-bg: #1c1c1f;
+  --color-nav-bg: #1c1c1fd0;
   --color-nav-fg: #ddd;
   --color-mask: rgba(192, 192, 192, 0.2);
   --color-link: #8ab4f8;

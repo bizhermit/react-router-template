@@ -49,6 +49,7 @@
     align-items: center;
     background-color: var(--color-header-bg);
     color: var(--color-header-fg);
+    backdrop-filter: blur(5px);
   }
 
   .nav-header-main {
@@ -114,6 +115,7 @@
     pointer-events: all;
     background-color: var(--color-nav-bg);
     color: var(--color-nav-fg);
+    backdrop-filter: blur(5px);
   }
 
   .nav-btn-scaling {
@@ -149,6 +151,7 @@
     pointer-events: all;
     background-color: var(--color-nav-bg);
     color: var(--color-nav-fg);
+    backdrop-filter: blur(5px);
   }
 
   .nav-mask {
