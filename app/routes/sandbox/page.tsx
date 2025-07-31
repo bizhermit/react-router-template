@@ -1239,7 +1239,7 @@ function DialogComponent() {
           </Button>
           <Button
             onClick={() => {
-              dialog.show();
+              dialog.show({ closeWhenScrolled: true });
             }}
           >
             show

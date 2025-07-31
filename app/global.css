@@ -14,7 +14,7 @@
 
   --color-bg: #eee;
   --color-fg: #111;
-  --color-bga: #eeee;
+  --color-bga: #eeeeeedf;
   --color-shadow: rgba(0, 0, 0, 0.4);
   --color-primary: #4593ef;
   --color-primary-fg: #f4f4f4;
@@ -68,7 +68,7 @@
   color-scheme: dark;
   --color-bg: #2c2c2c;
   --color-fg: #ddd;
-  --color-bga: #2c2c2cef;
+  --color-bga: #2c2c2cdf;
   --color-shadow: rgba(255, 255, 255, 0.4);
   --color-primary: #4085ca;
   --color-primary-fg: #ddd;
