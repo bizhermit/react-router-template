@@ -21,6 +21,10 @@
 
     &[data-round="true"] {
       border-radius: 9999px;
+
+      &::before {
+        border-radius: 9999px;
+      }
     }
 
     &[data-appearance="fill"] {
