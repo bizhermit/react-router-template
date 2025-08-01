@@ -156,11 +156,15 @@ const schema = $schema({
       const lastOfMonth = formatDate(date, "yyyy-MM-dd") as Schema.DateString;
       date.setDate(1);
       const firstOfMonth = formatDate(date, "yyyy-MM-dd") as Schema.DateString;
-      return [
-        { value: firstOfMonth, text: "月初" },
-        { value: today, text: "今日" },
-        { value: lastOfMonth, text: "月末" },
-      ];
+      const source = [];
+      if (firstOfMonth !== today) {
+        source.push({ value: firstOfMonth, text: "月初" });
+      }
+      source.push({ value: today, text: "今日" });
+      if (lastOfMonth !== today) {
+        source.push({ value: lastOfMonth, text: "月末" });
+      }
+      return source;
     },
     pair: {
       name: "datePair",
