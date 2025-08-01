@@ -1,5 +1,5 @@
 import { useRef, useState, type ChangeEvent, type CSSProperties } from "react";
-import { useSchemaItem } from "~/components/schema/hooks";
+import { useSchemaItem } from "~/components/react/hooks/schema";
 import { clsx, getColorClassName } from "../utilities";
 import { getValidationValue, InputDummyFocus, InputLabel, type InputWrapProps } from "./common";
 import type { FormItemHookProps } from "./hooks";

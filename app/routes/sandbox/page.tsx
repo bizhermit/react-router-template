@@ -4,50 +4,50 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { data, useFetcher } from "react-router";
-import { Button } from "~/components/elements/button";
-import { Details } from "~/components/elements/details";
-import { useDialog } from "~/components/elements/dialog";
-import { CheckBox } from "~/components/elements/form/check-box";
-import { CheckList } from "~/components/elements/form/check-list";
-import { FormItem } from "~/components/elements/form/common";
-import { DateBox } from "~/components/elements/form/date-box";
-import { DateSelectBox } from "~/components/elements/form/date-select-box";
-import { FieldSet } from "~/components/elements/form/fieldset";
-import { FileBox } from "~/components/elements/form/file-box";
-import { NumberBox } from "~/components/elements/form/number-box";
-import { RadioButtons } from "~/components/elements/form/radio-buttons";
-import { SelectBox } from "~/components/elements/form/select-box";
-import { Slider } from "~/components/elements/form/slider";
-import { SwitchBox } from "~/components/elements/form/switch-box";
-import { TextArea } from "~/components/elements/form/text-area";
-import { TextBox } from "~/components/elements/form/text-box";
-import { ArrowDownIcon, ArrowLeftIcon, ArrowRightIcon, ArrowUpIcon, BadgeIcon, BookmarkFillIcon, BookmarkIcon, ButtonIcon, CalendarFillIcon, CalendarIcon, CameraFillIcon, CameraIcon, CardIcon, CheckCircleFillIcon, CheckCircleIcon, CheckIcon, ChocolateMenuFillIcon, ChocolateMenuIcon, CircleFillIcon, CircleIcon, ClearAllIcon, ClockFillIcon, ClockIcon, CloudDownloadIcon, CloudFillIcon, CloudIcon, CloudUploadIcon, ContainerIcon, CrossCircleFillIcon, CrossCircleIcon, CrossIcon, DeleteBackFillIcon, DeleteBackIcon, DeleteFillIcon, DeleteIcon, DocumentFillIcon, DocumentIcon, DoubleDownFillIcon, DoubleDownIcon, DoubleLeftFillIcon, DoubleLeftIcon, DoubleRightFillIcon, DoubleRightIcon, DoubleUpFillIcon, DoubleUpIcon, DownFillIcon, DownIcon, DownloadIcon, ElementIcon, ExclamationCircleFillIcon, ExclamationCircleIcon, ExclamationDiamondFillIcon, ExclamationDiamondIcon, ExclamationIcon, ExclamationTriangleFillIcon, ExclamationTriangleIcon, ExLinkIcon, FileAddFillIcon, FileAddIcon, FileDeleteFillIcon, FileDeleteIcon, FileFillIcon, FileIcon, FilterFillIcon, FilterIcon, FolderAddFillIcon, FolderAddIcon, FolderDeleteFillIcon, FolderDeleteIcon, FolderFillIcon, FolderIcon, FormIcon, FormItemIcon, GearFillIcon, GearIcon, GridFillIcon, GridIcon, HeartFillIcon, HeartHalfFillIcon, HeartIcon, HomeFillIcon, HomeIcon, HorizontalDividerIcon, KebabMenuIcon, LabelFillIcon, LabelIcon, LeftFillIcon, LeftIcon, LeftRightIcon, LinkIcon, ListFilterIcon, ListIcon, LoadingIcon, LocationFillIcon, LocationIcon, MagnifyingGlassIcon, MagnifyingGlassMinusFillIcon, MagnifyingGlassMinusIcon, MagnifyingGlassPlusFillIcon, MagnifyingGlassPlusIcon, MailFillIcon, MailIcon, MeatballsMenuIcon, MenuIcon, MenuLeftIcon, MenuLeftRightIcon, MenuRightIcon, MinusCircleFillIcon, MinusCircleIcon, MinusIcon, NavContainerIcon, OrderListIcon, PinFillIcon, PinIcon, PlusCircleFillIcon, PlusCircleIcon, PlusIcon, PopupIcon, PowerIcon, QuestionCircleFillIcon, QuestionCircleIcon, QuestionIcon, RedoIcon, ReloadIcon, RightFillIcon, RightIcon, SaveFillIcon, SaveIcon, ShareFillIcon, ShareIcon, SignInIcon, SignOutIcon, SlideContainerIcon, SmileFillIcon, SmileIcon, SplitContainerIcon, StarFillIcon, StarHalfFillIcon, StarIcon, StepperIcon, SyncIcon, TabContainerIcon, TextBoxIcon, TodayFillIcon, TodayIcon, TooltipIcon, TrashCanFillIcon, TrashCanIcon, UndoIcon, UnloadIcon, UpDownIcon, UpFillIcon, UpIcon, UploadIcon, UserAddIcon, UserFillIcon, UserIcon, UserMinusIcon, UsersFillIcon, UsersIcon, VerticalDividerIcon } from "~/components/elements/icon";
-import { Link } from "~/components/elements/link";
-import { LinkButton } from "~/components/elements/link-button";
-import { $alert, $confirm, $toast } from "~/components/elements/message-box";
-import { NavLayout, useNavLayout } from "~/components/elements/nav-layout";
-import { clsx } from "~/components/elements/utilities";
-import { useAbortController } from "~/components/hooks/abort-controller";
-import { usePageExitPropmt } from "~/components/hooks/page-exit-prompt";
-import { useToggle } from "~/components/hooks/toggle";
-import getIndexedDB, { type IndexedDBController, type IndexedDBStores } from "~/components/indexeddb/client";
+import getIndexedDB, { type IndexedDBController, type IndexedDBStores } from "~/components/client/indexeddb";
 import { formatDate } from "~/components/objects/date";
 import { parseNumber } from "~/components/objects/numeric";
-import { useTheme } from "~/components/providers/theme";
+import { Button } from "~/components/react/elements/button";
+import { Details } from "~/components/react/elements/details";
+import { useDialog } from "~/components/react/elements/dialog";
+import { CheckBox } from "~/components/react/elements/form/check-box";
+import { CheckList } from "~/components/react/elements/form/check-list";
+import { FormItem } from "~/components/react/elements/form/common";
+import { DateBox } from "~/components/react/elements/form/date-box";
+import { DateSelectBox } from "~/components/react/elements/form/date-select-box";
+import { FieldSet } from "~/components/react/elements/form/fieldset";
+import { FileBox } from "~/components/react/elements/form/file-box";
+import { NumberBox } from "~/components/react/elements/form/number-box";
+import { RadioButtons } from "~/components/react/elements/form/radio-buttons";
+import { SelectBox } from "~/components/react/elements/form/select-box";
+import { Slider } from "~/components/react/elements/form/slider";
+import { SwitchBox } from "~/components/react/elements/form/switch-box";
+import { TextArea } from "~/components/react/elements/form/text-area";
+import { TextBox } from "~/components/react/elements/form/text-box";
+import { Text } from "~/components/react/elements/i18n-text";
+import { ArrowDownIcon, ArrowLeftIcon, ArrowRightIcon, ArrowUpIcon, BadgeIcon, BookmarkFillIcon, BookmarkIcon, ButtonIcon, CalendarFillIcon, CalendarIcon, CameraFillIcon, CameraIcon, CardIcon, CheckCircleFillIcon, CheckCircleIcon, CheckIcon, ChocolateMenuFillIcon, ChocolateMenuIcon, CircleFillIcon, CircleIcon, ClearAllIcon, ClockFillIcon, ClockIcon, CloudDownloadIcon, CloudFillIcon, CloudIcon, CloudUploadIcon, ContainerIcon, CrossCircleFillIcon, CrossCircleIcon, CrossIcon, DeleteBackFillIcon, DeleteBackIcon, DeleteFillIcon, DeleteIcon, DocumentFillIcon, DocumentIcon, DoubleDownFillIcon, DoubleDownIcon, DoubleLeftFillIcon, DoubleLeftIcon, DoubleRightFillIcon, DoubleRightIcon, DoubleUpFillIcon, DoubleUpIcon, DownFillIcon, DownIcon, DownloadIcon, ElementIcon, ExclamationCircleFillIcon, ExclamationCircleIcon, ExclamationDiamondFillIcon, ExclamationDiamondIcon, ExclamationIcon, ExclamationTriangleFillIcon, ExclamationTriangleIcon, ExLinkIcon, FileAddFillIcon, FileAddIcon, FileDeleteFillIcon, FileDeleteIcon, FileFillIcon, FileIcon, FilterFillIcon, FilterIcon, FolderAddFillIcon, FolderAddIcon, FolderDeleteFillIcon, FolderDeleteIcon, FolderFillIcon, FolderIcon, FormIcon, FormItemIcon, GearFillIcon, GearIcon, GridFillIcon, GridIcon, HeartFillIcon, HeartHalfFillIcon, HeartIcon, HomeFillIcon, HomeIcon, HorizontalDividerIcon, KebabMenuIcon, LabelFillIcon, LabelIcon, LeftFillIcon, LeftIcon, LeftRightIcon, LinkIcon, ListFilterIcon, ListIcon, LoadingIcon, LocationFillIcon, LocationIcon, MagnifyingGlassIcon, MagnifyingGlassMinusFillIcon, MagnifyingGlassMinusIcon, MagnifyingGlassPlusFillIcon, MagnifyingGlassPlusIcon, MailFillIcon, MailIcon, MeatballsMenuIcon, MenuIcon, MenuLeftIcon, MenuLeftRightIcon, MenuRightIcon, MinusCircleFillIcon, MinusCircleIcon, MinusIcon, NavContainerIcon, OrderListIcon, PinFillIcon, PinIcon, PlusCircleFillIcon, PlusCircleIcon, PlusIcon, PopupIcon, PowerIcon, QuestionCircleFillIcon, QuestionCircleIcon, QuestionIcon, RedoIcon, ReloadIcon, RightFillIcon, RightIcon, SaveFillIcon, SaveIcon, ShareFillIcon, ShareIcon, SignInIcon, SignOutIcon, SlideContainerIcon, SmileFillIcon, SmileIcon, SplitContainerIcon, StarFillIcon, StarHalfFillIcon, StarIcon, StepperIcon, SyncIcon, TabContainerIcon, TextBoxIcon, TodayFillIcon, TodayIcon, TooltipIcon, TrashCanFillIcon, TrashCanIcon, UndoIcon, UnloadIcon, UpDownIcon, UpFillIcon, UpIcon, UploadIcon, UserAddIcon, UserFillIcon, UserIcon, UserMinusIcon, UsersFillIcon, UsersIcon, VerticalDividerIcon } from "~/components/react/elements/icon";
+import { Link } from "~/components/react/elements/link";
+import { LinkButton } from "~/components/react/elements/link-button";
+import { $alert, $confirm, $toast } from "~/components/react/elements/message-box";
+import { NavLayout, useNavLayout } from "~/components/react/elements/nav-layout";
+import { clsx } from "~/components/react/elements/utilities";
+import { useAbortController } from "~/components/react/hooks/abort-controller";
+import { useLocale, useText } from "~/components/react/hooks/i18n";
+import { usePageExitPropmt } from "~/components/react/hooks/page-exit-prompt";
+import { useSchema, useSchemaArray, useSchemaContext, useSchemaValue } from "~/components/react/hooks/schema";
+import { useToggle } from "~/components/react/hooks/toggle";
+import { useTheme } from "~/components/react/providers/theme";
 import { $schema } from "~/components/schema";
 import { $array } from "~/components/schema/array";
 import { $bool } from "~/components/schema/boolean";
 import { $date, $datetime, $month } from "~/components/schema/date";
 import { $file } from "~/components/schema/file";
-import { useSchema, useSchemaArray, useSchemaContext, useSchemaValue } from "~/components/schema/hooks";
 import { $num } from "~/components/schema/number";
 import { getPayload } from "~/components/schema/server";
 import { $str } from "~/components/schema/string";
 import { $struct } from "~/components/schema/struct";
 import sleep from "~/components/utilities/sleep";
 import { internalApi } from "~/features/api/internal";
-import { useLocale, useText } from "~/i18n/hooks";
-import { Text } from "~/i18n/react-component";
 import type { Route } from "./+types/page";
 
 const text = $str(
@@ -1185,37 +1185,35 @@ function IconsComponent() {
   return (
     <section>
       <Details summary="Icons">
-        <div className="details-content:">
-          <ul className="flex flex-row flex-wrap gap-4 p-2">
-            {icons.map((Icon, index) => {
-              const IconlessName = Icon.name.match(/(.*)Icon/)?.[1];
+        <ul className="flex flex-row flex-wrap gap-4 p-2">
+          {icons.map((Icon, index) => {
+            const IconlessName = Icon.name.match(/(.*)Icon/)?.[1] || Icon.name;
 
-              return (
-                <li key={Icon.name}>
-                  <h3 className="flex flex-row gap-2">
-                    {index + 1}. {Icon.name} <Icon />
-                  </h3>
-                  <div className="flex gap-2 w-[300px]">
-                    <Button>
-                      <Icon />
-                    </Button>
-                    <Button
-                      color="sub"
-                      appearance="outline"
-                      round
-                    >
-                      <Icon />
-                    </Button>
-                    <Button color="secondary">
-                      <span>{IconlessName}</span>
-                      <Icon />
-                    </Button>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
+            return (
+              <li key={Icon.name}>
+                <h3 className="flex flex-row gap-2">
+                  {index + 1}. {Icon.name} <Icon />
+                </h3>
+                <div className="flex gap-2 w-[300px]">
+                  <Button>
+                    <Icon />
+                  </Button>
+                  <Button
+                    color="sub"
+                    appearance="outline"
+                    round
+                  >
+                    <Icon />
+                  </Button>
+                  <Button color="secondary">
+                    <span>{IconlessName}</span>
+                    <Icon />
+                  </Button>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
       </Details>
     </section>
   );

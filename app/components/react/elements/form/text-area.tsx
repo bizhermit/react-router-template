@@ -1,5 +1,5 @@
 import { useRef, useState, type ChangeEvent } from "react";
-import { useSchemaItem } from "~/components/schema/hooks";
+import { useSchemaItem } from "~/components/react/hooks/schema";
 import { getValidationValue, InputField, type InputWrapProps } from "./common";
 import type { FormItemHookProps } from "./hooks";
 

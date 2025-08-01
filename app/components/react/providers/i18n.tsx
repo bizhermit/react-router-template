@@ -1,8 +1,8 @@
 import { use, useEffect, useRef, useState, type ReactNode } from "react";
 import { useLocation, useNavigate, useRevalidator } from "react-router";
-import { LoadingBar } from "~/components/elements/loading";
-import { DEFAULT_LOCALE, LOCALE_KEY } from "./config";
-import { I18nContext, I18nLangContext, type SwitchLocaleOptions } from "./hooks";
+import { LoadingBar } from "~/components/react/elements/loading";
+import { DEFAULT_LOCALE, LOCALE_KEY } from "../../../i18n/config";
+import { I18nContext, I18nLangContext, type SwitchLocaleOptions } from "../hooks/i18n";
 
 export function I18nProvider(props: {
   locale: Locales;

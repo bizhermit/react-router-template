@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef } from "react";
 import { unstable_usePrompt } from "react-router";
-import { useText } from "~/i18n/hooks";
+import { useText } from "~/components/react/hooks/i18n";
 
 interface Options {
   message?: string;

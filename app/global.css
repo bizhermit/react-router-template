@@ -165,10 +165,10 @@
   }
 }
 
-@import "./components/elements/loading.css";
-@import "./components/elements/button.css";
-@import "./components/elements/nav-layout.css";
-@import "./components/elements/dialog.css";
-@import "./components/elements/message-box.css";
-@import "./components/elements/form/style.css";
-@import "./components/elements/details.css";
+@import "./components/react/elements/loading.css";
+@import "./components/react/elements/button.css";
+@import "./components/react/elements/nav-layout.css";
+@import "./components/react/elements/dialog.css";
+@import "./components/react/elements/message-box.css";
+@import "./components/react/elements/form/style.css";
+@import "./components/react/elements/details.css";

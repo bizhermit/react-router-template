@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { createContext, use, useCallback, useContext, useId, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type FormEvent, type FormHTMLAttributes, type ReactNode, type RefObject } from "react";
-import { useText } from "~/i18n/hooks";
-import { parseWithSchema } from ".";
-import { getFocusableElement } from "../dom/focus";
+import { useText } from "~/components/react/hooks/i18n";
+import { getFocusableElement } from "../../client/dom/focus";
+import { clone } from "../../objects";
+import { parseWithSchema } from "../../schema";
+import { getRelativeName, SchemaData } from "../../schema/data";
 import type { InputWrapProps } from "../elements/form/common";
-import { clone } from "../objects";
 import { ValidScriptsContext } from "../providers/valid-scripts";
-import { getRelativeName, SchemaData } from "./data";
 
 export interface SchemaEffectParams_Refresh {
   type: "refresh";

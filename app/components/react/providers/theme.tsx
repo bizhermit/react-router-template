@@ -1,5 +1,5 @@
 import { createContext, use, useReducer, type Dispatch, type ReactNode } from "react";
-import { deleteCookie, setCookie } from "../cookie/client";
+import { deleteCookie, setCookie } from "../../cookie/client";
 
 type Theme = "auto" | "light" | "dark";
 

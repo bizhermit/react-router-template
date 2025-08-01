@@ -4,9 +4,9 @@ import { renderToPipeableStream } from "react-dom/server";
 import { ServerRouter, type AppLoadContext, type EntryContext } from "react-router";
 import { PassThrough } from "stream";
 import { cookieStore } from "./components/cookie/server";
-import { ThemeProvider } from "./components/providers/theme";
-import { ValidScriptsProvider } from "./components/providers/valid-scripts";
-import { I18nProvider } from "./i18n/provider";
+import { I18nProvider } from "./components/react/providers/i18n";
+import { ThemeProvider } from "./components/react/providers/theme";
+import { ValidScriptsProvider } from "./components/react/providers/valid-scripts";
 import { loadI18nAsServer } from "./i18n/server";
 
 const ABORT_DELAY = 5000;

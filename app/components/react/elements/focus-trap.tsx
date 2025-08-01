@@ -1,5 +1,5 @@
 import type { FocusEvent, HTMLAttributes, ReactNode } from "react";
-import { getNextFocusableElement, getPrevFocusableElement } from "../dom/focus";
+import { getNextFocusableElement, getPrevFocusableElement } from "../../client/dom/focus";
 
 interface FocusTrapProps {
   onFocusHead?: boolean | ((e: FocusEvent<HTMLDivElement>) => void);

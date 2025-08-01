@@ -1,5 +1,5 @@
 import { useState, type HTMLAttributes } from "react";
-import { useSchemaEffect } from "~/components/schema/hooks";
+import { useSchemaEffect } from "~/components/react/hooks/schema";
 import { clsx } from "../utilities";
 
 export type InputMessageProps = HTMLAttributes<HTMLSpanElement> & {

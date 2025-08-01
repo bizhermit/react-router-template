@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ChangeEvent, type DragEvent, type KeyboardEvent, type MouseEvent, type ReactNode } from "react";
 import { convertBase64ToFile } from "~/components/objects/file";
-import { useSchemaItem } from "~/components/schema/hooks";
+import { useSchemaItem } from "~/components/react/hooks/schema";
 import { clsx } from "../utilities";
 import { getValidationValue, InputField, type InputWrapProps } from "./common";
 import type { FormItemHookProps } from "./hooks";

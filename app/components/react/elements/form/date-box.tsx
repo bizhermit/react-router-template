@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { useSchemaItem } from "~/components/react/hooks/schema";
 import { parseTypedDateString } from "~/components/schema/date";
-import { useSchemaItem } from "~/components/schema/hooks";
 import { clsx } from "../utilities";
 import { getValidationValue, InputDummyFocus, InputField, type InputWrapProps } from "./common";
 import type { FormItemHookProps } from "./hooks";

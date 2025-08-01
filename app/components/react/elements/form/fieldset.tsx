@@ -1,5 +1,5 @@
 import { use, type FieldsetHTMLAttributes } from "react";
-import { FieldSetContext } from "~/components/schema/hooks";
+import { FieldSetContext } from "~/components/react/hooks/schema";
 
 type FieldSetProps = FieldsetHTMLAttributes<HTMLFieldSetElement> & {
   readOnly?: boolean;

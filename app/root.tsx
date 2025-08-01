@@ -9,10 +9,10 @@ import {
 
 import type { ReactNode } from "react";
 import type { Route } from "./+types/root";
-import { useTheme } from "./components/providers/theme";
+import { useLocale } from "./components/react/hooks/i18n";
+import { I18nCookieLocator } from "./components/react/providers/i18n";
+import { useTheme } from "./components/react/providers/theme";
 import "./global.css";
-import { useLocale } from "./i18n/hooks";
-import { I18nCookieLocator } from "./i18n/provider";
 
 export const links: Route.LinksFunction = () => [
   // { rel: "preconnect", href: "https://fonts.googleapis.com" },

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type DialogHTMLAttributes, type KeyboardEvent, type MouseEvent, type RefObject } from "react";
-import { preventScroll } from "../dom/prevent-scroll";
-import throttle from "../utilities/throttle";
+import { preventScroll } from "../../client/dom/prevent-scroll";
+import throttle from "../../utilities/throttle";
 import { clsx } from "./utilities";
 
 interface DialogAnchor {

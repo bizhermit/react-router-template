@@ -1,23 +1,25 @@
 import { useRef, type ChangeEvent, type ReactNode } from "react";
-import { useSchemaItem } from "~/components/schema/hooks";
+import { useSchemaItem } from "~/components/react/hooks/schema";
 import { clsx, getColorClassName } from "../utilities";
 import { InputDummyFocus, InputLabel, InputLabelText, type InputWrapProps } from "./common";
 import type { FormItemHookProps } from "./hooks";
 
-export type SwitchBoxProps<D extends Schema.DataItem<Schema.$Boolean>> = InputWrapProps & {
+export type CheckBoxProps<D extends Schema.DataItem<Schema.$Boolean>> = InputWrapProps & {
   $: D;
+  appearance?: "checkbox" | "button";
   color?: StyleColor;
   hook?: FormItemHookProps;
   children?: ReactNode;
 };
 
-export function SwitchBox<D extends Schema.DataItem<Schema.$Boolean>>({
-  children,
+export function CheckBox<D extends Schema.DataItem<Schema.$Boolean>>({
+  autoFocus,
+  appearance = "checkbox",
   color,
   hook,
-  autoFocus,
+  children,
   ...$props
-}: SwitchBoxProps<D>) {
+}: CheckBoxProps<D>) {
   const ref = useRef<HTMLInputElement>(null!);
 
   const {
@@ -36,8 +38,8 @@ export function SwitchBox<D extends Schema.DataItem<Schema.$Boolean>>({
   } = useSchemaItem<Schema.DataItem<Schema.$Boolean>>($props, {
     effect: function ({ value }) {
       if (!ref.current) return;
-      const isSwitch = value === dataItem._.trueValue;
-      if (isSwitch !== ref.current.checked) ref.current.checked = isSwitch;
+      const isCheck = value === dataItem._.trueValue;
+      if (isCheck !== ref.current.checked) ref.current.checked = isCheck;
     },
   });
 
@@ -50,16 +52,25 @@ export function SwitchBox<D extends Schema.DataItem<Schema.$Boolean>>({
     hook.focus = () => ref.current.focus();
   }
 
+  const colorClassName = getColorClassName(color);
+
   return (
     <InputLabel
       {...props}
       core={{
         state,
         result,
+        classNames: appearance === "button" ?
+          clsx("ipt-label-button", colorClassName) :
+          undefined,
       }}
     >
       <input
-        className={clsx("ipt-switch", getColorClassName(color))}
+        className={
+          appearance === "checkbox" ?
+            clsx("ipt-point ipt-check", colorClassName) :
+            "appearance-none"
+        }
         ref={ref}
         type="checkbox"
         name={omitOnSubmit ? undefined : name}
@@ -75,7 +86,9 @@ export function SwitchBox<D extends Schema.DataItem<Schema.$Boolean>>({
         aria-errormessage={errormessage}
         autoFocus={autoFocus}
       />
-      <InputLabelText>
+      <InputLabelText
+        className={appearance === "button" ? "px-0" : undefined}
+      >
         {children}
       </InputLabelText>
       {
@@ -83,7 +96,7 @@ export function SwitchBox<D extends Schema.DataItem<Schema.$Boolean>>({
         <>
           <input
             type="hidden"
-            name={omitOnSubmit ? undefined : name}
+            name={name}
             value={value as string || undefined}
           />
           <InputDummyFocus />

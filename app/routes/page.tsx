@@ -1,4 +1,4 @@
-import { Link } from "~/components/elements/link";
+import { Link } from "~/components/react/elements/link";
 
 export default function Page() {
   return (

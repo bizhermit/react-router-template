@@ -1,6 +1,6 @@
 import { createContext, use, useId, useRef, type FocusEvent, type HTMLAttributes, type KeyboardEvent, type ReactNode } from "react";
-import { containElement } from "../dom/contain";
-import { getNextFocusableElement, getPrevFocusableElement } from "../dom/focus";
+import { containElement } from "../../client/dom/contain";
+import { getNextFocusableElement, getPrevFocusableElement } from "../../client/dom/focus";
 import { FocusTrap } from "./focus-trap";
 import { CrossIcon, MenuIcon, MenuLeftIcon, MenuRightIcon } from "./icon";
 import { clsx } from "./utilities";

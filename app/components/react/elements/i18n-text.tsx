@@ -1,5 +1,5 @@
 import { createElement, type FC, type ReactNode } from "react";
-import { useText } from "./hooks";
+import { useText } from "../hooks/i18n";
 
 type ReplaceMap = Record<string, FC<{ children: ReactNode; }>>;
 
