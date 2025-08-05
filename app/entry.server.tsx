@@ -33,6 +33,7 @@ const allowOrigins = (process.env.CORS_ALLOWED_ORIGINS || "")
 if (allowOrigins.length === 0) {
   allowOrigins.push(defaultOrigin);
 }
+const isAllowOriginAll = allowOrigins.includes("*");
 
 const CONTENT_SECURITY_POLICY = (isDev ? [
   "default-src 'self'",
@@ -72,6 +73,13 @@ const CONTENT_SECURITY_POLICY = (isDev ? [
   "block-all-mixed-content",
 ]).join("; ");
 
+function noCacheHeader(headers: Headers) {
+  headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  headers.set("Pragma", "no-cache");
+  headers.set("Expires", "0");
+  headers.set("Vary", "Accept-Encoding, Origin, User-Agent");
+};
+
 function devHeader(headers: Headers) {
   // NOTE: 開発時は常にキャッシュを無効化
   noCacheHeader(headers);
@@ -79,13 +87,6 @@ function devHeader(headers: Headers) {
 
 function prodHeader(headers: Headers) {
   headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
-};
-
-function noCacheHeader(headers: Headers) {
-  headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
-  headers.set("Pragma", "no-cache");
-  headers.set("Expires", "0");
-  headers.set("Vary", "Accept-Encoding, Origin, User-Agent");
 };
 
 const generateResponseHeadersAsMode = isDev ?
@@ -141,7 +142,14 @@ export default async function handleRequest(
           const body = new PassThrough();
           const stream = createReadableStreamFromReadable(body);
           const url = new URL(request.url);
-          if (url.pathname.startsWith("/api/")) {
+
+          // URL検証：不正なパスパターンをチェック
+          const pathname = url.pathname;
+          if (pathname.includes("..") || pathname.includes("//") || pathname.includes("%")) {
+            console.warn("Suspicious URL pattern detected:", pathname);
+          }
+
+          if (pathname.startsWith("/api/")) {
             headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
             headers.set("Pragma", "no-cache");
             headers.set("Expires", "0");
@@ -149,7 +157,7 @@ export default async function handleRequest(
             if (origin && allowOrigins.some(allowed => allowed === origin)) {
               headers.set("Access-Control-Allow-Origin", origin);
               headers.set("Access-Control-Allow-Credentials", "true");
-            } else if (allowOrigins.includes("*")) {
+            } else if (isAllowOriginAll) {
               headers.set("Access-Control-Allow-Origin", "*");
             }
             headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
@@ -190,6 +198,8 @@ export default async function handleRequest(
           headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
           headers.set("X-DNS-Prefetch-Control", "off");
           headers.set("X-Download-Options", "noopen");
+          headers.set("X-Permitted-Cross-Domain-Policies", "none");
+          headers.set("X-XSS-Protection", "0"); // NOTE: CSPに依存するため無効化
           headers.set("Report-To", reportToCspEndpoint);
           headers.set("Content-Security-Policy", CONTENT_SECURITY_POLICY);
           generateResponseHeadersAsMode(headers);
