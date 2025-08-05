@@ -96,6 +96,18 @@ const PERMISSION_POLICY = [
 
 const SUSPICIOUS_PATH_PATTERN = /(\.\.|\/\/|%[0-9a-fA-F]{2})/;
 
+function setCommonSecurityHeaders(headers: Headers) {
+  headers.set("X-Content-Type-Options", "nosniff");
+  headers.set("X-Frame-Options", "DENY");
+  headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  headers.set("X-DNS-Prefetch-Control", "off");
+  headers.set("X-Download-Options", "noopen");
+  headers.set("X-Permitted-Cross-Domain-Policies", "none");
+  headers.set("X-XSS-Protection", "0"); // NOTE: CSPに依存するため無効化
+  headers.set("Report-To", reportToCspEndpoint);
+  headers.set("Content-Security-Policy", CONTENT_SECURITY_POLICY);
+};
+
 function noCacheHeader(headers: Headers) {
   headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
   headers.set("Pragma", "no-cache");
@@ -176,6 +188,7 @@ export default async function handleRequest(
             headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
             headers.set("Pragma", "no-cache");
             headers.set("Expires", "0");
+
             const origin = request.headers.get("origin");
             if (origin && allowOriginsSet.has(origin)) {
               headers.set("Access-Control-Allow-Origin", origin);
@@ -198,15 +211,8 @@ export default async function handleRequest(
             headers.set("Cross-Origin-Embedder-Policy", "require-corp");
             headers.set("Cross-Origin-Opener-Policy", "same-origin");
           }
-          headers.set("X-Content-Type-Options", "nosniff");
-          headers.set("X-Frame-Options", "DENY");
-          headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-          headers.set("X-DNS-Prefetch-Control", "off");
-          headers.set("X-Download-Options", "noopen");
-          headers.set("X-Permitted-Cross-Domain-Policies", "none");
-          headers.set("X-XSS-Protection", "0"); // NOTE: CSPに依存するため無効化
-          headers.set("Report-To", reportToCspEndpoint);
-          headers.set("Content-Security-Policy", CONTENT_SECURITY_POLICY);
+
+          setCommonSecurityHeaders(headers);
           generateResponseHeadersAsMode(headers);
 
           resolve(
