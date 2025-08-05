@@ -28,6 +28,7 @@ services:
     container_name: 'template_postgres'
     image: postgres:17-bookworm
     restart: always
+    user: postgres
     volumes:
       - 'template_postgres:/var/lib/postgresql/data'
       - '../database/postgres/init:/docker-entrypoint-initdb.d'
@@ -45,6 +46,16 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
     command: >
       postgres
       -c log_destination=stderr
