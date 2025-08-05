@@ -16,6 +16,7 @@ export async function loadI18nAsClient(): Promise<{
   const i18n = window[I18N_PROP_NAME];
   if (i18n) {
     document.getElementById(I18N_PROP_NAME)?.remove();
+    document.getElementById(`${I18N_PROP_NAME}_data`)?.remove();
     delete window[I18N_PROP_NAME];
     return i18n;
   }
