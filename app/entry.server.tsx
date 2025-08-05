@@ -9,11 +9,12 @@ import { ThemeProvider } from "./components/react/providers/theme";
 import { ValidScriptsProvider } from "./components/react/providers/valid-scripts";
 import { loadI18nAsServer } from "./i18n/server";
 
-const ABORT_DELAY = 5000;
 const isDev = process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test";
 const appMode = import.meta.env.VITE_APP_MODE || "prod";
-const defaultOrigin = `http://localhost:${isDev ? (process.env.DEV_PORT || 5173) : (process.env.PORT || 3000)}`;
-const cspReportOrigin = process.env.CSP_REPORT_ORIGIN || defaultOrigin;
+const selfOrigin = `http://localhost:${isDev ? (process.env.DEV_PORT || 5173) : (process.env.PORT || 3000)}`;
+
+const ABORT_DELAY = 5000;
+const cspReportOrigin = process.env.CSP_REPORT_ORIGIN || selfOrigin;
 const reportToCspEndpoint = JSON.stringify({
   group: "csp-endpoint",
   max_age: 31536000,
@@ -25,16 +26,16 @@ const reportToCspEndpoint = JSON.stringify({
     },
   ],
 });
-const allowOrigins = (process.env.CORS_ALLOWED_ORIGINS || "")
+const allowOrigins = (process.env.CORS_ALLOW_ORIGINS || "")
   .split(",")
   .map(o => o.trim())
   .filter(o => o.length > 0);
 
 if (allowOrigins.length === 0) {
-  allowOrigins.push(defaultOrigin);
+  allowOrigins.push(selfOrigin);
 }
-const isAllowOriginAll = allowOrigins.includes("*");
 const allowOriginsSet = new Set(allowOrigins);
+const isAllowOriginAll = allowOriginsSet.has("*");
 
 const CONTENT_SECURITY_POLICY = (isDev ? [
   "default-src 'self'",
@@ -124,15 +125,14 @@ function prodHeader(headers: Headers) {
   headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
 };
 
-const generateResponseHeadersAsMode = isDev ?
-  devHeader : (
-    appMode === "test" ?
-      (headers: Headers) => {
-        prodHeader(headers);
-        // NOTE: テストモード時は常にキャッシュを無効化
-        noCacheHeader(headers);
-      } : prodHeader
-  );
+const generateResponseHeadersAsMode = isDev ? devHeader : (
+  appMode === "test" ?
+    (headers: Headers) => {
+      prodHeader(headers);
+      // NOTE: テストモード時は常にキャッシュを無効化
+      noCacheHeader(headers);
+    } : prodHeader
+);
 
 export default async function handleRequest(
   request: Request,
@@ -184,7 +184,8 @@ export default async function handleRequest(
             console.warn("Suspicious URL pattern detected:", pathname);
           }
 
-          if (pathname.startsWith("/api/")) {
+          const isApiPathname = pathname.startsWith("/api/");
+          if (isApiPathname) {
             headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
             headers.set("Pragma", "no-cache");
             headers.set("Expires", "0");
@@ -207,7 +208,7 @@ export default async function handleRequest(
             headers.set("Content-Type", "text/html");
             headers.set("Permission-Policy", PERMISSION_POLICY);
           }
-          if (!url.pathname.startsWith("/api/")) {
+          if (!isApiPathname) {
             headers.set("Cross-Origin-Embedder-Policy", "require-corp");
             headers.set("Cross-Origin-Opener-Policy", "same-origin");
           }
