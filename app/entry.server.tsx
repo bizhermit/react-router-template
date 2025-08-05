@@ -13,7 +13,6 @@ const ABORT_DELAY = 5000;
 const isDev = process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test";
 const appMode = import.meta.env.VITE_APP_MODE || "prod";
 const defaultOrigin = `http://localhost:${isDev ? (process.env.DEV_PORT || 5173) : (process.env.PORT || 3000)}`;
-
 const cspReportOrigin = process.env.CSP_REPORT_ORIGIN || defaultOrigin;
 const reportToCspEndpoint = JSON.stringify({
   group: "csp-endpoint",
@@ -26,7 +25,6 @@ const reportToCspEndpoint = JSON.stringify({
     },
   ],
 });
-
 const allowOrigins = (process.env.CORS_ALLOWED_ORIGINS || "")
   .split(",")
   .map(o => o.trim())
@@ -36,27 +34,50 @@ if (allowOrigins.length === 0) {
   allowOrigins.push(defaultOrigin);
 }
 
+const CONTENT_SECURITY_POLICY = (isDev ? [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob: https: http:",
+  "font-src 'self' data: https: http:",
+  "connect-src 'self' http: https: ws: wss: blob: data:",
+  "media-src 'self' blob: data:",
+  "worker-src 'self' blob:",
+  "child-src 'self'",
+  "object-src 'none'",
+  "frame-ancestors 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "manifest-src 'self'",
+  "report-uri /csp-report",
+  "report-to csp-endpoint",
+] : [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline'", // TODO: nonce-${nonce}の検討
+  "style-src 'self' 'unsafe-inline'", // TODO: nonce-${nonce}の検討
+  "img-src 'self' data: blob: https:",
+  "font-src 'self' data: https:",
+  "connect-src 'self' https: ws: wss: blob: data:",
+  "media-src 'self' blob: data:",
+  "worker-src 'self' blob:",
+  "child-src 'self'",
+  "object-src 'none'",
+  "frame-ancestors 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "manifest-src 'self'",
+  "report-uri /csp-report",
+  "report-to csp-endpoint",
+  "upgrade-insecure-requests",
+  "block-all-mixed-content",
+]).join("; ");
+
+function devHeader(headers: Headers) {
+  // NOTE: 開発時は常にキャッシュを無効化
+  noCacheHeader(headers);
+};
+
 function prodHeader(headers: Headers) {
-  headers.set("Content-Security-Policy", [
-    "default-src 'self'",
-    "script-src 'self' 'unsafe-inline'", // TODO: nonce-${nonce}の検討
-    "style-src 'self' 'unsafe-inline'", // TODO: nonce-${nonce}の検討
-    "img-src 'self' data: blob: https:",
-    "font-src 'self' data: https:",
-    "connect-src 'self' https: ws: wss: blob: data:",
-    "media-src 'self' blob: data:",
-    "worker-src 'self' blob:",
-    "child-src 'self'",
-    "object-src 'none'",
-    "frame-ancestors 'none'",
-    "base-uri 'self'",
-    "form-action 'self'",
-    "manifest-src 'self'",
-    "report-uri /csp-report",
-    "report-to csp-endpoint",
-    "upgrade-insecure-requests",
-    "block-all-mixed-content",
-  ].join("; "));
   headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
 };
 
@@ -68,37 +89,13 @@ function noCacheHeader(headers: Headers) {
 };
 
 const generateResponseHeadersAsMode = isDev ?
-  (headers: Headers) => {
-    headers.set("Content-Security-Policy", [
-      "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-      "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: blob: https: http:",
-      "font-src 'self' data: https: http:",
-      "connect-src 'self' http: https: ws: wss: blob: data:",
-      "media-src 'self' blob: data:",
-      "worker-src 'self' blob:",
-      "child-src 'self'",
-      "object-src 'none'",
-      "frame-ancestors 'none'",
-      "base-uri 'self'",
-      "form-action 'self'",
-      "manifest-src 'self'",
-      "report-uri /csp-report",
-      "report-to csp-endpoint",
-    ].join("; "));
-    // NOTE: 開発時は常にキャッシュを無効化
-    noCacheHeader(headers);
-  } : (
+  devHeader : (
     appMode === "test" ?
       (headers: Headers) => {
         prodHeader(headers);
         // NOTE: テストモード時は常にキャッシュを無効化
         noCacheHeader(headers);
-      } :
-      (headers: Headers) => {
-        prodHeader(headers);
-      }
+      } : prodHeader
   );
 
 export default async function handleRequest(
@@ -194,6 +191,7 @@ export default async function handleRequest(
           headers.set("X-DNS-Prefetch-Control", "off");
           headers.set("X-Download-Options", "noopen");
           headers.set("Report-To", reportToCspEndpoint);
+          headers.set("Content-Security-Policy", CONTENT_SECURITY_POLICY);
           generateResponseHeadersAsMode(headers);
 
           resolve(
