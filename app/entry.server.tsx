@@ -13,11 +13,20 @@ const ABORT_DELAY = 5000;
 const isDev = process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test";
 const appMode = import.meta.env.VITE_APP_MODE || "prod";
 
+const allowOrigins = (process.env.CORS_ALLOWED_ORIGINS || "")
+  .split(",")
+  .map(o => o.trim())
+  .filter(o => o.length > 0);
+
+if (allowOrigins.length === 0) {
+  allowOrigins.push(`http://localhost:${isDev ? (process.env.DEV_PORT || 5173) : (process.env.PORT || 3000)}`);
+}
+
 function prodHeader(headers: Headers) {
   headers.set("Content-Security-Policy", [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline'", // 本番環境ではnonce/hashの使用を推奨
-    "style-src 'self' 'unsafe-inline'",
+    "script-src 'self' 'unsafe-inline'", // TODO: nonce-${nonce}の検討
+    "style-src 'self' 'unsafe-inline'", // TODO: nonce-${nonce}の検討
     "img-src 'self' data: blob: https:",
     "font-src 'self' data: https:",
     "connect-src 'self' https: ws: wss: blob: data:",
@@ -145,18 +154,17 @@ export default async function handleRequest(
             headers.set("Pragma", "no-cache");
             headers.set("Expires", "0");
             const origin = request.headers.get("origin");
-            const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS || "";
-
-            if (origin && allowedOrigins.includes(origin)) {
+            if (origin && allowOrigins.some(allowed => allowed === origin)) {
               headers.set("Access-Control-Allow-Origin", origin);
               headers.set("Access-Control-Allow-Credentials", "true");
-            } else if (allowedOrigins.includes("*")) {
+            } else if (allowOrigins.includes("*")) {
               headers.set("Access-Control-Allow-Origin", "*");
-              // NOTE: credentialsは"*"オリジンでは設定しない（仕様準拠）
             }
             headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
             headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
-            headers.set("Access-Control-Max-Age", "86400"); // 24時間のプリフライトキャッシュ
+            if (request.method === "OPTIONS") {
+              headers.set("Access-Control-Max-Age", "86400"); // 24時間のプリフライトキャッシュ
+            }
           } else if (url.pathname.startsWith("/static/")) {
             headers.set("Cache-Control", "public, max-age=31536000, immutable");
           } else {
@@ -181,15 +189,12 @@ export default async function handleRequest(
               "web-share=()",
             ].join(", "));
           }
-
           if (!url.pathname.startsWith("/api/")) {
             headers.set("Cross-Origin-Embedder-Policy", "require-corp");
             headers.set("Cross-Origin-Opener-Policy", "same-origin");
           }
-
           headers.set("X-Content-Type-Options", "nosniff");
           headers.set("X-Frame-Options", "DENY");
-          // headers.set("X-XSS-Protection", "1; mode=block");
           headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
           headers.set("X-DNS-Prefetch-Control", "off");
           headers.set("X-Download-Options", "noopen");
@@ -210,7 +215,6 @@ export default async function handleRequest(
         },
         onError(error: unknown) {
           didError = true;
-          // セキュリティに配慮したエラーログ出力
           if (isDev) {
             console.error("Render error:", error);
           } else {

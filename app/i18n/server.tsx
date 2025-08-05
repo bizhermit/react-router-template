@@ -39,7 +39,7 @@ export function loadI18nAsServer(request: Request) {
         <script
           id={I18N_PROP_NAME}
           dangerouslySetInnerHTML={{
-            __html: `window.${I18N_PROP_NAME}=${serialize({ locale, resource })}`,
+            __html: `window.${I18N_PROP_NAME}=${serialize({ locale, resource }, { isJSON: true })}`,
           }}
         />
       );
