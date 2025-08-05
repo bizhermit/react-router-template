@@ -34,6 +34,7 @@ if (allowOrigins.length === 0) {
   allowOrigins.push(defaultOrigin);
 }
 const isAllowOriginAll = allowOrigins.includes("*");
+const allowOriginsSet = new Set(allowOrigins);
 
 const CONTENT_SECURITY_POLICY = (isDev ? [
   "default-src 'self'",
@@ -72,6 +73,28 @@ const CONTENT_SECURITY_POLICY = (isDev ? [
   "upgrade-insecure-requests",
   "block-all-mixed-content",
 ]).join("; ");
+
+const PERMISSION_POLICY = [
+  "geolocation=()",
+  "microphone=()",
+  "camera=()",
+  "payment=()",
+  "usb=()",
+  "magnetometer=()",
+  "gyroscope=()",
+  "accelerometer=()",
+  "fullscreen=()",
+  "picture-in-picture=()",
+  "autoplay=()",
+  "encrypted-media=()",
+  "midi=()",
+  "push=()",
+  "speaker-selection=()",
+  "sync-xhr=()",
+  "web-share=()",
+].join(", ");
+
+const SUSPICIOUS_PATH_PATTERN = /(\.\.|\/\/|%[0-9a-fA-F]{2})/;
 
 function noCacheHeader(headers: Headers) {
   headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
@@ -143,9 +166,9 @@ export default async function handleRequest(
           const stream = createReadableStreamFromReadable(body);
           const url = new URL(request.url);
 
-          // URL検証：不正なパスパターンをチェック
+          // URL検証：不正なパスパターンをチェック（正規表現で効率化）
           const pathname = url.pathname;
-          if (pathname.includes("..") || pathname.includes("//") || pathname.includes("%")) {
+          if (SUSPICIOUS_PATH_PATTERN.test(pathname)) {
             console.warn("Suspicious URL pattern detected:", pathname);
           }
 
@@ -154,7 +177,7 @@ export default async function handleRequest(
             headers.set("Pragma", "no-cache");
             headers.set("Expires", "0");
             const origin = request.headers.get("origin");
-            if (origin && allowOrigins.some(allowed => allowed === origin)) {
+            if (origin && allowOriginsSet.has(origin)) {
               headers.set("Access-Control-Allow-Origin", origin);
               headers.set("Access-Control-Allow-Credentials", "true");
             } else if (isAllowOriginAll) {
@@ -169,25 +192,7 @@ export default async function handleRequest(
             headers.set("Cache-Control", "public, max-age=31536000, immutable");
           } else {
             headers.set("Content-Type", "text/html");
-            headers.set("Permission-Policy", [
-              "geolocation=()",
-              "microphone=()",
-              "camera=()",
-              "payment=()",
-              "usb=()",
-              "magnetometer=()",
-              "gyroscope=()",
-              "accelerometer=()",
-              "fullscreen=()",
-              "picture-in-picture=()",
-              "autoplay=()",
-              "encrypted-media=()",
-              "midi=()",
-              "push=()",
-              "speaker-selection=()",
-              "sync-xhr=()",
-              "web-share=()",
-            ].join(", "));
+            headers.set("Permission-Policy", PERMISSION_POLICY);
           }
           if (!url.pathname.startsWith("/api/")) {
             headers.set("Cross-Origin-Embedder-Policy", "require-corp");
