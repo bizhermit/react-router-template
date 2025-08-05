@@ -105,6 +105,7 @@ function setCommonSecurityHeaders(headers: Headers) {
   headers.set("X-Download-Options", "noopen");
   headers.set("X-Permitted-Cross-Domain-Policies", "none");
   headers.set("X-XSS-Protection", "0"); // NOTE: CSPに依存するため無効化
+  // headers.set("X-XSS-Protection", "1; mode=block"); // NOTE: 古のブラウザ向けの設定。現在はCSPで対応しているため無効化。
   headers.set("Report-To", reportToCspEndpoint);
   headers.set("Content-Security-Policy", CONTENT_SECURITY_POLICY);
 };
@@ -121,17 +122,18 @@ function devHeader(headers: Headers) {
   noCacheHeader(headers);
 };
 
+function testHeader(headers: Headers) {
+  // NOTE: テストモード時は常にキャッシュを無効化
+  prodHeader(headers);
+  noCacheHeader(headers);
+};
+
 function prodHeader(headers: Headers) {
   headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
 };
 
 const generateResponseHeadersAsMode = isDev ? devHeader : (
-  appMode === "test" ?
-    (headers: Headers) => {
-      prodHeader(headers);
-      // NOTE: テストモード時は常にキャッシュを無効化
-      noCacheHeader(headers);
-    } : prodHeader
+  appMode === "test" ? testHeader : prodHeader
 );
 
 export default async function handleRequest(
