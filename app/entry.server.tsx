@@ -12,6 +12,20 @@ import { loadI18nAsServer } from "./i18n/server";
 const ABORT_DELAY = 5000;
 const isDev = process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test";
 const appMode = import.meta.env.VITE_APP_MODE || "prod";
+const defaultOrigin = `http://localhost:${isDev ? (process.env.DEV_PORT || 5173) : (process.env.PORT || 3000)}`;
+
+const cspReportOrigin = process.env.CSP_REPORT_ORIGIN || defaultOrigin;
+const reportToCspEndpoint = JSON.stringify({
+  group: "csp-endpoint",
+  max_age: 31536000,
+  endpoints: [
+    {
+      url: `${cspReportOrigin}/csp-report`,
+      priority: 1,
+      method: "POST",
+    },
+  ],
+});
 
 const allowOrigins = (process.env.CORS_ALLOWED_ORIGINS || "")
   .split(",")
@@ -19,7 +33,7 @@ const allowOrigins = (process.env.CORS_ALLOWED_ORIGINS || "")
   .filter(o => o.length > 0);
 
 if (allowOrigins.length === 0) {
-  allowOrigins.push(`http://localhost:${isDev ? (process.env.DEV_PORT || 5173) : (process.env.PORT || 3000)}`);
+  allowOrigins.push(defaultOrigin);
 }
 
 function prodHeader(headers: Headers) {
@@ -86,25 +100,6 @@ const generateResponseHeadersAsMode = isDev ?
         prodHeader(headers);
       }
   );
-
-let reportToCspEndpoint = "";
-
-function getCspReportEndpoint(url: URL) {
-  if (!reportToCspEndpoint) {
-    reportToCspEndpoint = JSON.stringify({
-      group: "csp-endpoint",
-      max_age: 31536000,
-      endpoints: [
-        {
-          url: `${url.origin}/csp-report`,
-          priority: 1,
-          method: "POST",
-        },
-      ],
-    });
-  }
-  return reportToCspEndpoint;
-}
 
 export default async function handleRequest(
   request: Request,
@@ -198,7 +193,7 @@ export default async function handleRequest(
           headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
           headers.set("X-DNS-Prefetch-Control", "off");
           headers.set("X-Download-Options", "noopen");
-          headers.set("Report-To", getCspReportEndpoint(url));
+          headers.set("Report-To", reportToCspEndpoint);
           generateResponseHeadersAsMode(headers);
 
           resolve(
