@@ -16,20 +16,25 @@ const appMode = import.meta.env.VITE_APP_MODE || "prod";
 function prodHeader(headers: Headers) {
   headers.set("Content-Security-Policy", [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline'",
+    "script-src 'self' 'unsafe-inline'", // 本番環境ではnonce/hashの使用を推奨
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob: https:",
     "font-src 'self' data: https:",
     "connect-src 'self' https: ws: wss: blob: data:",
+    "media-src 'self' blob: data:",
+    "worker-src 'self' blob:",
+    "child-src 'self'",
+    "object-src 'none'",
     "frame-ancestors 'none'",
     "base-uri 'self'",
     "form-action 'self'",
-    "report-uri /csp-violation-report-endpoint",
+    "manifest-src 'self'",
+    "report-uri /csp-report",
     "report-to csp-endpoint",
     "upgrade-insecure-requests",
     "block-all-mixed-content",
   ].join("; "));
-  headers.set("strict-transport-security", "max-age=31536000; includeSubDomains; preload");
+  headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
 };
 
 function noCacheHeader(headers: Headers) {
@@ -48,10 +53,15 @@ const generateResponseHeadersAsMode = isDev ?
       "img-src 'self' data: blob: https: http:",
       "font-src 'self' data: https: http:",
       "connect-src 'self' http: https: ws: wss: blob: data:",
+      "media-src 'self' blob: data:",
+      "worker-src 'self' blob:",
+      "child-src 'self'",
+      "object-src 'none'",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",
-      "report-uri /csp-violation-report-endpoint",
+      "manifest-src 'self'",
+      "report-uri /csp-report",
       "report-to csp-endpoint",
     ].join("; "));
     // NOTE: 開発時は常にキャッシュを無効化
@@ -77,7 +87,7 @@ function getCspReportEndpoint(url: URL) {
       max_age: 31536000,
       endpoints: [
         {
-          url: `${url.origin}/csp-endpoint`,
+          url: `${url.origin}/csp-report`,
           priority: 1,
           method: "POST",
         },
@@ -134,18 +144,55 @@ export default async function handleRequest(
             headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
             headers.set("Pragma", "no-cache");
             headers.set("Expires", "0");
+            const origin = request.headers.get("origin");
+            const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS || "";
+
+            if (origin && allowedOrigins.includes(origin)) {
+              headers.set("Access-Control-Allow-Origin", origin);
+              headers.set("Access-Control-Allow-Credentials", "true");
+            } else if (allowedOrigins.includes("*")) {
+              headers.set("Access-Control-Allow-Origin", "*");
+              // NOTE: credentialsは"*"オリジンでは設定しない（仕様準拠）
+            }
+            headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+            headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
+            headers.set("Access-Control-Max-Age", "86400"); // 24時間のプリフライトキャッシュ
           } else if (url.pathname.startsWith("/static/")) {
             headers.set("Cache-Control", "public, max-age=31536000, immutable");
           } else {
             headers.set("Content-Type", "text/html");
+            headers.set("Permission-Policy", [
+              "geolocation=()",
+              "microphone=()",
+              "camera=()",
+              "payment=()",
+              "usb=()",
+              "magnetometer=()",
+              "gyroscope=()",
+              "accelerometer=()",
+              "fullscreen=()",
+              "picture-in-picture=()",
+              "autoplay=()",
+              "encrypted-media=()",
+              "midi=()",
+              "push=()",
+              "speaker-selection=()",
+              "sync-xhr=()",
+              "web-share=()",
+            ].join(", "));
           }
-          headers.set("X-content-type-options", "nosniff");
-          headers.set("Access-Control-Allow-Origin", "*");
-          headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-          headers.set("Access-Control-Allow-Headers", "Content-Type");
+
+          if (!url.pathname.startsWith("/api/")) {
+            headers.set("Cross-Origin-Embedder-Policy", "require-corp");
+            headers.set("Cross-Origin-Opener-Policy", "same-origin");
+          }
+
+          headers.set("X-Content-Type-Options", "nosniff");
           headers.set("X-Frame-Options", "DENY");
-          headers.set("X-XSS-Protection", "1; mode=block");
-          headers.set("Referrer-Policy", "no-referrer");
+          // headers.set("X-XSS-Protection", "1; mode=block");
+          headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+          headers.set("X-DNS-Prefetch-Control", "off");
+          headers.set("X-Download-Options", "noopen");
           headers.set("Report-To", getCspReportEndpoint(url));
           generateResponseHeadersAsMode(headers);
 
@@ -163,7 +210,12 @@ export default async function handleRequest(
         },
         onError(error: unknown) {
           didError = true;
-          console.error(error);
+          // セキュリティに配慮したエラーログ出力
+          if (isDev) {
+            console.error("Render error:", error);
+          } else {
+            console.error("Render error occurred");
+          }
         },
       }
     );
