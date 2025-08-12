@@ -2,10 +2,16 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "cleanup branch",
+      "label": "[git] cleanup branch",
       "group": "none",
       "type": "shell",
-      "command": "bash scripts/cleanup-branch.sh"
+      "command": "bash scripts/git-cleanup-branch.sh"
+    },
+    {
+      "label": "[git] merge default branch",
+      "group": "none",
+      "type": "shell",
+      "command": "bash scripts/git-merge-default-branch.sh"
     },
     {
       "label": "Start WebApp(dev)",
