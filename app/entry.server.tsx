@@ -7,8 +7,7 @@ import { cookieStore } from "./components/cookie/server";
 import { I18nProvider } from "./components/react/providers/i18n";
 import { ThemeProvider } from "./components/react/providers/theme";
 import { ValidScriptsProvider } from "./components/react/providers/valid-scripts";
-import { createContentSecurityPolicy } from "./components/security/content-security-policy";
-import { createPermissionPolicy } from "./components/security/permission-policy";
+import { setPageResponseHeaders } from "./features/middleware/page-headers";
 import { loadI18nAsServer } from "./i18n/server";
 
 const isDev = process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test";
@@ -16,18 +15,7 @@ const appMode = import.meta.env.VITE_APP_MODE || "prod";
 const selfOrigin = `http://localhost:${isDev ? (process.env.DEV_PORT || 5173) : (process.env.PORT || 3000)}`;
 
 const ABORT_DELAY = 5000;
-const cspReportOrigin = process.env.CSP_REPORT_ORIGIN || selfOrigin;
-const reportToCspEndpoint = JSON.stringify({
-  group: "csp-endpoint",
-  max_age: 31536000,
-  endpoints: [
-    {
-      url: `${cspReportOrigin}/csp-report`,
-      priority: 1,
-      method: "POST",
-    },
-  ],
-});
+
 const allowOrigins = (process.env.CORS_ALLOW_ORIGINS || "")
   .split(",")
   .map(o => o.trim())
@@ -39,50 +27,7 @@ if (allowOrigins.length === 0) {
 const allowOriginsSet = new Set(allowOrigins);
 const isAllowOriginAll = allowOriginsSet.has("*");
 
-const CONTENT_SECURITY_POLICY = createContentSecurityPolicy({ isDev });
-
-const PERMISSION_POLICY = createPermissionPolicy();
-
 const SUSPICIOUS_PATH_PATTERN = /(\.\.|\/\/|%[0-9a-fA-F]{2})/;
-
-function setCommonSecurityHeaders(headers: Headers) {
-  headers.set("X-Content-Type-Options", "nosniff");
-  headers.set("X-Frame-Options", "DENY");
-  headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-  headers.set("X-DNS-Prefetch-Control", "off");
-  headers.set("X-Download-Options", "noopen");
-  headers.set("X-Permitted-Cross-Domain-Policies", "none");
-  headers.set("X-XSS-Protection", "0"); // NOTE: CSPに依存するため無効化
-  // headers.set("X-XSS-Protection", "1; mode=block"); // NOTE: 古のブラウザ向けの設定。現在はCSPで対応しているため無効化。
-  headers.set("Report-To", reportToCspEndpoint);
-  headers.set("Content-Security-Policy", CONTENT_SECURITY_POLICY);
-};
-
-function noCacheHeader(headers: Headers) {
-  headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
-  headers.set("Pragma", "no-cache");
-  headers.set("Expires", "0");
-  headers.set("Vary", "Accept-Encoding, Origin, User-Agent");
-};
-
-function devHeader(headers: Headers) {
-  // NOTE: 開発時は常にキャッシュを無効化
-  noCacheHeader(headers);
-};
-
-function testHeader(headers: Headers) {
-  // NOTE: テストモード時は常にキャッシュを無効化
-  prodHeader(headers);
-  noCacheHeader(headers);
-};
-
-function prodHeader(headers: Headers) {
-  headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
-};
-
-const generateResponseHeadersAsMode = isDev ? devHeader : (
-  appMode === "test" ? testHeader : prodHeader
-);
 
 export default async function handleRequest(
   request: Request,
@@ -126,45 +71,8 @@ export default async function handleRequest(
         [callbackName]: () => {
           const body = new PassThrough();
           const stream = createReadableStreamFromReadable(body);
-          const url = new URL(request.url);
 
-          // URL検証：不正なパスパターンをチェック（正規表現で効率化）
-          const pathname = url.pathname;
-          if (SUSPICIOUS_PATH_PATTERN.test(pathname)) {
-            console.warn("Suspicious URL pattern detected:", pathname);
-          }
-
-          const isApiPathname = pathname.startsWith("/api/");
-          if (isApiPathname) {
-            headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
-            headers.set("Pragma", "no-cache");
-            headers.set("Expires", "0");
-
-            const origin = request.headers.get("origin");
-            if (origin && allowOriginsSet.has(origin)) {
-              headers.set("Access-Control-Allow-Origin", origin);
-              headers.set("Access-Control-Allow-Credentials", "true");
-            } else if (isAllowOriginAll) {
-              headers.set("Access-Control-Allow-Origin", "*");
-            }
-            headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-            headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
-            if (request.method === "OPTIONS") {
-              headers.set("Access-Control-Max-Age", "86400"); // 24時間のプリフライトキャッシュ
-            }
-          } else if (url.pathname.startsWith("/static/")) {
-            headers.set("Cache-Control", "public, max-age=31536000, immutable");
-          } else {
-            headers.set("Content-Type", "text/html");
-            headers.set("Permission-Policy", PERMISSION_POLICY);
-          }
-          if (!isApiPathname) {
-            headers.set("Cross-Origin-Embedder-Policy", "require-corp");
-            headers.set("Cross-Origin-Opener-Policy", "same-origin");
-          }
-
-          setCommonSecurityHeaders(headers);
-          generateResponseHeadersAsMode(headers);
+          setPageResponseHeaders(headers);
 
           resolve(
             new Response(stream, {
