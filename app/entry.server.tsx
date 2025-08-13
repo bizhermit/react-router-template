@@ -7,6 +7,8 @@ import { cookieStore } from "./components/cookie/server";
 import { I18nProvider } from "./components/react/providers/i18n";
 import { ThemeProvider } from "./components/react/providers/theme";
 import { ValidScriptsProvider } from "./components/react/providers/valid-scripts";
+import { createContentSecurityPolicy } from "./components/security/content-security-policy";
+import { createPermissionPolicy } from "./components/security/permission-policy";
 import { loadI18nAsServer } from "./i18n/server";
 
 const isDev = process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test";
@@ -37,63 +39,9 @@ if (allowOrigins.length === 0) {
 const allowOriginsSet = new Set(allowOrigins);
 const isAllowOriginAll = allowOriginsSet.has("*");
 
-const CONTENT_SECURITY_POLICY = (isDev ? [
-  "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-  "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https: http:",
-  "font-src 'self' data: https: http:",
-  "connect-src 'self' http: https: ws: wss: blob: data:",
-  "media-src 'self' blob: data:",
-  "worker-src 'self' blob:",
-  "child-src 'self'",
-  "object-src 'none'",
-  "frame-ancestors 'none'",
-  "base-uri 'self'",
-  "form-action 'self'",
-  "manifest-src 'self'",
-  "report-uri /csp-report",
-  "report-to csp-endpoint",
-] : [
-  "default-src 'self'",
-  "script-src 'self' 'unsafe-inline'", // TODO: nonce-${nonce}の検討
-  "style-src 'self' 'unsafe-inline'", // TODO: nonce-${nonce}の検討
-  "img-src 'self' data: blob: https:",
-  "font-src 'self' data: https:",
-  "connect-src 'self' https: ws: wss: blob: data:",
-  "media-src 'self' blob: data:",
-  "worker-src 'self' blob:",
-  "child-src 'self'",
-  "object-src 'none'",
-  "frame-ancestors 'none'",
-  "base-uri 'self'",
-  "form-action 'self'",
-  "manifest-src 'self'",
-  "report-uri /csp-report",
-  "report-to csp-endpoint",
-  "upgrade-insecure-requests",
-  "block-all-mixed-content",
-]).join("; ");
+const CONTENT_SECURITY_POLICY = createContentSecurityPolicy({ isDev });
 
-const PERMISSION_POLICY = [
-  "geolocation=()",
-  "microphone=()",
-  "camera=()",
-  "payment=()",
-  "usb=()",
-  "magnetometer=()",
-  "gyroscope=()",
-  "accelerometer=()",
-  "fullscreen=()",
-  "picture-in-picture=()",
-  "autoplay=()",
-  "encrypted-media=()",
-  "midi=()",
-  "push=()",
-  "speaker-selection=()",
-  "sync-xhr=()",
-  "web-share=()",
-].join(", ");
+const PERMISSION_POLICY = createPermissionPolicy();
 
 const SUSPICIOUS_PATH_PATTERN = /(\.\.|\/\/|%[0-9a-fA-F]{2})/;
 
