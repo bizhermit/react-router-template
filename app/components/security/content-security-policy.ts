@@ -9,6 +9,7 @@ type ContentSecurityPolicy = {
   "worker-src": string | boolean;
   "child-src": string | boolean;
   "object-src": string | boolean;
+  "frame-src": string | boolean;
   "frame-ancestors": string | boolean;
   "base-uri": string | boolean;
   "form-action": string | boolean;
@@ -48,6 +49,7 @@ export function createContentSecurityPolicy(params?: {
     getCspDirective("worker-src", "'self' blob:"),
     getCspDirective("child-src", "'self'"),
     getCspDirective("object-src", "'none'"),
+    getCspDirective("frame-src", "'self'"),
     getCspDirective("frame-ancestors", "'none'"),
     getCspDirective("base-uri", "'self'"),
     getCspDirective("form-action", "'self'"),
