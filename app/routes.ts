@@ -1,4 +1,4 @@
-import { type RouteConfig, index, prefix, route } from "@react-router/dev/routes";
+import { type RouteConfig, index, layout, prefix, route } from "@react-router/dev/routes";
 
 export default [
   index("routes/page.tsx"),
@@ -7,8 +7,15 @@ export default [
   //   route("home", "routes/home/page.tsx"),
   // ]),
   route("sign-in", "routes/sign-in.tsx"),
+  layout("routes/user/layout.tsx", [
+    route("home", "routes/user/home.tsx"),
+    route("settings", "routes/user/settings.tsx"),
+  ]),
   route("csp-report", "routes/csp-report.tsx"),
   route("health", "routes/health.ts"),
+  ...prefix("api", [
+    route("auth/:nextauth", "routes/auth.ts"),
+  ]),
   ...prefix("sandbox", [
     index("routes/sandbox/page.tsx"),
     route("/api", "routes/sandbox/api.ts"),

@@ -8,7 +8,7 @@ export async function getPayload<$Schema extends Record<string, Schema.$Any>>(
 ) {
   const i18n = getI18n(request);
   const formData = await request.formData();
-  const { hasError, data, results } = parseWithSchema({
+  const submission = parseWithSchema({
     data: formData,
     env: {
       isServer: true,
@@ -17,5 +17,14 @@ export async function getPayload<$Schema extends Record<string, Schema.$Any>>(
     schema,
     dep,
   });
-  return { hasError, data, results };
+  delete (submission as Partial<typeof submission>).dataItems;
+  return submission as ({
+    hasError: true;
+    data: Schema.SchemaValue<$Schema, true>;
+    results: Record<string, Schema.Result>;
+  } | {
+    hasError: false;
+    data: Schema.SchemaValue<$Schema>;
+    results: Record<string, Schema.Result>;
+  });
 };

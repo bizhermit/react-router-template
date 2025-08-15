@@ -1,34 +1,23 @@
+import { Auth } from "@auth/core";
 import { useEffect } from "react";
-import { useFetcher } from "react-router";
+import { redirect, useFetcher } from "react-router";
 import { Button } from "~/components/react/elements/button";
 import { FormItem } from "~/components/react/elements/form/common";
 import { useFormItem } from "~/components/react/elements/form/hooks";
 import { TextBox } from "~/components/react/elements/form/text-box";
 import { useSchema } from "~/components/react/hooks/schema";
-import { $schema } from "~/components/schema";
-import { getPayload } from "~/components/schema/server";
-import { $str } from "~/components/schema/string";
+import { authConfig } from "~/features/auth/config";
+import { signInSchema } from "~/features/auth/schema";
 import type { Route } from "./+types/sign-in";
 
-const schema = $schema({
-  userId: $str({
-    label: "user_id",
-    required: true,
-  }),
-  password: $str({
-    label: "password",
-    required: true,
-  }),
-});
-
 export async function action({ request }: Route.ActionArgs) {
-  const submission = await getPayload(request, schema);
-  if (submission.hasError) {
-    return submission;
+  const res = await Auth(request, authConfig);
+  if (!res.ok) {
+    console.log(await res.json());
+    return null;
   }
-  return submission;
-  // TODO: sing-in
-  // return redirect("/home");
+
+  return redirect("/home");
 };
 
 export default function Page() {
@@ -39,7 +28,7 @@ export default function Page() {
     dataItems,
     getFormProps,
   } = useSchema({
-    schema,
+    schema: signInSchema,
     state: fetcher.state,
   });
 
