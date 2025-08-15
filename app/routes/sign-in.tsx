@@ -1,23 +1,28 @@
-import { Auth } from "@auth/core";
 import { useEffect } from "react";
-import { redirect, useFetcher } from "react-router";
+import { useFetcher } from "react-router";
 import { Button } from "~/components/react/elements/button";
 import { FormItem } from "~/components/react/elements/form/common";
 import { useFormItem } from "~/components/react/elements/form/hooks";
 import { TextBox } from "~/components/react/elements/form/text-box";
 import { useSchema } from "~/components/react/hooks/schema";
-import { authConfig } from "~/features/auth/config";
-import { signInSchema } from "~/features/auth/schema";
+import { $schema } from "~/components/schema";
+import { $str } from "~/components/schema/string";
 import type { Route } from "./+types/sign-in";
 
-export async function action({ request }: Route.ActionArgs) {
-  const res = await Auth(request, authConfig);
-  if (!res.ok) {
-    console.log(await res.json());
-    return null;
-  }
+const signInSchema = $schema({
+  userId: $str({
+    label: "userId",
+    required: true,
+  }),
+  password: $str({
+    label: "password",
+    required: true,
+  }),
+});
 
-  return redirect("/home");
+export async function action({ request }: Route.ActionArgs) {
+  // return redirect("/home");
+  return null;
 };
 
 export default function Page() {
