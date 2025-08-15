@@ -6,6 +6,7 @@ export default [
   //   index("routes/language.tsx"),
   //   route("home", "routes/home/page.tsx"),
   // ]),
+  route("sign-in", "routes/sign-in.tsx"),
   route("csp-report", "routes/csp-report.tsx"),
   route("health", "routes/health.ts"),
   ...prefix("sandbox", [

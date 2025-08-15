@@ -124,6 +124,8 @@
     background-color: var(--color-bg);
     color: var(--color-fg);
     font-size: 62.5%;
+    width: 100%;
+    height: 100%;
 
     &[data-theme="dark"] {
       @apply dark-theme-vars;
@@ -138,6 +140,12 @@
 
   body {
     font-size: 1.6rem;
+    width: 100%;
+    min-height: 100%;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: flex-start;
+    align-items: stretch;
   }
 
   .link {
