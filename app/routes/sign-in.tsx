@@ -1,5 +1,7 @@
 import { useEffect } from "react";
-import { redirect, useFetcher } from "react-router";
+import { data, useFetcher } from "react-router";
+import { getSession } from "~/components/auth/server/session";
+import { signIn } from "~/components/auth/server/sign-in";
 import { Button } from "~/components/react/elements/button";
 import { FormItem } from "~/components/react/elements/form/common";
 import { useFormItem } from "~/components/react/elements/form/hooks";
@@ -8,12 +10,19 @@ import { useSchema } from "~/components/react/hooks/schema";
 import { authSchema } from "~/features/auth/schema";
 import type { Route } from "./+types/sign-in";
 
-export async function action({ request }: Route.ActionArgs) {
-  return redirect("/home");
-  // return null;
+export async function loader({ request }: Route.LoaderArgs) {
+  const session = await getSession(request);
+  return data({ session });
 };
 
-export default function Page() {
+export async function action({ request }: Route.ActionArgs) {
+  const res = await signIn(request);
+  console.log(res);
+  // return redirect("/home");
+  return null;
+};
+
+export default function Page({ loaderData }: Route.ComponentProps) {
   const fetcher = useFetcher();
 
   const {

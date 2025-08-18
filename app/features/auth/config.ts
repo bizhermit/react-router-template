@@ -1,8 +1,9 @@
-import type { AuthConfig } from "@auth/core";
+import { type AuthConfig } from "@auth/core";
 import Credentials from "@auth/core/providers/credentials";
 import { getPayload } from "~/components/schema/server";
 import { authSchema } from "./schema";
 
+// https://authjs.dev/reference/core
 export const authConfig = {
   secret: process.env.AUTH_SECRET || "secret",
   trustHost: true,
@@ -31,6 +32,8 @@ export const authConfig = {
       },
       authorize: async function (_, request) {
         const { hasError, data } = await getPayload(request, authSchema);
+        console.log("-- authorize --");
+        console.log(data);
         if (hasError) return null;
         if (data.password !== "pass") return null;
         return {
@@ -44,6 +47,14 @@ export const authConfig = {
   callbacks: {
     session: async function ({ session }) {
       return session;
+    },
+  },
+  cookies: {
+    csrfToken: {
+      name: "csrf-token",
+    },
+    sessionToken: {
+      name: "session-token",
     },
   },
 } satisfies AuthConfig;

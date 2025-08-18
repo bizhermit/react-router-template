@@ -3,6 +3,8 @@ import { isbot } from "isbot";
 import { renderToPipeableStream } from "react-dom/server";
 import { ServerRouter, type AppLoadContext, type EntryContext } from "react-router";
 import { PassThrough } from "stream";
+import { AuthProvider } from "./components/auth/client/provider";
+import { getCsrfToken } from "./components/auth/server/csrf-token";
 import { cookieStore } from "./components/cookie/server";
 import { I18nProvider } from "./components/react/providers/i18n";
 import { ThemeProvider } from "./components/react/providers/theme";
@@ -36,6 +38,8 @@ export default async function handleRequest(
   }
 
   const i18n = loadI18nAsServer(request);
+  const csrfToken = await getCsrfToken(request);
+  headers.set("Set-Cookie", `csrf-token=${csrfToken}; Path=/; HttpOnly; Secure; SameSite=Strict`);
 
   return new Promise((resolve, reject) => {
     let didError = false;
@@ -48,17 +52,21 @@ export default async function handleRequest(
         locale={i18n.locale}
         resource={i18n.resource}
       >
-        <ThemeProvider defaultTheme={theme}>
-          <ValidScriptsProvider
-            initValid={isValidScripts}
-          >
-            <i18n.Payload />
-            <ServerRouter
-              context={reactRouterContext}
-              url={request.url}
-            />
-          </ValidScriptsProvider>
-        </ThemeProvider>
+        <AuthProvider
+          csrfToken={csrfToken}
+        >
+          <ThemeProvider defaultTheme={theme}>
+            <ValidScriptsProvider
+              initValid={isValidScripts}
+            >
+              <i18n.Payload />
+              <ServerRouter
+                context={reactRouterContext}
+                url={request.url}
+              />
+            </ValidScriptsProvider>
+          </ThemeProvider>
+        </AuthProvider>
       </I18nProvider>,
       {
         [callbackName]: () => {

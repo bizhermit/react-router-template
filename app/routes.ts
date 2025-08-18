@@ -14,8 +14,8 @@ export default [
   ]),
   route("csp-report", "routes/csp-report.tsx"),
   route("health", "routes/health.ts"),
+  route("auth/*", "routes/auth.ts"),
   ...prefix("api", [
-    // route("auth/:nextauth", "routes/auth.ts"),
   ]),
   ...prefix("sandbox", [
     index("routes/sandbox/page.tsx"),
