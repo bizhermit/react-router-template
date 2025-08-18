@@ -41,4 +41,9 @@ export const authConfig = {
       },
     }),
   ],
+  callbacks: {
+    session: async function ({ session }) {
+      return session;
+    },
+  },
 } satisfies AuthConfig;
