@@ -4,14 +4,14 @@ import { createContext, use, useCallback, useContext, useId, useLayoutEffect, us
 import { useText } from "~/components/react/hooks/i18n";
 import { getFocusableElement } from "../../client/dom/focus";
 import { clone } from "../../objects";
+import { ProxyData, getRelativeName } from "../../objects/data";
 import { parseWithSchema } from "../../schema";
-import { getRelativeName, SchemaData } from "../../schema/data";
 import type { InputWrapProps } from "../elements/form/common";
 import { ValidScriptsContext } from "../providers/valid-scripts";
 
 export interface SchemaEffectParams_Refresh {
   type: "refresh";
-  data: SchemaData;
+  data: ProxyData;
   results: Record<string, Schema.Result>;
   dep: Record<string, unknown>;
 };
@@ -61,7 +61,7 @@ type ResetValidationMode = "default" | "clear" | "submission";
 
 interface SchemaContextProps<S extends Record<string, Schema.$Any> = Record<string, Schema.$Any>> {
   env: Schema.Env;
-  data: RefObject<SchemaData>;
+  data: RefObject<ProxyData>;
   dep: RefObject<Record<string, unknown>>;
   dataItems: Schema.DataItems<S>;
   addSubscribe: (
@@ -142,7 +142,7 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
 
   const subscribes = useRef<Array<(params: SchemaEffectParams) => void>>([]);
   const results = useRef<Record<string, Schema.Result>>({});
-  const bindData = useRef<SchemaData>(null!);
+  const bindData = useRef<ProxyData>(null!);
   const dep = useRef(props.dep ?? EMPTY_STRUCT);
   const dataItems = useRef<Schema.DataItems<S>>(null!);
 
@@ -186,7 +186,7 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
         results.current[k] = { type: "e", code: "", message: r };
       }
     }
-    bindData.current = new SchemaData(submission.data, ({ items }) => {
+    bindData.current = new ProxyData(submission.data, ({ items }) => {
       if (!isEffected.current) {
         isEffected.current = true;
         props.onChangeEffected?.(isEffected.current);
@@ -785,7 +785,7 @@ export function useSchemaItem<D extends Schema.DataItem>({
   }) => void;
   effectContext?: (params: {
     name: string;
-    data: SchemaData;
+    data: ProxyData;
     dep: Record<string, unknown>;
     env: Schema.Env;
     label: string | undefined;

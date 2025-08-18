@@ -2,7 +2,7 @@
 
 namespace Schema {
 
-  type Data = import("./data").SchemaData;
+  type Data = import("../objects/data").ProxyData;
   type Eval<T> = { [K in keyof T]: T[K] };
   type Cast<T, U> = T extends U ? T : U;
 

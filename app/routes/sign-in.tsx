@@ -51,16 +51,6 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           {...getFormProps("post")}
           className="grid place-items-center gap-4"
         >
-          <input
-            type="hidden"
-            name="csrf-token"
-            value={auth.csrfToken}
-          />
-          <input
-            type="hidden"
-            name="csrfToken"
-            value={auth.csrfToken}
-          />
           <FormItem>
             <TextBox
               $={dataItems.userId}

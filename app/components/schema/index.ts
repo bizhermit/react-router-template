@@ -1,4 +1,4 @@
-import { SchemaData } from "./data";
+import { ProxyData } from "../objects/data";
 
 export function $schema<SchemaProps extends Record<string, Schema.$Any>>(props: SchemaProps) {
   return props;
@@ -11,7 +11,7 @@ export function parseWithSchema<$Schema extends Record<string, Schema.$Any>>(par
   env: Schema.Env;
   createDataItems?: boolean;
 }) {
-  const data = new SchemaData(params.data, () => { });
+  const data = new ProxyData(params.data, () => { });
   const dep = params.dep ?? {};
   const validations: (() => void)[] = [];
   const results: Record<string, Schema.Result> = {};

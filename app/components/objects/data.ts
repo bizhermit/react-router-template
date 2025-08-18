@@ -1,4 +1,4 @@
-import { clone } from "../objects";
+import { clone } from ".";
 
 export function getArrayIndex(name: string) {
   return name.match(/^\[(\d*)\]$/);
@@ -33,7 +33,7 @@ type Item = {
   value: unknown;
 };
 
-export class SchemaData {
+export class ProxyData {
 
   private data: Record<string, unknown>;
   private callback: (params: { items: Array<Item>; }) => void;
