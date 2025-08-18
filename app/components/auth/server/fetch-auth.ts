@@ -21,12 +21,17 @@ export async function fetchAuth<T>({
       method: method || request.method,
       headers: request.headers,
       body: method === "POST" && request.body ? request.body : undefined,
+      // @ts-expect-error: duplex is required for Node.js 18+ when sending a body
+      duplex: "half",
     });
 
     const res = await (method === "POST" ? authAction : authLoader)(req);
+    // console.log("-------------", action);
+    // console.log(res);
     if (!res.ok) return null;
     return res.json().catch(() => null) as T | null;
-  } catch {
+  } catch (e) {
+    console.error(e);
     return null;
   }
 };

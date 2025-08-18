@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import { data, useFetcher } from "react-router";
-import { getSession } from "~/components/auth/server/session";
+import { redirect, useFetcher } from "react-router";
+import { useAuthContext } from "~/components/auth/client/context";
 import { signIn } from "~/components/auth/server/sign-in";
 import { Button } from "~/components/react/elements/button";
 import { FormItem } from "~/components/react/elements/form/common";
@@ -10,16 +10,15 @@ import { useSchema } from "~/components/react/hooks/schema";
 import { authSchema } from "~/features/auth/schema";
 import type { Route } from "./+types/sign-in";
 
-export async function loader({ request }: Route.LoaderArgs) {
-  const session = await getSession(request);
-  return data({ session });
-};
+// export async function loader({ request }: Route.LoaderArgs) {
+//   // const session = await getSession(request);
+//   // return data({ session });
+// };
 
 export async function action({ request }: Route.ActionArgs) {
   const res = await signIn(request);
-  console.log(res);
-  // return redirect("/home");
-  return null;
+  if (res == null) return null;
+  return redirect("/home");
 };
 
 export default function Page({ loaderData }: Route.ComponentProps) {
@@ -36,6 +35,8 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 
   const userId = useFormItem();
 
+  const auth = useAuthContext();
+
   useEffect(() => {
     if (fetcher.state === "idle") {
       userId.focus();
@@ -50,6 +51,16 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           {...getFormProps("post")}
           className="grid place-items-center gap-4"
         >
+          <input
+            type="hidden"
+            name="csrf-token"
+            value={auth.csrfToken}
+          />
+          <input
+            type="hidden"
+            name="csrfToken"
+            value={auth.csrfToken}
+          />
           <FormItem>
             <TextBox
               $={dataItems.userId}

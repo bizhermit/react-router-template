@@ -4,7 +4,9 @@ import { LinkButton } from "~/components/react/elements/link-button";
 import type { Route } from "./+types/layout";
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const session = getSession(request);
+  const session = await getSession(request);
+
+  console.log("session", session);
 
   return data({
     session,
