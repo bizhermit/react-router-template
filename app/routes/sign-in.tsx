@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useFetcher } from "react-router";
+import { redirect, useFetcher } from "react-router";
 import { Button } from "~/components/react/elements/button";
 import { FormItem } from "~/components/react/elements/form/common";
 import { useFormItem } from "~/components/react/elements/form/hooks";
@@ -21,8 +21,8 @@ const signInSchema = $schema({
 });
 
 export async function action({ request }: Route.ActionArgs) {
-  // return redirect("/home");
-  return null;
+  return redirect("/home");
+  // return null;
 };
 
 export default function Page() {

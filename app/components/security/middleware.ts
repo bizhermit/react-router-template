@@ -155,3 +155,21 @@ export function logSecurityEvent(
     console.warn("Security Event:", logData);
   }
 }
+
+// //
+// const isDev = process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test";
+// const appMode = import.meta.env.VITE_APP_MODE || "prod";
+// const selfOrigin = `http://localhost:${isDev ? (process.env.DEV_PORT || 5173) : (process.env.PORT || 3000)}`;
+
+// const allowOrigins = (process.env.CORS_ALLOW_ORIGINS || "")
+//   .split(",")
+//   .map(o => o.trim())
+//   .filter(o => o.length > 0);
+
+// if (allowOrigins.length === 0) {
+//   allowOrigins.push(selfOrigin);
+// }
+// const allowOriginsSet = new Set(allowOrigins);
+// const isAllowOriginAll = allowOriginsSet.has("*");
+
+// const SUSPICIOUS_PATH_PATTERN = /(\.\.|\/\/|%[0-9a-fA-F]{2})/;

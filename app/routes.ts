@@ -7,6 +7,7 @@ export default [
   //   route("home", "routes/home/page.tsx"),
   // ]),
   route("sign-in", "routes/sign-in.tsx"),
+  route("sign-out", "routes/sign-out.tsx"),
   layout("routes/user/layout.tsx", [
     route("home", "routes/user/home.tsx"),
     route("settings", "routes/user/settings.tsx"),
