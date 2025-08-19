@@ -3,6 +3,8 @@ import Credentials from "@auth/core/providers/credentials";
 import { getPayload } from "~/components/schema/server";
 import { authSchema } from "./schema";
 
+const isDev = process.env.NODE_ENV === "development";
+
 // https://authjs.dev/reference/core
 export const authConfig = {
   secret: process.env.AUTH_SECRET || undefined,
@@ -52,11 +54,28 @@ export const authConfig = {
     },
   },
   cookies: {
+    callbackUrl: {
+      options: {
+        httpOnly: true,
+        sameSite: "strict",
+        secure: !isDev,
+      },
+    },
     csrfToken: {
       name: "csrf-token",
+      options: {
+        httpOnly: true,
+        sameSite: "strict",
+        secure: !isDev,
+      },
     },
     sessionToken: {
       name: "session-token",
+      options: {
+        httpOnly: true,
+        sameSite: "strict",
+        secure: !isDev,
+      },
     },
   },
 } satisfies AuthConfig;
