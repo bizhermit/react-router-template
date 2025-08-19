@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { redirect, useFetcher } from "react-router";
 import { useAuthContext } from "~/components/auth/client/context";
-import { signIn } from "~/components/auth/server/sign-in";
+import { signIn_credentials } from "~/components/auth/server/sign-in";
 import { Button } from "~/components/react/elements/button";
 import { FormItem } from "~/components/react/elements/form/common";
 import { useFormItem } from "~/components/react/elements/form/hooks";
@@ -16,8 +16,8 @@ import type { Route } from "./+types/sign-in";
 // };
 
 export async function action({ request }: Route.ActionArgs) {
-  const res = await signIn(request);
-  if (res == null) return null;
+  const res = await signIn_credentials(request);
+  if (!res.ok) return null;
   return redirect("/home");
 };
 
@@ -51,6 +51,11 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           {...getFormProps("post")}
           className="grid place-items-center gap-4"
         >
+          <input
+            type="hidden"
+            name="csrfToken"
+            value={auth.csrfToken}
+          />
           <FormItem>
             <TextBox
               $={dataItems.userId}

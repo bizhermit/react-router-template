@@ -1,9 +1,17 @@
 import { fetchAuth } from "./fetch-auth";
 
-export async function signIn(request: Request) {
-  return fetchAuth({
+export async function signIn_credentials(request: Request) {
+  const res = await fetchAuth({
     request,
-    action: "signin",
+    action: "callback/credentials",
     method: "POST",
   });
+  if (res?.ok) {
+    return {
+      ok: true,
+    };
+  }
+  return {
+    ok: false,
+  };
 }

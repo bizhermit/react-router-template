@@ -12,12 +12,13 @@ import { ValidScriptsProvider } from "./components/react/providers/valid-scripts
 import { setPageResponseHeaders } from "./features/middleware/page-headers";
 import { loadI18nAsServer } from "./i18n/server";
 
-const isDev = process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test";
+const isDev = process.env.NODE_ENV === "development";
+const isTest = process.env.NODE_ENV === "test";
 
 const ABORT_DELAY = 5000;
 
 const showRenderError = (error: unknown) => {
-  if (isDev) {
+  if (isDev || isTest) {
     console.error("Render error:", error);
   } else {
     console.error("Render error occurred");
@@ -38,8 +39,10 @@ export default async function handleRequest(
   }
 
   const i18n = loadI18nAsServer(request);
-  const csrfToken = await getCsrfToken(request);
-  headers.set("Set-Cookie", `csrf-token=${csrfToken}; Path=/; HttpOnly; Secure; SameSite=Strict`);
+  const token = await getCsrfToken(request);
+  if (token?.cookie) {
+    headers.append("Set-Cookie", token.cookie);
+  }
 
   return new Promise((resolve, reject) => {
     let didError = false;
@@ -53,7 +56,7 @@ export default async function handleRequest(
         resource={i18n.resource}
       >
         <AuthProvider
-          csrfToken={csrfToken}
+          csrfToken={token?.csrfToken}
         >
           <ThemeProvider defaultTheme={theme}>
             <ValidScriptsProvider

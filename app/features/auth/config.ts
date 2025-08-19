@@ -5,7 +5,7 @@ import { authSchema } from "./schema";
 
 // https://authjs.dev/reference/core
 export const authConfig = {
-  secret: process.env.AUTH_SECRET || "secret",
+  secret: process.env.AUTH_SECRET || undefined,
   trustHost: true,
   session: {
     strategy: "jwt",

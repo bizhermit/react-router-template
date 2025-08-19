@@ -13,7 +13,7 @@ export function AuthProvider({ children, csrfToken }: Props) {
         csrfToken,
       }}
     >
-      <meta name="csrf-token" content={csrfToken} />
+      {csrfToken && <meta name="csrf-token" content={csrfToken} />}
       {children}
     </AuthContext>
   );
