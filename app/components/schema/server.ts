@@ -1,13 +1,21 @@
 import { getI18n } from "~/i18n/server";
 import { parseWithSchema } from ".";
 
-export async function getPayload<$Schema extends Record<string, Schema.$Any>>(
-  request: Request,
-  schema: $Schema,
-  dep?: Record<string, unknown>
-) {
+interface Params<$Schema extends Record<string, Schema.$Any>> {
+  request: Request;
+  schema: $Schema;
+  data?: FormData | Record<string, unknown>;
+  dep?: Record<string, unknown>;
+}
+
+export async function getPayload<$Schema extends Record<string, Schema.$Any>>({
+  request,
+  schema,
+  data,
+  dep,
+}: Params<$Schema>) {
   const i18n = getI18n(request);
-  const formData = await request.formData();
+  const formData = data ?? await request.formData();
   const submission = parseWithSchema({
     data: formData,
     env: {

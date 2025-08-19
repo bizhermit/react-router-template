@@ -6,12 +6,18 @@ export async function signIn_credentials(request: Request) {
     action: "callback/credentials",
     method: "POST",
   });
-  if (res?.ok) {
+  // console.log(res);
+  const cookie = res?.headers.get("Set-Cookie");
+  const location = res?.headers.get("Location");
+  if (cookie) {
     return {
-      ok: true,
+      ok: true as const,
+      cookie,
+      location,
     };
   }
   return {
-    ok: false,
+    ok: false as const,
+    location,
   };
 }

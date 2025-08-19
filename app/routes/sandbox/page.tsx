@@ -266,7 +266,10 @@ export async function loader() {
 export async function action(args: Route.ActionArgs) {
   console.log("-----------------");
   const start = performance.now();
-  const submittion = await getPayload(args.request, schema);
+  const submittion = await getPayload({
+    request: args.request,
+    schema,
+  });
   console.log(submittion);
   console.log(performance.now() - start);
   console.log("-----------------");

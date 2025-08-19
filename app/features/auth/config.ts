@@ -30,10 +30,12 @@ export const authConfig = {
           required: authSchema.password.required,
         },
       },
-      authorize: async function (_, request) {
-        const { hasError, data } = await getPayload(request, authSchema);
-        console.log("-- authorize --");
-        console.log(data);
+      authorize: async function (credentials, request) {
+        const { hasError, data } = await getPayload({
+          request,
+          schema: authSchema,
+          data: credentials,
+        });
         if (hasError) return null;
         if (data.password !== "pass") return null;
         return {

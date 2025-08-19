@@ -18,7 +18,11 @@ import type { Route } from "./+types/sign-in";
 export async function action({ request }: Route.ActionArgs) {
   const res = await signIn_credentials(request);
   if (!res.ok) return null;
-  return redirect("/home");
+  return redirect("/home", {
+    headers: {
+      "Set-Cookie": res.cookie || "",
+    },
+  });
 };
 
 export default function Page({ loaderData }: Route.ComponentProps) {
