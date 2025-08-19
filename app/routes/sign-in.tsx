@@ -10,15 +10,12 @@ import { useSchema } from "~/components/react/hooks/schema";
 import { authSchema } from "~/features/auth/schema";
 import type { Route } from "./+types/sign-in";
 
-// export async function loader({ request }: Route.LoaderArgs) {
-//   // const session = await getSession(request);
-//   // return data({ session });
-// };
-
 export async function action({ request }: Route.ActionArgs) {
   const res = await signIn_credentials(request);
   if (!res.ok) return null;
-  return redirect("/home", {
+  const url = new URL(request.url);
+  const redirectTo = url.searchParams.get("to");
+  return redirect(redirectTo ? decodeURIComponent(redirectTo) : "/home", {
     headers: {
       "Set-Cookie": res.cookie || "",
     },
@@ -55,11 +52,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           {...getFormProps("post")}
           className="grid place-items-center gap-4"
         >
-          <input
-            type="hidden"
-            name="csrfToken"
-            value={auth.csrfToken}
-          />
+          <auth.CsrfTokenHidden />
           <FormItem>
             <TextBox
               $={dataItems.userId}

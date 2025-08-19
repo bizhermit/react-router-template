@@ -1,22 +1,22 @@
 import { fetchAuth } from "./fetch-auth";
 
-export async function signIn_credentials(request: Request) {
+export async function signOut(request: Request) {
   const res = await fetchAuth({
     request,
-    action: "callback/credentials",
+    action: "signout",
     method: "POST",
   });
   const cookie = res?.headers.get("Set-Cookie");
   const location = res?.headers.get("Location");
-  if (cookie) {
+  if (!cookie) {
     return {
-      ok: true as const,
-      cookie,
+      ok: false,
       location,
     };
   }
   return {
-    ok: false as const,
+    ok: true,
+    cookie,
     location,
   };
-}
+};

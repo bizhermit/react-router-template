@@ -1,12 +1,18 @@
-import { data, Outlet } from "react-router";
+import { data, Outlet, redirect } from "react-router";
+import { useAuthContext } from "~/components/auth/client/context";
 import { getSession } from "~/components/auth/server/session";
-import { LinkButton } from "~/components/react/elements/link-button";
+import { Button } from "~/components/react/elements/button";
 import type { Route } from "./+types/layout";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const session = await getSession(request);
 
   console.log("session", session);
+
+  if (session == null) {
+    const url = new URL(request.url);
+    return redirect(`/sign-in?to=${encodeURIComponent(url.pathname + url.search)}`);
+  }
 
   return data({
     session,
@@ -15,17 +21,27 @@ export async function loader({ request }: Route.LoaderArgs) {
 
 export default function Layout() {
   console.log("user layout render");
+  const auth = useAuthContext();
+
   return (
     <div>
       <h1>User Layout</h1>
-      <p>
-        <LinkButton
-          to="/sign-out"
+      <form
+        method="post"
+        action="/sign-out"
+      >
+        <input
+          type="hidden"
+          name="csrfToken"
+          value={auth.csrfToken}
+        />
+        <Button
+          type="submit"
           color="sub"
         >
           Sign Out
-        </LinkButton>
-      </p>
+        </Button>
+      </form>
       <Outlet />
     </div>
   );
