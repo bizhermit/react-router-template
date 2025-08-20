@@ -38,6 +38,7 @@ export const authConfig = {
           request,
           schema: authSchema,
           data: credentials,
+          skipCsrfCheck: true,
         });
         if (hasError) return null;
         if (data.password !== "pass") return null;

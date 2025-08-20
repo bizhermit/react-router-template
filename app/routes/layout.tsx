@@ -1,7 +1,6 @@
 import { data, Outlet } from "react-router";
 import { AuthProvider } from "~/auth/client/provider";
 import { getAuth } from "~/auth/server/loader";
-import { Details } from "~/components/react/elements/details";
 import type { Route } from "./+types/layout";
 
 export async function loader({ request, context }: Route.LoaderArgs) {
@@ -21,9 +20,6 @@ export default function Layout({ loaderData: { auth } }: Route.ComponentProps) {
       csrfToken={auth.csrfToken}
       session={auth.session}
     >
-      <Details summary="auth context(root)">
-        <pre>{JSON.stringify(auth, null, 2)}</pre>
-      </Details>
       <Outlet />
     </AuthProvider>
   );
