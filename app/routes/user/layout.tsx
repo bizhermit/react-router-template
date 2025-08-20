@@ -3,6 +3,7 @@ import { useAuthContext } from "~/auth/client/context";
 import { SIGN_IN_PATHNAME, SIGN_OUT_PATHNAME } from "~/auth/consts";
 import { getSession } from "~/auth/server/session";
 import { Button } from "~/components/react/elements/button";
+import { Details } from "~/components/react/elements/details";
 import type { Route } from "./+types/layout";
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -27,6 +28,9 @@ export default function Layout() {
   return (
     <div>
       <h1>User Layout</h1>
+      <Details summary="auth context">
+        <pre>{JSON.stringify(auth, null, 2)}</pre>
+      </Details>
       <form
         method="post"
         action={SIGN_OUT_PATHNAME}
