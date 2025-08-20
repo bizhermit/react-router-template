@@ -1,8 +1,8 @@
 import { data, Outlet, redirect } from "react-router";
-import { useAuthContext } from "~/components/auth/client/context";
-import { getSession } from "~/components/auth/server/session";
+import { useAuthContext } from "~/auth/client/context";
+import { SIGN_IN_PATHNAME, SIGN_OUT_PATHNAME } from "~/auth/consts";
+import { getSession } from "~/auth/server/session";
 import { Button } from "~/components/react/elements/button";
-import { SIGN_IN_PATHNAME, SIGN_OUT_PATHNAME } from "~/features/auth/consts";
 import type { Route } from "./+types/layout";
 
 export async function loader({ request }: Route.LoaderArgs) {

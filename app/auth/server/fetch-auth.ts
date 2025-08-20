@@ -1,7 +1,7 @@
 import { Auth } from "@auth/core";
 import type { AuthAction } from "@auth/core/types";
+import { authConfig } from "~/auth/server/config";
 import { convertStructToFormData } from "~/components/objects/form-data";
-import { authConfig } from "~/features/auth/config";
 
 interface FetchAuthParams {
   request: Request;

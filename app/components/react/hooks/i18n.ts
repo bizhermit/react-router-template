@@ -1,5 +1,5 @@
 import { createContext, use } from "react";
-import { DEFAULT_LOCALE } from "../../../i18n/config";
+import { DEFAULT_LOCALE } from "../../../i18n/consts";
 
 interface I18nContextProps {
   locale: Locales;

@@ -1,12 +1,12 @@
 import { startTransition, StrictMode } from "react";
 import { hydrateRoot } from "react-dom/client";
 import { HydratedRouter } from "react-router/dom";
-import { AuthProvider } from "./components/auth/client/provider";
+import { AuthProvider } from "./auth/client/provider";
 import { getCookie } from "./components/cookie/client";
-import { I18nProvider } from "./components/react/providers/i18n";
 import { ThemeProvider } from "./components/react/providers/theme";
 import { ValidScriptsProvider } from "./components/react/providers/valid-scripts";
-import { loadI18nAsClient } from "./i18n/client";
+import { loadI18nAsClient } from "./i18n/client/loader";
+import { I18nProvider } from "./i18n/client/provider";
 
 async function hydrate() {
   const i18n = await loadI18nAsClient();

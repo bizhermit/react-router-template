@@ -1,4 +1,4 @@
-import { getI18n } from "~/i18n/server";
+import { getI18n } from "~/i18n/server/loader";
 import { parseWithSchema } from ".";
 
 interface Params<$Schema extends Record<string, Schema.$Any>> {

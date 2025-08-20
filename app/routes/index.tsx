@@ -1,5 +1,5 @@
+import { SIGN_IN_PATHNAME } from "~/auth/consts";
 import { Link } from "~/components/react/elements/link";
-import { SIGN_IN_PATHNAME } from "~/features/auth/consts";
 
 export default function Page() {
   return (

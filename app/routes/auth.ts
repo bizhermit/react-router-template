@@ -1,4 +1,4 @@
-import { authAction, authLoader } from "~/components/auth/server/fetch-auth";
+import { authAction, authLoader } from "~/auth/server/fetch-auth";
 import type { Route } from "./+types/auth";
 
 export async function loader({ request }: Route.LoaderArgs) {

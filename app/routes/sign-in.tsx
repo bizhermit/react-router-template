@@ -1,13 +1,13 @@
 import { useEffect } from "react";
 import { redirect, useFetcher } from "react-router";
-import { useAuthContext } from "~/components/auth/client/context";
-import { signIn_credentials } from "~/components/auth/server/sign-in";
+import { useAuthContext } from "~/auth/client/context";
+import { authSchema } from "~/auth/schema";
+import { signIn_credentials } from "~/auth/server/sign-in";
 import { Button } from "~/components/react/elements/button";
 import { FormItem } from "~/components/react/elements/form/common";
 import { useFormItem } from "~/components/react/elements/form/hooks";
 import { TextBox } from "~/components/react/elements/form/text-box";
 import { useSchema } from "~/components/react/hooks/schema";
-import { authSchema } from "~/features/auth/schema";
 import type { Route } from "./+types/sign-in";
 
 export async function action({ request }: Route.ActionArgs) {

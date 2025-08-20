@@ -1,6 +1,6 @@
 import { Navigate, redirect } from "react-router";
-import { findLocaleAsClient } from "../../i18n/client";
-import { findBrowserLocaleAsServer } from "../../i18n/server";
+import { findLocaleAsClient } from "../../i18n/client/loader";
+import { findBrowserLocaleAsServer } from "../../i18n/server/loader";
 
 export function i18nRedirectIndexloader(args: { request: Request; }) {
   const locale = findBrowserLocaleAsServer(args.request);

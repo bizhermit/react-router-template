@@ -1,5 +1,5 @@
 import { type RouteConfig, index, layout, prefix, route } from "@react-router/dev/routes";
-import { SIGN_IN_PATHNAME, SIGN_OUT_PATHNAME } from "./features/auth/consts";
+import { SIGN_IN_PATHNAME, SIGN_OUT_PATHNAME } from "./auth/consts";
 
 export default [
   index("routes/index.tsx"),

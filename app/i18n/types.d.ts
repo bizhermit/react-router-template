@@ -1,4 +1,4 @@
-type Locales = typeof import("./config").SUPPORTED_LOCALES[number];
+type Locales = typeof import("./consts").SUPPORTED_LOCALES[number];
 
 interface I18N_Texts { };
 
