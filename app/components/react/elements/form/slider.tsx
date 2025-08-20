@@ -107,7 +107,7 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
       core={{
         state,
         result,
-        classNames: "ipt-slider-wrap",
+        className: "ipt-slider-wrap",
       }}
     >
       <input

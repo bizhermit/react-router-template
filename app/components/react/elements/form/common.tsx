@@ -11,7 +11,7 @@ export type InputWrapProps = {
 
 type CoreProps = {
   core?: {
-    classNames?: string;
+    className?: string;
     state?: RefObject<Schema.Mode>;
     result?: Schema.Result | null | undefined;
   };
@@ -37,7 +37,7 @@ export function InputField({
         {...props}
         className={clsx(
           "ipt ipt-field",
-          core?.classNames,
+          core?.className,
           className,
         )}
       >
@@ -87,7 +87,7 @@ export function InputGroup({
         ref={ref}
         className={clsx(
           "ipt ipt-group",
-          core?.classNames,
+          core?.className,
           className,
         )}
       />
@@ -118,7 +118,7 @@ export function InputLabel({
         {...props}
         className={clsx(
           "ipt-label",
-          core?.classNames,
+          core?.className,
           className,
         )}
       />

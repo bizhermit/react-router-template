@@ -85,6 +85,10 @@
     font-size: 1.4rem;
   }
 
+  .ipt-default-width {
+    width: 20rem;
+  }
+
   .ipt-main {
     -webkit-appearance: none;
     appearance: none;

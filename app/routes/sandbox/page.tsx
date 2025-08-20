@@ -18,6 +18,7 @@ import { DateSelectBox } from "~/components/react/elements/form/date-select-box"
 import { FieldSet } from "~/components/react/elements/form/fieldset";
 import { FileBox } from "~/components/react/elements/form/file-box";
 import { NumberBox } from "~/components/react/elements/form/number-box";
+import { PasswordBox } from "~/components/react/elements/form/password-box";
 import { RadioButtons } from "~/components/react/elements/form/radio-buttons";
 import { SelectBox } from "~/components/react/elements/form/select-box";
 import { Slider } from "~/components/react/elements/form/slider";
@@ -82,6 +83,9 @@ const schema = $schema({
       { value: "fuga@example.com", text: "sample mailaddress" },
       { value: "piyo@example.com" },
     ],
+  }),
+  password: $str({
+    label: "パスワード",
   }),
   requiredText: $str({
     required: true,
@@ -557,6 +561,12 @@ function Component2() {
         />
       </FormItem>
       <FormItem>
+        <PasswordBox
+          $={dataItems.password}
+          placeholder="パスワード"
+        />
+      </FormItem>
+      <FormItem>
         <NumberBox
           $={dataItems.count}
           placeholder="数値"
@@ -648,6 +658,7 @@ function Component2() {
       </FormItem>
       <FormItem>
         <NumberBox
+          className="w-[10rem]"
           $={dataItems.range}
         />
       </FormItem>

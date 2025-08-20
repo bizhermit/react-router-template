@@ -60,7 +60,7 @@ export function CheckBox<D extends Schema.DataItem<Schema.$Boolean>>({
       core={{
         state,
         result,
-        classNames: appearance === "button" ?
+        className: appearance === "button" ?
           clsx("ipt-label-button", colorClassName) :
           undefined,
       }}

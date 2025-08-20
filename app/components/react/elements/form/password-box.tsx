@@ -1,51 +1,27 @@
-import { useRef, useState, type ChangeEvent, type HTMLAttributes, type HTMLInputTypeAttribute, type InputHTMLAttributes } from "react";
-import { useSchemaItem } from "~/components/react/hooks/schema";
+import { useRef, useState, type ChangeEvent, type InputHTMLAttributes } from "react";
+import { useSchemaItem } from "../../hooks/schema";
+import { CircleFillIcon, CircleIcon } from "../icon";
+import { clsx } from "../utilities";
 import { getValidationValue, InputField, type InputWrapProps } from "./common";
 import type { FormItemHookProps } from "./hooks";
-import { useSource } from "./utilities";
 
-export type TextBoxProps<D extends Schema.DataItem<Schema.$String>> = InputWrapProps & {
+export type PasswordBoxProps<D extends Schema.DataItem<Schema.$String>> = InputWrapProps & {
   $: D;
   placeholder?: string;
-  source?: Schema.Source<Schema.ValueType<D["_"]>>;
   hook?: FormItemHookProps;
 } & Pick<InputHTMLAttributes<HTMLInputElement>,
   | "autoComplete"
   | "autoCapitalize"
-  | "enterKeyHint"
 >;
 
-function getPatternInputProps(pattern: Schema.StringProps["pattern"]): { type?: HTMLInputTypeAttribute; inputMode?: HTMLAttributes<HTMLInputElement>["inputMode"]; } {
-  if (pattern == null || typeof pattern !== "string") return {};
-  switch (pattern) {
-    case "int":
-    case "h-num":
-      return { inputMode: "decimal" };
-    case "h-alpha":
-    case "h-alpha-num":
-    case "h-alpha-num-syn":
-      return { inputMode: "url" };
-    case "email":
-      return { type: "email" };
-    case "tel":
-      return { type: "tel" };
-    case "url":
-      return { type: "url" };
-    default:
-      return {};
-  }
-}
-
-export function TextBox<D extends Schema.DataItem<Schema.$String>>({
+export function PasswordBox<D extends Schema.DataItem<Schema.$String>>({
   placeholder,
-  source: propsSource,
   autoFocus,
+  hook,
   autoComplete,
   autoCapitalize,
-  enterKeyHint,
-  hook,
   ...$props
-}: TextBoxProps<D>) {
+}: PasswordBoxProps<D>) {
   const ref = useRef<HTMLInputElement>(null!);
 
   const {
@@ -60,8 +36,8 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
     invalid,
     errormessage,
     getCommonParams,
-    env,
     omitOnSubmit,
+    validScripts,
     props,
   } = useSchemaItem<Schema.DataItem<Schema.$String>>($props, {
     effect: function ({ value }) {
@@ -72,7 +48,6 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
     effectContext: function () {
       setMinLen(getMinLen);
       setMaxLen(getMaxLen);
-      resetDataItemSource();
     },
   });
 
@@ -91,25 +66,17 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
 
   const [maxLen, setMaxLen] = useState<number | undefined>(getMaxLen);
 
-  const { source, resetDataItemSource } = useSource({
-    dataItem,
-    propsSource,
-    env,
-    getCommonParams,
-  });
+  const [type, setType] = useState<"password" | "text">("password");
 
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
     if (state.current !== "enabled") return;
     setValue(e.target.value);
   };
 
-  const patternProps = getPatternInputProps(dataItem._.pattern);
-
-  const dataListId = source == null ? undefined : `${name}_dl`;
-
-  if (hook) {
-    hook.focus = () => ref.current.focus();
-  }
+  function handleClickToggleButton() {
+    if (state.current !== "enabled") return;
+    setType(type => type === "password" ? "text" : "password");
+  };
 
   return (
     <InputField
@@ -121,9 +88,12 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
       }}
     >
       <input
-        className="ipt-main"
+        className={clsx(
+          "ipt-main",
+          validScripts && "pr-input-pad-bt"
+        )}
         ref={ref}
-        type={patternProps.type || "text"}
+        type={type}
         name={omitOnSubmit ? undefined : name}
         disabled={state.current === "disabled"}
         readOnly={state.current === "readonly"}
@@ -133,30 +103,28 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
         defaultValue={value || undefined}
         onChange={handleChange}
         placeholder={placeholder}
-        inputMode={patternProps.inputMode}
+        inputMode="url"
         aria-label={label}
         aria-invalid={invalid}
         aria-errormessage={errormessage}
-        list={dataListId}
         autoFocus={autoFocus}
         autoComplete={autoComplete || "off"}
         autoCapitalize={autoCapitalize}
-        enterKeyHint={enterKeyHint}
       />
       {
-        source &&
-        <datalist id={dataListId}>
-          {source.map(item => {
-            return (
-              <option
-                key={item.value}
-                value={item.value ?? ""}
-              >
-                {item.text}
-              </option>
-            );
-          })}
-        </datalist>
+        validScripts && state.current === "enabled" &&
+        <button
+          type="button"
+          className={clsx(
+            "ipt-btn",
+            state.current === "enabled" && "cursor-pointer",
+          )}
+          aria-label="toggle masked"
+          tabIndex={-1}
+          onClick={handleClickToggleButton}
+        >
+          {type === "text" ? <CircleFillIcon /> : <CircleIcon />}
+        </button>
       }
     </InputField>
   );

@@ -116,7 +116,7 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
           <InputLabel
             key={key}
             core={{
-              classNames: labelClassName,
+              className: labelClassName,
             }}
           >
             <input

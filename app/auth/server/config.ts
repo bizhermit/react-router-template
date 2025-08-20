@@ -28,7 +28,7 @@ export const authConfig = {
           required: authSchema.userId.required,
         },
         password: {
-          type: "text",
+          type: "password",
           label: authSchema.password.label,
           required: authSchema.password.required,
         },

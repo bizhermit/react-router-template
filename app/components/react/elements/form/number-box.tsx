@@ -243,6 +243,7 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
     <InputField
       {...props}
       core={{
+        className: "ipt-default-width",
         state,
         result,
       }}
