@@ -12,7 +12,7 @@ const cookiePattern = `${encodeURIComponent(LOCALE_KEY)}=`;
 const isDev = process.env.NODE_ENV === "development";
 const serializedCache = new Map<string, string>();
 
-export function loadI18nAsServer(request: Request) {
+export function getI18nPayload(request: Request) {
   let locale: Locales = DEFAULT_LOCALE;
   /* URL */
   // const url = new URL(request.url);
@@ -101,7 +101,7 @@ function getOrCreateRegex(key: string): RegExp {
 }
 
 export function getI18n(request: Request) {
-  const { locale, resource } = loadI18nAsServer(request);
+  const { locale, resource } = getI18nPayload(request);
   const t: I18nGetter = <K extends I18nTextKey>(key: K, params?: I18nReplaceParams<K>) => {
     if (!key) return key;
     let text = (resource as Record<string, string>)[key];

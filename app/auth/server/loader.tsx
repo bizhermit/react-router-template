@@ -8,6 +8,7 @@ export async function getAuthPayload(request: Request) {
     getCsrfToken(request),
     getSession(request),
   ]);
+
   return {
     csrfToken: csrfToken.csrfToken,
     cookie: csrfToken.cookie,

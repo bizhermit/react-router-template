@@ -4,14 +4,13 @@ import { renderToPipeableStream } from "react-dom/server";
 import { ServerRouter, type AppLoadContext, type EntryContext } from "react-router";
 import { PassThrough } from "stream";
 import { AuthProvider } from "./auth/client/provider";
-import { getCsrfToken } from "./auth/server/csrf-token";
-import { getSession } from "./auth/server/session";
+import { getAuthPayload } from "./auth/server/loader";
 import { cookieStore } from "./components/cookie/server";
 import { ThemeProvider } from "./components/react/providers/theme";
 import { ValidScriptsProvider } from "./components/react/providers/valid-scripts";
 import { setPageResponseHeaders } from "./features/middleware/page-headers";
 import { I18nProvider } from "./i18n/client/provider";
-import { loadI18nAsServer } from "./i18n/server/loader";
+import { getI18nPayload } from "./i18n/server/loader";
 
 const isDev = process.env.NODE_ENV === "development";
 const isTest = process.env.NODE_ENV === "test";
@@ -39,16 +38,11 @@ export default async function handleRequest(
     callbackName = "onAllReady";
   }
 
-  const i18n = loadI18nAsServer(request);
-  const [csrfToken, session] = await Promise.all([
-    getCsrfToken(request).then(({ csrfToken, cookie }) => {
-      if (cookie) {
-        headers.append("Set-Cookie", cookie);
-      }
-      return csrfToken;
-    }),
-    getSession(request),
-  ]);
+  const i18n = getI18nPayload(request);
+  const auth = await getAuthPayload(request);
+  if (auth.cookie) {
+    headers.append("Set-Cookie", auth.cookie);
+  }
 
   return new Promise((resolve, reject) => {
     let didError = false;
@@ -58,8 +52,8 @@ export default async function handleRequest(
 
     const { pipe, abort } = renderToPipeableStream(
       <AuthProvider
-        csrfToken={csrfToken}
-        session={session}
+        csrfToken={auth.csrfToken}
+        session={auth.session}
       >
         <I18nProvider
           locale={i18n.locale}
@@ -69,6 +63,7 @@ export default async function handleRequest(
             <ValidScriptsProvider
               initValid={isValidScripts}
             >
+              <auth.Payload />
               <i18n.Payload />
               <ServerRouter
                 context={reactRouterContext}

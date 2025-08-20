@@ -25,3 +25,8 @@ declare module "@auth/core/jwt" {
   }
 
 }
+
+type AuthPayloadProps = {
+  csrfToken: string | undefined;
+  session: import("@auth/core/types").Session | null;
+};

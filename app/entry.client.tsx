@@ -1,6 +1,7 @@
 import { startTransition, StrictMode } from "react";
 import { hydrateRoot } from "react-dom/client";
 import { HydratedRouter } from "react-router/dom";
+import { loadAuthAsClient } from "./auth/client/loader";
 import { AuthProvider } from "./auth/client/provider";
 import { getCookie } from "./components/cookie/client";
 import { ThemeProvider } from "./components/react/providers/theme";
@@ -9,16 +10,12 @@ import { loadI18nAsClient } from "./i18n/client/loader";
 import { I18nProvider } from "./i18n/client/provider";
 
 async function hydrate() {
-  const i18n = await loadI18nAsClient();
   const isValidScripts = document.cookie.includes("js=t");
   const theme = getCookie("theme");
-  const csrfToken = (() => {
-    const elem = document.querySelector("meta[name='csrf-token']");
-    if (!elem) return undefined;
-    const token = elem.getAttribute("content") || undefined;
-    elem.remove();
-    return token;
-  })();
+  const [i18n, auth] = await Promise.all([
+    loadI18nAsClient(),
+    loadAuthAsClient(),
+  ]);
 
   startTransition(() => {
     hydrateRoot(
@@ -27,7 +24,10 @@ async function hydrate() {
         locale={i18n.locale}
         resource={i18n.resource}
       >
-        <AuthProvider csrfToken={csrfToken}>
+        <AuthProvider
+          csrfToken={auth.csrfToken}
+          session={auth.session}
+        >
           <ThemeProvider defaultTheme={theme}>
             <ValidScriptsProvider
               initValid={isValidScripts}
