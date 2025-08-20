@@ -38,8 +38,10 @@ export async function getPayload<$Schema extends Record<string, Schema.$Any>>({
         data: {},
         results: {
           csrfToken: {
-            error: "Invalid CSRF token",
-          },
+            code: "csrf",
+            type: "e",
+            message: "Invalid CSRF token",
+          } satisfies Schema.Result,
         },
       };
     }
