@@ -1,29 +1,27 @@
+import { useState } from "react";
 import { data, Outlet, redirect } from "react-router";
 import { useAuthContext } from "~/auth/client/context";
 import { SIGN_IN_PATHNAME, SIGN_OUT_PATHNAME } from "~/auth/consts";
-import { getSession } from "~/auth/server/session";
+import { getAuthSession } from "~/auth/server/loader";
 import { Button } from "~/components/react/elements/button";
 import { Details } from "~/components/react/elements/details";
 import type { Route } from "./+types/layout";
 
-export async function loader({ request }: Route.LoaderArgs) {
-  const session = await getSession(request);
-
-  // console.log("session", session);
+export async function loader({ request, context }: Route.LoaderArgs) {
+  const session = await getAuthSession({ request, context });
 
   if (session == null) {
     const url = new URL(request.url);
     return redirect(`${SIGN_IN_PATHNAME}?to=${encodeURIComponent(url.pathname + url.search)}`);
   }
 
-  return data({
-    session,
-  });
+  return data({});
 };
 
 export default function Layout() {
-  // console.log("user layout render");
   const auth = useAuthContext();
+
+  const [count, setCount] = useState(0);
 
   return (
     <div>
@@ -47,6 +45,13 @@ export default function Layout() {
           Sign Out
         </Button>
       </form>
+      <Button
+        onClick={() => {
+          setCount(c => c + 1);
+        }}
+      >
+        count: {count}
+      </Button>
       <Outlet />
     </div>
   );

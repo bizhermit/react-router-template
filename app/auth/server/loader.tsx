@@ -1,5 +1,3 @@
-import serialize from "serialize-javascript";
-import { AUTH_PROP_NAME } from "../consts";
 import { getCsrfToken } from "./csrf-token";
 import { getSession } from "./session";
 
@@ -13,20 +11,28 @@ export async function getAuthPayload(request: Request) {
     csrfToken: csrfToken.csrfToken,
     cookie: csrfToken.cookie,
     session,
-    Payload: function () {
-      const serializedData = serialize({
-        csrfToken: csrfToken.csrfToken,
-        session,
-      });
-
-      return (
-        <script
-          id={AUTH_PROP_NAME}
-          dangerouslySetInnerHTML={{
-            __html: `window.${AUTH_PROP_NAME}=${serializedData}`,
-          }}
-        />
-      );
-    },
   } as const;
 };
+
+export async function getAuth(props: {
+  request: Request;
+  context: import("react-router").AppLoadContext;
+}) {
+  if (props.context.auth == null) {
+    props.context.auth = new Promise((resolve) => {
+      getAuthPayload(props.request).then(resolve);
+    });
+  }
+  return props.context.auth;
+};
+
+export async function getAuthSession(props: {
+  request: Request;
+  context: import("react-router").AppLoadContext;
+}) {
+  if (props.context.auth) {
+    const { session } = await props.context.auth;
+    return session;
+  }
+  return await getSession(props.request);
+}

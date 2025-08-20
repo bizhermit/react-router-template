@@ -30,3 +30,17 @@ type AuthPayloadProps = {
   csrfToken: string | undefined;
   session: import("@auth/core/types").Session | null;
 };
+
+type AuthLoaderContext = {
+  csrfToken: string | undefined;
+  cookie: string | undefined;
+  session: _AuthSession | null;
+};
+
+type _ReactRouterAppLoadContext = import("react-router").AppLoadContext;
+
+declare module "react-router" {
+  interface AppLoadContext extends _ReactRouterAppLoadContext {
+    auth: Promise<AuthLoaderContext> | undefined;
+  }
+}

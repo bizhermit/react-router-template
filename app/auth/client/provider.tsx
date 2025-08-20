@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { type ReactNode } from "react";
 import { AuthContext } from "./context";
 
 interface Props {
@@ -7,14 +7,7 @@ interface Props {
   session: import("@auth/core/types").Session | null;
 }
 
-export function AuthProvider(props: Props) {
-  const [csrfToken, setCsrfToken] = useState(props.csrfToken);
-  const [session, setSession] = useState(props.session);
-
-  console.log("- AuthProvider -");
-  console.log("  - csrfToken", csrfToken);
-  console.log("  - session", session);
-
+export function AuthProvider({ children, csrfToken, session }: Props) {
   return (
     <AuthContext
       value={{
@@ -22,7 +15,7 @@ export function AuthProvider(props: Props) {
         session,
       }}
     >
-      {props.children}
+      {children}
     </AuthContext>
   );
 };

@@ -3,8 +3,6 @@ import { isbot } from "isbot";
 import { renderToPipeableStream } from "react-dom/server";
 import { ServerRouter, type AppLoadContext, type EntryContext } from "react-router";
 import { PassThrough } from "stream";
-import { AuthProvider } from "./auth/client/provider";
-import { getAuthPayload } from "./auth/server/loader";
 import { cookieStore } from "./components/cookie/server";
 import { ThemeProvider } from "./components/react/providers/theme";
 import { ValidScriptsProvider } from "./components/react/providers/valid-scripts";
@@ -39,10 +37,6 @@ export default async function handleRequest(
   }
 
   const i18n = getI18nPayload(request);
-  const auth = await getAuthPayload(request);
-  if (auth.cookie) {
-    headers.append("Set-Cookie", auth.cookie);
-  }
 
   return new Promise((resolve, reject) => {
     let didError = false;
@@ -51,28 +45,22 @@ export default async function handleRequest(
     const theme = cookie.getCookie("theme");
 
     const { pipe, abort } = renderToPipeableStream(
-      <AuthProvider
-        csrfToken={auth.csrfToken}
-        session={auth.session}
+      <I18nProvider
+        locale={i18n.locale}
+        resource={i18n.resource}
       >
-        <I18nProvider
-          locale={i18n.locale}
-          resource={i18n.resource}
-        >
-          <ThemeProvider defaultTheme={theme}>
-            <ValidScriptsProvider
-              initValid={isValidScripts}
-            >
-              <auth.Payload />
-              <i18n.Payload />
-              <ServerRouter
-                context={reactRouterContext}
-                url={request.url}
-              />
-            </ValidScriptsProvider>
-          </ThemeProvider>
-        </I18nProvider>
-      </AuthProvider>,
+        <ThemeProvider defaultTheme={theme}>
+          <ValidScriptsProvider
+            initValid={isValidScripts}
+          >
+            <i18n.Payload />
+            <ServerRouter
+              context={reactRouterContext}
+              url={request.url}
+            />
+          </ValidScriptsProvider>
+        </ThemeProvider>
+      </I18nProvider>,
       {
         [callbackName]: () => {
           const body = new PassThrough();

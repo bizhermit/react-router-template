@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { redirect, useFetcher } from "react-router";
+import { data, redirect, useFetcher } from "react-router";
 import { useAuthContext } from "~/auth/client/context";
 import { authSchema } from "~/auth/schema";
 import { signIn_credentials } from "~/auth/server/sign-in";
@@ -12,7 +12,11 @@ import type { Route } from "./+types/sign-in";
 
 export async function action({ request }: Route.ActionArgs) {
   const res = await signIn_credentials(request);
-  if (!res.ok) return null;
+  if (!res.ok) {
+    return data({
+      message: "Sign in failed",
+    });
+  }
   const url = new URL(request.url);
   const redirectTo = url.searchParams.get("to");
   return redirect(redirectTo ? decodeURIComponent(redirectTo) : "/home", {
@@ -22,8 +26,8 @@ export async function action({ request }: Route.ActionArgs) {
   });
 };
 
-export default function Page({ loaderData }: Route.ComponentProps) {
-  const fetcher = useFetcher();
+export default function Page({ actionData }: Route.ComponentProps) {
+  const fetcher = useFetcher<typeof actionData>();
 
   const {
     SchemaProvider,
@@ -43,6 +47,8 @@ export default function Page({ loaderData }: Route.ComponentProps) {
       userId.focus();
     }
   }, [fetcher.state]);
+
+  const errorMessage = fetcher.data?.message || actionData?.message;
 
   return (
     <div className="flex flex-col justify-center items-center grow gap-8">
@@ -74,6 +80,12 @@ export default function Page({ loaderData }: Route.ComponentProps) {
             Sign In
           </Button>
         </fetcher.Form>
+        {
+          errorMessage &&
+          <p className="text-red-500">
+            {errorMessage}
+          </p>
+        }
       </SchemaProvider>
     </div>
   );
