@@ -71,7 +71,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
             color="primary"
             disabled={fetcher.state === "submitting"}
           >
-            SignIn
+            Sign In
           </Button>
         </fetcher.Form>
       </SchemaProvider>

@@ -2,6 +2,7 @@ import { data, Outlet, redirect } from "react-router";
 import { useAuthContext } from "~/components/auth/client/context";
 import { getSession } from "~/components/auth/server/session";
 import { Button } from "~/components/react/elements/button";
+import { SIGN_IN_PATHNAME, SIGN_OUT_PATHNAME } from "~/features/auth/consts";
 import type { Route } from "./+types/layout";
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -11,7 +12,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   if (session == null) {
     const url = new URL(request.url);
-    return redirect(`/sign-in?to=${encodeURIComponent(url.pathname + url.search)}`);
+    return redirect(`${SIGN_IN_PATHNAME}?to=${encodeURIComponent(url.pathname + url.search)}`);
   }
 
   return data({
@@ -28,7 +29,7 @@ export default function Layout() {
       <h1>User Layout</h1>
       <form
         method="post"
-        action="/sign-out"
+        action={SIGN_OUT_PATHNAME}
       >
         <input
           type="hidden"

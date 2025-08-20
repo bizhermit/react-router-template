@@ -1,6 +1,7 @@
 import { type AuthConfig } from "@auth/core";
 import Credentials from "@auth/core/providers/credentials";
 import { getPayload } from "~/components/schema/server";
+import { SIGN_IN_PATHNAME, SIGN_OUT_PATHNAME } from "./consts";
 import { authSchema } from "./schema";
 
 const isDev = process.env.NODE_ENV === "development";
@@ -15,8 +16,8 @@ export const authConfig = {
     maxAge: 60 * 60 * 24 * 1, // 1 day
   },
   pages: {
-    signIn: "/sign-in",
-    signOut: "/sign-out",
+    signIn: SIGN_IN_PATHNAME,
+    signOut: SIGN_OUT_PATHNAME,
   },
   providers: [
     Credentials({

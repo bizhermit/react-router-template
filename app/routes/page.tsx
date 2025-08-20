@@ -1,4 +1,5 @@
 import { Link } from "~/components/react/elements/link";
+import { SIGN_IN_PATHNAME } from "~/features/auth/consts";
 
 export default function Page() {
   return (
@@ -8,7 +9,10 @@ export default function Page() {
           <Link to="/sandbox">sandbox</Link>
         </li>
         <li>
-          <Link to="/sign-in">sign-in</Link>
+          <Link to={SIGN_IN_PATHNAME}>sign-in</Link>
+        </li>
+        <li>
+          <Link to="/home">home</Link>
         </li>
       </ul>
     </div>
