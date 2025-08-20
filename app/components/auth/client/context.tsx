@@ -2,6 +2,7 @@ import { createContext, use } from "react";
 
 interface AuthContextProps {
   csrfToken?: string | undefined;
+  session?: import("@auth/core/types").Session | null;
 }
 
 export const AuthContext = createContext<AuthContextProps>({});

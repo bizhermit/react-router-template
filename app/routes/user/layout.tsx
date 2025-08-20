@@ -8,7 +8,7 @@ import type { Route } from "./+types/layout";
 export async function loader({ request }: Route.LoaderArgs) {
   const session = await getSession(request);
 
-  console.log("session", session);
+  // console.log("session", session);
 
   if (session == null) {
     const url = new URL(request.url);
@@ -21,7 +21,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 };
 
 export default function Layout() {
-  console.log("user layout render");
+  // console.log("user layout render");
   const auth = useAuthContext();
 
   return (

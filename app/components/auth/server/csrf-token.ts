@@ -12,5 +12,8 @@ export async function getCsrfToken(request: Request) {
       cookie: res.headers.get("set-cookie") || undefined,
     };
   }
-  return null;
+  return {
+    csrfToken: undefined,
+    cookie: undefined,
+  };
 };

@@ -5,6 +5,7 @@ import { ServerRouter, type AppLoadContext, type EntryContext } from "react-rout
 import { PassThrough } from "stream";
 import { AuthProvider } from "./components/auth/client/provider";
 import { getCsrfToken } from "./components/auth/server/csrf-token";
+import { getSession } from "./components/auth/server/session";
 import { cookieStore } from "./components/cookie/server";
 import { I18nProvider } from "./components/react/providers/i18n";
 import { ThemeProvider } from "./components/react/providers/theme";
@@ -39,10 +40,15 @@ export default async function handleRequest(
   }
 
   const i18n = loadI18nAsServer(request);
-  const token = await getCsrfToken(request);
-  if (token?.cookie) {
-    headers.append("Set-Cookie", token.cookie);
-  }
+  const [csrfToken, session] = await Promise.all([
+    getCsrfToken(request).then(({ csrfToken, cookie }) => {
+      if (cookie) {
+        headers.append("Set-Cookie", cookie);
+      }
+      return csrfToken;
+    }),
+    getSession(request),
+  ]);
 
   return new Promise((resolve, reject) => {
     let didError = false;
@@ -51,12 +57,13 @@ export default async function handleRequest(
     const theme = cookie.getCookie("theme");
 
     const { pipe, abort } = renderToPipeableStream(
-      <I18nProvider
-        locale={i18n.locale}
-        resource={i18n.resource}
+      <AuthProvider
+        csrfToken={csrfToken}
+        session={session}
       >
-        <AuthProvider
-          csrfToken={token?.csrfToken}
+        <I18nProvider
+          locale={i18n.locale}
+          resource={i18n.resource}
         >
           <ThemeProvider defaultTheme={theme}>
             <ValidScriptsProvider
@@ -69,8 +76,8 @@ export default async function handleRequest(
               />
             </ValidScriptsProvider>
           </ThemeProvider>
-        </AuthProvider>
-      </I18nProvider>,
+        </I18nProvider>
+      </AuthProvider>,
       {
         [callbackName]: () => {
           const body = new PassThrough();

@@ -2,7 +2,7 @@ import { type RouteConfig, index, layout, prefix, route } from "@react-router/de
 import { SIGN_IN_PATHNAME, SIGN_OUT_PATHNAME } from "./features/auth/consts";
 
 export default [
-  index("routes/page.tsx"),
+  index("routes/index.tsx"),
   // ...prefix("/:lang", [
   //   index("routes/language.tsx"),
   //   route("home", "routes/home/page.tsx"),
