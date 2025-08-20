@@ -59,9 +59,6 @@
   --spacing-input-btn: calc(var(--spacing-input) * 0.75);
   --radius-input: 2px;
   --opacity-disabled: 0.5;
-  --image-check: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M20 50 L40 70 L80 30" stroke="currentColor" stroke-width="0.75rem" fill="none" stroke-linecap="round" /></svg>');
-  --image-down: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M10,32.5l40,40 40,-40" stroke="currentColor" stroke-width="0.75rem" fill="none" stroke-linecap="round" /></svg>');
-  --image-up: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M10,67.5l40,-40 40,40' stroke='currentColor' stroke-width='0.75rem' fill='none' stroke-linecap='round'/></svg>");
 }
 
 @utility dark-theme-vars {

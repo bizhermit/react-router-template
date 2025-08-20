@@ -291,10 +291,15 @@
     right: 0;
     width: var(--spacing-input-btn);
     height: 100%;
+    display: grid;
+    place-items: center;
     user-select: none;
-    background-color: var(--color-input);
-    mask: var(--image-down) center / 40% no-repeat;
+    background-color: transparent;
     transition: transform 0.2s;
+
+    >.icon {
+      width: 1.0rem;
+    }
   }
 
   .ipt-placeholder {
@@ -358,7 +363,7 @@
       inset: 20%;
       border-radius: var(--radius-input);
       background-color: var(---color-fg);
-      mask: var(--image-check) center / contain no-repeat;
+      mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M20 50 L40 70 L80 30" stroke="currentColor" stroke-width="0.75rem" fill="none" stroke-linecap="round" /></svg>') center / contain no-repeat;
     }
   }
 
@@ -457,9 +462,12 @@
   .ipt-inner-spin-button {
     width: 100%;
     flex: 1 1 0rem;
-    background-color: var(--color-input);
-    mask-size: 40%;
-    mask-repeat: no-repeat;
+    display: grid;
+    justify-content: center;
+
+    >.icon {
+      width: 1.0rem;
+    }
   }
 
   .ipt-slider-wrap {

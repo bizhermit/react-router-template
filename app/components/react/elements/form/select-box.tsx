@@ -1,6 +1,7 @@
 import { useRef, type ChangeEvent, type ReactNode } from "react";
 import { isEmpty } from "~/components/objects";
 import { useSchemaItem } from "~/components/react/hooks/schema";
+import { DownIcon } from "../icon";
 import { clsx, ZERO_WIDTH_SPACE } from "../utilities";
 import { InputDummyFocus, InputField, Placeholder, type InputWrapProps } from "./common";
 import type { FormItemHookProps } from "./hooks";
@@ -131,7 +132,9 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
           "ipt-btn",
           state.current !== "enabled" && "opacity-0"
         )}
-      />
+      >
+        <DownIcon />
+      </div>
       {
         state.current === "readonly" &&
         <>

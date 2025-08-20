@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState, type ChangeEvent, type FocusEvent, type InputHTMLAttributes, type KeyboardEvent } from "react";
 import { useSchemaItem } from "~/components/react/hooks/schema";
+import { DownIcon, UpIcon } from "../icon";
 import { clsx } from "../utilities";
 import { getValidationValue, InputField, type InputWrapProps } from "./common";
 import type { FormItemHookProps } from "./hooks";
@@ -291,23 +292,27 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
               aria-label="increment"
               tabIndex={-1}
               className={clsx(
-                "ipt-inner-spin-button mask-[var(--image-up)] mask-bottom",
+                "ipt-inner-spin-button items-end",
                 state.current === "enabled" && "cursor-pointer",
               )}
               disabled={state.current !== "enabled"}
               onMouseDown={handleMousedownIncrement}
-            />
+            >
+              <UpIcon />
+            </button>
             <button
               type="button"
               aria-label="decrement"
               tabIndex={-1}
               className={clsx(
-                "ipt-inner-spin-button mask-[var(--image-down)] mask-top",
+                "ipt-inner-spin-button items-start",
                 state.current === "enabled" && "cursor-pointer",
               )}
               disabled={state.current !== "enabled"}
               onMouseDown={handleMousedownDecrement}
-            />
+            >
+              <DownIcon />
+            </button>
           </div>
           <input
             name={omitOnSubmit ? undefined : name}
