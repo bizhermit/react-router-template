@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { createContext, use, useCallback, useContext, useId, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type FormEvent, type FormHTMLAttributes, type ReactNode, type RefObject } from "react";
+import { useAuthContext } from "~/auth/client/context";
 import { useText } from "~/components/react/hooks/i18n";
 import { getFocusableElement } from "../../client/dom/focus";
 import { clone } from "../../objects";
@@ -133,6 +134,7 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
     t,
   });
   const scripts = use(ValidScriptsContext);
+  const auth = useAuthContext();
 
   const isInitialize = useRef(true);
   const isFirstLoad = useRef(true);
@@ -512,6 +514,7 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
     validation,
     reset,
     getFormProps,
+    CsrfTokenHidden: auth.CsrfTokenHidden,
   } as const;
 };
 

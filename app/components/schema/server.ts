@@ -34,7 +34,7 @@ export async function getPayload<$Schema extends Record<string, Schema.$Any>>({
     const cookieCsrfToken = cookieStore(request).getCookie("csrf-token");
     if (!csrfToken || csrfToken !== cookieCsrfToken) {
       return {
-        hasError: true,
+        hasError: true as const,
         data: {},
         results: {
           csrfToken: {

@@ -343,6 +343,7 @@ function Contents(props: Route.ComponentProps) {
     handleReset,
     getFormProps,
     getData,
+    CsrfTokenHidden,
   } = useSchema({
     schema,
     state: fetcher.state,
@@ -414,6 +415,7 @@ function Contents(props: Route.ComponentProps) {
               encType: "multipart/form-data",
             })}
           >
+            <CsrfTokenHidden />
             <FieldSet
               disabled={formDisabled.flag}
               readOnly={formReadonly.flag}
