@@ -4,6 +4,7 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { data, useFetcher } from "react-router";
+import { getAuth } from "~/auth/server/loader";
 import getIndexedDB, { type IndexedDBController, type IndexedDBStores } from "~/components/client/indexeddb";
 import { formatDate } from "~/components/objects/date";
 import { parseNumber } from "~/components/objects/numeric";
@@ -263,8 +264,9 @@ const schema = $schema({
 // console.log(submittion);
 // console.log(performance.now() - start);
 
-export async function loader() {
+export async function loader({ request, context }: Route.LoaderArgs) {
   console.log(import.meta.env.MODE);
+  const auth = getAuth({ request, context });
   return data({});
 };
 
@@ -279,6 +281,7 @@ export async function action(args: Route.ActionArgs) {
   console.log(performance.now() - start);
   console.log("-----------------");
 
+  const auth = getAuth({ request: args.request, context: args.context });
   await sleep(5000);
 
   return data({
