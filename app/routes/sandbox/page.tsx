@@ -272,6 +272,7 @@ export async function loader({ request, context }: Route.LoaderArgs) {
 
 export async function action(args: Route.ActionArgs) {
   console.log("-----------------");
+  console.log(Array.from(args.request.headers.entries()));
   const start = performance.now();
   const submittion = await getPayload({
     request: args.request,

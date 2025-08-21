@@ -1,7 +1,7 @@
 import { type AuthConfig } from "@auth/core";
 import Credentials from "@auth/core/providers/credentials";
 import { getPayload } from "~/components/schema/server";
-import { SIGN_IN_PATHNAME, SIGN_OUT_PATHNAME } from "../consts";
+import { AUTH_COOKIE_NAMES, SIGN_IN_PATHNAME, SIGN_OUT_PATHNAME } from "../consts";
 import { authSchema } from "../schema";
 
 const isDev = process.env.NODE_ENV === "development";
@@ -57,6 +57,7 @@ export const authConfig = {
   },
   cookies: {
     callbackUrl: {
+      name: AUTH_COOKIE_NAMES.callbackUrl,
       options: {
         httpOnly: true,
         sameSite: "strict",
@@ -64,7 +65,7 @@ export const authConfig = {
       },
     },
     csrfToken: {
-      name: "csrf-token",
+      name: AUTH_COOKIE_NAMES.csrfToken,
       options: {
         httpOnly: true,
         sameSite: "strict",
@@ -72,7 +73,7 @@ export const authConfig = {
       },
     },
     sessionToken: {
-      name: "session-token",
+      name: AUTH_COOKIE_NAMES.session,
       options: {
         httpOnly: true,
         sameSite: "strict",

@@ -1,3 +1,4 @@
+import { AUTH_COOKIE_NAMES } from "~/auth/consts";
 import { getI18n } from "~/i18n/server/loader";
 import { parseWithSchema } from ".";
 import { cookieStore } from "../cookie/server";
@@ -31,7 +32,7 @@ export async function getPayload<$Schema extends Record<string, Schema.$Any>>({
   delete (submission as Partial<typeof submission>).dataItems;
   if (!skipCsrfCheck) {
     const csrfToken = submission.data.csrfToken;
-    const cookieCsrfToken = cookieStore(request).getCookie("csrf-token");
+    const cookieCsrfToken = cookieStore(request).getCookie(AUTH_COOKIE_NAMES.csrfToken);
     if (!csrfToken || csrfToken !== cookieCsrfToken) {
       return {
         hasError: true as const,

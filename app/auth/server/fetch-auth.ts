@@ -37,8 +37,8 @@ export async function fetchAuth({
     // CSRF
     const csrfToken =
       request.headers.get("x-csrf-token")
-      || (formData?.get("csrf-token") as string)
-      || (formData?.get("csrfToken") as string);
+      || (formData?.get("csrfToken") as string)
+      || (formData?.get("csrf-token") as string);
     if (csrfToken && formData) {
       formData.set("csrfToken", csrfToken);
     }
