@@ -6,14 +6,6 @@ namespace Api {
     ) : never;
   }[keyof P];
 
-  type MergeParams<T extends readonly unknown[]> = (
-    T extends [infer Head, ...infer Tail] ?
-    MergeParams<Tail> & (
-      [Head] extends [never] ? {} :
-      Head extends { [v: unknown]: unknown; } ? Head : {}
-    ) : {}
-  );
-
   type GetPath<OpenApi> = MethodPaths<OpenApi, "get">;
   type PostPath<OpenApi> = MethodPaths<OpenApi, "post">;
   type PutPath<OpenApi> = MethodPaths<OpenApi, "put">;
