@@ -4,11 +4,11 @@ type Options = {
 
 export const appendStructData = (
   formData: FormData,
-  struct: { [v: string]: any; } | null | undefined,
+  struct: { [v: string]: unknown; } | null | undefined,
   options?: Options
 ) => {
   if (struct == null) return formData;
-  const setFormValue = (key: string, v: any) => {
+  const setFormValue = (key: string, v: unknown) => {
     if (options?.removeItem) {
       switch (options.removeItem) {
         case "un":
@@ -41,8 +41,8 @@ export const appendStructData = (
         return;
       }
       try {
-        Object.keys(v).forEach(k => {
-          setFormValue(`${key}.${k}`, v[k]);
+        Object.entries(v as Record<string, unknown>).forEach(([k, val]) => {
+          setFormValue(`${key}.${k}`, val);
         });
       } catch {
         console.warn(`convert to form-data warning: ${key} is not supportted object type. try converting to json-stringify.`);
@@ -50,16 +50,17 @@ export const appendStructData = (
       }
       return;
     }
-    formData.append(key, v);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    formData.append(key, v as any);
   };
-  Object.keys(struct).forEach(key => {
-    setFormValue(key, struct[key]);
+  Object.entries(struct).forEach(([key, value]) => {
+    setFormValue(key, value);
   });
   return formData;
 };
 
 export const convertStructToFormData = (
-  struct: { [v: string]: any; } | null | undefined,
+  struct: { [v: string]: unknown; } | null | undefined,
   options?: Options
 ) => {
   return appendStructData(new FormData(), struct, options);

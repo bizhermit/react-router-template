@@ -1,4 +1,4 @@
-import { generateApiAccessor } from "~/api/fetch";
+import { generateApiAccessor } from "~/components/fetch/core";
 import type { components, paths } from "./external+";
 
 export type ExternalApiPaths = paths;
