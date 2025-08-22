@@ -10,7 +10,7 @@ paths:
     get:
       summary: ヘルスチェック
       responses:
-        '200':
+        "200":
           description: ヘルスチェック
           content:
             application/json:
@@ -21,8 +21,8 @@ paths:
                     type: string
                 required:
                   - now
-        '404':
-          description:
+        "404":
+          description: ""
   /sandbox/api:
     get:
       summary: 一覧の取得
@@ -44,7 +44,7 @@ paths:
             minimum: 1
             default: 1
       responses:
-        '200':
+        "200":
           description: 一覧
           content:
             application/json:
@@ -60,7 +60,7 @@ paths:
                   items:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Sandbox'
+                      $ref: "#/components/schemas/Sandbox"
                 required:
                   - page
                   - total
@@ -72,14 +72,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/NewSandBox'
+              $ref: "#/components/schemas/NewSandBox"
       responses:
-        '201':
+        "201":
           description: 作成成功
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Sandbox'
+                $ref: "#/components/schemas/Sandbox"
   /sandbox/api/{id}:
     get:
       summary: 詳細取得
@@ -90,19 +90,19 @@ paths:
           schema:
             type: integer
       responses:
-        '200':
+        "200":
           description: 詳細
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Sandbox'
-        '201':
+                $ref: "#/components/schemas/Sandbox"
+        "201":
           description: ダミー
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NewSandBox'
-        '404':
+                $ref: "#/components/schemas/NewSandBox"
+        "404":
           description: 見つかりません
     put:
       summary: 更新
@@ -117,14 +117,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Sandbox'
+              $ref: "#/components/schemas/Sandbox"
       responses:
-        '200':
+        "200":
           description: 詳細
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Sandbox'
+                $ref: "#/components/schemas/Sandbox"
     delete:
       summary: 削除
       parameters:
@@ -134,7 +134,7 @@ paths:
           schema:
             type: integer
       responses:
-        '204':
+        "204":
           description: 削除成功
 
 components:

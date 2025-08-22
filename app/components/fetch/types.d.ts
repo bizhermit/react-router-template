@@ -1,6 +1,13 @@
 namespace Api {
 
-  type MethodPaths<P extends Record<string, unknown>, M extends string> = {
+  type Method =
+    | "get"
+    | "put"
+    | "post"
+    | "delete"
+    ;
+
+  type MethodPaths<P extends Record<string, unknown>, M extends Method> = {
     [K in keyof P]: M extends keyof P[K] ? (
       P[K][M] extends { [v: unknown]: unknown; } ? K : never
     ) : never;
@@ -12,19 +19,21 @@ namespace Api {
   type DeletePath<OpenApi> = MethodPaths<OpenApi, "delete">;
   type Path<OpenApi> = keyof OpenApi;
 
-  type PathParams<OpenApi, P extends string | number | symbol, M extends string> = OpenApi[P][M]["parameters"]["path"];
+  type PathParams<OpenApi, P extends keyof OpenApi, M extends Method> = OpenApi[P][M]["parameters"]["path"];
 
-  type HeaderParams<OpenApi, P extends string | number | symbol, M extends string> = OpenApi[P][M]["parameters"]["header"];
+  type HeaderParams<OpenApi, P extends keyof OpenApi, M extends Method> = OpenApi[P][M]["parameters"]["header"];
 
-  type QueryParams<OpenApi, P extends string | number | symbol, M extends string> = OpenApi[P][M]["parameters"]["query"];
+  type QueryParams<OpenApi, P extends keyof OpenApi, M extends Method> = OpenApi[P][M]["parameters"]["query"];
 
-  type BodyParams<OpenApi, P extends Path, M extends string> =
-    OpenApi[P][M]["requestBody"] extends { content: infer C; } ? C[keyof C] : never;
+  type BodyParams<OpenApi, P extends Path, M extends Method> =
+    OpenApi[P][M]["requestBody"] extends never ? undefined :
+    OpenApi[P][M]["requestBody"] extends { content: infer C; } ? C[keyof C] : undefined;
 
+  ;
   type NullSafeParams<K extends string, T> =
     T extends Record<string, unknown> ? { [U in K]: T } : { [U in K]?: Record<string, unknown> };
 
-  type Params<OpenApi, P extends string | number | symbol, M extends string> =
+  type Params<OpenApi, P extends keyof OpenApi, M extends Method> =
     & NullSafeParams<"path", PathParams<OpenApi, P, M>>
     & NullSafeParams<"header", HeaderParams<OpenApi, P, M>>
     & NullSafeParams<"query", QueryParams<OpenApi, P, M>>
@@ -68,12 +77,12 @@ namespace Api {
     [K in keyof T]: K extends Exclude<keyof T, FilterByPrefix<keyof T, "2">> ? ResponseEntry<K, T[K]> : never;
   }[keyof T];
 
-  type SuccessResponse<OpenApi, P extends Path, M extends string> = {
+  type SuccessResponse<OpenApi, P extends Path, M extends Method> = {
     ok: true;
     _: Response;
   } & SuccessResponses<OpenApi[P][M]["responses"]>;
 
-  type ErrorResponse<OpenApi, P extends Path, M extends string> = {
+  type ErrorResponse<OpenApi, P extends Path, M extends Method> = {
     ok: false;
     _: Response;
   } & ErrorResponses<OpenApi[P][M]["responses"]>;

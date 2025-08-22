@@ -1446,7 +1446,7 @@ function FetchComponent() {
               try {
                 const res = await internalApi.delete("/sandbox/api/{id}", {
                   path: {
-                    id: 2,
+                    id: 1,
                   },
                 });
                 console.log(res);

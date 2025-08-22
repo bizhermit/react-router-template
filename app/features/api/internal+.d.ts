@@ -32,7 +32,6 @@ export interface paths {
             };
           };
         };
-                /** @description null */
         404: {
           headers: {
             [name: string]: unknown;

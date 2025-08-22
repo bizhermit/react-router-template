@@ -118,7 +118,7 @@ export function generateApiAccessor<ApiPaths>(options?: {
 }) {
   const baseUrl = (options?.baseUrl || "").replace(/\/+$/, "").replace(/\\/g, "/");
 
-  async function responseParser<P extends Api.Path<ApiPaths>, M extends string>(res: Response) {
+  async function responseParser<P extends Api.Path<ApiPaths>, M extends Api.Method>(res: Response) {
     return {
       ok: res.ok,
       status: res.status,
@@ -137,7 +137,7 @@ export function generateApiAccessor<ApiPaths>(options?: {
     } as unknown as (Api.SuccessResponse<ApiPaths, P, M> | Api.ErrorResponse<ApiPaths, P, M>);
   };
 
-  async function post<P extends Api.Path<ApiPaths>, M extends Exclude<string, "get">>(
+  async function post<P extends Api.Path<ApiPaths>, M extends Exclude<Api.Method, "get">>(
     path: P,
     method: M,
     params?: Api.Params<ApiPaths, P, M> | undefined
