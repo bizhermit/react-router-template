@@ -29,14 +29,15 @@ namespace Api {
   type BodyParams<OpenApi, P extends Path, M extends string> =
     OpenApi[P][M]["requestBody"] extends { content: infer C; } ? C[keyof C] : never;
 
-  type NullSafeRecord<T> = T extends Record<string, unknown> ? T : Record<string, unknown>;
+  type NullSafeParams<K extends string, T> =
+    T extends Record<string, unknown> ? { [U in K]: T } : { [U in K]?: Record<string, unknown> };
 
-  type Params<OpenApi, P extends string | number | symbol, M extends string> = {
-    path?: NullSafeRecord<PathParams<OpenApi, P, M>>;
-    header?: NullSafeRecord<HeaderParams<OpenApi, P, M>>;
-    query?: NullSafeRecord<QueryParams<OpenApi, P, M>>;
-    body?: M extends "get" ? never : NullSafeRecord<BodyParams<OpenApi, P, M>>;
-  };
+  type Params<OpenApi, P extends string | number | symbol, M extends string> =
+    & NullSafeParams<"path", PathParams<OpenApi, P, M>>
+    & NullSafeParams<"header", HeaderParams<OpenApi, P, M>>
+    & NullSafeParams<"query", QueryParams<OpenApi, P, M>>
+    & (M extends "get" ? { body?: never; } : NullSafeParams<"body", BodyParams<OpenApi, P, M>>)
+    ;
 
   type FilterByPrefix<T, Prefix extends string> =
     T extends number ? (

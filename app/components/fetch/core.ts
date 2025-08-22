@@ -137,7 +137,7 @@ export function generateApiAccessor<ApiPaths>(options?: {
     } as unknown as (Api.SuccessResponse<ApiPaths, P, M> | Api.ErrorResponse<ApiPaths, P, M>);
   };
 
-  async function post<P extends Api.Path<ApiPaths>, M extends string>(
+  async function post<P extends Api.Path<ApiPaths>, M extends Exclude<string, "get">>(
     path: P,
     method: M,
     params?: Api.Params<ApiPaths, P, M> | undefined
@@ -149,7 +149,7 @@ export function generateApiAccessor<ApiPaths>(options?: {
         "Content-Type": "application/json",
         ...options?.headers,
         ...params?.header,
-      },
+      } as Record<string, string>,
     });
     return responseParser<P, M>(res);
   };
