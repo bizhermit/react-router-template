@@ -1374,7 +1374,11 @@ function FetchComponent() {
           <Button
             onClick={async ({ unlock }) => {
               try {
-                const res = await internalApi.get("/sandbox/api/{id}", { id: 1 });
+                const res = await internalApi.get("/sandbox/api/{id}", {
+                  path: {
+                    id: 1,
+                  },
+                });
                 console.log(res);
                 if (!res.ok) {
                   return;
@@ -1398,8 +1402,10 @@ function FetchComponent() {
             onClick={async ({ unlock }) => {
               try {
                 const res = await internalApi.post("/sandbox/api", {
-                  title: "sample title",
-                  body: "sample body",
+                  body: {
+                    title: "sample title",
+                    body: "sample body",
+                  },
                 });
                 console.log(res);
               } catch (e) {
@@ -1415,10 +1421,15 @@ function FetchComponent() {
             onClick={async ({ unlock }) => {
               try {
                 const res = await internalApi.put("/sandbox/api/{id}", {
-                  id: 1,
-                  title: "sample",
-                  body: "sample",
-                  updated_at: "2025-11-11T11:11:11.111",
+                  path: {
+                    id: 1,
+                  },
+                  body: {
+                    title: "sample",
+                    body: "sample",
+                    updated_at: "2025-11-11T11:11:11.111",
+                    id: 1,
+                  },
                 });
                 console.log(res);
               } catch (e) {
@@ -1433,7 +1444,11 @@ function FetchComponent() {
           <Button
             onClick={async ({ unlock }) => {
               try {
-                const res = await internalApi.delete("/sandbox/api/{id}", { id: 2 });
+                const res = await internalApi.delete("/sandbox/api/{id}", {
+                  path: {
+                    id: 2,
+                  },
+                });
                 console.log(res);
               } catch (e) {
                 console.error(e);

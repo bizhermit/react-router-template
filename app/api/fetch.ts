@@ -1,4 +1,4 @@
-import { clone, getObjectType } from "~/components/objects";
+import { getObjectType } from "~/components/objects";
 import { formatDate } from "~/components/objects/date";
 import { convertBlobToFile, convertFileToBase64 } from "~/components/objects/file";
 
@@ -6,25 +6,29 @@ function replacePathParams(
   path: string,
   params: Record<string, unknown> | null | undefined,
 ) {
-  const p = clone(params);
   const errs: string[] = [];
   const ret = path.replace(/\{(.*?)\}/g, (text, key) => {
-    const v = p?.[key];
+    const v = params?.[key];
     if (v == null) {
       errs.push(key);
       return "";
     }
-    delete p![key];
     return encodeURIComponent(String(v));
   });
   if (errs.length > 0) {
     throw new Error(`Missing path parameter${errs.length > 1 ? "s" : ""}: ${errs.map(e => `'${e}'`).join(", ")}`);
   };
-  return {
-    path: ret,
-    params: p,
-  };
+  return ret;
 };
+
+function createUrl(
+  path: string,
+  params: Record<string, Record<string, unknown>> | null | undefined,
+) {
+  const replacedPath = replacePathParams(path, params?.path);
+  const query = parseQueryString(params?.query);
+  return `${replacedPath}${query ? `?${query}` : ""}`;
+}
 
 function parseQueryString(params: Record<string, unknown> | null | undefined) {
   if (params == null) return null;
@@ -110,6 +114,7 @@ async function requestBodyStringfy(params: Record<string, unknown> | null | unde
 
 export function generateApiAccessor<ApiPaths>(options?: {
   baseUrl?: string;
+  headers?: Record<string, string>;
 }) {
   const baseUrl = (options?.baseUrl || "").replace(/\/+$/, "").replace(/\\/g, "/");
 
@@ -135,14 +140,15 @@ export function generateApiAccessor<ApiPaths>(options?: {
   async function post<P extends Api.Path<ApiPaths>, M extends string>(
     path: P,
     method: M,
-    params: Api.MergeParams<[Api.PathParams<ApiPaths, P, M>, Api.BodyParams<ApiPaths, P, M>]> | undefined
+    params?: Api.Params<ApiPaths, P, M> | undefined
   ) {
-    const replaced = replacePathParams(path as string, params);
-    const res = await fetch(`${baseUrl}${replaced.path}`, {
+    const res = await fetch(`${baseUrl}${createUrl(path as string, params as Record<string, Record<string, unknown>>)}`, {
       method,
-      body: await requestBodyStringfy(params),
+      body: await requestBodyStringfy(params?.body),
       headers: {
         "Content-Type": "application/json",
+        ...options?.headers,
+        ...params?.header,
       },
     });
     return responseParser<P, M>(res);
@@ -151,35 +157,32 @@ export function generateApiAccessor<ApiPaths>(options?: {
   return {
     get: async function <P extends Api.GetPath<ApiPaths>>(
       path: P,
-      params?: Api.MergeParams<[Api.PathParams<ApiPaths, P, "get">, Api.QueryParams<ApiPaths, P, "get">]>,
+      params?: Api.Params<ApiPaths, P, "get">,
     ) {
-      const replaced = replacePathParams(path as string, params);
-      if (replaced.params) {
-        const query = parseQueryString(replaced.params);
-        if (query) {
-          replaced.path += `?${query}`;
-        }
-      }
-      const res = await fetch(`${baseUrl}${replaced.path}`, {
+      const res = await fetch(`${baseUrl}${createUrl(path as string, params as Record<string, Record<string, unknown>>)}`, {
         method: "get",
+        headers: {
+          ...options?.headers,
+          ...params?.header,
+        } as Record<string, string>,
       });
       return responseParser<P, "get">(res);
     },
     post: async function <P extends Api.PostPath<ApiPaths>>(
       path: P,
-      params: Api.MergeParams<[Api.PathParams<ApiPaths, P, "post">, Api.BodyParams<ApiPaths, P, "post">]>,
+      params?: Api.Params<ApiPaths, P, "post">,
     ) {
       return post(path, "post", params);
     },
     put: async function <P extends Api.PutPath<ApiPaths>>(
       path: P,
-      params: Api.MergeParams<[Api.PathParams<ApiPaths, P, "put">, Api.BodyParams<ApiPaths, P, "put">]>,
+      params?: Api.Params<ApiPaths, P, "put">,
     ) {
       return post(path, "put", params);
     },
     delete: async function <P extends Api.DeletePath<ApiPaths>>(
       path: P,
-      params?: Api.MergeParams<[Api.PathParams<ApiPaths, P, "delete">, Api.BodyParams<ApiPaths, P, "delete">]>,
+      params?: Api.Params<ApiPaths, P, "delete">,
     ) {
       return post(path, "delete", params);
     },

@@ -22,10 +22,21 @@ namespace Api {
 
   type PathParams<OpenApi, P extends string | number | symbol, M extends string> = OpenApi[P][M]["parameters"]["path"];
 
+  type HeaderParams<OpenApi, P extends string | number | symbol, M extends string> = OpenApi[P][M]["parameters"]["header"];
+
   type QueryParams<OpenApi, P extends string | number | symbol, M extends string> = OpenApi[P][M]["parameters"]["query"];
 
   type BodyParams<OpenApi, P extends Path, M extends string> =
     OpenApi[P][M]["requestBody"] extends { content: infer C; } ? C[keyof C] : never;
+
+  type NullSafeRecord<T> = T extends Record<string, unknown> ? T : Record<string, unknown>;
+
+  type Params<OpenApi, P extends string | number | symbol, M extends string> = {
+    path?: NullSafeRecord<PathParams<OpenApi, P, M>>;
+    header?: NullSafeRecord<HeaderParams<OpenApi, P, M>>;
+    query?: NullSafeRecord<QueryParams<OpenApi, P, M>>;
+    body?: M extends "get" ? never : NullSafeRecord<BodyParams<OpenApi, P, M>>;
+  };
 
   type FilterByPrefix<T, Prefix extends string> =
     T extends number ? (
