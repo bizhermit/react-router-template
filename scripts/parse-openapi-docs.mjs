@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync, readdirSync, rmSync, statSync } from "fs";
 import { createRequire } from "module";
 import path from "path";
+import { pathToFileURL } from "url";
 
 const require = createRequire(import.meta.url);
 const ts = require("typescript");
@@ -101,37 +102,53 @@ function createAliasToRelativeTransformer(program, options) {
     return true;
   }
 
-  function toOutRelative(fromFile, resolvedFile, originalText) {
+  // function toOutRelative(fromFile, resolvedFile, originalText) {
+  //   // 出力は .temp にミラーされるため、相対関係はソースと同じ
+  //   let target = resolvedFile;
+
+  //   // index.ts/tsx をインデックス無しへ短縮（元が /index 指定でない場合）
+  //   const endsWithIndexTs =
+  //     /[\\/]index\.(ts|tsx|js|jsx)$/.test(target);
+  //   if (endsWithIndexTs && !/\/index(\.(t|j)sx?)?$/.test(originalText)) {
+  //     target = path.dirname(target);
+  //   }
+
+  //   // 相対パス算出
+  //   let rel = path.relative(path.dirname(fromFile), target);
+  //   rel = normalizeSlashes(rel);
+
+  //   // 先頭に ./ を付与
+  //   if (!rel.startsWith(".")) rel = "./" + rel;
+
+  //   // 拡張子調整:
+  //   // - 元の指定に拡張子があれば .js に揃える
+  //   // - なければ拡張子は付けず（ツールチェインに任せる）
+  //   const hasExtInOriginal = /\.[a-zA-Z0-9]+$/.test(originalText);
+  //   if (hasExtInOriginal) {
+  //     rel = rel.replace(/\.(ts|tsx|jsx|js)$/, "") + ".js";
+  //     // index を短縮した場合、".js" が残ったままにならないよう調整
+  //     rel = rel.replace(/\/index\.js$/, "");
+  //   } else {
+  //     // 元が拡張子なしの場合は .ts/.tsx/.js/.jsx を除去
+  //     rel = rel.replace(/\.(ts|tsx|jsx|js)$/, "");
+  //     rel = rel.replace(/\/index$/, ""); // index 省略
+  //   }
+
+  //   return rel;
+  // }
+  function toOutRelative(fromFile, resolvedFile /* , originalText */) {
     // 出力は .temp にミラーされるため、相対関係はソースと同じ
-    let target = resolvedFile;
+    const target = resolvedFile;
 
-    // index.ts/tsx をインデックス無しへ短縮（元が /index 指定でない場合）
-    const endsWithIndexTs =
-      /[\\/]index\.(ts|tsx|js|jsx)$/.test(target);
-    if (endsWithIndexTs && !/\/index(\.(t|j)sx?)?$/.test(originalText)) {
-      target = path.dirname(target);
-    }
-
-    // 相対パス算出
+    // 相対パス算出（index の省略はせず、必ずファイルを指す）
     let rel = path.relative(path.dirname(fromFile), target);
     rel = normalizeSlashes(rel);
 
     // 先頭に ./ を付与
     if (!rel.startsWith(".")) rel = "./" + rel;
 
-    // 拡張子調整:
-    // - 元の指定に拡張子があれば .js に揃える
-    // - なければ拡張子は付けず（ツールチェインに任せる）
-    const hasExtInOriginal = /\.[a-zA-Z0-9]+$/.test(originalText);
-    if (hasExtInOriginal) {
-      rel = rel.replace(/\.(ts|tsx|jsx|js)$/, "") + ".js";
-      // index を短縮した場合、".js" が残ったままにならないよう調整
-      rel = rel.replace(/\/index\.js$/, "");
-    } else {
-      // 元が拡張子なしの場合は .ts/.tsx/.js/.jsx を除去
-      rel = rel.replace(/\.(ts|tsx|jsx|js)$/, "");
-      rel = rel.replace(/\/index$/, ""); // index 省略
-    }
+    // 常に .js へ置換（.ts/.tsx/.jsx/.js いずれも .js に統一）
+    rel = rel.replace(/\.(ts|tsx|jsx|js)$/, ".js");
 
     return rel;
   }
@@ -145,17 +162,71 @@ function createAliasToRelativeTransformer(program, options) {
     return norm.startsWith(projectRootNorm + "/") && !norm.includes("/node_modules/");
   }
 
+  // function visitModuleSpecifier(sf, node, getLiteral) {
+  //   const lit = getLiteral(node);
+  //   if (!lit || !ts.isStringLiteralLike(lit)) return node;
+
+  //   const spec = lit.text;
+  //   if (!shouldRewrite(spec)) return node;
+
+  //   const resolved = resolveModule(spec, sf.fileName);
+  //   if (!resolved || !isProjectFile(resolved)) return node;
+
+  //   const nextText = toOutRelative(sf.fileName, resolved, spec);
+  //   if (nextText === spec) return node;
+
+  //   const newLiteral = ts.factory.createStringLiteral(nextText);
+
+  //   if (ts.isImportDeclaration(node)) {
+  //     return ts.factory.updateImportDeclaration(
+  //       node,
+  //       node.modifiers,
+  //       node.importClause,
+  //       newLiteral,
+  //       // TS 5+ は attributes にリネーム。互換のため両対応。
+  //       node.assertClause ?? node.attributes
+  //     );
+  //   }
+
+  //   if (ts.isExportDeclaration(node)) {
+  //     return ts.factory.updateExportDeclaration(
+  //       node,
+  //       node.modifiers,
+  //       node.isTypeOnly ?? false,
+  //       node.exportClause,
+  //       newLiteral,
+  //       node.assertClause ?? node.attributes
+  //     );
+  //   }
+
+  //   if (
+  //     ts.isCallExpression(node) &&
+  //     node.expression.kind === ts.SyntaxKind.ImportKeyword &&
+  //     node.arguments.length === 1 &&
+  //     ts.isStringLiteralLike(node.arguments[0])
+  //   ) {
+  //     const args = ts.factory.createNodeArray([newLiteral]);
+  //     return ts.factory.updateCallExpression(
+  //       node,
+  //       node.expression,
+  //       node.typeArguments,
+  //       args
+  //     );
+  //   }
+
+  //   return node;
+  // }
   function visitModuleSpecifier(sf, node, getLiteral) {
     const lit = getLiteral(node);
     if (!lit || !ts.isStringLiteralLike(lit)) return node;
 
     const spec = lit.text;
-    if (!shouldRewrite(spec)) return node;
 
+    // すべての spec を解決して、プロジェクト内ファイルに解決できたときのみ書き換える
     const resolved = resolveModule(spec, sf.fileName);
     if (!resolved || !isProjectFile(resolved)) return node;
 
-    const nextText = toOutRelative(sf.fileName, resolved, spec);
+    const nextText = toOutRelative(sf.fileName, resolved /* , spec */);
     if (nextText === spec) return node;
 
     const newLiteral = ts.factory.createStringLiteral(nextText);
@@ -280,3 +351,16 @@ function compile(entries, options) {
 }
 
 compile(entryFiles, compilerOptions);
+
+const transpiledTargetDirPath = path.join(tempDirPath, "app", "api-docs");
+const docFiles = readdirSync(transpiledTargetDirPath)
+  .filter(name => {
+    return !statSync(path.join(transpiledTargetDirPath, name)).isDirectory();
+  });
+console.log(docFiles);
+
+await Promise.all(docFiles.map(async (name) => {
+  const fullName = path.join(transpiledTargetDirPath, name);
+  const mod = await import(pathToFileURL(fullName).href);
+  console.log(mod.default);
+}));
