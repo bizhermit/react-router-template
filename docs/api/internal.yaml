@@ -130,6 +130,12 @@ paths:
                   - "updatedAt"
   /sandbox/api/{id}:
     summary: ""
+    parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
     get:
       summary: "詳細取得"
       responses:

@@ -8,6 +8,7 @@ export default function (openapi: ApiDoc.Root) {
       return paths;
     }, {} as Record<string, unknown>),
   };
+  // TODO: security
   return ret;
 }
 
@@ -15,7 +16,12 @@ function parsePath(path: ApiDoc.Path) {
   const ret: Record<string, unknown> = {
     summary: path.summary || "",
   };
-
+  if (path.parameters) {
+    const openApiParrameters = parseParameters(path.parameters);
+    if (openApiParrameters.length > 0) {
+      ret.parameters = openApiParrameters;
+    }
+  }
   function setIfExists(method: ApiDoc.Method) {
     const operation = parseOperation(path, method);
     if (operation) ret[method] = operation;
@@ -33,6 +39,51 @@ function parsePath(path: ApiDoc.Path) {
   return ret;
 }
 
+function parseParameters(parameters: ApiDoc.Parameters) {
+  const openApiParrameters: Array<unknown> = [];
+  if (parameters.path) {
+    Object.entries(parameters.path).forEach(([name, value]) => {
+      openApiParrameters.push({
+        name,
+        in: "path",
+        required: true,
+        schema: parseSchemaValue(value),
+      });
+    });
+  }
+  if (parameters.headers) {
+    Object.entries(parameters.headers).forEach(([name, value]) => {
+      openApiParrameters.push({
+        name,
+        in: "header",
+        required: value.required ?? false,
+        schema: parseSchemaValue(value),
+      });
+    });
+  }
+  if (parameters.cookie) {
+    Object.entries(parameters.cookie).forEach(([name, value]) => {
+      openApiParrameters.push({
+        name,
+        in: "cookie",
+        required: value.required ?? false,
+        schema: parseSchemaValue(value),
+      });
+    });
+  }
+  if (parameters.query) {
+    Object.entries(parameters.query).forEach(([name, value]) => {
+      openApiParrameters.push({
+        name,
+        in: "query",
+        required: value.required ?? false,
+        schema: parseSchemaValue(value),
+      });
+    });
+  }
+  return openApiParrameters;
+}
+
 function parseOperation(path: ApiDoc.Path, method: ApiDoc.Method) {
   const operation = path[method];
   if (!operation) return null;
@@ -41,47 +92,7 @@ function parseOperation(path: ApiDoc.Path, method: ApiDoc.Method) {
   };
   const parameters = operation.parameters;
   if (parameters) {
-    const openApiParrameters: Array<unknown> = [];
-    if (parameters.path) {
-      Object.entries(parameters.path).forEach(([name, value]) => {
-        openApiParrameters.push({
-          name,
-          in: "path",
-          required: true,
-          schema: parseSchemaValue(value),
-        });
-      });
-    }
-    if (parameters.headers) {
-      Object.entries(parameters.headers).forEach(([name, value]) => {
-        openApiParrameters.push({
-          name,
-          in: "header",
-          required: value.required ?? false,
-          schema: parseSchemaValue(value),
-        });
-      });
-    }
-    if (parameters.cookie) {
-      Object.entries(parameters.cookie).forEach(([name, value]) => {
-        openApiParrameters.push({
-          name,
-          in: "cookie",
-          required: value.required ?? false,
-          schema: parseSchemaValue(value),
-        });
-      });
-    }
-    if (parameters.query) {
-      Object.entries(parameters.query).forEach(([name, value]) => {
-        openApiParrameters.push({
-          name,
-          in: "query",
-          required: value.required ?? false,
-          schema: parseSchemaValue(value),
-        });
-      });
-    }
+    const openApiParrameters = parseParameters(parameters);
     if (openApiParrameters.length > 0) {
       ret.parameters = openApiParrameters;
     }
