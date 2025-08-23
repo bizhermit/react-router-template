@@ -92,7 +92,7 @@ export const paths_sandbox = [
           json: newSandboxItem,
         },
       },
-      response: {
+      responses: {
         201: {
           description: "作成成功",
           content: {
@@ -133,7 +133,7 @@ export const paths_sandbox = [
           json: newSandboxItem,
         },
       },
-      response: {
+      responses: {
         201: {
           description: "詳細更新成功",
           content: {
@@ -144,7 +144,7 @@ export const paths_sandbox = [
     },
     delete: {
       summary: "詳細削除",
-      response: {
+      responses: {
         204: {
           description: "削除成功",
         },

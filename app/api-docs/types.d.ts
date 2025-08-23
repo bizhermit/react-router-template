@@ -38,14 +38,6 @@ namespace ApiDoc {
     paths: Array<Path>;
   };
 
-  type Method =
-    | "get"
-    | "options"
-    | "post"
-    | "put"
-    | "delete"
-    ;
-
   interface Value_Base {
     description?: string;
     required?: boolean;
@@ -64,7 +56,7 @@ namespace ApiDoc {
   };
 
   interface Value_Numeric extends Value_Base {
-    type: "integer" | "decimal";
+    type: "integer" | "number";
     default?: number;
     min?: number;
     max?: number;
@@ -73,7 +65,7 @@ namespace ApiDoc {
   };
 
   interface Value_Boolean extends Value_Base {
-    type: "bool";
+    type: "boolean";
     default?: boolean;
     example?: boolean;
   };
@@ -153,7 +145,9 @@ namespace ApiDoc {
   };
 
   type LoaderOperation = Operation & {
-    parameters?: Parameters;
+    parameters?: Parameters & {
+      body?: null;
+    };
     responses: { [status: `${number}`]: Response; };
   };
 
@@ -167,8 +161,19 @@ namespace ApiDoc {
         form?: Schema;
       };
     };
-    response: { [status: `${number}`]: Response; };
+    responses: { [status: `${number}`]: Response; };
   };
+
+  type Method =
+    | "get"
+    | "head"
+    | "post"
+    | "put"
+    | "delete"
+    | "options"
+    | "trace"
+    | "patch"
+    ;
 
   type Path = {
     path: `/${string}`;

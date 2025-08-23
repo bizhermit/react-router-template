@@ -5,6 +5,7 @@ export default {
   openapi: "3.1.0",
   info: {
     title: "internal API",
+    description: "internal API",
     version: "0.0.0",
   },
   servers: {

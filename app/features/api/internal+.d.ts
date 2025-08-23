@@ -20,25 +20,7 @@ export interface paths {
         cookie?: never;
       };
       requestBody?: never;
-      responses: {
-                /** @description ヘルスチェック */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": {
-              now: string;
-            };
-          };
-        };
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
+      responses: never;
     };
     put?: never;
     post?: never;
@@ -58,34 +40,13 @@ export interface paths {
         /** 一覧の取得 */
     get: {
       parameters: {
-        query?: {
-                    /** @description １ページあたりの件数 */
-          limit?: number;
-                    /** @description ページ番号 */
-          page?: number;
-        };
+        query?: never;
         header?: never;
         path?: never;
         cookie?: never;
       };
       requestBody?: never;
-      responses: {
-                /** @description 一覧 */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": {
-                            /** @example 1 */
-              page: number;
-                            /** @example 100 */
-              total: number;
-              items: components["schemas"]["Sandbox"][];
-            };
-          };
-        };
-      };
+      responses: never;
     };
     put?: never;
         /** 詳細作成 */
@@ -96,22 +57,8 @@ export interface paths {
         path?: never;
         cookie?: never;
       };
-      requestBody: {
-        content: {
-          "application/json": components["schemas"]["NewSandBox"];
-        };
-      };
-      responses: {
-                /** @description 作成成功 */
-        201: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["Sandbox"];
-          };
-        };
-      };
+      requestBody?: never;
+      responses: never;
     };
     delete?: never;
     options?: never;
@@ -131,88 +78,34 @@ export interface paths {
       parameters: {
         query?: never;
         header?: never;
-        path: {
-          id: number;
-        };
+        path?: never;
         cookie?: never;
       };
       requestBody?: never;
-      responses: {
-                /** @description 詳細 */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["Sandbox"];
-          };
-        };
-                /** @description ダミー */
-        201: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["NewSandBox"];
-          };
-        };
-                /** @description 見つかりません */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
+      responses: never;
     };
-        /** 更新 */
+        /** 詳細更新 */
     put: {
       parameters: {
         query?: never;
         header?: never;
-        path: {
-          id: number;
-        };
+        path?: never;
         cookie?: never;
       };
-      requestBody: {
-        content: {
-          "application/json": components["schemas"]["Sandbox"];
-        };
-      };
-      responses: {
-                /** @description 詳細 */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["Sandbox"];
-          };
-        };
-      };
+      requestBody?: never;
+      responses: never;
     };
     post?: never;
-        /** 削除 */
+        /** 詳細削除 */
     delete: {
       parameters: {
         query?: never;
         header?: never;
-        path: {
-          id: number;
-        };
+        path?: never;
         cookie?: never;
       };
       requestBody?: never;
-      responses: {
-                /** @description 削除成功 */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
+      responses: never;
     };
     options?: never;
     head?: never;
@@ -222,18 +115,7 @@ export interface paths {
 }
 export type webhooks = Record<string, never>;
 export interface components {
-  schemas: {
-    Sandbox: {
-      id: number;
-      title: string;
-      body: string;
-      updated_at: string;
-    };
-    NewSandBox: {
-      title: string;
-      body: string;
-    };
-  };
+  schemas: never;
   responses: never;
   parameters: never;
   requestBodies: never;

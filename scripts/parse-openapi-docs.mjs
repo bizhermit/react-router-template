@@ -1,4 +1,5 @@
-import { existsSync, mkdirSync, readdirSync, rmSync, statSync } from "fs";
+import { existsSync, mkdirSync, readdirSync, renameSync, rmSync, statSync, writeFileSync } from "fs";
+import yaml from "js-yaml";
 import { createRequire } from "module";
 import path from "path";
 import { pathToFileURL } from "url";
@@ -10,7 +11,8 @@ const ts = require("typescript");
 const projectRoot = process.cwd();
 const tsconfigPath = path.join(projectRoot, "tsconfig.json");
 const tempDirPath = path.join(projectRoot, ".temp");
-const targetDirPath = path.join(projectRoot, "app/api-docs");
+const targetDirPath = path.join(projectRoot, "app", "api-docs");
+const distDirPath = path.join(projectRoot, "docs", "api");
 
 if (!existsSync(targetDirPath)) {
   process.stdout.write(`Warning: not found target directory: ${targetDirPath}`);
@@ -66,7 +68,9 @@ function loadTsConfig(configPath) {
   parsed.options.declaration = false;
   parsed.options.emitDeclarationOnly = false;
   parsed.options.noEmit = false;
+  parsed.options.noEmitOnError = false; // 型エラーがあっても出力
   parsed.options.rootDir ??= projectRoot;
+  parsed.options.sourceMap = false; // sourcemap を無効化（拡張子変換の後処理簡略化）
   // ESM の import を維持するため ESNext を推奨
   parsed.options.module ??= ts.ModuleKind.ESNext;
   return parsed;
@@ -102,40 +106,6 @@ function createAliasToRelativeTransformer(program, options) {
     return true;
   }
 
-  // function toOutRelative(fromFile, resolvedFile, originalText) {
-  //   // 出力は .temp にミラーされるため、相対関係はソースと同じ
-  //   let target = resolvedFile;
-
-  //   // index.ts/tsx をインデックス無しへ短縮（元が /index 指定でない場合）
-  //   const endsWithIndexTs =
-  //     /[\\/]index\.(ts|tsx|js|jsx)$/.test(target);
-  //   if (endsWithIndexTs && !/\/index(\.(t|j)sx?)?$/.test(originalText)) {
-  //     target = path.dirname(target);
-  //   }
-
-  //   // 相対パス算出
-  //   let rel = path.relative(path.dirname(fromFile), target);
-  //   rel = normalizeSlashes(rel);
-
-  //   // 先頭に ./ を付与
-  //   if (!rel.startsWith(".")) rel = "./" + rel;
-
-  //   // 拡張子調整:
-  //   // - 元の指定に拡張子があれば .js に揃える
-  //   // - なければ拡張子は付けず（ツールチェインに任せる）
-  //   const hasExtInOriginal = /\.[a-zA-Z0-9]+$/.test(originalText);
-  //   if (hasExtInOriginal) {
-  //     rel = rel.replace(/\.(ts|tsx|jsx|js)$/, "") + ".js";
-  //     // index を短縮した場合、".js" が残ったままにならないよう調整
-  //     rel = rel.replace(/\/index\.js$/, "");
-  //   } else {
-  //     // 元が拡張子なしの場合は .ts/.tsx/.js/.jsx を除去
-  //     rel = rel.replace(/\.(ts|tsx|jsx|js)$/, "");
-  //     rel = rel.replace(/\/index$/, ""); // index 省略
-  //   }
-
-  //   return rel;
-  // }
   function toOutRelative(fromFile, resolvedFile /* , originalText */) {
     // 出力は .temp にミラーされるため、相対関係はソースと同じ
     const target = resolvedFile;
@@ -147,8 +117,8 @@ function createAliasToRelativeTransformer(program, options) {
     // 先頭に ./ を付与
     if (!rel.startsWith(".")) rel = "./" + rel;
 
-    // 常に .js へ置換（.ts/.tsx/.jsx/.js いずれも .js に統一）
-    rel = rel.replace(/\.(ts|tsx|jsx|js)$/, ".js");
+    // 常に .js へ置換（.ts/.tsx/.jsx/.js いずれも .mjs に統一）
+    rel = rel.replace(/\.(ts|tsx|jsx|js)$/, ".mjs");
 
     return rel;
   }
@@ -162,60 +132,6 @@ function createAliasToRelativeTransformer(program, options) {
     return norm.startsWith(projectRootNorm + "/") && !norm.includes("/node_modules/");
   }
 
-  // function visitModuleSpecifier(sf, node, getLiteral) {
-  //   const lit = getLiteral(node);
-  //   if (!lit || !ts.isStringLiteralLike(lit)) return node;
-
-  //   const spec = lit.text;
-  //   if (!shouldRewrite(spec)) return node;
-
-  //   const resolved = resolveModule(spec, sf.fileName);
-  //   if (!resolved || !isProjectFile(resolved)) return node;
-
-  //   const nextText = toOutRelative(sf.fileName, resolved, spec);
-  //   if (nextText === spec) return node;
-
-  //   const newLiteral = ts.factory.createStringLiteral(nextText);
-
-  //   if (ts.isImportDeclaration(node)) {
-  //     return ts.factory.updateImportDeclaration(
-  //       node,
-  //       node.modifiers,
-  //       node.importClause,
-  //       newLiteral,
-  //       // TS 5+ は attributes にリネーム。互換のため両対応。
-  //       node.assertClause ?? node.attributes
-  //     );
-  //   }
-
-  //   if (ts.isExportDeclaration(node)) {
-  //     return ts.factory.updateExportDeclaration(
-  //       node,
-  //       node.modifiers,
-  //       node.isTypeOnly ?? false,
-  //       node.exportClause,
-  //       newLiteral,
-  //       node.assertClause ?? node.attributes
-  //     );
-  //   }
-
-  //   if (
-  //     ts.isCallExpression(node) &&
-  //     node.expression.kind === ts.SyntaxKind.ImportKeyword &&
-  //     node.arguments.length === 1 &&
-  //     ts.isStringLiteralLike(node.arguments[0])
-  //   ) {
-  //     const args = ts.factory.createNodeArray([newLiteral]);
-  //     return ts.factory.updateCallExpression(
-  //       node,
-  //       node.expression,
-  //       node.typeArguments,
-  //       args
-  //     );
-  //   }
-
-  //   return node;
-  // }
   function visitModuleSpecifier(sf, node, getLiteral) {
     const lit = getLiteral(node);
     if (!lit || !ts.isStringLiteralLike(lit)) return node;
@@ -350,17 +266,58 @@ function compile(entries, options) {
   }
 }
 
-compile(entryFiles, compilerOptions);
+compile([
+  ...entryFiles,
+  path.join(targetDirPath, "utilities", "parse-to-openapi-yaml.ts"),
+], compilerOptions);
+
+function renameJsToMjs(dir) {
+  for (const name of readdirSync(dir)) {
+    const full = path.join(dir, name);
+    const st = statSync(full);
+    if (st.isDirectory()) {
+      renameJsToMjs(full);
+      continue;
+    }
+    if (st.isFile()) {
+      if (full.endsWith(".js")) {
+        const mjs = full.slice(0, -3) + ".mjs";
+        renameSync(full, mjs);
+      } else if (full.endsWith(".js.map")) {
+        const map = full.slice(0, -7) + ".mjs.map";
+        renameSync(full, map);
+      }
+    }
+  }
+}
+
+renameJsToMjs(tempDirPath);
+
+// 出力先ディレクトリの準備
+mkdirSync(distDirPath, { recursive: true });
 
 const transpiledTargetDirPath = path.join(tempDirPath, "app", "api-docs");
 const docFiles = readdirSync(transpiledTargetDirPath)
   .filter(name => {
     return !statSync(path.join(transpiledTargetDirPath, name)).isDirectory();
   });
-console.log(docFiles);
+
+const openApiParser = (await import(pathToFileURL(path.join(tempDirPath, "app", "api-docs", "utilities", "parse-to-openapi-yaml.mjs")).href)).default;
 
 await Promise.all(docFiles.map(async (name) => {
   const fullName = path.join(transpiledTargetDirPath, name);
-  const mod = await import(pathToFileURL(fullName).href);
-  console.log(mod.default);
+  const mod = (await import(pathToFileURL(fullName).href)).default;
+  const apiName = path.parse(name).name;
+
+  const openApi = openApiParser(mod);
+
+  const yamlStr = yaml.dump(openApi, {
+    forceQuotes: true,
+    quotingType: "\"",
+  });
+  writeFileSync(
+    path.join(distDirPath, `${apiName}.yaml`),
+    yamlStr,
+    { encoding: "utf-8" }
+  );
 }));
