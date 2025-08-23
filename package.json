@@ -14,6 +14,7 @@
     "typecheck": "npm run prebuild && npx react-router typegen && tsc && npx eslint",
     "generate-i18n-types": "node ./scripts/generate-i18n-types.mjs",
     "generate-openapi-types": "bash ./scripts/generate-openapi-types.sh",
+    "parse-openapi-docs": "node ./scripts/parse-openapi-docs.mjs",
     "format": "npx eslint --fix",
     "playwright": "npx playwright test",
     "test": "npx vitest run app"
@@ -49,6 +50,7 @@
     "react-router-devtools": "^5.0.5",
     "sass-embedded": "^1.87.0",
     "tailwindcss": "^4.1.6",
+    "ts-morph": "^26.0.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.35.1",
