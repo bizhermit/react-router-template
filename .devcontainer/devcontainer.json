@@ -3,7 +3,7 @@
   "dockerComposeFile": "docker-compose.yml",
   "service": "node",
   "workspaceFolder": "/workspace",
-  "initializeCommand": "bash ./scripts/generate-env.sh ./.devcontainer/.env",
+  "initializeCommand": "bash ./.devcontainer/initializeCommand.sh",
   "postCreateCommand": "bash ./.devcontainer/postCreatedCommand.sh",
   "postStartCommand": "bash ./.devcontainer/postStartCommand.sh",
   "overrideCommand": true,

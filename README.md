@@ -159,7 +159,7 @@ npm run test
 
 ### 本番起動
 
-環境変数ファイルの使いまわしをするため、dockerコマンドではなくシェルスクリプトを使用してください。
+docker-compose起動時のlocalおよびmode環境変数ファイルを取り込むため、dockerコマンドではなくシェルスクリプトを使用してください。
 
 ```bash
 bash docker-compose.sh up
