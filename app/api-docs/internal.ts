@@ -11,15 +11,12 @@ export default {
   servers: {
     url: "http://localhost:3000",
   },
-  security: {
-    headers: {
-      "Api-Key": {
-        type: "string",
-        required: true,
-        example: "abc123",
-      },
+  security: [
+    {
+      type: "ApiKey",
+      global: true,
     },
-  },
+  ],
   paths: [
     path_health,
     ...paths_sandbox,

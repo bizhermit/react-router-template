@@ -217,3 +217,11 @@ paths:
       responses:
         "204":
           description: "削除成功"
+security:
+  - ApiKeyAuth: []
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: "apiKey"
+      in: "header"
+      name: "Api-Key"

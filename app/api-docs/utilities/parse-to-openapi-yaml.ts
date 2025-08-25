@@ -1,5 +1,6 @@
 export default function (openapi: ApiDoc.Root) {
-  const ret = {
+  const components: Record<string, unknown> = {};
+  const ret: Record<string, unknown> = {
     openapi: openapi.openapi,
     info: openapi.info,
     servers: [openapi.servers],
@@ -8,7 +9,91 @@ export default function (openapi: ApiDoc.Root) {
       return paths;
     }, {} as Record<string, unknown>),
   };
-  // TODO: security
+
+  if (openapi.security && openapi.security.length > 0) {
+    const securities: unknown[] = [];
+    const securitySchemas: Record<string, unknown> = {};
+    openapi.security.forEach(security => {
+      switch (security.type) {
+        case "Basic":
+          securitySchemas.BasicAuth = {
+            type: "http",
+            schema: "basic",
+          };
+          if (security.global) {
+            securities.push({
+              BasicAuth: [],
+            });
+          }
+          break;
+        case "Bearer":
+          securitySchemas.BearerAuth = {
+            type: "http",
+            schema: "bearer",
+          };
+          if (security.global) {
+            securities.push({
+              BearerAuth: [],
+            });
+          }
+          break;
+        case "ApiKey":
+          securitySchemas.ApiKeyAuth = {
+            type: "apiKey",
+            in: "header",
+            name: security.name || "Api-Key",
+          };
+          if (security.global) {
+            securities.push({
+              ApiKeyAuth: [],
+            });
+          }
+          break;
+        case "OpenId":
+          securitySchemas.OpenId = {
+            type: "openIdConnect",
+            openIdConnectUrl: security.openIdConnectUrl,
+          };
+          if (security.global) {
+            securities.push({
+              OpenId: [],
+            });
+          }
+          break;
+        case "OAuth2":
+          securitySchemas.OAuth2 = {
+            type: "oauth2",
+            flows: {
+              authorizationCode: {
+                authorizationUrl: security.flows.authorizationUrl,
+                tokenUrl: security.flows.tokenUrl,
+                scopes: Object.entries(security.flows.scopes).reduce((scopes, [key, value]) => {
+                  scopes[key] = value;
+                  return scopes;
+                }, {} as Record<string, string>),
+              },
+            },
+          };
+          if (security.global) {
+            securities.push({
+              OAuth2: Object.keys(security.flows.scopes),
+            });
+          }
+          break;
+        default:
+          break;
+      }
+    });
+    if (securities.length > 0) {
+      ret.security = securities;
+    }
+    if (Object.keys(securitySchemas).length > 0) {
+      components.securitySchemes = securitySchemas;
+    }
+  }
+  if (Object.keys(components).length > 0) {
+    ret.components = components;
+  }
   return ret;
 }
 

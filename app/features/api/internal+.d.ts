@@ -20,7 +20,19 @@ export interface paths {
         cookie?: never;
       };
       requestBody?: never;
-      responses: never;
+      responses: {
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": {
+                            /** @example 2025-01-01T00:00:00.000Z */
+              now?: string;
+            };
+          };
+        };
+      };
     };
     put?: never;
     post?: never;
@@ -40,13 +52,44 @@ export interface paths {
         /** 一覧の取得 */
     get: {
       parameters: {
-        query?: never;
+        query?: {
+          limit?: number;
+          page?: number;
+        };
         header?: never;
         path?: never;
         cookie?: never;
       };
       requestBody?: never;
-      responses: never;
+      responses: {
+                /** @description 一覧取得成功 */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": {
+                            /**
+                             * @default 1
+                             * @example 1
+                             */
+              page: number;
+                            /** @example 100 */
+              total: number;
+              items: {
+                                /** @example abc123 */
+                id: string;
+                                /** @example title */
+                title: string;
+                                /** @example body */
+                body: string;
+                                /** @example 2025-01-01T00:00:00.000Z */
+                updatedAt: string;
+              }[];
+            };
+          };
+        };
+      };
     };
     put?: never;
         /** 詳細作成 */
@@ -57,8 +100,38 @@ export interface paths {
         path?: never;
         cookie?: never;
       };
-      requestBody?: never;
-      responses: never;
+      requestBody: {
+        content: {
+          "application/json": {
+                        /** @example title */
+            title: string;
+                        /** @example body */
+            body: string;
+                        /** @example 2025-01-01T00:00:00.000Z */
+            updatedAt: string;
+          };
+        };
+      };
+      responses: {
+                /** @description 作成成功 */
+        201: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": {
+                            /** @example abc123 */
+              id: string;
+                            /** @example title */
+              title: string;
+                            /** @example body */
+              body: string;
+                            /** @example 2025-01-01T00:00:00.000Z */
+              updatedAt: string;
+            };
+          };
+        };
+      };
     };
     delete?: never;
     options?: never;
@@ -70,7 +143,9 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path?: never;
+      path: {
+        id: string;
+      };
       cookie?: never;
     };
         /** 詳細取得 */
@@ -78,22 +153,82 @@ export interface paths {
       parameters: {
         query?: never;
         header?: never;
-        path?: never;
+        path: {
+          id: string;
+        };
         cookie?: never;
       };
       requestBody?: never;
-      responses: never;
+      responses: {
+                /** @description 詳細取得成功 */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": {
+                            /** @example abc123 */
+              id: string;
+                            /** @example title */
+              title: string;
+                            /** @example body */
+              body: string;
+                            /** @example 2025-01-01T00:00:00.000Z */
+              updatedAt: string;
+            };
+          };
+        };
+                /** @description 詳細取得失敗 */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
     };
         /** 詳細更新 */
     put: {
       parameters: {
         query?: never;
         header?: never;
-        path?: never;
+        path: {
+          id: string;
+        };
         cookie?: never;
       };
-      requestBody?: never;
-      responses: never;
+      requestBody: {
+        content: {
+          "application/json": {
+                        /** @example title */
+            title: string;
+                        /** @example body */
+            body: string;
+                        /** @example 2025-01-01T00:00:00.000Z */
+            updatedAt: string;
+          };
+        };
+      };
+      responses: {
+                /** @description 詳細更新成功 */
+        201: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": {
+                            /** @example abc123 */
+              id: string;
+                            /** @example title */
+              title: string;
+                            /** @example body */
+              body: string;
+                            /** @example 2025-01-01T00:00:00.000Z */
+              updatedAt: string;
+            };
+          };
+        };
+      };
     };
     post?: never;
         /** 詳細削除 */
@@ -101,11 +236,21 @@ export interface paths {
       parameters: {
         query?: never;
         header?: never;
-        path?: never;
+        path: {
+          id: string;
+        };
         cookie?: never;
       };
       requestBody?: never;
-      responses: never;
+      responses: {
+                /** @description 削除成功 */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
     };
     options?: never;
     head?: never;

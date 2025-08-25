@@ -31,10 +31,7 @@ namespace ApiDoc {
       description?: string;
       variabled?: AnyObject;
     };
-    security?: {
-      headers?: Schema;
-      cookie?: Schema;
-    };
+    security?: Security[];
     paths: Array<Path>;
   };
 
@@ -121,6 +118,34 @@ namespace ApiDoc {
   ) : never;
 
   type Schema = { [name: string]: Value; };
+
+  type Security = {
+    global?: boolean;
+  } & (
+      | {
+        type: "Basic";
+      }
+      | {
+        type: "Bearer";
+      }
+      | {
+        type: "ApiKey";
+        name?: string;
+      }
+      | {
+        type: "OpenId";
+        openIdConnectUrl: Url;
+      }
+      | {
+        type: "OAuth2";
+        flows: {
+          authorizationUrl: Url;
+          tokenUrl: Url;
+          scopes: Record<string, string>;
+        };
+      }
+    )
+    ;
 
   type Parameters = {
     path?: Schema;
