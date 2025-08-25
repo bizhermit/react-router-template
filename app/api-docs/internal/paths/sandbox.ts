@@ -2,6 +2,7 @@ import { extendsValueObjectProps } from "~/api-docs/utilities/merge";
 
 const newSandboxItem = {
   type: "object",
+  componentName: "NewSandBoxItem",
   props: {
     title: {
       type: "string",
@@ -27,6 +28,8 @@ const sandboxItem = extendsValueObjectProps(newSandboxItem, {
     required: true,
     example: "abc123",
   },
+}, {
+  componentName: "SandBoxItem",
 });
 
 export const paths_sandbox = [

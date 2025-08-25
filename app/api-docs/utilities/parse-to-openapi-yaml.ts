@@ -5,7 +5,7 @@ export default function (openapi: ApiDoc.Root) {
     info: openapi.info,
     servers: [openapi.servers],
     paths: openapi.paths.reduce((paths, path) => {
-      paths[path.path] = parsePath(path);
+      paths[path.path] = parsePath(path, components);
       return paths;
     }, {} as Record<string, unknown>),
   };
@@ -97,18 +97,18 @@ export default function (openapi: ApiDoc.Root) {
   return ret;
 }
 
-function parsePath(path: ApiDoc.Path) {
+function parsePath(path: ApiDoc.Path, components: Record<string, unknown>) {
   const ret: Record<string, unknown> = {
     summary: path.summary || "",
   };
   if (path.parameters) {
-    const openApiParrameters = parseParameters(path.parameters);
+    const openApiParrameters = parseParameters(path.parameters, components);
     if (openApiParrameters.length > 0) {
       ret.parameters = openApiParrameters;
     }
   }
   function setIfExists(method: ApiDoc.Method) {
-    const operation = parseOperation(path, method);
+    const operation = parseOperation(path, method, components);
     if (operation) ret[method] = operation;
   };
   ([
@@ -124,7 +124,7 @@ function parsePath(path: ApiDoc.Path) {
   return ret;
 }
 
-function parseParameters(parameters: ApiDoc.Parameters) {
+function parseParameters(parameters: ApiDoc.Parameters, components: Record<string, unknown>) {
   const openApiParrameters: Array<unknown> = [];
   if (parameters.path) {
     Object.entries(parameters.path).forEach(([name, value]) => {
@@ -132,7 +132,7 @@ function parseParameters(parameters: ApiDoc.Parameters) {
         name,
         in: "path",
         required: true,
-        schema: parseSchemaValue(value),
+        schema: parseSchemaValue(value, components),
       });
     });
   }
@@ -142,7 +142,7 @@ function parseParameters(parameters: ApiDoc.Parameters) {
         name,
         in: "header",
         required: value.required ?? false,
-        schema: parseSchemaValue(value),
+        schema: parseSchemaValue(value, components),
       });
     });
   }
@@ -152,7 +152,7 @@ function parseParameters(parameters: ApiDoc.Parameters) {
         name,
         in: "cookie",
         required: value.required ?? false,
-        schema: parseSchemaValue(value),
+        schema: parseSchemaValue(value, components),
       });
     });
   }
@@ -162,14 +162,14 @@ function parseParameters(parameters: ApiDoc.Parameters) {
         name,
         in: "query",
         required: value.required ?? false,
-        schema: parseSchemaValue(value),
+        schema: parseSchemaValue(value, components),
       });
     });
   }
   return openApiParrameters;
 }
 
-function parseOperation(path: ApiDoc.Path, method: ApiDoc.Method) {
+function parseOperation(path: ApiDoc.Path, method: ApiDoc.Method, components: Record<string, unknown>) {
   const operation = path[method];
   if (!operation) return null;
   const ret: Record<string, unknown> = {
@@ -177,7 +177,7 @@ function parseOperation(path: ApiDoc.Path, method: ApiDoc.Method) {
   };
   const parameters = operation.parameters;
   if (parameters) {
-    const openApiParrameters = parseParameters(parameters);
+    const openApiParrameters = parseParameters(parameters, components);
     if (openApiParrameters.length > 0) {
       ret.parameters = openApiParrameters;
     }
@@ -188,7 +188,7 @@ function parseOperation(path: ApiDoc.Path, method: ApiDoc.Method) {
           required: true,
           content: {
             "application/json": {
-              schema: parseSchemaValue(parameters.body.json),
+              schema: parseSchemaValue(parameters.body.json, components),
             },
           },
         };
@@ -211,11 +211,11 @@ function parseOperation(path: ApiDoc.Path, method: ApiDoc.Method) {
       if (response.content) {
         if (response.content.json) {
           content["application/json"] = {
-            schema: parseSchemaValue(response.content.json),
+            schema: parseSchemaValue(response.content.json, components),
           };
         } else if (response.content.text) {
           content["palin/text"] = {
-            schema: parseSchemaValue(response.content.text),
+            schema: parseSchemaValue(response.content.text, components),
           };
         }
       }
@@ -231,7 +231,7 @@ function parseOperation(path: ApiDoc.Path, method: ApiDoc.Method) {
   return ret;
 }
 
-function parseSchemaValue(value: ApiDoc.Value) {
+function parseSchemaValue(value: ApiDoc.Value, components: Record<string, unknown>) {
   const ret: Record<string, unknown> = {
     type: value.type,
     default: value.default,
@@ -250,12 +250,12 @@ function parseSchemaValue(value: ApiDoc.Value) {
       ret.type = "string";
       break;
     case "array":
-      ret.items = parseSchemaValue(value.items);
+      ret.items = parseSchemaValue(value.items, components);
       break;
     case "object": {
       const required: Array<string> = [];
       ret.properties = Object.entries(value.props).reduce((props, [name, value]) => {
-        props[name] = parseSchemaValue(value);
+        props[name] = parseSchemaValue(value, components);
         if (value.required) required.push(name);
         return props;
       }, {} as Record<string, unknown>);
@@ -266,6 +266,15 @@ function parseSchemaValue(value: ApiDoc.Value) {
     }
     default:
       break;
+  }
+  if (value.componentName) {
+    if (!components.schemas) {
+      components.schemas = {};
+    }
+    (components.schemas as Record<string, unknown>)[value.componentName] = ret;
+    return {
+      $ref: `#/components/schemas/${value.componentName}`,
+    };
   }
   return ret;
 }

@@ -58,25 +58,7 @@ paths:
                   items:
                     type: "array"
                     items:
-                      type: "object"
-                      properties:
-                        id:
-                          type: "string"
-                          example: "abc123"
-                        title:
-                          type: "string"
-                          example: "title"
-                        body:
-                          type: "string"
-                          example: "body"
-                        updatedAt:
-                          type: "string"
-                          example: "2025-01-01T00:00:00.000Z"
-                      required:
-                        - "id"
-                        - "title"
-                        - "body"
-                        - "updatedAt"
+                      $ref: "#/components/schemas/SandBoxItem"
                 required:
                   - "page"
                   - "total"
@@ -88,46 +70,14 @@ paths:
         content:
           application/json:
             schema:
-              type: "object"
-              properties:
-                title:
-                  type: "string"
-                  example: "title"
-                body:
-                  type: "string"
-                  example: "body"
-                updatedAt:
-                  type: "string"
-                  example: "2025-01-01T00:00:00.000Z"
-              required:
-                - "title"
-                - "body"
-                - "updatedAt"
+              $ref: "#/components/schemas/NewSandBoxItem"
       responses:
         "201":
           description: "作成成功"
           content:
             application/json:
               schema:
-                type: "object"
-                properties:
-                  id:
-                    type: "string"
-                    example: "abc123"
-                  title:
-                    type: "string"
-                    example: "title"
-                  body:
-                    type: "string"
-                    example: "body"
-                  updatedAt:
-                    type: "string"
-                    example: "2025-01-01T00:00:00.000Z"
-                required:
-                  - "id"
-                  - "title"
-                  - "body"
-                  - "updatedAt"
+                $ref: "#/components/schemas/SandBoxItem"
   /sandbox/api/{id}:
     summary: ""
     parameters:
@@ -144,25 +94,7 @@ paths:
           content:
             application/json:
               schema:
-                type: "object"
-                properties:
-                  id:
-                    type: "string"
-                    example: "abc123"
-                  title:
-                    type: "string"
-                    example: "title"
-                  body:
-                    type: "string"
-                    example: "body"
-                  updatedAt:
-                    type: "string"
-                    example: "2025-01-01T00:00:00.000Z"
-                required:
-                  - "id"
-                  - "title"
-                  - "body"
-                  - "updatedAt"
+                $ref: "#/components/schemas/SandBoxItem"
         "404":
           description: "詳細取得失敗"
     put:
@@ -172,46 +104,14 @@ paths:
         content:
           application/json:
             schema:
-              type: "object"
-              properties:
-                title:
-                  type: "string"
-                  example: "title"
-                body:
-                  type: "string"
-                  example: "body"
-                updatedAt:
-                  type: "string"
-                  example: "2025-01-01T00:00:00.000Z"
-              required:
-                - "title"
-                - "body"
-                - "updatedAt"
+              $ref: "#/components/schemas/NewSandBoxItem"
       responses:
         "201":
           description: "詳細更新成功"
           content:
             application/json:
               schema:
-                type: "object"
-                properties:
-                  id:
-                    type: "string"
-                    example: "abc123"
-                  title:
-                    type: "string"
-                    example: "title"
-                  body:
-                    type: "string"
-                    example: "body"
-                  updatedAt:
-                    type: "string"
-                    example: "2025-01-01T00:00:00.000Z"
-                required:
-                  - "id"
-                  - "title"
-                  - "body"
-                  - "updatedAt"
+                $ref: "#/components/schemas/SandBoxItem"
     delete:
       summary: "詳細削除"
       responses:
@@ -220,6 +120,43 @@ paths:
 security:
   - ApiKeyAuth: []
 components:
+  schemas:
+    SandBoxItem:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          example: "abc123"
+        title:
+          type: "string"
+          example: "title"
+        body:
+          type: "string"
+          example: "body"
+        updatedAt:
+          type: "string"
+          example: "2025-01-01T00:00:00.000Z"
+      required:
+        - "id"
+        - "title"
+        - "body"
+        - "updatedAt"
+    NewSandBoxItem:
+      type: "object"
+      properties:
+        title:
+          type: "string"
+          example: "title"
+        body:
+          type: "string"
+          example: "body"
+        updatedAt:
+          type: "string"
+          example: "2025-01-01T00:00:00.000Z"
+      required:
+        - "title"
+        - "body"
+        - "updatedAt"
   securitySchemes:
     ApiKeyAuth:
       type: "apiKey"

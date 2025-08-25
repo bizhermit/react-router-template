@@ -40,6 +40,7 @@ namespace ApiDoc {
     required?: boolean;
     allowEmptyValue?: string;
     deprecated?: boolean;
+    componentName?: string;
   };
 
   interface Value_String extends Value_Base {
