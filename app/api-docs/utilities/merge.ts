@@ -2,18 +2,18 @@ import { clone } from "~/components/objects";
 
 export function extendsValueObjectProps(
   base: ApiDoc.Value_Object,
-  props: ApiDoc.Value_Object["props"],
-  options?: {
+  params: {
     componentName?: string;
+    props: ApiDoc.Value_Object["props"];
   }
 ) {
   const newObject = clone(base);
   newObject.props = {
-    ...props,
+    ...params.props,
     ...newObject.props,
   };
-  if (options?.componentName) {
-    newObject.componentName = options.componentName;
+  if (params.componentName) {
+    newObject.componentName = params.componentName;
   } else {
     delete newObject.componentName;
   }
@@ -22,18 +22,18 @@ export function extendsValueObjectProps(
 
 export function overrideValueObjectProps(
   base: ApiDoc.Value_Object,
-  props: ApiDoc.Value_Object["props"],
-  options?: {
+  params: {
     componentName?: string;
+    props: ApiDoc.Value_Object["props"];
   }
 ) {
   const newObject = clone(base);
   newObject.props = {
     ...newObject.props,
-    ...props,
+    ...params.props,
   };
-  if (options?.componentName) {
-    newObject.componentName = options.componentName;
+  if (params?.componentName) {
+    newObject.componentName = params.componentName;
   } else {
     delete newObject.componentName;
   }

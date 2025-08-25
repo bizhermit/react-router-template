@@ -23,13 +23,14 @@ const newSandboxItem = {
 } satisfies ApiDoc.Value_Object;
 
 const sandboxItem = extendsValueObjectProps(newSandboxItem, {
-  id: {
-    type: "string",
-    required: true,
-    example: "abc123",
-  },
-}, {
   componentName: "SandBoxItem",
+  props: {
+    id: {
+      type: "string",
+      required: true,
+      example: "abc123",
+    },
+  },
 });
 
 export const paths_sandbox = [

@@ -76,16 +76,7 @@ export interface paths {
               page: number;
                             /** @example 100 */
               total: number;
-              items: {
-                                /** @example abc123 */
-                id: string;
-                                /** @example title */
-                title: string;
-                                /** @example body */
-                body: string;
-                                /** @example 2025-01-01T00:00:00.000Z */
-                updatedAt: string;
-              }[];
+              items: components["schemas"]["SandBoxItem"][];
             };
           };
         };
@@ -102,14 +93,7 @@ export interface paths {
       };
       requestBody: {
         content: {
-          "application/json": {
-                        /** @example title */
-            title: string;
-                        /** @example body */
-            body: string;
-                        /** @example 2025-01-01T00:00:00.000Z */
-            updatedAt: string;
-          };
+          "application/json": components["schemas"]["NewSandBoxItem"];
         };
       };
       responses: {
@@ -119,16 +103,7 @@ export interface paths {
             [name: string]: unknown;
           };
           content: {
-            "application/json": {
-                            /** @example abc123 */
-              id: string;
-                            /** @example title */
-              title: string;
-                            /** @example body */
-              body: string;
-                            /** @example 2025-01-01T00:00:00.000Z */
-              updatedAt: string;
-            };
+            "application/json": components["schemas"]["SandBoxItem"];
           };
         };
       };
@@ -166,16 +141,7 @@ export interface paths {
             [name: string]: unknown;
           };
           content: {
-            "application/json": {
-                            /** @example abc123 */
-              id: string;
-                            /** @example title */
-              title: string;
-                            /** @example body */
-              body: string;
-                            /** @example 2025-01-01T00:00:00.000Z */
-              updatedAt: string;
-            };
+            "application/json": components["schemas"]["SandBoxItem"];
           };
         };
                 /** @description 詳細取得失敗 */
@@ -199,14 +165,7 @@ export interface paths {
       };
       requestBody: {
         content: {
-          "application/json": {
-                        /** @example title */
-            title: string;
-                        /** @example body */
-            body: string;
-                        /** @example 2025-01-01T00:00:00.000Z */
-            updatedAt: string;
-          };
+          "application/json": components["schemas"]["NewSandBoxItem"];
         };
       };
       responses: {
@@ -216,16 +175,7 @@ export interface paths {
             [name: string]: unknown;
           };
           content: {
-            "application/json": {
-                            /** @example abc123 */
-              id: string;
-                            /** @example title */
-              title: string;
-                            /** @example body */
-              body: string;
-                            /** @example 2025-01-01T00:00:00.000Z */
-              updatedAt: string;
-            };
+            "application/json": components["schemas"]["SandBoxItem"];
           };
         };
       };
@@ -260,7 +210,26 @@ export interface paths {
 }
 export type webhooks = Record<string, never>;
 export interface components {
-  schemas: never;
+  schemas: {
+    SandBoxItem: {
+            /** @example abc123 */
+      id: string;
+            /** @example title */
+      title: string;
+            /** @example body */
+      body: string;
+            /** @example 2025-01-01T00:00:00.000Z */
+      updatedAt: string;
+    };
+    NewSandBoxItem: {
+            /** @example title */
+      title: string;
+            /** @example body */
+      body: string;
+            /** @example 2025-01-01T00:00:00.000Z */
+      updatedAt: string;
+    };
+  };
   responses: never;
   parameters: never;
   requestBodies: never;
