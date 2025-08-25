@@ -1,3 +1,8 @@
+/**
+ * openapi.yaml変換
+ * @param openapi
+ * @returns
+ */
 export default function (openapi: ApiDoc.Root) {
   const components: Record<string, unknown> = {};
   const ret: Record<string, unknown> = {
@@ -124,6 +129,12 @@ function parsePath(path: ApiDoc.Path, components: Record<string, unknown>) {
   return ret;
 }
 
+/**
+ * paramteres変換
+ * @param parameters
+ * @param components
+ * @returns
+ */
 function parseParameters(parameters: ApiDoc.Parameters, components: Record<string, unknown>) {
   const openApiParrameters: Array<unknown> = [];
   if (parameters.path) {
@@ -169,6 +180,13 @@ function parseParameters(parameters: ApiDoc.Parameters, components: Record<strin
   return openApiParrameters;
 }
 
+/**
+ * operation変換
+ * @param path
+ * @param method
+ * @param components
+ * @returns
+ */
 function parseOperation(path: ApiDoc.Path, method: ApiDoc.Method, components: Record<string, unknown>) {
   const operation = path[method];
   if (!operation) return null;
@@ -231,6 +249,12 @@ function parseOperation(path: ApiDoc.Path, method: ApiDoc.Method, components: Re
   return ret;
 }
 
+/**
+ * schema変換
+ * @param value
+ * @param components
+ * @returns
+ */
 function parseSchemaValue(value: ApiDoc.Value, components: Record<string, unknown>) {
   const ret: Record<string, unknown> = {
     type: value.type,

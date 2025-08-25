@@ -7,7 +7,7 @@ import { pathToFileURL } from "url";
 const require = createRequire(import.meta.url);
 const ts = require("typescript");
 
-// ===== 設定 =====
+// 各ディレクトリ
 const projectRoot = process.cwd();
 const tsconfigPath = path.join(projectRoot, "tsconfig.json");
 const tempDirPath = path.join(projectRoot, ".temp");
@@ -19,6 +19,7 @@ if (!existsSync(targetDirPath)) {
   process.exit(0);
 }
 
+// トンランスパイル対象
 const entryFiles = readdirSync(targetDirPath)
   .map(name => {
     const fullName = path.join(targetDirPath, name);
@@ -34,7 +35,7 @@ if (entryFiles.length === 0) {
   process.exit(0);
 }
 
-// ===== tsconfig 読み込み =====
+// tsconfig
 function loadTsConfig(configPath) {
   if (!existsSync(configPath)) {
     return {
@@ -71,7 +72,7 @@ function loadTsConfig(configPath) {
   parsed.options.noEmitOnError = false; // 型エラーがあっても出力
   parsed.options.rootDir ??= projectRoot;
   parsed.options.sourceMap = false; // sourcemap を無効化（拡張子変換の後処理簡略化）
-  // ESM の import を維持するため ESNext を推奨
+  // ESMのimportを維持するためESNext
   parsed.options.module ??= ts.ModuleKind.ESNext;
   return parsed;
 }
@@ -79,45 +80,39 @@ function loadTsConfig(configPath) {
 const parsedConfig = loadTsConfig(tsconfigPath);
 const compilerOptions = parsedConfig.options;
 
-// .temp を用意（クリーン）
+// .temp作成
 try {
-  rmSync(tempDirPath, { recursive: true, force: true });
+  if (existsSync(tempDirPath)) {
+    rmSync(tempDirPath, { recursive: true, force: true });
+  }
 } catch {
   // ignore
 }
 mkdirSync(tempDirPath, { recursive: true });
 
-// ===== エイリアスを相対パスへ書き換えるトランスフォーマ =====
+// エイリアスを相対パスへ書き換える
 function createAliasToRelativeTransformer(program, options) {
   const host = ts.sys;
   const projectRootNorm = normalizeSlashes(projectRoot);
 
   function resolveModule(spec, containingFile) {
-    // TypeScript の解決を利用（paths/baseUrl/拡張子補完対応）
+    // TypeScriptの解決を利用（paths/baseUrl/拡張子補完対応）
     const res = ts.resolveModuleName(spec, containingFile, options, host);
     return res?.resolvedModule?.resolvedFileName || null;
   }
 
-  function shouldRewrite(spec) {
-    // 既に相対参照なら書き換え不要
-    if (spec.startsWith(".") || spec.startsWith("/")) return false;
-    // パッケージ名（@scope/pkg など）は基本書き換えない
-    if (!spec.includes("/")) return true; // 例えば "utils" などは true にしても解決次第
-    return true;
-  }
-
-  function toOutRelative(fromFile, resolvedFile /* , originalText */) {
-    // 出力は .temp にミラーされるため、相対関係はソースと同じ
+  function toOutRelative(fromFile, resolvedFile) {
+    // 出力は.tempにミラーされるため、相対関係はソースと同じ
     const target = resolvedFile;
 
     // 相対パス算出（index の省略はせず、必ずファイルを指す）
     let rel = path.relative(path.dirname(fromFile), target);
     rel = normalizeSlashes(rel);
 
-    // 先頭に ./ を付与
+    // 先頭に`./`付与
     if (!rel.startsWith(".")) rel = "./" + rel;
 
-    // 常に .js へ置換（.ts/.tsx/.jsx/.js いずれも .mjs に統一）
+    // 常に`.js`へ置換（.ts/.tsx/.jsx/.js いずれも .mjs に統一）
     rel = rel.replace(/\.(ts|tsx|jsx|js)$/, ".mjs");
 
     return rel;
@@ -138,11 +133,11 @@ function createAliasToRelativeTransformer(program, options) {
 
     const spec = lit.text;
 
-    // すべての spec を解決して、プロジェクト内ファイルに解決できたときのみ書き換える
+    // すべてのspecを解決して、プロジェクト内ファイルに解決できたときのみ書き換える
     const resolved = resolveModule(spec, sf.fileName);
     if (!resolved || !isProjectFile(resolved)) return node;
 
-    const nextText = toOutRelative(sf.fileName, resolved /* , spec */);
+    const nextText = toOutRelative(sf.fileName, resolved);
     if (nextText === spec) return node;
 
     const newLiteral = ts.factory.createStringLiteral(nextText);
@@ -153,7 +148,7 @@ function createAliasToRelativeTransformer(program, options) {
         node.modifiers,
         node.importClause,
         newLiteral,
-        // TS 5+ は attributes にリネーム。互換のため両対応。
+        // TS5+はattributesにリネーム。互換のため両対応。
         node.assertClause ?? node.attributes
       );
     }
@@ -213,15 +208,15 @@ function createAliasToRelativeTransformer(program, options) {
   };
 }
 
-// ===== コンパイル =====
+// コンパイル
 function compile(entries, options) {
-  // tsconfig で解決されたファイル一覧から .d.ts を追加して型だけ読み込む
+  // tsconfigで解決されたファイル一覧から`.d.ts`を追加して型だけ読み込む
   const allDts = (parsedConfig.fileNames ?? []).filter(
     f => f.endsWith(".d.ts") && !f.includes("node_modules")
   );
   const rootNames = Array.from(new Set([...entries, ...allDts]));
 
-  // rootNames に entry + d.ts を渡す
+  // rootNamesに`entry`+`d.ts`を渡す
   const program = ts.createProgram({
     rootNames,
     options,
@@ -321,3 +316,12 @@ await Promise.all(docFiles.map(async (name) => {
     { encoding: "utf-8" }
   );
 }));
+
+// .temp削除
+try {
+  if (existsSync(tempDirPath)) {
+    rmSync(tempDirPath, { recursive: true, force: true });
+  }
+} catch {
+  // ignore
+}
