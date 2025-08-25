@@ -11,24 +11,27 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        "MS-CEINTL.vscode-language-pack-ja",
-        "ms-azuretools.vscode-docker",
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "EditorConfig.EditorConfig",
         "eamodio.gitlens",
         "mhutchie.git-graph",
-        "EditorConfig.EditorConfig",
+        "mikestead.dotenv",
         "yzhang.markdown-all-in-one",
         "shd101wyy.markdown-preview-enhanced",
-        "Pivotal.vscode-manifest-yaml",
+        "redhat.vscode-yaml",
         "hediet.vscode-drawio",
+        "tomoki1207.pdf",
+        "ms-azuretools.vscode-docker",
+        "cschlosser.doxdocgen",
         "dbaeumer.vscode-eslint",
         "dsznajder.es7-react-js-snippets",
         "clinyong.vscode-css-modules",
-        "Prisma.prisma",
         "bradlc.vscode-tailwindcss",
         "ms-playwright.playwright",
-        "AndrewButson.vscode-openapi-viewer",
-        "ritwickdey.LiveServer",
-        "jock.svg"
+        "42Crunch.vscode-openapi",
+        "Prisma.prisma",
+        "ritwickdey.LiveServer"
       ],
       "settings": {
         "files.associations": {
