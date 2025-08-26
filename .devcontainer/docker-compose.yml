@@ -1,63 +1,63 @@
-version: '3.8'
+version: "3.8"
 services:
   node:
-    platform: linux/amd64
-    container_name: 'template_node_dev'
+    platform: "linux/amd64"
+    container_name: "template_node_dev"
     build:
-      context: '../'
-      dockerfile: '.devcontainer/docker/node/Dockerfile'
-    image: 'node22-dev'
+      context: "../"
+      dockerfile: ".devcontainer/docker/node/Dockerfile"
+    image: "node22-dev"
     tty: true
     volumes:
-      - '../:/workspace:delegated'
-      - 'template_node_dev_node_modules:/workspace/node_modules'
-      - 'template_node_dev_react-router:/workspace/.react-router'
-      - 'template_node_dev_playwright:/workspace/.playwright'
+      - "../:/workspace:delegated"
+      - "template_node_dev_node_modules:/workspace/node_modules"
+      - "template_node_dev_react-router:/workspace/.react-router"
+      - "template_node_dev_playwright:/workspace/.playwright"
     extra_hosts:
-      - 'host.docker.internal:host-gateway'
+      - "host.docker.internal:host-gateway"
     env_file:
-      - path: './.env'
+      - path: "./.env"
         required: false
     environment:
-      - 'TZ=${TZ:-UTC}'
-      - 'LOCALHOST=${LOCALHOST:-host.docker.internal}'
-      - 'DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@postgres:${POSTGRES_PORT:-5432}/${POSTGRES_DB:-template}'
-    command: bash -c 'sh /workspace/.devcontainer/postCreatedCommand.sh && npm i && npm run migrate && npm run dev && bash'
+      - "TZ=${TZ:-UTC}"
+      - "LOCALHOST=${LOCALHOST:-host.docker.internal}"
+      - "DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@postgres:${POSTGRES_PORT:-5432}/${POSTGRES_DB:-template}"
+    command: "bash -c 'sh /workspace/.devcontainer/postCreatedCommand.sh && npm i && npm run migrate && npm run dev && bash'"
     networks:
-      - template_dev
+      - "template_dev"
     depends_on:
-      - postgres
+      - "postgres"
   postgres:
-    container_name: 'template_postgres_dev'
+    container_name: "template_postgres_dev"
     image: postgres:17-bookworm
     restart: always
     volumes:
-      - 'template_postgres_dev:/var/lib/postgresql/data'
-      - '../database/postgres/init:/docker-entrypoint-initdb.d'
+      - "template_postgres_dev:/var/lib/postgresql/data"
+      - "../database/postgres/init:/docker-entrypoint-initdb.d"
     env_file:
-      - path: './.env'
+      - path: "./.env"
         required: false
     environment:
-      - 'TZ=${TZ:-UTC}'
-      - 'POSTGRES_USER=${POSTGRES_USER:-postgres}'
-      - 'POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password}'
-      - 'POSTGRES_DB=${POSTGRES_DB:-template}'
-      - 'POSTGRES_PORT=${POSTGRES_PORT:-5432}'
+      - "TZ=${TZ:-UTC}"
+      - "POSTGRES_USER=${POSTGRES_USER:-postgres}"
+      - "POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password}"
+      - "POSTGRES_DB=${POSTGRES_DB:-template}"
+      - "POSTGRES_PORT=${POSTGRES_PORT:-5432}"
     # ports: # 外部ツールから接続する場合はコメントアウトを外す
-    #   - '${POSTGRES_PORT:-5432}:${POSTGRES_PORT:-5432}'
+    #   - "${POSTGRES_PORT:-5432}:${POSTGRES_PORT:-5432}"
     command: >
       postgres
-      -c log_destination=stderr
-      -c log_min_messages=${POSTGRES_LOG_LEVEL:-WARNING}
-      -c log_connections=on
-      -c log_disconnections=on
-      -c log_statement=all
+      -c "log_destination=stderr"
+      -c "log_min_messages=${POSTGRES_LOG_LEVEL:-WARNING}"
+      -c "log_connections=on"
+      -c "log_disconnections=on"
+      -c "log_statement=all"
     networks:
-      - template_dev
+      - "template_dev"
 networks:
   template_dev:
-    name: template_dev
-    driver: bridge
+    name: "template_dev"
+    driver: "bridge"
 volumes:
   template_node_dev_node_modules:
   template_node_dev_react-router:

@@ -1,73 +1,74 @@
-version: '3.8'
+version: "3.8"
 services:
   node:
-    container_name: 'template_node'
+    platform: "linux/amd64"
+    container_name: "template_node"
     build:
-      context: '../'
-      dockerfile: '.container/docker/node/Dockerfile'
-    image: 'template_node'
+      context: "../"
+      dockerfile: ".container/docker/node/Dockerfile"
+    image: "template_node"
     tty: true
     extra_hosts:
-      - 'host.docker.internal:host-gateway'
+      - "host.docker.internal:host-gateway"
     env_file:
-      - path: './.env'
+      - path: "./.env"
         required: false
     environment:
-      - 'TZ=${TZ:-UTC}'
-      - 'LOCALHOST=${LOCALHOST:-host.docker.internal}'
-      - 'PORT=${PORT:-3000}'
-      - 'DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@postgres:${POSTGRES_PORT:-5432}/${POSTGRES_DB:-template}'
-      - 'WAITFOR=postgres:${POSTGRES_PORT:-5432}'
+      - "TZ=${TZ:-UTC}"
+      - "LOCALHOST=${LOCALHOST:-host.docker.internal}"
+      - "PORT=${PORT:-3000}"
+      - "DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@postgres:${POSTGRES_PORT:-5432}/${POSTGRES_DB:-template}"
+      - "WAITFOR=postgres:${POSTGRES_PORT:-5432}"
     ports:
-      - '${PORT:-3000}:${PORT:-3000}'
+      - "${PORT:-3000}:${PORT:-3000}"
     networks:
-      - template
+      - "template"
     depends_on:
-      - postgres
+      - "postgres"
   postgres:
-    container_name: 'template_postgres'
-    image: postgres:17-bookworm
-    restart: always
-    user: postgres
+    container_name: "template_postgres"
+    image: "postgres:17-bookworm"
+    restart: "always"
+    user: "postgres"
     volumes:
-      - 'template_postgres:/var/lib/postgresql/data'
-      - '../database/postgres/init:/docker-entrypoint-initdb.d'
+      - "template_postgres:/var/lib/postgresql/data"
+      - "../database/postgres/init:/docker-entrypoint-initdb.d"
     env_file:
-      - path: './.env'
+      - path: "./.env"
         required: false
     environment:
-      - 'TZ=${TZ:-UTC}'
-      - 'POSTGRES_USER=${POSTGRES_USER:-postgres}'
-      - 'POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password}'
-      - 'POSTGRES_DB=${POSTGRES_DB:-template}'
-      - 'POSTGRES_PORT=${POSTGRES_PORT:-5432}'
+      - "TZ=${TZ:-UTC}"
+      - "POSTGRES_USER=${POSTGRES_USER:-postgres}"
+      - "POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password}"
+      - "POSTGRES_DB=${POSTGRES_DB:-template}"
+      - "POSTGRES_PORT=${POSTGRES_PORT:-5432}"
     healthcheck:
-      test: [ 'CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-postgres}' ]
-      interval: 30s
-      timeout: 5s
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}" ]
+      interval: "30s"
+      timeout: "5s"
       retries: 3
     security_opt:
-      - no-new-privileges:true
+      - "no-new-privileges:true"
     cap_drop:
-      - ALL
+      - "ALL"
     cap_add:
-      - CHOWN
-      - DAC_OVERRIDE
-      - FOWNER
-      - SETGID
-      - SETUID
+      - "CHOWN"
+      - "DAC_OVERRIDE"
+      - "FOWNER"
+      - "SETGID"
+      - "SETUID"
     command: >
       postgres
-      -c log_destination=stderr
-      -c log_min_messages=${POSTGRES_LOG_LEVEL:-FATAL}
-      -c log_connections=off
-      -c log_disconnections=off
-      -c log_statement=none
+      -c "log_destination=stderr"
+      -c "log_min_messages=${POSTGRES_LOG_LEVEL:-FATAL}"
+      -c "log_connections=off"
+      -c "log_disconnections=off"
+      -c "log_statement=none"
     networks:
-      - template
+      - "template"
 networks:
   template:
-    name: template
-    driver: bridge
+    name: "template"
+    driver: "bridge"
 volumes:
   template_postgres:
