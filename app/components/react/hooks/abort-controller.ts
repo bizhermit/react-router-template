@@ -80,6 +80,7 @@ export function useAbortController(options?: Options) {
   useEffect(() => {
     return () => {
       if (options?.preventAbortOnUnmount) return;
+      if (!controller.current) return;
       abort("unmount");
     };
   }, []);

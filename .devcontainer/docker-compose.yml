@@ -1,6 +1,6 @@
 version: "3.8"
 services:
-  node:
+  template-server:
     platform: "linux/amd64"
     container_name: "template_node_dev"
     build:
@@ -10,9 +10,9 @@ services:
     tty: true
     volumes:
       - "../:/workspace:delegated"
-      - "template_node_dev_node_modules:/workspace/node_modules"
-      - "template_node_dev_react-router:/workspace/.react-router"
-      - "template_node_dev_playwright:/workspace/.playwright"
+      - "template_dev_node_modules:/workspace/node_modules"
+      - "template_dev_react-router:/workspace/.react-router"
+      - "template_dev_playwright:/workspace/.playwright"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     env_file:
@@ -21,18 +21,18 @@ services:
     environment:
       - "TZ=${TZ:-UTC}"
       - "LOCALHOST=${LOCALHOST:-host.docker.internal}"
-      - "DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@postgres:${POSTGRES_PORT:-5432}/${POSTGRES_DB:-template}"
+      - "DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@template-database:${POSTGRES_PORT:-5432}/${POSTGRES_DB:-template}"
     command: "bash -c 'sh /workspace/.devcontainer/postCreatedCommand.sh && npm i && npm run migrate && npm run dev && bash'"
     networks:
       - "template_dev"
     depends_on:
-      - "postgres"
-  postgres:
+      - "template-database"
+  template-database:
     container_name: "template_postgres_dev"
     image: postgres:17-bookworm
     restart: always
     volumes:
-      - "template_postgres_dev:/var/lib/postgresql/data"
+      - "template_dev_postgres:/var/lib/postgresql/data"
       - "../database/postgres/init:/docker-entrypoint-initdb.d"
     env_file:
       - path: "./.env"
@@ -59,7 +59,7 @@ networks:
     name: "template_dev"
     driver: "bridge"
 volumes:
-  template_node_dev_node_modules:
-  template_node_dev_react-router:
-  template_node_dev_playwright:
-  template_postgres_dev:
+  template_dev_node_modules:
+  template_dev_react-router:
+  template_dev_playwright:
+  template_dev_postgres:

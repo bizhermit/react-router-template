@@ -1,7 +1,7 @@
 {
   "name": "template",
   "dockerComposeFile": "docker-compose.yml",
-  "service": "node",
+  "service": "template-server",
   "workspaceFolder": "/workspace",
   "initializeCommand": "bash ./.devcontainer/initializeCommand.sh",
   "postCreateCommand": "bash ./.devcontainer/postCreatedCommand.sh",
