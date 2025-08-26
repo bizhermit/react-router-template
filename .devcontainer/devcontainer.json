@@ -4,7 +4,7 @@
   "service": "template-server",
   "workspaceFolder": "/workspace",
   "initializeCommand": "bash ./.devcontainer/initializeCommand.sh",
-  "postCreateCommand": "bash ./.devcontainer/postCreatedCommand.sh",
+  "postCreateCommand": "bash ./.devcontainer/postCreateCommand.sh",
   "postStartCommand": "bash ./.devcontainer/postStartCommand.sh",
   "overrideCommand": true,
   "remoteUser": "node",
