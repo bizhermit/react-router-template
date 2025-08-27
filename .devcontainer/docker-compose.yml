@@ -22,7 +22,6 @@ services:
       - "LOCALHOST=${LOCALHOST:-host.docker.internal}"
       - "TZ=${TZ:-UTC}"
       - "DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-template}"
-    command: "bash -c 'sh /workspace/.devcontainer/postCreatedCommand.sh && npm i && npm run migrate && npm run dev && bash'"
     networks:
       - "template-dev"
     depends_on:
