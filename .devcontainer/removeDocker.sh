@@ -22,3 +22,12 @@ echo "Stopping and removing containers, networks, and volumes defined in the com
 docker-compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" down -v
 
 echo "Cleanup completed."
+
+# dockerの不要データをクリーンアップ
+echo "docker prune start."
+
+docker container prune -f
+docker volume prune -f
+docker image prune -f
+
+echo "docker prune completed."
