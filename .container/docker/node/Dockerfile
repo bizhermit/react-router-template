@@ -22,7 +22,7 @@ FROM node:22-bookworm-slim AS runner
 WORKDIR /app
 
 RUN apt-get update -y \
-  && apt-get upgrade -y \
+  # && apt-get upgrade -y \
   && apt-get install -y --no-install-recommends openssl \
   && apt-get -y clean \
   && rm -rf /var/lib/apt/lists/*
