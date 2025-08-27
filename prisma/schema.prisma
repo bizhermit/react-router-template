@@ -17,11 +17,11 @@ datasource db {
 //   created_at DateTime @default(now())
 //   updated_at DateTime @updatedAt
 //   last_login DateTime?
-//   
+//
 //   // セキュリティ関連フィールド
 //   login_attempts Int     @default(0)
 //   locked_until   DateTime?
-//   
+//
 //   @@index([email])
 //   @@index([state])
 // }

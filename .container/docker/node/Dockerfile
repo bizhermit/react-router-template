@@ -8,7 +8,14 @@ COPY . .
 
 RUN npm run build
 
-RUN rm -rf .devcontainer scripts .react-router node_modules
+RUN rm -rf \
+  .vscode \
+  .devcontainer \
+  scripts \
+  playwright \
+  app \
+  .react-router \
+  node_modules
 
 FROM node:22-bookworm-slim AS runner
 

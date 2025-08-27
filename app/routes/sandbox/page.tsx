@@ -1376,7 +1376,7 @@ function FetchComponent() {
               try {
                 const res = await internalApi.get("/sandbox/api/{id}", {
                   path: {
-                    id: 1,
+                    id: "1",
                   },
                 });
                 console.log(res);
@@ -1387,7 +1387,7 @@ function FetchComponent() {
                 if (res.status === 200) {
                   res.data;
                 } else {
-                  res.data;
+                  // res.data
                 }
               } catch (e) {
                 console.error(e);
@@ -1405,6 +1405,7 @@ function FetchComponent() {
                   body: {
                     title: "sample title",
                     body: "sample body",
+                    updatedAt: "",
                   },
                 });
                 console.log(res);
@@ -1422,13 +1423,12 @@ function FetchComponent() {
               try {
                 const res = await internalApi.put("/sandbox/api/{id}", {
                   path: {
-                    id: 1,
+                    id: "1",
                   },
                   body: {
                     title: "sample",
                     body: "sample",
-                    updated_at: "2025-11-11T11:11:11.111",
-                    id: 1,
+                    updatedAt: "2025-11-11T11:11:11.111",
                   },
                 });
                 console.log(res);
@@ -1446,7 +1446,7 @@ function FetchComponent() {
               try {
                 const res = await internalApi.delete("/sandbox/api/{id}", {
                   path: {
-                    id: 1,
+                    id: "1",
                   },
                 });
                 console.log(res);

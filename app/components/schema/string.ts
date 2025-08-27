@@ -146,7 +146,7 @@ function STRING_PARSER({ value }: Schema.ParserParams): Schema.ParserResult<stri
 export function $str<Props extends Schema.StringProps>(props?: Props) {
   const validators: Array<Schema.Validator<string>> = [];
 
-  const actionType = props?.actionType ?? (props?.source ? "select" : "input");
+  const actionType = props?.actionType ?? (props?.source && props.sourceValidation !== false ? "select" : "input");
   const [required, getRequiredMessage] = getValidationArray(props?.required);
   const [length, getLengthMessage] = getValidationArray(props?.len);
   const [minLength, getMinLengthMessage] = getValidationArray(props?.min);

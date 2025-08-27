@@ -14,6 +14,12 @@
       "command": "bash scripts/git-merge-default-branch.sh"
     },
     {
+      "label": "[devcontainer] remove container&volumes",
+      "group": "none",
+      "type": "shell",
+      "command": "bash .devcontainer/removeDocker.sh"
+    },
+    {
       "label": "Start WebApp(dev)",
       "group": "none",
       "type": "shell",
