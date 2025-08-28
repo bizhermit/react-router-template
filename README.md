@@ -137,7 +137,7 @@ npm run format
 
 ```bash
 # 依存関係のインストール
-bash ./.devcontainer/initialize-playwright.sh
+bash ./.devcontainer/initializePlaywright.sh
 ```
 
 ```bash
