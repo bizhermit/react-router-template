@@ -115,6 +115,16 @@ async function requestBodyStringfy(params: Record<string, unknown> | null | unde
 export function generateApiAccessor<ApiPaths>(options?: {
   baseUrl?: string;
   headers?: Record<string, string>;
+  interceptors?: {
+    fetchAfter?: (params: {
+      ok: boolean;
+      status: number;
+      statusText: string;
+      url: string;
+      response: Response;
+      data: Record<string, unknown> | undefined;
+    }) => void;
+  };
 }) {
   const baseUrl = (options?.baseUrl || "").replace(/\/+$/, "").replace(/\\/g, "/");
 
@@ -142,7 +152,8 @@ export function generateApiAccessor<ApiPaths>(options?: {
     method: M,
     params?: Api.Params<ApiPaths, P, M> | undefined
   ) {
-    const res = await fetch(`${baseUrl}${createUrl(path as string, params as Record<string, Record<string, unknown>>)}`, {
+    const url = createUrl(path as string, params as Record<string, Record<string, unknown>>);
+    const res = await fetch(`${baseUrl}${url}`, {
       method,
       body: await requestBodyStringfy(params?.body),
       headers: {
@@ -151,7 +162,16 @@ export function generateApiAccessor<ApiPaths>(options?: {
         ...params?.header,
       } as Record<string, string>,
     });
-    return responseParser<P, M>(res);
+    const parsed = await responseParser<P, M>(res);
+    options?.interceptors?.fetchAfter?.({
+      ok: res.ok,
+      status: res.status,
+      statusText: res.statusText,
+      url: url,
+      response: res,
+      data: (parsed as unknown as { data: Record<string, unknown>; }).data,
+    });
+    return parsed;
   };
 
   return {
@@ -159,14 +179,24 @@ export function generateApiAccessor<ApiPaths>(options?: {
       path: P,
       params?: Api.Params<ApiPaths, P, "get">,
     ) {
-      const res = await fetch(`${baseUrl}${createUrl(path as string, params as Record<string, Record<string, unknown>>)}`, {
+      const url = createUrl(path as string, params as Record<string, Record<string, unknown>>);
+      const res = await fetch(`${baseUrl}${url}`, {
         method: "get",
         headers: {
           ...options?.headers,
           ...params?.header,
         } as Record<string, string>,
       });
-      return responseParser<P, "get">(res);
+      const parsed = await responseParser<P, "get">(res);
+      options?.interceptors?.fetchAfter?.({
+        ok: res.ok,
+        status: res.status,
+        statusText: res.statusText,
+        url: url,
+        response: res,
+        data: (parsed as unknown as { data: Record<string, unknown>; }).data,
+      });
+      return parsed;
     },
     post: async function <P extends Api.PostPath<ApiPaths>>(
       path: P,
