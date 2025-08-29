@@ -19,9 +19,9 @@ export async function action({ request }: Route.ActionArgs) {
   const body = await request.json();
   console.log(body);
   return data({
-    id: 1,
+    id: "1",
     title: "sample",
     body: "sample body",
-    updated_at: "2025-11-11T11:11:11.111",
+    updatedAt: "2025-11-11T11:11:11.111",
   } satisfies Post);
 };

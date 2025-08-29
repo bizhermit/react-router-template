@@ -8,9 +8,10 @@ type Put = Api.SuccessResponse<InternalApiPaths, "/sandbox/api/{id}", "put">["da
 export async function loader({ request, params }: Route.LoaderArgs) {
   console.log("api-detail loader", request.url, params, Array.from(request.headers.entries()));
   return data({
-    id: 1,
+    id: "1",
     title: "sample",
     body: "sample body",
+    updatedAt: "2025-11-11T11:11:11.111",
   } satisfies Get);
 };
 
@@ -21,10 +22,10 @@ export async function action({ request, params }: Route.ActionArgs) {
   switch (request.method.toLowerCase()) {
     case "put":
       return data({
-        id: 1,
+        id: "1",
         title: "sample",
         body: "sample body",
-        updated_at: "2025-11-11T11:11:11.111",
+        updatedAt: "2025-11-11T11:11:11.111",
       } satisfies Put);
     case "delete":
       return data({}, { status: 204 });

@@ -2,8 +2,9 @@ namespace Api {
 
   type Method =
     | "get"
-    | "put"
     | "post"
+    | "put"
+    | "patch"
     | "delete"
     ;
 
@@ -16,6 +17,7 @@ namespace Api {
   type GetPath<OpenApi> = MethodPaths<OpenApi, "get">;
   type PostPath<OpenApi> = MethodPaths<OpenApi, "post">;
   type PutPath<OpenApi> = MethodPaths<OpenApi, "put">;
+  type PatchPath<OpenApi> = MethodPaths<OpenApi, "patch">;
   type DeletePath<OpenApi> = MethodPaths<OpenApi, "delete">;
   type Path<OpenApi> = keyof OpenApi;
 

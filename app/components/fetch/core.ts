@@ -180,6 +180,12 @@ export function generateApiAccessor<ApiPaths>(options?: {
     ) {
       return post(path, "put", params);
     },
+    patch: async function <P extends Api.PatchPath<ApiPaths>>(
+      path: P,
+      params?: Api.Params<ApiPaths, P, "patch">,
+    ) {
+      return post(path, "patch", params);
+    },
     delete: async function <P extends Api.DeletePath<ApiPaths>>(
       path: P,
       params?: Api.Params<ApiPaths, P, "delete">,
