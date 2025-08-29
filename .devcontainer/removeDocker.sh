@@ -31,5 +31,6 @@ docker network prune -f
 docker volume prune -f
 docker image prune -a -f
 docker builder prune -a -f
+# docker system prune -a --volumes -f
 
 echo "docker prune completed."
