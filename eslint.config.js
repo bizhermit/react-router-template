@@ -176,7 +176,7 @@ export default tseslint.config({
       },
     ],
     "@stylistic/quote-props": "warn",
-    // Typescript
+    // TypeScript
     "@typescript-eslint/no-empty-object-type": "off",
     "no-unused-expressions": "off",
     "@typescript-eslint/no-unused-expressions": [

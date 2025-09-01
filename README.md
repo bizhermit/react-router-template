@@ -3,7 +3,7 @@
 ## 環境
 
 - Node.js v22
-- Typescript v5
+- TypeScript v5
 - React v19
 - ReactRouter v7
 - TailwindCSS v4
@@ -32,6 +32,8 @@
 ## 環境変数
 
 ### コンテナ用
+
+`./.devcontainer/.env.example`を参考に、`./.devcontainer/.env`を作成してください。
 
 #### 設定値
 
@@ -113,19 +115,25 @@ npm run prisma
 npm run migrate
 ```
 
-### 言語ファイルからTypescriptの型情報を生成
+### 言語ファイルからTypeScriptの型情報を生成
 
 ```bash
 npm run generate-i18n-types
 ```
 
-### Typescript型チェック
+### OpenAPIからTypeScriptの型情報を作成
+
+```bash
+npm run generate-openapi-types
+```
+
+### TypeScript型チェック
 
 ```bash
 npm run typecheck
 ```
 
-### Typescript自動フォーマット
+### TypeScript自動フォーマット
 
 ```bash
 npm run format
@@ -159,11 +167,9 @@ npm run playwright
 npm run test
 ```
 
-※ 各画面のスクリーンショットが、`./.playwright/screenshot/`に保存されます。  
-
 ### 本番起動
 
-docker-compose起動時のlocalおよびmode環境変数ファイルを取り込むため、dockerコマンドではなくシェルスクリプトを使用してください。
+`./.container/.env.example`を参考に、`./.container/.env`を作成してください。
 
 ```bash
 bash docker-compose.sh up
@@ -174,13 +180,18 @@ bash docker-compose.sh up --build
 
 #### シェルスクリプトから実行しない場合
 
-`./.container/.env`と.`./.env*`を適切に設定してください。  
+```bash
+# 1. カレントディレクトリの移動
+cd ./.container
 
-- `./.container/.env`：`docker-compose.yml`および実行コンテナ内に展開する環境変数
-- `./.env*`：Webアプリケーションビルド時に使用する環境変数
+# 2. 実行
+docker compose up
+```
 
 ## 開発規約
 
 - [コーディング規約](./docs/codingStandards.md)
 
 ## ブランチ運用
+
+<!-- TODO -->
