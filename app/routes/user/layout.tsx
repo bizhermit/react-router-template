@@ -9,6 +9,7 @@ import type { Route } from "./+types/layout";
 
 export async function loader({ request, context }: Route.LoaderArgs) {
   const session = await getAuthSession({ request, context });
+  console.log("user/layout session:", session);
 
   if (session == null) {
     const url = new URL(request.url);
