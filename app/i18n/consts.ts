@@ -8,3 +8,5 @@ export const SUPPORTED_LOCALES = [
 export const LOCALE_KEY = "lang";
 
 export const I18N_PROP_NAME = "__i18n__";
+
+export const I18N_PATHNAME = "/public/locales";

@@ -4,7 +4,7 @@ import { AuthContext } from "./context";
 interface Props {
   children: ReactNode;
   csrfToken: string | undefined;
-  session: import("@auth/core/types").Session | null;
+  session: import("@auth/core/types").Session["data"] | null;
 }
 
 export function AuthProvider({ children, csrfToken, session }: Props) {

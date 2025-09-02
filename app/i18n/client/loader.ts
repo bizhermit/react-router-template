@@ -1,4 +1,4 @@
-import { DEFAULT_LOCALE, I18N_PROP_NAME, LOCALE_KEY, SUPPORTED_LOCALES } from "../consts";
+import { DEFAULT_LOCALE, I18N_PATHNAME, I18N_PROP_NAME, LOCALE_KEY, SUPPORTED_LOCALES } from "../consts";
 
 declare global {
   interface Window {
@@ -22,8 +22,8 @@ export async function loadI18nAsClient(): Promise<{
   const locale = await findLocaleAsClient();
   const resource = await (await (() => {
     switch (locale) {
-      case "en": return fetch("/public/locales/en.json");
-      default: return fetch("/public/locales/ja.json");
+      case "en": return fetch(`${I18N_PATHNAME}/en.json`);
+      default: return fetch(`${I18N_PATHNAME}/ja.json`);
     }
   })()).json();
   return {
