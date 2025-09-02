@@ -1,9 +1,19 @@
+import { AUTH_COOKIE_NAMES, SIGN_IN_PATHNAME } from "../consts";
 import { getCsrfToken } from "./csrf-token";
 import { fetchAuth } from "./fetch-auth";
 import { getSession } from "./session";
 
 export async function signOut(request: Request) {
   const { session } = await getSession(request);
+  if (session == null) {
+    // NOTE: セッションが無い場合は成功で返却
+    return {
+      ok: true,
+      cookies: [`${AUTH_COOKIE_NAMES.session}=; Max-Age=0`],
+      location: SIGN_IN_PATHNAME,
+    } as const;
+  }
+
   const res = await fetchAuth({
     request,
     action: "signout",
@@ -15,6 +25,7 @@ export async function signOut(request: Request) {
   if (!removeSessionCookie) {
     return {
       ok: false as const,
+      cookies: [],
       location,
     } as const;
   }
