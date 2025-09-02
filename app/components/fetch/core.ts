@@ -154,7 +154,7 @@ export function generateApiAccessor<ApiPaths>(options?: {
   ) {
     const url = createUrl(path as string, params as Record<string, Record<string, unknown>>);
     const res = await fetch(`${baseUrl}${url}`, {
-      method,
+      method: method.toUpperCase(),
       body: await requestBodyStringfy(params?.body),
       headers: {
         "Content-Type": "application/json",
@@ -181,7 +181,7 @@ export function generateApiAccessor<ApiPaths>(options?: {
     ) {
       const url = createUrl(path as string, params as Record<string, Record<string, unknown>>);
       const res = await fetch(`${baseUrl}${url}`, {
-        method: "get",
+        method: "GET",
         headers: {
           ...options?.headers,
           ...params?.header,
