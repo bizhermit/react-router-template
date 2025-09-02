@@ -3,7 +3,7 @@ import { fetchAuth } from "./fetch-auth";
 import { getSession } from "./session";
 
 export async function signOut(request: Request) {
-  const session = await getSession(request);
+  const { session } = await getSession(request);
   const res = await fetchAuth({
     request,
     action: "signout",
@@ -23,7 +23,7 @@ export async function signOut(request: Request) {
 
   return {
     ok: true as const,
-    cookies: [removeSessionCookie, csrfRes.cookie],
+    cookies: [removeSessionCookie, csrfRes.csrfTokenCookie],
     location,
   } as const;
 };

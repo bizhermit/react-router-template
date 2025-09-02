@@ -11,17 +11,18 @@ export async function getCsrfToken(request: Request, create?: boolean) {
   });
   if (res?.ok) {
     const data = await res.json();
-    const cookie = res.headers.get("set-cookie");
-    const csrfTokenWithHash = cookie?.split(";")[0].split("=")[1];
+    const csrfTokenCookie = res.headers.get("set-cookie");
+    const csrfTokenWithHash = csrfTokenCookie?.split(";")[0].split("=")[1];
 
     return {
       csrfToken: data.csrfToken as string,
-      cookie,
+      csrfTokenCookie,
       csrfTokenWithHash,
-    };
+    } as const;
   }
   return {
     csrfToken: undefined,
-    cookie: undefined,
-  };
+    csrfTokenCookie: undefined,
+    csrfTokenWithHash: undefined,
+  } as const;
 };

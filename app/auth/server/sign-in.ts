@@ -4,7 +4,7 @@ import { fetchAuth } from "./fetch-auth";
 import { getSession, updateSession } from "./session";
 
 export async function signIn_credentials(request: Request) {
-  const session = await getSession(request);
+  const { session } = await getSession(request);
   const res = await fetchAuth({
     request,
     action: "callback/credentials",
@@ -45,14 +45,15 @@ export async function signIn_credentials(request: Request) {
       },
     });
 
+    let csrfTokenCookie = newCsrf.csrfTokenCookie;
     if (updateRes.ok) {
       sessionCookie = updateRes.cookie;
-      newCsrf.cookie = removeCsrfTokenCookie; // NOTE: cookieからcsrfTokenは削除し、セッション内で管理する
+      csrfTokenCookie = removeCsrfTokenCookie; // NOTE: cookieからcsrfTokenは削除し、セッション内で管理する
     }
 
     return {
       ok: true as const,
-      cookies: [sessionCookie, newCsrf.cookie],
+      cookies: [sessionCookie, csrfTokenCookie],
       location,
       csrfToken: newCsrf.csrfToken,
       csrfTokenWithHash: newCsrf.csrfTokenWithHash,

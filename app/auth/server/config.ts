@@ -13,8 +13,8 @@ export const authConfig = {
   trustHost: true,
   session: {
     strategy: "jwt",
-    updateAge: 60 * 60 * 1, // 1 hours
-    maxAge: 60 * 60 * 24 * 1, // 1 day
+    updateAge: 30, // sec
+    maxAge: 60 * 1, // sec
   },
   pages: {
     signIn: SIGN_IN_PATHNAME,

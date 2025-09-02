@@ -43,8 +43,9 @@ type AuthPayloadProps = {
 
 type AuthLoaderContext = {
   csrfToken: string | undefined;
-  cookie: string | null | undefined;
+  csrfTokenCookie: string | null | undefined;
   session: _AuthSession | null;
+  sessionCookie: string | null | undefined;
 };
 
 type _ReactRouterAppLoadContext = import("react-router").AppLoadContext;

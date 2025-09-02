@@ -1,23 +1,26 @@
+import type { AuthLoaderContext } from "../types";
 import { removeCsrfTokenCookie } from "./config";
 import { getCsrfToken } from "./csrf-token";
 import { getSession } from "./session";
 
 export async function getAuthPayload(request: Request) {
-  const session = await getSession(request);
+  const { session, sessionCookie } = await getSession(request);
   if (session) {
     return {
       csrfToken: session.csrfToken,
-      cookie: removeCsrfTokenCookie,
+      csrfTokenCookie: removeCsrfTokenCookie,
       session,
-    } as const;
+      sessionCookie,
+    } as const satisfies AuthLoaderContext;
   }
 
-  const csrfToken = await getCsrfToken(request);
+  const { csrfToken, csrfTokenCookie } = await getCsrfToken(request);
   return {
-    csrfToken: csrfToken.csrfToken,
-    cookie: csrfToken.cookie,
+    csrfToken,
+    csrfTokenCookie,
     session,
-  } as const;
+    sessionCookie: null,
+  } as const satisfies AuthLoaderContext;
 };
 
 export async function getAuth(props: {
@@ -40,5 +43,6 @@ export async function getAuthSession(props: {
     const { session } = await props.context.auth;
     return session;
   }
-  return await getSession(props.request);
+  const { session } = await getSession(props.request);
+  return session;
 }

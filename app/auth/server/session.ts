@@ -8,9 +8,15 @@ export async function getSession(request: Request) {
 
   if (res?.ok) {
     const session = await res.json();
-    return session as import("@auth/core/types").Session;
+    return {
+      session: session as import("@auth/core/types").Session,
+      sessionCookie: res.headers.get("set-cookie"),
+    } as const;
   }
-  return null;
+  return {
+    session: null,
+    sessionCookie: null,
+  } as const;
 };
 
 export async function updateSession(params: {

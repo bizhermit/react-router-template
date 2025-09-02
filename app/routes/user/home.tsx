@@ -16,15 +16,17 @@ import type { Route } from "./+types/home";
 
 const schema = $schema({});
 
-export const action = actionWithAuth<Route.ActionArgs>(async ({ request, session }) => {
-  console.log("- User Home action", session);
+export const action = actionWithAuth<Route.ActionArgs>(async ({ request, session, headers }) => {
+  // console.log("- User Home action", session);
   const submission = await getPayload({
     request,
     schema,
     session,
   });
-  console.log(submission.results);
-  return data({});
+  // console.log(submission.results);
+  return data({}, {
+    // headers,
+  });
 });
 
 export default function Page() {
