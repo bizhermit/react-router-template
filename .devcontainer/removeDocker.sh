@@ -26,7 +26,7 @@ echo "Cleanup completed."
 # dockerの不要データをクリーンアップ
 echo "docker prune start."
 
-docker container prune -f
+# docker container prune -f # コンテナは削除しない
 docker network prune -f
 docker volume prune -f
 docker image prune -a -f
