@@ -1,6 +1,7 @@
 import { getObjectType } from "~/components/objects";
 import { formatDate } from "~/components/objects/date";
 import { convertBlobToFile, convertFileToBase64 } from "~/components/objects/file";
+import { trimStruct } from "../schema/struct";
 
 function replacePathParams(
   path: string,
@@ -156,11 +157,11 @@ export function generateApiAccessor<ApiPaths>(options?: {
     const res = await fetch(`${baseUrl}${url}`, {
       method: method.toUpperCase(),
       body: await requestBodyStringfy(params?.body),
-      headers: {
+      headers: trimStruct<Record<string, string>>({
         "Content-Type": "application/json",
         ...options?.headers,
         ...params?.header,
-      } as Record<string, string>,
+      }),
     });
     const parsed = await responseParser<P, M>(res);
     options?.interceptors?.fetchAfter?.({
@@ -182,10 +183,10 @@ export function generateApiAccessor<ApiPaths>(options?: {
       const url = createUrl(path as string, params as Record<string, Record<string, unknown>>);
       const res = await fetch(`${baseUrl}${url}`, {
         method: "GET",
-        headers: {
+        headers: trimStruct<Record<string, string>>({
           ...options?.headers,
           ...params?.header,
-        } as Record<string, string>,
+        }),
       });
       const parsed = await responseParser<P, "get">(res);
       options?.interceptors?.fetchAfter?.({

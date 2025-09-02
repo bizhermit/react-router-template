@@ -63,3 +63,15 @@ export function $struct<Props extends Schema.StructProps>(props: Props) {
     required: required as Schema.GetValidationValue<Props, "required">,
   } as const satisfies Schema.$Struct<Props["props"]>;
 };
+
+export function trimStruct<T extends Record<string, unknown> = Record<string, unknown>>(
+  struct: Record<string, unknown> | null | undefined
+) {
+  const ret: Record<string, unknown> = {};
+  if (!struct) return ret as T;
+  Object.entries(struct).forEach(([k, v]) => {
+    if (v == null) return;
+    ret[k] = v;
+  });
+  return ret as T;
+};
