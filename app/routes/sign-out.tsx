@@ -16,10 +16,13 @@ export async function loader({ request }: Route.LoaderArgs) {
 export async function action({ request }: Route.ActionArgs) {
   const res = await signOut(request);
   if (!res.ok) return null;
+
+  const headers = new Headers();
+  res.cookies.forEach(cookie => {
+    if (cookie) headers.append("Set-Cookie", cookie);
+  });
   return redirect(SIGN_IN_PATHNAME, {
-    headers: {
-      "Set-Cookie": res.cookie || "",
-    },
+    headers,
   });
 };
 

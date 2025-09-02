@@ -18,12 +18,16 @@ export async function action({ request }: Route.ActionArgs) {
       message: "Sign in failed",
     });
   }
+
   const url = new URL(request.url);
   const redirectTo = url.searchParams.get("to");
+  const headers = new Headers();
+  res.cookies.forEach(cookie => {
+    if (cookie) headers.append("Set-Cookie", cookie);
+  });
+
   return redirect(redirectTo ? decodeURIComponent(redirectTo) : "/home", {
-    headers: {
-      "Set-Cookie": res.cookie || "",
-    },
+    headers,
   });
 };
 

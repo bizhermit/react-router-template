@@ -9,7 +9,7 @@ import type { Route } from "./+types/home";
 
 // export async function action(args: Route.ActionArgs) {
 //   return withAuth(args, async function ({ request, session }) {
-//     console.log("User Home action", session);
+//     console.log("- User Home action", session);
 //     console.log(await request.formData());
 //   });
 // };
@@ -23,7 +23,7 @@ export const action = actionWithAuth<Route.ActionArgs>(async ({ request, session
     schema,
     session,
   });
-  console.log(submission);
+  console.log(submission.results);
   return data({});
 });
 

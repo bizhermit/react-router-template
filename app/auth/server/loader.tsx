@@ -1,12 +1,18 @@
+import { removeCsrfTokenCookie } from "./config";
 import { getCsrfToken } from "./csrf-token";
 import { getSession } from "./session";
 
 export async function getAuthPayload(request: Request) {
-  const [csrfToken, session] = await Promise.all([
-    getCsrfToken(request),
-    getSession(request),
-  ]);
+  const session = await getSession(request);
+  if (session) {
+    return {
+      csrfToken: session.csrfToken,
+      cookie: removeCsrfTokenCookie,
+      session,
+    } as const;
+  }
 
+  const csrfToken = await getCsrfToken(request);
   return {
     csrfToken: csrfToken.csrfToken,
     cookie: csrfToken.cookie,
@@ -28,9 +34,9 @@ export async function getAuth(props: {
 
 export async function getAuthSession(props: {
   request: Request;
-  context: import("react-router").AppLoadContext;
+  context?: import("react-router").AppLoadContext;
 }) {
-  if (props.context.auth) {
+  if (props.context?.auth) {
     const { session } = await props.context.auth;
     return session;
   }

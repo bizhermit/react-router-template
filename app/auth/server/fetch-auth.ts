@@ -1,52 +1,62 @@
 import { Auth } from "@auth/core";
 import type { AuthAction } from "@auth/core/types";
 import { authConfig } from "~/auth/server/config";
-import { convertStructToFormData } from "~/components/objects/form-data";
+import { AUTH_COOKIE_NAMES } from "../consts";
 
 interface FetchAuthParams {
   request: Request;
   action: AuthAction | `callback/${string}`;
   method?: "GET" | "POST";
+  csrfToken?: string | undefined;
+  csrfTokenWithHash?: string | undefined;
 };
+
+const csrfTokenRegExp = new RegExp(`(;\\s)?${AUTH_COOKIE_NAMES.csrfToken}=[^;]*`);
 
 export async function fetchAuth({
   request,
   action,
   method = "GET",
+  csrfToken,
+  csrfTokenWithHash,
 }: FetchAuthParams) {
   try {
     const url = new URL(request.url);
     url.pathname = `/auth/${action}`;
 
-    const origContentType = request.headers.get("Content-Type") || "";
-    const lowerCT = origContentType.toLowerCase();
+    const originContentType = request.headers.get("Content-Type") || "";
+    const lowerCT = originContentType.toLowerCase();
     const isUrlEncoded = lowerCT.startsWith("application/x-www-form-urlencoded");
     const isJson = lowerCT.startsWith("application/json");
-
-    const formData = await (async () => {
-      if (method === "GET") return undefined;
-      if (isJson) {
-        return convertStructToFormData(await request.json());
-      }
-      return await request.formData();
-    })();
 
     const headers = new Headers(request.headers);
     headers.set("Origin", url.origin);
 
-    // CSRF
-    const csrfToken =
-      request.headers.get("x-csrf-token")
-      || (formData?.get("csrfToken") as string)
-      || (formData?.get("csrf-token") as string);
-    if (csrfToken && formData) {
-      formData.set("csrfToken", csrfToken);
+    if (csrfTokenWithHash) {
+      // セッション管理のcsrfTokenを使用する
+      let cookie = headers.get("cookie") || "";
+      cookie = cookie.replace(csrfTokenRegExp, "");
+      if (cookie) cookie += "; ";
+      cookie += `${AUTH_COOKIE_NAMES.csrfToken}=${csrfTokenWithHash}`;
+      headers.set("cookie", cookie);
     }
+
+    const formData = await (async () => {
+      if (method === "GET") return undefined;
+      if (isJson) {
+        const jsonData = await request.json();
+        if (csrfToken) jsonData.csrfToken = csrfToken;
+        return jsonData;
+      }
+      const formData = await request.formData();
+      if (csrfToken) formData.set("csrfToken", csrfToken);
+      return formData;
+    })();
 
     // Body
     let body: BodyInit | undefined;
     if (method !== "GET") {
-      if (formData) {
+      if (formData instanceof FormData) {
         if (isUrlEncoded) {
           const usp = new URLSearchParams();
           for (const [k, v] of formData.entries()) {
@@ -58,6 +68,11 @@ export async function fetchAuth({
         } else {
           body = formData;
           if (isUrlEncoded) headers.delete("Content-Type"); // NOTE: fetchに判定させる
+        }
+      } else {
+        if (formData) {
+          headers.set("Content-Type", "application/json;charset=UTF-8");
+          body = JSON.stringify(formData);
         }
       }
       headers.delete("Content-Length"); // NOTE: 再計算させる
