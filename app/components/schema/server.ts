@@ -9,6 +9,7 @@ interface Params<$Schema extends Record<string, Schema.$Any>> {
   data?: FormData | Record<string, unknown>;
   dep?: Record<string, unknown>;
   skipCsrfCheck?: boolean;
+  session?: import("@auth/core/types").Session | null;
 }
 
 export async function getPayload<$Schema extends Record<string, Schema.$Any>>({
@@ -17,6 +18,7 @@ export async function getPayload<$Schema extends Record<string, Schema.$Any>>({
   data,
   dep,
   skipCsrfCheck = false,
+  session,
 }: Params<$Schema>) {
   const i18n = getI18n(request);
   const formData = data ?? await request.formData();
@@ -31,9 +33,14 @@ export async function getPayload<$Schema extends Record<string, Schema.$Any>>({
   });
   delete (submission as Partial<typeof submission>).dataItems;
   if (!skipCsrfCheck) {
+    const sessionCsrfToken = session?.csrfToken;
+    const cookieCsrfToken = cookieStore(request).getCookie(AUTH_COOKIE_NAMES.csrfToken)?.split("|")?.[0];
     const csrfToken = submission.data.csrfToken;
-    const cookieCsrfToken = cookieStore(request).getCookie(AUTH_COOKIE_NAMES.csrfToken);
-    if (!csrfToken || csrfToken !== cookieCsrfToken) {
+
+    if (
+      (sessionCsrfToken && sessionCsrfToken !== csrfToken) ||
+      (!sessionCsrfToken && cookieCsrfToken && cookieCsrfToken !== csrfToken)
+    ) {
       return {
         hasError: true as const,
         data: {},
