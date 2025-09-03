@@ -13,5 +13,6 @@ DIRS=(
 )
 
 for dir in "${DIRS[@]}"; do
+  echo "Changing ownership of $dir to $OWNER"
   echo "$PASSWORD" | sudo -S chown -R "$OWNER" "$dir"
 done
