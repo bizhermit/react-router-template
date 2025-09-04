@@ -27,7 +27,7 @@ echo "Cleanup completed."
 echo "docker prune start."
 
 # docker container prune -f # コンテナは削除しない
-docker network prune -f
+# docker network prune -f # 外部ネットワークは削除しない
 docker volume prune -f
 docker image prune -a -f
 docker builder prune -a -f
