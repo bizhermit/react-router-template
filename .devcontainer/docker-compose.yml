@@ -8,13 +8,14 @@ services:
       dockerfile: ".devcontainer/docker/node/Dockerfile"
     image: "node22-dev"
     tty: true
+    user: "${UID:-1000}:${GID:-1000}"
+    working_dir: "/workspace"
     volumes:
       - "../:/workspace:delegated"
+      - "~/.ssh:/home/node/.ssh"
       - "template-dev_node_modules:/workspace/node_modules"
       - "template-dev_react-router:/workspace/.react-router"
       - "template-dev_playwright:/workspace/.playwright"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     env_file:
       - path: "./.env"
         required: false
@@ -22,6 +23,8 @@ services:
       - "LOCALHOST=${LOCALHOST:-host.docker.internal}"
       - "TZ=${TZ:-UTC}"
       - "DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-template}"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - "template-dev"
     depends_on:
