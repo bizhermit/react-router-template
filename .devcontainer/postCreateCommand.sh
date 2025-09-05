@@ -18,21 +18,35 @@ for dir in "${DIRS[@]}"; do
 done
 
 # ~/.ssh ディレクトリ
-chmod 700 ~/.ssh
+if [ -d "$HOME/.ssh" ]; then
+  chmod 700 ~/.ssh
+fi
 
 # 秘密鍵
-chmod 600 ~/.ssh/id_rsa
-chmod 600 ~/.ssh/id_ecdsa
+if [ -f "$HOME/.ssh/id_rsa" ]; then
+  chmod 600 ~/.ssh/id_rsa
+fi
+if [ -f "$HOME/.ssh/id_ecdsa" ]; then
+  chmod 600 ~/.ssh/id_ecdsa
+fi
 
 # 公開鍵
-chmod 644 ~/.ssh/id_rsa.pub
-chmod 644 ~/.ssh/id_ecdsa.pub
+if [ -f "$HOME/.ssh/id_rsa.pub" ]; then
+  chmod 644 ~/.ssh/id_rsa.pub
+fi
+if [ -f "$HOME/.ssh/id_ecdsa.pub" ]; then
+  chmod 644 ~/.ssh/id_ecdsa.pub
+fi
 
 # configファイル
-chmod 600 ~/.ssh/config
+if [ -f "$HOME/.ssh/config" ]; then
+  chmod 600 ~/.ssh/config
+fi
 
 # known_hostsは読み取りのみ
-chmod 644 ~/.ssh/known_hosts
+if [ -f "$HOME/.ssh/known_hosts" ]; then
+  chmod 644 ~/.ssh/known_hosts
+fi
 
 # 所有者変更は差分としない
 git config --local core.fileMode false
