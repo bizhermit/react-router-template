@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 log() { printf '[%s] %s\n' "$(date +%H:%M:%S)" "$*"; }
 
 log "Start cleanup"
@@ -31,13 +33,15 @@ else
 fi
 
 log "Pull latest (ignore errors if newly created)"
-git pull 2>/dev/null || log "Pull skipped or failed (probably new branch)"
+if ! git pull; then
+  log "Pull failed (probably new branch, or conflict)"
+fi
 
 log "Fetch & prune"
 git fetch --prune
 
 log "Scanning stale local branches (whose upstream is gone)"
-stale_branches=$(git branch -vv | awk '/: gone]/{print $1}')
+stale_branches=$(git for-each-ref --format '%(refname:short) %(upstream:track)' refs/heads | awk '$2=="[gone]" {print $1}')
 if [ -n "$stale_branches" ]; then
   count=$(printf '%s\n' "$stale_branches" | wc -l | tr -d ' ')
   log "Deleting $count stale branch(es):"
