@@ -50,3 +50,12 @@ fi
 
 # 所有者変更は差分としない
 git config --local core.fileMode false
+
+# 依存関係インストール #
+npm install
+
+# DB最新化 #
+npm run migrate
+
+# 型情報他生成 #
+npm run prebuild
