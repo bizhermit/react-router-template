@@ -17,36 +17,23 @@ for dir in "${DIRS[@]}"; do
   echo "$PASSWORD" | sudo -S chown -R "$OWNER" "$dir"
 done
 
-# ~/.ssh ディレクトリ
-if [ -d "$HOME/.ssh" ]; then
-  chmod 700 ~/.ssh
-fi
+# パーミッション設定ルール（ファイルパス:権限）
+declare -A SSH_PERMS=(
+  ["$HOME/.ssh"]=700
+  ["$HOME/.ssh/id_rsa"]=600
+  ["$HOME/.ssh/id_ecdsa"]=600
+  ["$HOME/.ssh/id_rsa.pub"]=644
+  ["$HOME/.ssh/id_ecdsa.pub"]=644
+  ["$HOME/.ssh/config"]=600
+  ["$HOME/.ssh/known_hosts"]=644
+)
 
-# 秘密鍵
-if [ -f "$HOME/.ssh/id_rsa" ]; then
-  chmod 600 ~/.ssh/id_rsa
-fi
-if [ -f "$HOME/.ssh/id_ecdsa" ]; then
-  chmod 600 ~/.ssh/id_ecdsa
-fi
-
-# 公開鍵
-if [ -f "$HOME/.ssh/id_rsa.pub" ]; then
-  chmod 644 ~/.ssh/id_rsa.pub
-fi
-if [ -f "$HOME/.ssh/id_ecdsa.pub" ]; then
-  chmod 644 ~/.ssh/id_ecdsa.pub
-fi
-
-# configファイル
-if [ -f "$HOME/.ssh/config" ]; then
-  chmod 600 ~/.ssh/config
-fi
-
-# known_hostsは読み取りのみ
-if [ -f "$HOME/.ssh/known_hosts" ]; then
-  chmod 644 ~/.ssh/known_hosts
-fi
+for path in "${!SSH_PERMS[@]}"; do
+  if [ -e "$path" ]; then
+    chmod "${SSH_PERMS[$path]}" "$path"
+    echo "set ${SSH_PERMS[$path]}: $path"
+  fi
+done
 
 # 所有者変更は差分としない
 git config --local core.fileMode false
