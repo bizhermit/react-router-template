@@ -1,5 +1,10 @@
+/**
+ * string: ディレクティブ値
+ * true: ディレクティブ名のみ出力
+ * false: ディレクティブ省略
+ */
 type ContentSecurityPolicy = {
-  "default-src": string | boolean;
+  "default-src": string;
   "script-src": string | boolean;
   "style-src": string | boolean;
   "img-src": string | boolean;
@@ -14,7 +19,7 @@ type ContentSecurityPolicy = {
   "base-uri": string | boolean;
   "form-action": string | boolean;
   "manifest-src": string | boolean;
-  "report-uri": string | boolean;
+  "report-uri": string | boolean; // NOTE: 将来的に非推奨 (Report-To 優先)
   "report-to": string | boolean;
   "upgrade-insecure-requests": boolean;
   "block-all-mixed-content": boolean;
@@ -22,38 +27,73 @@ type ContentSecurityPolicy = {
 
 type ContentSecurityPolicyKey = keyof ContentSecurityPolicy;
 
+// 自動省略禁止ディレクティブ（default-srcと同値でも省略しない）
+const NO_OMIT_KEYS = new Set<ContentSecurityPolicyKey>([
+  "script-src",
+  "connect-src",
+]);
+
+function normalizeCspTokens(v: string) {
+  return Array.from(new Set(v.trim().split(/\s+/))).sort();
+};
+
+/**
+ * CSP生成
+ * @param params
+ * @returns
+ */
 export function createContentSecurityPolicy(params?: {
-  policies?: Partial<Record<ContentSecurityPolicyKey, string | boolean>>;
+  policies?: Partial<ContentSecurityPolicy>;
   isDev?: boolean;
 }) {
-  function getCspDirective(key: ContentSecurityPolicyKey, defaultValue: string | boolean) {
-    const value = params?.policies?.[key];
-    if (value == null) {
-      if (defaultValue === false) return "";
-      if (defaultValue === true) return key;
-      return `${key} ${defaultValue}`;
+  const defaultSrcRaw = params?.policies?.["default-src"] || "'self'";
+  const defaultSrcTokens = normalizeCspTokens(defaultSrcRaw);
+
+  function isOmit(key: ContentSecurityPolicyKey, raw: string) {
+    if (NO_OMIT_KEYS.has(key)) return false;
+    const tokens = normalizeCspTokens(raw);
+    if (tokens.length !== defaultSrcTokens.length) return false;
+    return tokens.every((t, i) => t === defaultSrcTokens[i]);
+  };
+
+  function getCspDirective(key: ContentSecurityPolicyKey, fallback?: string | boolean | null | undefined) {
+    const raw = params?.policies?.[key];
+    if (raw == null) {
+      if (fallback == null || fallback === false) return null;
+      if (fallback === true) return key;
+      if (isOmit(key, fallback)) return null;
+      return `${key} ${fallback}`;
     }
-    if (value === false) return "";
-    if (value === true) return key;
-    return `${key} ${value}`;
+    if (raw === false) return null;
+    if (raw === true) return key;
+    if (isOmit(key, raw)) return null;
+    return `${key} ${raw}`;
   };
 
   const csp = [
-    getCspDirective("default-src", "'self'"),
-    getCspDirective("script-src", params?.isDev ? "'self' 'unsafe-inline' 'unsafe-eval'" : "'self' 'unsafe-inline'"),
-    getCspDirective("style-src", params?.isDev ? "'self' 'unsafe-inline'" : "'self' 'unsafe-inline'"),
-    getCspDirective("img-src", params?.isDev ? "'self' data: blob: https: http:" : "'self' data: blob: https:"),
-    getCspDirective("font-src", params?.isDev ? "'self' data: https: http:" : "'self' data: https:"),
-    getCspDirective("connect-src", params?.isDev ? "'self' http: https: ws: wss: blob: data:" : "'self' https: ws: wss: blob: data:"),
-    getCspDirective("media-src", "'self' blob: data:"),
-    getCspDirective("worker-src", "'self' blob:"),
-    getCspDirective("child-src", "'self'"),
+    `default-src ${defaultSrcRaw}`,
+    getCspDirective("script-src",
+      params?.isDev ?
+        "'self' 'unsafe-inline' 'unsafe-eval'" :
+        "'self' 'unsafe-inline'"
+    ),
+    getCspDirective("style-src", "'self' 'unsafe-inline'"),
+    getCspDirective("img-src", "'self' data:"),
+    getCspDirective("font-src"),
+    getCspDirective("connect-src",
+      params?.isDev ?
+        "'self' ws: wss:" :
+        null
+    ),
+    getCspDirective("media-src"),
+    getCspDirective("worker-src"),
     getCspDirective("object-src", "'none'"),
-    getCspDirective("frame-src", "'self'"),
+    // getCspDirective("child-src"), // NOTE: CSP Level 3では非推奨。frame-srcに統一
+    getCspDirective("frame-src"),
     getCspDirective("frame-ancestors", "'none'"),
-    getCspDirective("base-uri", "'self'"),
-    getCspDirective("form-action", "'self'"),
-    getCspDirective("manifest-src", "'self'"),
+    getCspDirective("base-uri"),
+    getCspDirective("form-action"),
+    getCspDirective("manifest-src"),
   ];
   if (!params?.isDev) {
     csp.push(
