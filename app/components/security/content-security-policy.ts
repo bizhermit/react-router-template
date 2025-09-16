@@ -11,9 +11,9 @@ type ContentSecurityPolicy = {
   "font-src": string | boolean;
   "connect-src": string | boolean;
   "media-src": string | boolean;
+  "object-src": string | boolean;
   "worker-src": string | boolean;
   "child-src": string | boolean;
-  "object-src": string | boolean;
   "frame-src": string | boolean;
   "frame-ancestors": string | boolean;
   "base-uri": string | boolean;
@@ -27,11 +27,25 @@ type ContentSecurityPolicy = {
 
 type ContentSecurityPolicyKey = keyof ContentSecurityPolicy;
 
+// default-srcにfallback可能なディレクティブ
+const FALLBACKABLE_DIRECTIVES = new Set<ContentSecurityPolicyKey>([
+  "script-src",
+  "style-src",
+  "img-src",
+  "font-src",
+  "connect-src",
+  "media-src",
+  "object-src",
+  "worker-src",
+]);
+
 // 自動省略禁止ディレクティブ（default-srcと同値でも省略しない）
-const NO_OMIT_KEYS = new Set<ContentSecurityPolicyKey>([
+const NO_FALLBACK_DIRECTIVES = new Set<ContentSecurityPolicyKey>([
   "script-src",
   "connect-src",
 ]);
+
+const SELF = "'self'";
 
 function normalizeCspTokens(v: string) {
   return Array.from(new Set(v.trim().split(/\s+/))).sort();
@@ -46,27 +60,28 @@ export function createContentSecurityPolicy(params?: {
   policies?: Partial<ContentSecurityPolicy>;
   isDev?: boolean;
 }) {
-  const defaultSrcRaw = params?.policies?.["default-src"] || "'self'";
+  const defaultSrcRaw = params?.policies?.["default-src"] || SELF;
   const defaultSrcTokens = normalizeCspTokens(defaultSrcRaw);
 
-  function isOmit(key: ContentSecurityPolicyKey, raw: string) {
-    if (NO_OMIT_KEYS.has(key)) return false;
+  function isFallback(key: ContentSecurityPolicyKey, raw: string) {
+    if (!FALLBACKABLE_DIRECTIVES.has(key)) return false;
+    if (NO_FALLBACK_DIRECTIVES.has(key)) return false;
     const tokens = normalizeCspTokens(raw);
     if (tokens.length !== defaultSrcTokens.length) return false;
     return tokens.every((t, i) => t === defaultSrcTokens[i]);
   };
 
-  function getCspDirective(key: ContentSecurityPolicyKey, fallback?: string | boolean | null | undefined) {
+  function getCspDirective(key: ContentSecurityPolicyKey, defaultRaw?: string | boolean | null | undefined) {
     const raw = params?.policies?.[key];
     if (raw == null) {
-      if (fallback == null || fallback === false) return null;
-      if (fallback === true) return key;
-      if (isOmit(key, fallback)) return null;
-      return `${key} ${fallback}`;
+      if (defaultRaw == null || defaultRaw === false) return null;
+      if (defaultRaw === true) return key;
+      if (isFallback(key, defaultRaw)) return null;
+      return `${key} ${defaultRaw}`;
     }
     if (raw === false) return null;
     if (raw === true) return key;
-    if (isOmit(key, raw)) return null;
+    if (isFallback(key, raw)) return null;
     return `${key} ${raw}`;
   };
 
@@ -74,26 +89,26 @@ export function createContentSecurityPolicy(params?: {
     `default-src ${defaultSrcRaw}`,
     getCspDirective("script-src",
       params?.isDev ?
-        "'self' 'unsafe-inline' 'unsafe-eval'" :
-        "'self' 'unsafe-inline'"
+        `${SELF} 'unsafe-inline' 'unsafe-eval'` :
+        `${SELF} 'unsafe-inline'`
     ),
-    getCspDirective("style-src", "'self' 'unsafe-inline'"),
-    getCspDirective("img-src", "'self' data:"),
+    getCspDirective("style-src", `${SELF} 'unsafe-inline'`),
+    getCspDirective("img-src", `${SELF} data:`),
     getCspDirective("font-src"),
     getCspDirective("connect-src",
       params?.isDev ?
-        "'self' ws: wss:" :
+        `${SELF} ws: wss:` :
         null
     ),
     getCspDirective("media-src"),
-    getCspDirective("worker-src"),
     getCspDirective("object-src", "'none'"),
-    // getCspDirective("child-src"), // NOTE: CSP Level 3では非推奨。frame-srcに統一
-    getCspDirective("frame-src"),
+    getCspDirective("worker-src"),
+    // getCspDirective("child-src", SELF), // NOTE: CSP Level 3では非推奨。frame-srcに統一
+    getCspDirective("frame-src", SELF),
     getCspDirective("frame-ancestors", "'none'"),
-    getCspDirective("base-uri"),
-    getCspDirective("form-action"),
-    getCspDirective("manifest-src"),
+    getCspDirective("base-uri", SELF),
+    getCspDirective("form-action", SELF),
+    getCspDirective("manifest-src", SELF),
   ];
   if (!params?.isDev) {
     csp.push(
