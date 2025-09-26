@@ -30,6 +30,7 @@ export const links: Route.LinksFunction = () => [
 export function Layout({ children }: { children: ReactNode; }) {
   const { lang } = useLocale();
   const { theme } = useTheme();
+  const nonce = "";
 
   return (
     <I18nCookieLocator>
@@ -45,8 +46,8 @@ export function Layout({ children }: { children: ReactNode; }) {
         </head>
         <body>
           {children}
-          <ScrollRestoration />
-          <Scripts />
+          <ScrollRestoration nonce={nonce} />
+          <Scripts nonce={nonce} />
         </body>
       </html>
     </I18nCookieLocator>

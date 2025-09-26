@@ -43,6 +43,7 @@ export default async function handleRequest(
     const cookie = cookieStore(request);
     const isValidScripts = cookie.getCookie("js") === "t";
     const theme = cookie.getCookie("theme");
+    const nonce = "";
 
     const { pipe, abort } = renderToPipeableStream(
       <I18nProvider
@@ -57,6 +58,7 @@ export default async function handleRequest(
             <ServerRouter
               context={reactRouterContext}
               url={request.url}
+              nonce={nonce}
             />
           </ValidScriptsProvider>
         </ThemeProvider>
@@ -84,6 +86,7 @@ export default async function handleRequest(
           didError = true;
           showRenderError(error);
         },
+        nonce,
       }
     );
 
