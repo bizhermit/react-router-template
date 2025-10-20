@@ -27,9 +27,11 @@ namespace Api {
 
   type QueryParams<OpenApi, P extends keyof OpenApi, M extends Method> = OpenApi[P][M]["parameters"]["query"];
 
+  type OptionalableParams<T> = T extends undefined | null | unknown ? (undefined | T[keyof T]) : T[keyof T];
+
   type BodyParams<OpenApi, P extends Path, M extends Method> =
     OpenApi[P][M]["requestBody"] extends never ? undefined :
-    OpenApi[P][M]["requestBody"] extends { content: infer C; } ? C[keyof C] : undefined;
+    OpenApi[P][M]["requestBody"] extends { content: infer C; } | undefined ? OptionalableParams<C> : undefined;
 
   ;
   type NullSafeParams<K extends string, T> =
