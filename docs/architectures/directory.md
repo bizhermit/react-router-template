@@ -5,12 +5,11 @@
 ```
 src/
 ├── app/              # ReactRouterアプリケーション
-│   ├── api-docs/       # API
+│   ├── api-docs/       # APIDoc
 │   ├── auth/           # 認証
 │   ├── components/     # 共通
 │   ├── features/       # 機能
-│   ├── i18n/           # 国際化対応
-│   └── routes/         # ページコンポーネント
+│   └── i18n/           # 国際化対応
 ├── playwright/       # Playwright
 ├── prisma/           # Prisma
 └── public/           # 静的リソース
@@ -107,15 +106,3 @@ src/app/features/
 │   │   │       └── head-line.spec.tsx
 ...
 ```
-
-## スタイルシート
-
-- [TailwindCSS](https://tailwindcss.com/)を使用する
-- 使用頻度が高いコンポーネント（ボタン等）や、TailwindCSSでは実装が難しい場合はクラスの定義を検討する
-  - 使用頻度が高い共通部品はcssファイルを作成し、`app/global.css`に記述またはインポートする（グローバルスタイル化）
-  - エッジケースは[CSS Modules](https://github.com/css-modules/css-modules?tab=readme-ov-file)を使用する
-  
-### CSSファイル命名規則
-
-- CSSファイルは使用するReactコンポーネントと同階層に作成する
-- CSS Modulesの場合、使用するReactコンポーネントと同じ名前とする
