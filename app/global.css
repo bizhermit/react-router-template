@@ -161,6 +161,7 @@
 }
 
 @layer components {
+
   .icon {
     width: 1.6rem;
     fill: currentColor;
@@ -168,6 +169,7 @@
     stroke-width: 0;
     stroke-linecap: round;
   }
+
 }
 
 @import "./components/react/elements/loading.css";
