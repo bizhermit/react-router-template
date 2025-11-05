@@ -189,8 +189,6 @@ docker compose up
 
 ## ドキュメント
 
+- [ブランチ運用](./docs/git-branch/index.md)
+- [アーキテクチャ](./docs/architectures/index.md)
 - [機能仕様](./docs/features/index.md)
-
-## ブランチ運用
-
-<!-- TODO -->
