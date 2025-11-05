@@ -421,7 +421,9 @@
         }
 
         &:checked {
-          background-color: var(---color);
+          &::before {
+            background-color: var(---color);
+          }
         }
       }
     }
