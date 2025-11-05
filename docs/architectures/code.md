@@ -143,7 +143,8 @@ export function HogeFuga(props: HogeFuga) {
 
 ### 変数
 
-[global.css](../../app/global.css)の`@theme`に追加する
+- TailwindCSSのユーティリティの拡張および、スタイル
+- [global.css](../../app/global.css)の`@theme`に追加する
 
 ### レイヤー
 
@@ -151,7 +152,7 @@ export function HogeFuga(props: HogeFuga) {
 
 `@layer`で`base`または`components`を使用する
 
-- `base`：タグ指定／`components`で上書きする可能性のあるクラス名指定
+- `base`：タグまたは`components`で上書きを考慮すべきプロパティを持つクラス名を指定
 - `components`：クラス名指定
 
 ```css
