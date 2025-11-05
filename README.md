@@ -14,16 +14,15 @@
 
 ### 前提条件
 
-- dockerがインストールされていること（[Rancher Desktop](https://rancherdesktop.io/)推奨）
+- dockerがインストールされていること（dockerおよびdocker-composeが実行可能であること）
 - [Visual Studio Code（VSCode）](https://code.visualstudio.com/download)がインストールされていること
 - VSCodeに拡張機能「[Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)」がインストールされていること
 
 ### 初回セットアップ
 
 1. 任意のフォルダに当リポジトリをクローンする
-2. dockerおよびdocker-composeを実行可能状態に（RancherDesktopを起動）する
-3. [環境変数](#環境変数)を設定する
-4. 開発コンテナ（Dev Containers）を起動する
+2. [環境変数](#環境変数)を設定する
+3. 開発コンテナ（Dev Containers）を起動する
 
 ### ２回目以降
 
@@ -188,9 +187,9 @@ cd ./.container
 docker compose up
 ```
 
-## 開発規約
+## ドキュメント
 
-- [コーディング規約](./docs/codingStandards.md)
+- [機能仕様](./docs/features/index.md)
 
 ## ブランチ運用
 
