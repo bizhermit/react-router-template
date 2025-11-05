@@ -12,6 +12,7 @@ export default tseslint.config({
     "build/**/*",
     ".react-router/**/*",
     ".temp/**/*",
+    "**/*.min.{js,mjs,cjs,jsx}",
   ],
   extends: [
     pluginJs.configs.recommended,
