@@ -56,17 +56,16 @@ src/app/features/
 ├── common/               # 共通 
 │   ├── assets/             # アセット 
 │   │   └── images/           # 画像ファイル
-│   ├── server/             # サーバーサイド（WebAPI）
 │   ├── react/              # React 
 │   │   ├── elements/         # 要素
 │   │   ├── hooks/            # Hook
 │   │   └── providers/        # Provider
 │   ├── schemas/            # スキーマ 
+│   ├── server/             # サーバーサイド（WebAPI）
 │   └── services/           # ロジック
 ├── user/                 # ユーザー機能
 │   ├── assets/             # アセット 
 │   │   └── images/           # 画像ファイル
-│   ├── server/             # サーバーサイド（WebAPI）
 │   ├── react/              # React 
 │   │   ├── elements/         # 要素
 │   │   ├── modules/          # モジュール
@@ -74,6 +73,7 @@ src/app/features/
 │   │   ├── hooks/            # Hook
 │   │   └── providers/        # Provider
 │   ├── schemas/            # スキーマ 
+│   ├── server/             # サーバーサイド（WebAPI）
 │   └── services/           # ロジック
 ...
 ```
