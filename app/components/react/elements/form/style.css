@@ -399,7 +399,6 @@
       left: calc(var(--spacing-input) * 0.3);
       border: 1px solid var(--color-input-bd);
       border-radius: 9999px;
-      background-color: var(--color-input-bg);
       transition: left 0.2s;
     }
 
@@ -407,6 +406,10 @@
       cursor: pointer;
 
       &::before {
+        background-color: var(--color-input-bg);
+      }
+
+      &::after {
         background-color: var(--color-input-bg);
       }
 
@@ -515,7 +518,7 @@
       appearance: none;
       width: calc(var(--spacing-input) * 0.5);
       height: calc(var(--spacing-input) * 0.5);
-      background-color: var(--color-input-bg);
+      background-color: var(--color-bg);
       border-radius: 9999px;
       /* margin-top: block方向borderの太さ分(片側)+trackとの差(片側) */
       margin-top: calc(var(--spacing-input) * -0.125 - 1px);
@@ -540,6 +543,7 @@
 
       &::-webkit-slider-thumb {
         cursor: pointer;
+        background-color: var(--color-input-bg);
       }
 
       &::-moz-range-thumb {
