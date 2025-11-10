@@ -50,7 +50,7 @@ import { getPayload } from "~/components/schema/server";
 import { $str } from "~/components/schema/string";
 import { $struct } from "~/components/schema/struct";
 import sleep from "~/components/utilities/sleep";
-import { internalApi } from "~/features/api/internal";
+import { internalApi } from "~/features/common/api/internal";
 import type { Route } from "./+types/page";
 
 const text = $str(

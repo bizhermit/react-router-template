@@ -30,7 +30,7 @@ ReactRouterはディレクトリ名またはファイル名に`client`または`
 
 ```
 src/app/components/
-├── assets/           # アセット 
+├── assets/           # アセット
 │   └── images/         # 画像ファイル
 ├── client/           # クライアントサイド専用
 │   └── dom/            # DOM操作
@@ -39,6 +39,7 @@ src/app/components/
 ├── objects/          # オブジェクト
 ├── react/            # React
 │   ├── elements/       # 要素
+│   ├── layouts/        # レイアウト
 │   ├── hooks/          # Hook
 │   └── providers/      # Provider
 ├── schema/           # スキーマ
@@ -54,26 +55,28 @@ src/app/components/
 ```
 src/app/features/
 ├── common/               # 共通 
-│   ├── assets/             # アセット 
+│   ├── assets/             # アセット
 │   │   └── images/           # 画像ファイル
-│   ├── react/              # React 
+│   ├── react/              # React
 │   │   ├── elements/         # 要素
-│   │   ├── hooks/            # Hook
-│   │   └── providers/        # Provider
-│   ├── schemas/            # スキーマ 
-│   ├── server/             # サーバーサイド（WebAPI）
-│   └── services/           # ロジック
-├── user/                 # ユーザー機能
-│   ├── assets/             # アセット 
-│   │   └── images/           # 画像ファイル
-│   ├── react/              # React 
-│   │   ├── elements/         # 要素
+│   │   ├── layouts/          # レイアウト
 │   │   ├── modules/          # モジュール
 │   │   ├── pages/            # ページ
 │   │   ├── hooks/            # Hook
 │   │   └── providers/        # Provider
-│   ├── schemas/            # スキーマ 
-│   ├── server/             # サーバーサイド（WebAPI）
+│   ├── schemas/            # スキーマ
+│   └── services/           # ロジック
+├── user/                 # ユーザー機能
+│   ├── assets/             # アセット
+│   │   └── images/           # 画像ファイル
+│   ├── react/              # React
+│   │   ├── elements/         # 要素
+│   │   ├── layouts/          # レイアウト
+│   │   ├── modules/          # モジュール
+│   │   ├── pages/            # ページ
+│   │   ├── hooks/            # Hook
+│   │   └── providers/        # Provider
+│   ├── schemas/            # スキーマ
 │   └── services/           # ロジック
 ...
 ```

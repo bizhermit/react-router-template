@@ -1,5 +1,5 @@
 import { data } from "react-router";
-import type { InternalApiPaths } from "~/features/api/internal";
+import type { InternalApiPaths } from "~/features/common/api/internal";
 import type { Route } from "./+types/api-detail";
 
 type Get = Api.SuccessResponse<InternalApiPaths, "/sandbox/api/{id}", "get">["data"];

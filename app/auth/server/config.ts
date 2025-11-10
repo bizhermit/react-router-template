@@ -1,6 +1,6 @@
 import { type AuthConfig } from "@auth/core";
 import Credentials from "@auth/core/providers/credentials";
-import type { SerializeOptions } from "node_modules/@auth/core/lib/vendored/cookie";
+import type { CookieOption } from "@auth/core/types";
 import { getPayload } from "~/components/schema/server";
 import { AUTH_COOKIE_NAMES, SIGN_IN_PATHNAME, SIGN_OUT_PATHNAME } from "../consts";
 import { authSchema } from "../schema";
@@ -113,7 +113,7 @@ export const authConfig = {
   },
 } satisfies AuthConfig;
 
-const csrfTokenCookieOptions = authConfig.cookies.sessionToken.options as SerializeOptions;
+const csrfTokenCookieOptions = authConfig.cookies.sessionToken.options as CookieOption["options"];
 export const removeCsrfTokenCookie = (() => {
   const options = [
     `Max-Age=0`,

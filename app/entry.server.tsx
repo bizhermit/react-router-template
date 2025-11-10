@@ -6,7 +6,7 @@ import { PassThrough } from "stream";
 import { cookieStore } from "./components/cookie/server";
 import { ThemeProvider } from "./components/react/providers/theme";
 import { ValidScriptsProvider } from "./components/react/providers/valid-scripts";
-import { setPageResponseHeaders } from "./features/middleware/page-headers";
+import { setPageResponseHeaders } from "./features/common/middleware/page-headers";
 import { I18nProvider } from "./i18n/client/provider";
 import { getI18nPayload } from "./i18n/server/loader";
 
