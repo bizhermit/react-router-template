@@ -417,7 +417,10 @@ function Contents(props: Route.ComponentProps) {
             disabled: {formDisabled.flag ? "on" : "off"}
           </Button>
         </div>
-        <SchemaProvider>
+        <SchemaProvider
+          readOnly={formReadonly.flag}
+          disabled={formDisabled.flag}
+        >
           <fetcher.Form
             {...getFormProps("post", {
               encType: "multipart/form-data",
@@ -425,8 +428,8 @@ function Contents(props: Route.ComponentProps) {
           >
             <CsrfTokenHidden />
             <FieldSet
-              disabled={formDisabled.flag}
-              readOnly={formReadonly.flag}
+            // readOnly={formReadonly.flag}
+            // disabled={formDisabled.flag}
             >
               <Component1 />
               <Component2 />
@@ -473,6 +476,8 @@ function Component1() {
           onClick={() => {
             array.push({
               name: "hoge",
+            }, {
+              allowState: ["enabled", "readonly"],
             });
           }}
         >

@@ -418,6 +418,8 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
   const stateSubscribeRef = useRef<() => void>(() => { });
 
   const SchemaProvider = useCallback((p: {
+    disabled?: boolean;
+    readOnly?: boolean;
     children?: ReactNode;
   }) => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -431,30 +433,37 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
     });
 
     return (
-      <SchemaContext
+      <FieldSetContext
         value={{
-          env: env.current,
-          data: bindData,
-          dep,
-          dataItems: dataItems.current,
-          addSubscribe,
-          getResult,
-          setResult,
-          setResults,
-          setValue,
-          setValueAndResult,
-          setValuesAndResults,
-          validation,
-          reset,
-          isInitialize,
-          isFirstLoad,
-          isValidScripts,
-          state,
-          validationTrigger: props.validationTrigger || "change",
+          disabled: p.disabled ?? false,
+          readOnly: p.readOnly ?? false,
         }}
       >
-        {p.children}
-      </SchemaContext>
+        <SchemaContext
+          value={{
+            env: env.current,
+            data: bindData,
+            dep,
+            dataItems: dataItems.current,
+            addSubscribe,
+            getResult,
+            setResult,
+            setResults,
+            setValue,
+            setValueAndResult,
+            setValuesAndResults,
+            validation,
+            reset,
+            isInitialize,
+            isFirstLoad,
+            isValidScripts,
+            state,
+            validationTrigger: props.validationTrigger || "change",
+          }}
+        >
+          {p.children}
+        </SchemaContext>
+      </FieldSetContext>
     );
   }, []);
 
@@ -1024,13 +1033,21 @@ export function useSchemaArray<D extends Schema.DataItem<Schema.$Array>>(dataIte
   const [_, setRev] = useState(0);
   const [keyRev, setKeyRev] = useState(0);
 
+  function allowState(arg?: Schema.Mode[]) {
+    if (arg) {
+      return arg.includes(schemaItem.state.current);
+    }
+    return schemaItem.state.current === "enabled";
+  }
+
   function push(
     value: Partial<NonNullLaxArrayType[number]>,
     options?: {
       position?: "first" | "last";
+      allowState?: Schema.Mode[];
     }
   ) {
-    if (schemaItem.state.current !== "enabled") return;
+    if (!allowState(options?.allowState)) return;
     const arr = schemaItem.getValue() ?? [] as ArrayType;
     const isFirst = options?.position === "first";
     schemaItem.setValue((isFirst ? [value, ...arr] : [...arr, value]) as LaxArrayType);
@@ -1041,17 +1058,23 @@ export function useSchemaArray<D extends Schema.DataItem<Schema.$Array>>(dataIte
     values: Array<Partial<NonNullLaxArrayType[number]>>,
     options?: {
       position?: "first" | "last";
+      allowState?: Schema.Mode[];
     }
   ) {
-    if (schemaItem.state.current !== "enabled") return;
+    if (!allowState(options?.allowState)) return;
     const arr = schemaItem.getValue() ?? [];
     const isFirst = options?.position === "first";
     schemaItem.setValue((isFirst ? [...values, ...arr] : [...arr, ...values]) as LaxArrayType);
     if (isFirst) setKeyRev(c => c + 1);
   }
 
-  function remove(index: number) {
-    if (schemaItem.state.current !== "enabled") return;
+  function remove(
+    index: number,
+    options?: {
+      allowState?: Schema.Mode[];
+    }
+  ) {
+    if (!allowState(options?.allowState)) return;
     const arr = schemaItem.getValue() ?? [] as ArrayType;
     if (arr == null) return;
     const isLast = index === (arr.length - 1);
@@ -1061,20 +1084,32 @@ export function useSchemaArray<D extends Schema.DataItem<Schema.$Array>>(dataIte
     if (!isLast) setKeyRev(c => c + 1);
   };
 
-  function removeFirst() {
-    if (schemaItem.state.current !== "enabled") return;
+  function removeFirst(
+    options?: {
+      allowState?: Schema.Mode[];
+    }
+  ) {
+    if (!allowState(options?.allowState)) return;
     remove(0);
   };
 
-  function removeLast() {
-    if (schemaItem.state.current !== "enabled") return;
+  function removeLast(
+    options?: {
+      allowState?: Schema.Mode[];
+    }
+  ) {
+    if (!allowState(options?.allowState)) return;
     const arr = schemaItem.getValue();
     if (arr == null) return;
     remove(arr.length - 1);
   };
 
-  function removeAll() {
-    if (schemaItem.state.current !== "enabled") return;
+  function removeAll(
+    options?: {
+      allowState?: Schema.Mode[];
+    }
+  ) {
+    if (!allowState(options?.allowState)) return;
     const arr = schemaItem.getValue();
     if (arr == null || arr.length === 0) return;
     schemaItem.setValue([] as LaxArrayType);
