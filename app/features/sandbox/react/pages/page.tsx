@@ -9,6 +9,7 @@ import getIndexedDB, { type IndexedDBController, type IndexedDBStores } from "~/
 import { formatDate } from "~/components/objects/date";
 import { parseNumber } from "~/components/objects/numeric";
 import { Button } from "~/components/react/elements/button";
+import { Carousel, type CarouselOptions } from "~/components/react/elements/carousel";
 import { Details } from "~/components/react/elements/details";
 import { useDialog } from "~/components/react/elements/dialog";
 import { CheckBox } from "~/components/react/elements/form/check-box";
@@ -459,6 +460,7 @@ function Contents(props: Route.ComponentProps) {
       <IconsComponent />
       <DialogComponent />
       <FetchComponent />
+      <CarouselComponent />
     </div>
   );
 };
@@ -1464,6 +1466,56 @@ function FetchComponent() {
           >
             delete
           </Button>
+        </div>
+      </Details>
+    </section>
+  );
+};
+
+function CarouselComponent() {
+  const [align, setAlign] = useState<CarouselOptions["align"]>();
+  const [removePaddingSpace, setRemovePaddingSpace] = useState<CarouselOptions["removePadding"]>();
+
+  return (
+    <section>
+      <Details summary="Carousel">
+        <div>
+          <span>Align: {align} &lt;- </span>
+          <Button onClick={() => setAlign(undefined)}>unset</Button>
+          <Button onClick={() => setAlign("start")}>start</Button>
+          <Button onClick={() => setAlign("center")}>center</Button>
+          <Button onClick={() => setAlign("end")}>end</Button>
+        </div>
+        <div>
+          <span>remove PaddingSpace: {String(removePaddingSpace)} &lt;- </span>
+          <Button onClick={() => setRemovePaddingSpace(undefined)}>unset</Button>
+          <Button onClick={() => setRemovePaddingSpace(false)}>padding</Button>
+          <Button onClick={() => setRemovePaddingSpace(true)}>remove</Button>
+        </div>
+        <div
+          style={{
+            height: 300,
+            width: "100%",
+            background: "red",
+            padding: 30,
+          }}
+        >
+          <Carousel
+            className="w-full h-full bg-bg"
+            align={align}
+            removePadding={removePaddingSpace}
+          >
+            {[0, 1, 2, 3, 4, 5].map((num) => {
+              return {
+                key: num,
+                element: (
+                  <div className="grid place-items-center h-full w-full border border-gray-500">
+                    {num}
+                  </div>
+                ),
+              };
+            })}
+          </Carousel>
         </div>
       </Details>
     </section>

@@ -158,6 +158,27 @@
     color: var(--color-placeholder);
   }
 
+  /* スクロール有無判定 */
+  @keyframes detect-scroll {
+
+    from,
+    to {
+      --can-scroll: ;
+    }
+
+    /* 使用方法
+    {
+      overflow: auto;
+      animation: detect-scroll;
+      animation-timeline: scroll(x self);
+
+      --scroll-value: var(--can-scroll) red;
+      --no-scroll-value: blue;
+      background-color: var(--scroll-value, var(--no-scroll-value));
+    }
+    */
+  }
+
 }
 
 @layer components {
@@ -179,3 +200,4 @@
 @import "./components/react/elements/message-box.css";
 @import "./components/react/elements/form/style.css";
 @import "./components/react/elements/details.css";
+@import "./components/react/elements/carousel.css"

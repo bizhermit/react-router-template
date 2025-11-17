@@ -1,0 +1,142 @@
+@layer components {
+
+  .carousel {
+    --slide-width: 150px;
+    --slide-gap: 10px;
+    /* --slide-width: 100%; */
+
+    position: relative;
+    overflow: hidden;
+    overscroll-behavior: contain;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    align-items: center;
+
+    animation: detect-scroll;
+    animation-timeline: scroll(x self);
+    --carousel-scroll-flag: var(--can-scroll) 1;
+    --carousel-overflow: var(--carousel-scroll-flag, 0);
+    --carousel-slide-align-flag: var(--can-scroll) flex-start;
+
+    &[data-align="start"] {
+      >.carousel-slides {
+        --slide-align: flex-start;
+
+        >.carousel-slide {
+          scroll-snap-align: start;
+          --slide-align: flex-start;
+
+          &:first-child {
+            margin-left: 0;
+          }
+
+          &:last-child {
+            margin-right: calc(100% * var(--carousel-overflow));
+          }
+        }
+      }
+
+    }
+
+    &[data-align="end"] {
+      >.carousel-slides {
+        --slide-align: flex-end;
+
+        >.carousel-slide {
+          scroll-snap-align: end;
+          --slide-align: flex-end;
+
+          &:first-child {
+            margin-left: calc(100% * var(--carousel-overflow));
+          }
+
+          &:last-child {
+            margin-right: 0;
+          }
+        }
+      }
+
+    }
+
+    &[data-nopad="true"] {
+      >.carousel-slides {
+        .carousel-slide {
+          margin-inline: 0 !important;
+        }
+      }
+    }
+  }
+
+  .carousel-dummy-slides,
+  .carousel-slides {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+    overflow: auto;
+    gap: var(--slide-gap);
+  }
+
+  .carousel-dummy-slides {
+    position: absolute;
+    max-width: calc(100% + 1px);
+    width: fit-content;
+    visibility: hidden;
+    pointer-events: none;
+    overflow: hidden;
+    animation: detect-scroll;
+    animation-timeline: scroll(x self);
+    --carousel-dummy-scroll: var(--can-scroll) 1;
+    --carousel-dymmy-width: var(--carousel-dummy-scroll, 1.1);
+    transform: translate(0.1px, 0%);
+  }
+
+  .carousel-slides {
+    --slide-align: center;
+    position: relative;
+    scrollbar-width: none;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    justify-content: var(--carousel-slide-align-flag, var(--slide-align));
+  }
+
+  .carousel-dummy-slide,
+  .carousel-slide {
+    position: relative;
+    width: var(--slide-width);
+    height: 100%;
+    flex: none;
+  }
+
+  .carousel-slide {
+    scroll-snap-align: center;
+
+    &:first-child {
+      margin-left: calc(50% * var(--carousel-overflow));
+    }
+
+    &:last-child {
+      margin-right: calc(50% * var(--carousel-overflow));
+    }
+  }
+
+  .carousel-check {
+    appearance: none;
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+
+  .carousel-selector {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+  }
+
+}
