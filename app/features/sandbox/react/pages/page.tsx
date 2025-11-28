@@ -2,13 +2,14 @@
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { data, useFetcher } from "react-router";
 import { getAuth } from "~/auth/server/loader";
 import getIndexedDB, { type IndexedDBController, type IndexedDBStores } from "~/components/client/indexeddb";
 import { formatDate } from "~/components/objects/date";
 import { parseNumber } from "~/components/objects/numeric";
 import { Button } from "~/components/react/elements/button";
+import { Carousel, useCarousel, type CarouselOptions } from "~/components/react/elements/carousel";
 import { Details } from "~/components/react/elements/details";
 import { useDialog } from "~/components/react/elements/dialog";
 import { CheckBox } from "~/components/react/elements/form/check-box";
@@ -459,6 +460,7 @@ function Contents(props: Route.ComponentProps) {
       <IconsComponent />
       <DialogComponent />
       <FetchComponent />
+      <CarouselComponent />
     </div>
   );
 };
@@ -1464,6 +1466,83 @@ function FetchComponent() {
           >
             delete
           </Button>
+        </div>
+      </Details>
+    </section>
+  );
+};
+
+function CarouselComponent() {
+  const [align, setAlign] = useState<CarouselOptions["align"]>();
+  const [removePaddingSpace, setRemovePaddingSpace] = useState<CarouselOptions["removePadding"]>();
+  const [slideWidth, setSlideWidth] = useState<string | undefined>(undefined);
+  const [carouselHook, carousel] = useCarousel();
+
+  return (
+    <section>
+      <Details summary="Carousel">
+        <div>
+          <span>Align: {align} &lt;- </span>
+          <Button onClick={() => setAlign(undefined)}>unset</Button>
+          <Button onClick={() => setAlign("start")}>start</Button>
+          <Button onClick={() => setAlign("center")}>center</Button>
+          <Button onClick={() => setAlign("end")}>end</Button>
+        </div>
+        <div>
+          <span>remove PaddingSpace: {String(removePaddingSpace)} &lt;- </span>
+          <Button onClick={() => setRemovePaddingSpace(undefined)}>unset</Button>
+          <Button onClick={() => setRemovePaddingSpace(false)}>padding</Button>
+          <Button onClick={() => setRemovePaddingSpace(true)}>remove</Button>
+        </div>
+        <div>
+          <span>slide width</span>
+          <Button onClick={() => setSlideWidth(undefined)}>unset</Button>
+          <Button onClick={() => setSlideWidth("100%")}>100%</Button>
+          <Button onClick={() => setSlideWidth("75%")}>75%</Button>
+          <Button onClick={() => setSlideWidth("100px")}>100px</Button>
+          <Button onClick={() => setSlideWidth("250px")}>250px</Button>
+        </div>
+        <div
+          className="w-full bg-red-600 p-8 flex flex-col"
+          style={{ height: 300 }}
+        >
+          <Carousel
+            className="w-full bg-bg grow shrink"
+            align={align}
+            removePadding={removePaddingSpace}
+            hook={carouselHook}
+            style={{
+              "--slide-width": slideWidth,
+            } as CSSProperties}
+          >
+            {[0, 1, 2, 3, 4, 5].map((num) => {
+              return {
+                key: num,
+                element: (
+                  <div className="grid place-items-center h-full w-full border border-gray-500">
+                    {num}
+                  </div>
+                ),
+              };
+            })}
+          </Carousel>
+          {carousel.hasScroll &&
+            <ol className="flex flex-row justify-center w-full gap-4 flex-none">
+              {
+                [0, 1, 2, 3, 4, 5].map((num) => {
+                  return (
+                    <li key={num}>
+                      <Button
+                        onClick={() => carouselHook.select(num)}
+                        color={carousel.currentIndex === num ? "primary" : "sub"}
+                      >
+                        {num}
+                      </Button>
+                    </li>
+                  );
+                })
+              }
+            </ol>}
         </div>
       </Details>
     </section>
