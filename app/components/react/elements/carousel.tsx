@@ -136,7 +136,8 @@ export function Carousel({
 
   useEffect(() => {
     collectChildren();
-  }, []);
+    select(Math.min(currentIndex.current, children.length - 1));
+  }, [children.length]);
 
   return (
     <div

@@ -2,7 +2,7 @@
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { data, useFetcher } from "react-router";
 import { getAuth } from "~/auth/server/loader";
 import getIndexedDB, { type IndexedDBController, type IndexedDBStores } from "~/components/client/indexeddb";
@@ -1475,6 +1475,7 @@ function FetchComponent() {
 function CarouselComponent() {
   const [align, setAlign] = useState<CarouselOptions["align"]>();
   const [removePaddingSpace, setRemovePaddingSpace] = useState<CarouselOptions["removePadding"]>();
+  const [slideWidth, setSlideWidth] = useState<string | undefined>(undefined);
   const [carouselHook, carousel] = useCarousel();
 
   return (
@@ -1493,6 +1494,14 @@ function CarouselComponent() {
           <Button onClick={() => setRemovePaddingSpace(false)}>padding</Button>
           <Button onClick={() => setRemovePaddingSpace(true)}>remove</Button>
         </div>
+        <div>
+          <span>slide width</span>
+          <Button onClick={() => setSlideWidth(undefined)}>unset</Button>
+          <Button onClick={() => setSlideWidth("100%")}>100%</Button>
+          <Button onClick={() => setSlideWidth("75%")}>75%</Button>
+          <Button onClick={() => setSlideWidth("100px")}>100px</Button>
+          <Button onClick={() => setSlideWidth("250px")}>250px</Button>
+        </div>
         <div
           className="w-full bg-red-600 p-8 flex flex-col"
           style={{ height: 300 }}
@@ -1502,6 +1511,9 @@ function CarouselComponent() {
             align={align}
             removePadding={removePaddingSpace}
             hook={carouselHook}
+            style={{
+              "--slide-width": slideWidth,
+            } as CSSProperties}
           >
             {[0, 1, 2, 3, 4, 5].map((num) => {
               return {

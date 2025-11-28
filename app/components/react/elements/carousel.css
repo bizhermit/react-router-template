@@ -3,7 +3,6 @@
   .carousel {
     --slide-width: 100%;
     --slide-gap: 0rem;
-    /* --slide-width: 200px; */
 
     position: relative;
     overflow: hidden;
@@ -13,8 +12,9 @@
     justify-content: center;
     align-items: center;
 
+    scrollbar-width: none;
     animation: detect-scroll;
-    animation-timeline: scroll(x self);
+    animation-timeline: scroll(y self);
     --carousel-scroll-flag: var(--can-scroll) 1;
     --carousel-overflow: var(--carousel-scroll-flag, 0);
     --carousel-slide-align-flag: var(--can-scroll) flex-start;
@@ -61,7 +61,7 @@
 
     &[data-nopad="true"] {
       >.carousel-slides {
-        .carousel-slide {
+        >.carousel-slide {
           margin-inline: 0 !important;
         }
       }
@@ -74,8 +74,7 @@
     height: 100%;
     display: flex;
     flex-flow: row nowrap;
-    justify-content: flex-start;
-    align-items: flex-start;
+    align-items: stretch;
     overflow: auto;
     gap: var(--slide-gap);
   }
@@ -85,6 +84,7 @@
     max-width: calc(100% + 1px);
     width: fit-content;
     min-width: 100%;
+    justify-content: flex-start;
     visibility: hidden;
     pointer-events: none;
     overflow: hidden;
@@ -92,7 +92,7 @@
     animation-timeline: scroll(x self);
     --carousel-dummy-scroll: var(--can-scroll) 1;
     --carousel-dymmy-width: var(--carousel-dummy-scroll, 1.1);
-    transform: translate(0.1px, 0%);
+    transform: translate(0%, 1px);
   }
 
   .carousel-slides {
@@ -122,14 +122,6 @@
     &:last-child {
       margin-right: calc(50% * var(--carousel-overflow));
     }
-  }
-
-  .carousel-selector {
-    display: flex;
-    flex-flow: row nowrap;
-    justify-content: center;
-    align-items: center;
-    gap: 1rem;
   }
 
 }
