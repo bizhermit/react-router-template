@@ -9,7 +9,7 @@ import getIndexedDB, { type IndexedDBController, type IndexedDBStores } from "~/
 import { formatDate } from "~/components/objects/date";
 import { parseNumber } from "~/components/objects/numeric";
 import { Button } from "~/components/react/elements/button";
-import { Carousel, type CarouselOptions } from "~/components/react/elements/carousel";
+import { Carousel, useCarousel, type CarouselOptions } from "~/components/react/elements/carousel";
 import { Details } from "~/components/react/elements/details";
 import { useDialog } from "~/components/react/elements/dialog";
 import { CheckBox } from "~/components/react/elements/form/check-box";
@@ -1475,6 +1475,7 @@ function FetchComponent() {
 function CarouselComponent() {
   const [align, setAlign] = useState<CarouselOptions["align"]>();
   const [removePaddingSpace, setRemovePaddingSpace] = useState<CarouselOptions["removePadding"]>();
+  const [carouselHook, carousel] = useCarousel();
 
   return (
     <section>
@@ -1493,17 +1494,14 @@ function CarouselComponent() {
           <Button onClick={() => setRemovePaddingSpace(true)}>remove</Button>
         </div>
         <div
-          style={{
-            height: 300,
-            width: "100%",
-            background: "red",
-            padding: 30,
-          }}
+          className="w-full bg-red-600 p-8 flex flex-col"
+          style={{ height: 300 }}
         >
           <Carousel
-            className="w-full h-full bg-bg"
+            className="w-full bg-bg grow shrink"
             align={align}
             removePadding={removePaddingSpace}
+            hook={carouselHook}
           >
             {[0, 1, 2, 3, 4, 5].map((num) => {
               return {
@@ -1516,6 +1514,23 @@ function CarouselComponent() {
               };
             })}
           </Carousel>
+          {carousel.hasScroll &&
+            <ol className="flex flex-row justify-center w-full gap-4 flex-none">
+              {
+                [0, 1, 2, 3, 4, 5].map((num) => {
+                  return (
+                    <li key={num}>
+                      <Button
+                        onClick={() => carouselHook.select(num)}
+                        color={carousel.currentIndex === num ? "primary" : "sub"}
+                      >
+                        {num}
+                      </Button>
+                    </li>
+                  );
+                })
+              }
+            </ol>}
         </div>
       </Details>
     </section>

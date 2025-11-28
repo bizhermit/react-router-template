@@ -1,9 +1,9 @@
 @layer components {
 
   .carousel {
-    --slide-width: 150px;
-    --slide-gap: 10px;
-    /* --slide-width: 100%; */
+    --slide-width: 100%;
+    --slide-gap: 0rem;
+    /* --slide-width: 200px; */
 
     position: relative;
     overflow: hidden;
@@ -84,6 +84,7 @@
     position: absolute;
     max-width: calc(100% + 1px);
     width: fit-content;
+    min-width: 100%;
     visibility: hidden;
     pointer-events: none;
     overflow: hidden;
@@ -121,14 +122,6 @@
     &:last-child {
       margin-right: calc(50% * var(--carousel-overflow));
     }
-  }
-
-  .carousel-check {
-    appearance: none;
-    pointer-events: none;
-    position: absolute;
-    inset: 0;
-    z-index: -1;
   }
 
   .carousel-selector {
