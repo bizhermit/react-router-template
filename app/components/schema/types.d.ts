@@ -8,14 +8,41 @@ namespace Schema {
 
   interface Env {
     isServer: boolean;
-    t: I18nGetter;
   };
 
-  interface Result {
+  interface BaseResult {
     type: "e" | "w" | "i";
-    code: string;
-    message: string;
-  };
+    label?: string | undefined;
+    params?: {};
+    message?: string;
+    actionType?: ActionType;
+  }
+
+  type CustomResult<K extends I18nTextKey = I18nTextKey> = BaseResult & (
+    | {
+      otype: "i18n";
+      code: K;
+      key: I18nTextKey;
+      params?: Omit<I18nReplaceParams<K>, "label">;
+    }
+    | {
+      otype?: undefined;
+      code?: undefined;
+      message: string;
+    }
+  );
+
+  type Result =
+    | CustomResult
+    | StringValidationResult
+    | NumberValidationResult
+    | BooleanValidationResult
+    | DateValidationResult
+    | SplitDateValidationResult
+    | FileValidationResult
+    | ArrayValidationResult
+    | StructValidationResult
+    ;
 
   type Mode = "enabled" | "disabled" | "readonly" | "hidden";
 
@@ -36,9 +63,9 @@ namespace Schema {
     label: string | undefined;
   };
 
-  interface ParserResult<V> {
+  interface ParserResult<V, R = Result> {
     value: V | null | undefined;
-    result?: Result | null | undefined;
+    result?: R | null | undefined;
   };
 
   interface Parser<V> {
@@ -55,8 +82,8 @@ namespace Schema {
     getSource: () => (Source<V> | undefined);
   };
 
-  interface Validator<V> {
-    (params: ValidationParams<V>): Result | null | undefined;
+  interface Validator<V, R = Result> {
+    (params: ValidationParams<V>): R | null | undefined;
   };
 
   interface CustomValidationMessage<V, P = {}> {
@@ -109,17 +136,19 @@ namespace Schema {
 
   type Source<V> = SourceItem<V>[];
 
+  type ActionType = "input" | "select" | "set";
+
   interface BaseProps {
     label?: string;
     refs?: string[];
     mode?: ModeFunction;
-    actionType?: "input" | "select" | "set";
+    actionType?: ActionType;
   };
 
   interface $Base {
     mode?: ModeFunction;
     refs?: string[];
-    actionType: BaseProps["actionType"];
+    actionType: ActionType;
   };
 
   type StrPattern =
@@ -142,6 +171,17 @@ namespace Schema {
     | "post-num"
     ;
 
+  type StringValidationResult = Schema.BaseResult & {
+    otype: "str";
+  } & (
+      | { code: "required"; }
+      | { code: "length"; length: number; currentLength: number; }
+      | { code: "minLength"; minLength: number; currentLength: number; }
+      | { code: "maxLength"; maxLength: number; currentLength: number; }
+      | { code: "pattern"; pattern: Schema.StrPattern | RegExp | null; }
+      | { code: "source"; }
+    );
+
   interface StringProps<V extends string = string> extends BaseProps {
     parser?: Parser<V>;
     required?: Validation<boolean, V>;
@@ -151,7 +191,7 @@ namespace Schema {
     min?: Validation<number, V, { minLength: number; currentLength: number; }>;
     max?: Validation<number, V, { maxLength: number; currentLength: number; }>;
     pattern?: Validation<RegExp | StrPattern, V, { pattern: RegExp | StrPattern; }>;
-    validators?: Array<Validator<V>>;
+    validators?: Array<Validator<V, StringValidationResult | CustomResult>>;
   };
 
   interface $String<V extends string = string> extends $Base {
@@ -168,6 +208,17 @@ namespace Schema {
     pattern: $ValidationValue<RegExp | StrPattern>;
   };
 
+  type NumberValidationResult = Schema.BaseResult & {
+    otype: "num";
+  } & (
+      | { code: "parse"; }
+      | { code: "required"; }
+      | { code: "min"; min: number; }
+      | { code: "max"; max: number; }
+      | { code: "float"; float: number; currentFloat: number; }
+      | { code: "source"; }
+    );
+
   interface NumberProps<V extends number = number> extends BaseProps {
     parser?: Parser<V>;
     required?: Validation<boolean, V>;
@@ -176,7 +227,7 @@ namespace Schema {
     min?: Validation<number, V, { min: number; }>;
     max?: Validation<number, V, { max: number; }>;
     float?: Validation<number, V, { float: number; currentFloat: number; }>;
-    validators?: Array<Validator<V>>;
+    validators?: Array<Validator<V, NumberValidationResult | CustomResult>>;
   };
 
   interface $Number<V extends number = number> extends $Base {
@@ -194,6 +245,14 @@ namespace Schema {
 
   type BooleanValue = boolean | number | string;
 
+  type BooleanValidationResult = Schema.BaseResult & {
+    otype: "bool";
+  } & (
+      | { code: "parse"; }
+      | { code: "required"; }
+      | { code: "source"; }
+    );
+
   interface BooleanProps<
     TV extends BooleanValue = BooleanValue,
     FV extends BooleanValue = BooleanValue
@@ -205,7 +264,7 @@ namespace Schema {
     parser?: Parser<TV | FV>;
     required?: Validation<boolean, TV | FV>;
     requiredAllowFalse?: boolean;
-    validators?: Array<Validator<TV | FV>>;
+    validators?: Array<Validator<TV | FV, BooleanValidationResult | CustomResult>>;
   };
 
   interface $Boolean<
@@ -240,6 +299,20 @@ namespace Schema {
     | DateTimeString
     ;
 
+  type DateValidationResult = Schema.BaseResult & {
+    otype: "month" | "date" | "datetime";
+    formatPattern: string;
+  } & (
+      | { code: "parse"; }
+      | { code: "required"; }
+      | { code: "minDate"; minDate: Date; }
+      | { code: "maxDate"; maxDate: Date; }
+      | { code: "minTime"; minTime: TimeString; }
+      | { code: "maxTime"; maxTime: TimeString; }
+      | { code: "pair"; position: "before" | "after"; pairDate: Date; }
+      | { code: "source"; }
+    );
+
   interface DateBaseProps<V extends DateValueString = DateValueString> extends BaseProps {
     parser?: Parser<V>;
     required?: Validation<boolean, V>;
@@ -252,7 +325,7 @@ namespace Schema {
       position: "before" | "after";
       same?: boolean;
     }, V, { pairDate: Date; date: Date; }>;
-    validators?: Array<Validator<V>>;
+    validators?: Array<Validator<V, DateValidationResult | CustomResult>>;
   };
 
   interface MonthProps<V extends MonthString = MonthString> extends DateBaseProps<V> { };
@@ -265,13 +338,23 @@ namespace Schema {
     maxTime?: Validation<TimeString, V, { maxTime: TimeString; date: Date; }>;
   };
 
+  type SplitDateValidationResult = Schema.BaseResult & {
+    otype: `sdate-${SplitDateTarget}` | "sdate";
+  } & (
+      | { code: "parse"; }
+      | { code: "required"; }
+      | { code: "split-required"; targets: SplitDateTarget[]; }
+      | { code: "min"; min: number; }
+      | { code: "max"; max: number; }
+    );
+
   interface SplitDateProps<V extends number = number> extends BaseProps {
     parser?: Parser<V>;
     required?: Validation<boolean, V>;
     min?: Validation<number, V, { min: number; }>;
     max?: Validation<number, V, { max: number; }>;
     step?: number;
-    validators?: Array<Validator<V>>;
+    validators?: Array<Validator<V, SplitDateValidationResult>>;
   };
 
   interface $BaseDate<V extends DateValueString = DateValueString> extends $Base {
@@ -338,12 +421,21 @@ namespace Schema {
     step: number;
   };
 
+  type FileValidationResult = Schema.BaseResult & {
+    otype: "file";
+  } & (
+      | { code: "parse"; }
+      | { code: "required"; }
+      | { code: "accept"; accept: string; currentAccept: string; }
+      | { code: "maxSize"; maxSize: number; currentSize: number; }
+    );
+
   interface FileProps<V extends File | string = File | string> extends BaseProps {
     parser?: Parser<V>;
     required?: Validation<boolean, V>;
     accept?: Validation<string, V, { accept: string; }>;
     maxSize?: Validation<number, V, { maxSize: number; maxSizeText: string; }>;
-    validators?: Array<Validator<V>>;
+    validators?: Array<Validator<V, FileValidationResult | CustomResult>>;
   };
 
   interface $File<V extends File | string = File | string> extends $Base {
@@ -356,6 +448,16 @@ namespace Schema {
     maxSize: $ValidationValue<number>;
   };
 
+  type ArrayValidationResult = Schema.BaseResult & {
+    otype: "arr";
+  } & (
+      | { code: "required"; }
+      | { code: "length"; length: number; currentLength: number; }
+      | { code: "minLength"; minLength: number; currentLength: number; }
+      | { code: "maxLength"; maxLength: number; currentLength: number; }
+      | { code: "source"; }
+    );
+
   interface ArrayProps<Prop extends $Any = $Any> extends BaseProps {
     prop: Prop;
     parser?: Parser<ValueType<Prop>[]>;
@@ -365,7 +467,7 @@ namespace Schema {
     len?: Validation<number, ValueType<Prop>[], { length: number; currentLength: number; }>;
     min?: Validation<number, ValueType<Prop>[], { minLength: number; currentLength: number; }>;
     max?: Validation<number, ValueType<Prop>[], { maxLength: number; currentLength: number; }>;
-    validators?: Array<Validator<ValueType<Prop>[]>>;
+    validators?: Array<Validator<ValueType<Prop>[], ArrayValidationResult | CustomResult>>;
   };
 
   interface $Array<Prop extends $Any = $Any> extends $Base {
@@ -383,6 +485,12 @@ namespace Schema {
     maxLength: $ValidationValue<number>;
   };
 
+  type StructValidationResult = Schema.BaseResult & {
+    otype: "struct";
+  } & (
+      | { code: "required"; }
+    );
+
   interface StructProps<
     Props extends Record<string, $Any> = Record<string, $Any>
   > extends BaseProps {
@@ -390,7 +498,7 @@ namespace Schema {
     key?: string | ((value: Record<string, unknown> | null | undefined) => string);
     parser?: Parser<SchemaValue<Props>>;
     required?: Validation<boolean, SchemaValue<Props>>;
-    validators?: Array<Validator<SchemaValue<Props>>>;
+    validators?: Array<Validator<SchemaValue<Props>, StructValidationResult | CustomResult>>;
   };
 
   interface $Struct<Props extends Record<string, $Any> = Record<string, $Any>> extends $Base {

@@ -1,4 +1,5 @@
-import { useLayoutEffect, useState } from "react";
+import { use, useLayoutEffect, useState } from "react";
+import { I18nContext } from "../../hooks/i18n";
 import { getValidationValue } from "./common";
 
 export function getBooleanSource({
@@ -6,7 +7,7 @@ export function getBooleanSource({
   t,
 }: {
   dataItem: Schema.DataItem<Schema.$Boolean>;
-  t: Schema.Env["t"];
+  t: I18nGetter;
 }) {
   let trueText = "", falseText = "";
   if (dataItem._.trueText) trueText = t(dataItem._.trueText as I18nTextKey) || "";
@@ -23,7 +24,6 @@ export function useSource<D extends Schema.DataItem>({
   dataItem,
   propsSource,
   getCommonParams,
-  env,
 }: {
   dataItem: D;
   propsSource: Schema.Source<Schema.ValueType<D["_"]>> | undefined;
@@ -40,7 +40,7 @@ export function useSource<D extends Schema.DataItem>({
     if (dataItem._.type === "bool") {
       return getBooleanSource({
         dataItem: dataItem as Schema.DataItem<Schema.$Boolean>,
-        t: env.t,
+        t: use(I18nContext).t,
       }) as T;
     }
     return null;

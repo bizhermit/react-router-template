@@ -1,5 +1,7 @@
-import { useState, type HTMLAttributes } from "react";
+import { use, useState, type HTMLAttributes } from "react";
 import { useSchemaEffect } from "~/components/react/hooks/schema";
+import { getResultMessage } from "~/components/schema/message";
+import { I18nContext } from "../../hooks/i18n";
 import { clsx } from "../utilities";
 
 export type InputMessageProps = HTMLAttributes<HTMLSpanElement> & {
@@ -34,6 +36,7 @@ export function InputMessage({
 
   return (
     <InputMessageSpan
+      id={`${schema.id}_${$.name}__msg`}
       {...props}
       result={result}
     />
@@ -47,12 +50,16 @@ export function InputMessageSpan({
   result: Schema.Result | null | undefined;
 } & HTMLAttributes<HTMLSpanElement>) {
   if (!result || result.type !== "e") return null;
+
+  const t = use(I18nContext).t;
+  const message = getResultMessage(t, result);
+
   return (
     <span
       {...props}
       className={clsx("ipt-msg", props.className)}
     >
-      {result?.message}
+      {message}
     </span>
   );
 };

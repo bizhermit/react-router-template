@@ -1,4 +1,4 @@
-import { getInvalidValueTextKey, getRequiredTextKey, getValidationArray } from "./utilities";
+import { getValidationArray } from "./utilities";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function ARRAY_PARSER({ value }: Schema.ParserParams): Schema.ParserResult<Array<any>> {
@@ -15,7 +15,7 @@ export function $array<Props extends Schema.ArrayProps>(props: Props) {
   const key = props.prop.type === "struct" ? props.prop.key : undefined;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const validators: Array<Schema.Validator<Array<any>>> = [];
+  const validators: Array<Schema.Validator<Array<any>, Schema.ArrayValidationResult>> = [];
 
   const actionType = props?.actionType ?? "set";
   const [required, getRequiredMessage] = getValidationArray(props?.required);
@@ -24,22 +24,21 @@ export function $array<Props extends Schema.ArrayProps>(props: Props) {
   const [maxLength, getMaxLengthMessage] = getValidationArray(props?.max);
   const [sourceValidation, getSourceValidationMessage] = getValidationArray(props?.sourceValidation);
 
-  if (required) {
-    const textKey = getRequiredTextKey(actionType);
-    const getMessage: Schema.MessageGetter<typeof getRequiredMessage> = getRequiredMessage ?
-      getRequiredMessage :
-      (p) => p.env.t(textKey, {
-        label: p.label || p.env.t("default_label"),
-      });
+  const baseResult = {
+    label: props?.label,
+    otype: "arr",
+    type: "e",
+    actionType,
+  } as const satisfies Pick<Schema.ArrayValidationResult, "type" | "label" | "actionType" | "otype">;
 
+  if (required) {
     if (typeof required === "function") {
       validators.push((p) => {
         if (!required(p)) return null;
         if (p.value == null) {
           return {
-            type: "e",
+            ...baseResult,
             code: "required",
-            message: getMessage(p),
           };
         }
         return null;
@@ -48,9 +47,8 @@ export function $array<Props extends Schema.ArrayProps>(props: Props) {
       validators.push((p) => {
         if (p.value == null) {
           return {
-            type: "e",
+            ...baseResult,
             code: "required",
-            message: getMessage(p),
           };
         }
         return null;
@@ -59,14 +57,6 @@ export function $array<Props extends Schema.ArrayProps>(props: Props) {
   };
 
   if (length != null) {
-    const textKey: I18nTextKey = `matchArrLength_${actionType}`;
-    const getMessage: Schema.MessageGetter<typeof getLengthMessage> = getLengthMessage ?
-      getLengthMessage :
-      (p) => p.env.t(textKey, {
-        label: p.label || p.env.t("default_label"),
-        length: p.length,
-      });
-
     if (typeof length === "function") {
       validators.push((p) => {
         if (p.value == null) return null;
@@ -74,9 +64,10 @@ export function $array<Props extends Schema.ArrayProps>(props: Props) {
         const cur = p.value.length;
         if (cur === len) return null;
         return {
-          type: "e",
+          ...baseResult,
           code: "length",
-          message: getMessage({ ...p, length: len, currentLength: cur }),
+          length: len,
+          currentLength: cur,
         };
       });
     } else {
@@ -85,22 +76,15 @@ export function $array<Props extends Schema.ArrayProps>(props: Props) {
         const cur = p.value.length;
         if (cur === length) return null;
         return {
-          type: "e",
+          ...baseResult,
           code: "length",
-          message: getMessage({ ...p, length: length, currentLength: cur }),
+          length,
+          currentLength: cur,
         };
       });
     }
   } else {
     if (minLength != null) {
-      const textKey: I18nTextKey = `minArrLength_${actionType}`;
-      const getMessage: Schema.MessageGetter<typeof getMinLengthMessage> = getMinLengthMessage ?
-        getMinLengthMessage :
-        (p) => p.env.t(textKey, {
-          label: p.label || p.env.t("default_label"),
-          minLength: p.minLength,
-        });
-
       if (typeof minLength === "function") {
         validators.push((p) => {
           if (p.value == null) return null;
@@ -108,9 +92,10 @@ export function $array<Props extends Schema.ArrayProps>(props: Props) {
           const cur = p.value.length;
           if (minLen <= cur) return null;
           return {
-            type: "e",
+            ...baseResult,
             code: "minLength",
-            message: getMessage({ ...p, minLength: minLen, currentLength: cur }),
+            minLength: minLen,
+            currentLength: cur,
           };
         });
       } else {
@@ -119,23 +104,16 @@ export function $array<Props extends Schema.ArrayProps>(props: Props) {
           const cur = p.value.length;
           if (minLength <= cur) return null;
           return {
-            type: "e",
+            ...baseResult,
             code: "minLength",
-            message: getMessage({ ...p, minLength, currentLength: cur }),
+            minLength,
+            currentLength: cur,
           };
         });
       }
     }
 
     if (maxLength != null) {
-      const textKey: I18nTextKey = `maxArrLength_${actionType}`;
-      const getMessage: Schema.MessageGetter<typeof getMaxLengthMessage> = getMaxLengthMessage ?
-        getMaxLengthMessage :
-        (p) => p.env.t(textKey, {
-          label: p.label || p.env.t("default_label"),
-          maxLength: p.maxLength,
-        });
-
       if (typeof maxLength === "function") {
         validators.push((p) => {
           if (p.value == null) return null;
@@ -143,9 +121,10 @@ export function $array<Props extends Schema.ArrayProps>(props: Props) {
           const cur = p.value.length;
           if (cur >= maxLen) return null;
           return {
-            type: "e",
+            ...baseResult,
             code: "maxLength",
-            message: getMessage({ ...p, maxLength: maxLen, currentLength: cur }),
+            maxLength: maxLen,
+            currentLength: cur,
           };
         });
       } else {
@@ -154,9 +133,10 @@ export function $array<Props extends Schema.ArrayProps>(props: Props) {
           const cur = p.value.length;
           if (cur >= maxLength) return null;
           return {
-            type: "e",
+            ...baseResult,
             code: "maxLength",
-            message: getMessage({ ...p, maxLength, currentLength: cur }),
+            maxLength,
+            currentLength: cur,
           };
         });
       }
@@ -165,13 +145,6 @@ export function $array<Props extends Schema.ArrayProps>(props: Props) {
 
   if (sourceValidation !== false && props.source) {
     const source = props.source;
-    const textKey = getInvalidValueTextKey(actionType);
-    const getMessage: Schema.MessageGetter<typeof getSourceValidationMessage> =
-      getSourceValidationMessage ?
-        getSourceValidationMessage :
-        (p) => p.env.t(textKey, {
-          label: p.label || p.env.t("default_label"),
-        });
 
     if (typeof source === "function") {
       validators.push((p) => {
@@ -179,9 +152,8 @@ export function $array<Props extends Schema.ArrayProps>(props: Props) {
         const src = source(p);
         if (!p.value.some(v => !src.some(item => item.value === v))) return null;
         return {
-          type: "e",
+          ...baseResult,
           code: "source",
-          message: getMessage({ ...p, source: src }),
         };
       });
     } else {
@@ -189,16 +161,15 @@ export function $array<Props extends Schema.ArrayProps>(props: Props) {
         if (p.value == null || p.value.length === 0) return null;
         if (!p.value.some(v => !source.some(item => item.value === v))) return null;
         return {
-          type: "e",
+          ...baseResult,
           code: "source",
-          message: getMessage({ ...p, source }),
         };
       });
     }
   }
 
   if (props.validators) {
-    validators.push(...props.validators);
+    (validators as typeof props.validators).push(...props.validators);
   }
 
   return {

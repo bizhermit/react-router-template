@@ -1,3 +1,5 @@
+export const DEFAULT_LABEL_KEY = "default_label";
+
 export function getValidationArray<T extends Schema.Validation<unknown, unknown>>(validation: T) {
   type U = Schema.ValidationArray<T>;
   if (validation == null) return [undefined] as U;

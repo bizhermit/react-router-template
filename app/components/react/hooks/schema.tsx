@@ -2,13 +2,14 @@
 
 import { createContext, use, useCallback, useContext, useId, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type FormEvent, type FormHTMLAttributes, type ReactNode, type RefObject } from "react";
 import { useAuthContext } from "~/auth/client/context";
-import { useText } from "~/components/react/hooks/i18n";
+import { getResultMessage } from "~/components/schema/message";
 import { getFocusableElement } from "../../client/dom/focus";
 import { clone } from "../../objects";
 import { ProxyData, getRelativeName } from "../../objects/data";
 import { parseWithSchema } from "../../schema";
 import type { InputWrapProps } from "../elements/form/common";
 import { ValidScriptsContext } from "../providers/valid-scripts";
+import { I18nContext } from "./i18n";
 
 export interface SchemaEffectParams_Refresh {
   type: "refresh";
@@ -61,6 +62,7 @@ export type SchemaValidationTrigger = "change" | "submit";
 type ResetValidationMode = "default" | "clear" | "submission";
 
 interface SchemaContextProps<S extends Record<string, Schema.$Any> = Record<string, Schema.$Any>> {
+  id: string;
   env: Schema.Env;
   data: RefObject<ProxyData>;
   dep: RefObject<Record<string, unknown>>;
@@ -93,6 +95,7 @@ interface SchemaContextProps<S extends Record<string, Schema.$Any> = Record<stri
 };
 
 export const SchemaContext = createContext<SchemaContextProps>({
+  id: null!,
   env: null!,
   data: { current: null! },
   dep: { current: null! },
@@ -116,6 +119,7 @@ export const SchemaContext = createContext<SchemaContextProps>({
 const EMPTY_STRUCT = {} as const;
 
 interface Props<S extends Record<string, Schema.$Any>> {
+  id?: string;
   schema: S;
   state?: FormState;
   loaderData?: Record<string, any> | null | undefined;
@@ -128,13 +132,13 @@ interface Props<S extends Record<string, Schema.$Any>> {
 };
 
 export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>) {
-  const t = useText();
   const env = useRef<Schema.Env>({
     isServer: false,
-    t,
   });
   const scripts = use(ValidScriptsContext);
   const auth = useAuthContext();
+  const defaultId = useId();
+  const id = props.id || defaultId;
 
   const isInitialize = useRef(true);
   const isFirstLoad = useRef(true);
@@ -185,7 +189,7 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
         continue;
       }
       if (typeof r === "string") {
-        results.current[k] = { type: "e", code: "", message: r };
+        results.current[k] = { type: "e", message: r };
       }
     }
     bindData.current = new ProxyData(submission.data, ({ items }) => {
@@ -240,8 +244,14 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
     } else {
       const current = results.current[name];
       change = current == null
-        || current.message !== result.message
-        || current.type !== result.type;
+        || (() => {
+          const cEntries = Object.entries(current);
+          if (cEntries.length !== Object.keys(result).length) return true;
+          for (const [k, v] of cEntries) {
+            if ((result as unknown as { [x: string]: unknown; })[k] !== v) return true;
+          }
+          return false;
+        })();
       results.current[name] = result;
     }
     return change;
@@ -441,6 +451,7 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
       >
         <SchemaContext
           value={{
+            id,
             env: env.current,
             data: bindData,
             dep,
@@ -513,6 +524,7 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
   };
 
   return {
+    id,
     SchemaProvider,
     dataItems: dataItems.current,
     getData: function () {
@@ -974,7 +986,6 @@ export function useSchemaItem<D extends Schema.DataItem>({
   } else {
     stateRef.current = "enabled";
   }
-  const isInvalid = result?.type === "e";
 
   function set(value: Schema.ValueType<D["_"], false> | null | undefined) {
     const submission = effect(value);
@@ -985,6 +996,12 @@ export function useSchemaItem<D extends Schema.DataItem>({
     );
     return submission;
   };
+
+  const isInvalid = result?.type === "e";
+
+  const errormessage = isInvalid ? (
+    props.hideMessage ? getResultMessage(use(I18nContext).t, result) : `${schema.id}_${$.name}__msg`
+  ) : undefined;
 
   return {
     props,
@@ -1002,7 +1019,7 @@ export function useSchemaItem<D extends Schema.DataItem>({
     parse,
     validation,
     invalid: isInvalid,
-    errormessage: isInvalid ? result.message : undefined,
+    errormessage,
     data: schema.data.current,
     dep: schema.dep.current,
     env: schema.env,

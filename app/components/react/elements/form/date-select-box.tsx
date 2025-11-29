@@ -1,7 +1,8 @@
-import { useId, useLayoutEffect, useMemo, useRef, useState, type ChangeEvent, type Dispatch, type ReactNode, type RefObject, type SetStateAction } from "react";
+import { use, useId, useLayoutEffect, useMemo, useRef, useState, type ChangeEvent, type Dispatch, type ReactNode, type RefObject, type SetStateAction } from "react";
 import { formatDate, parseDate } from "~/components/objects/date";
 import { getSchemaItemMode, getSchemaItemRequired, getSchemaItemResult, optimizeRefs, schemaItemEffect, schemaItemValidation, useFieldSet, useSchemaEffect, type SchemaEffectParams_Result, type SchemaEffectParams_ValueResult } from "~/components/react/hooks/schema";
 import { parseTimeNums, parseTypedDate } from "~/components/schema/date";
+import { I18nContext } from "../../hooks/i18n";
 import { DownIcon } from "../icon";
 import { clsx, ZERO_WIDTH_SPACE } from "../utilities";
 import { getValidationValue, InputDummyFocus, InputField, InputGroup, Placeholder, type InputWrapProps } from "./common";
@@ -26,9 +27,9 @@ function SepSpan(props: { children: ReactNode; }) {
 };
 
 function selectBoxDisplayResult(
-  t: Schema.Env["t"],
+  t: I18nGetter,
   label: string | undefined,
-  actionType: Schema.BaseProps["actionType"],
+  actionType: Schema.ActionType,
   r: Schema.Result | null | undefined,
   Y: Schema.Result | null | undefined,
   M: Schema.Result | null | undefined,
@@ -37,22 +38,22 @@ function selectBoxDisplayResult(
   m: Schema.Result | null | undefined,
   s: Schema.Result | null | undefined
 ): Schema.Result | null | undefined {
-  const req: Array<Schema.SplitDateTarget> = [];
-  if (Y?.code === "required") req.push("Y");
-  if (M?.code === "required") req.push("M");
-  if (D?.code === "required") req.push("D");
-  if (h?.code === "required") req.push("h");
-  if (m?.code === "required") req.push("m");
-  if (s?.code === "required") req.push("s");
-  if (req.length > 0) {
+  const targets: Array<Schema.SplitDateTarget> = [];
+  if (Y?.code === "required") targets.push("Y");
+  if (M?.code === "required") targets.push("M");
+  if (D?.code === "required") targets.push("D");
+  if (h?.code === "required") targets.push("h");
+  if (m?.code === "required") targets.push("m");
+  if (s?.code === "required") targets.push("s");
+  if (targets.length > 0) {
     return {
       type: "e",
-      message: t(`requiredSplitDate_${actionType || "select"}`, {
-        label: label || t("default_label"),
-        target: req.join(","),
-      }),
+      label,
+      actionType,
+      otype: "sdate-D",
       code: "split-required",
-    };
+      targets,
+    } satisfies Schema.SplitDateValidationResult;
   }
   return Y ?? M ?? D ?? h ?? m ?? s ?? r;
 };
@@ -1061,7 +1062,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
   };
 
   const dispayResult = selectBoxDisplayResult(
-    schema.env.t,
+    use(I18nContext).t,
     $date.label,
     $date._.actionType,
     result,

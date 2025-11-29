@@ -1,5 +1,5 @@
 import { getLength } from "../objects/string";
-import { getInvalidValueTextKey, getRequiredTextKey, getValidationArray } from "./utilities";
+import { getValidationArray } from "./utilities";
 
 function isIpv4Address(str: string | null | undefined) {
   if (str == null) return false;
@@ -144,7 +144,7 @@ function STRING_PARSER({ value }: Schema.ParserParams): Schema.ParserResult<stri
 };
 
 export function $str<Props extends Schema.StringProps>(props?: Props) {
-  const validators: Array<Schema.Validator<string>> = [];
+  const validators: Array<Schema.Validator<string, Schema.StringValidationResult>> = [];
 
   const actionType = props?.actionType ?? (props?.source && props.sourceValidation !== false ? "select" : "input");
   const [required, getRequiredMessage] = getValidationArray(props?.required);
@@ -154,22 +154,21 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
   const [pattern, getPatternMessage] = getValidationArray(props?.pattern);
   const [sourceValidation, getSourceValidationMessage] = getValidationArray(props?.sourceValidation);
 
-  if (required) {
-    const textKey = getRequiredTextKey(actionType);
-    const getMessage: Schema.MessageGetter<typeof getRequiredMessage> = getRequiredMessage ?
-      getRequiredMessage :
-      (p) => p.env.t(textKey, {
-        label: p.label || p.env.t("default_label"),
-      });
+  const baseResult = {
+    label: props?.label,
+    otype: "str",
+    type: "e",
+    actionType,
+  } as const satisfies Pick<Schema.StringValidationResult, "type" | "label" | "actionType" | "otype">;
 
+  if (required) {
     if (typeof required === "function") {
       validators.push((p) => {
         if (!required(p)) return null;
         if (p.value == null || p.value === "") {
           return {
-            type: "e",
+            ...baseResult,
             code: "required",
-            message: getMessage(p),
           };
         }
         return null;
@@ -178,9 +177,8 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
       validators.push((p) => {
         if (p.value == null || p.value === "") {
           return {
-            type: "e",
+            ...baseResult,
             code: "required",
-            message: getMessage(p),
           };
         }
         return null;
@@ -190,13 +188,6 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
 
   if (sourceValidation !== false && props?.source) {
     const source = props.source;
-    const textKey = getInvalidValueTextKey(actionType);
-    const getMessage: Schema.MessageGetter<typeof getSourceValidationMessage> =
-      getSourceValidationMessage ?
-        getSourceValidationMessage :
-        (p) => p.env.t(textKey, {
-          label: p.label || p.env.t("default_label"),
-        });
 
     if (typeof source === "function") {
       validators.push((p) => {
@@ -204,9 +195,8 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
         const src = source(p);
         if (src.some(item => item.value === p.value)) return null;
         return {
-          type: "e",
+          ...baseResult,
           code: "source",
-          message: getMessage({ ...p, source: src }),
         };
       });
     } else {
@@ -214,21 +204,13 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
         if (p.value == null || p.value === "") return null;
         if (source.some(item => item.value === p.value)) return null;
         return {
-          type: "e",
+          ...baseResult,
           code: "source",
-          message: getMessage({ ...p, source }),
         };
       });
     }
   } else {
     if (length != null) {
-      const getMessage: Schema.MessageGetter<typeof getLengthMessage> = getLengthMessage ?
-        getLengthMessage :
-        (p) => p.env.t("matchStrLength", {
-          label: p.label || p.env.t("default_label"),
-          length: p.length,
-        });
-
       if (typeof length === "function") {
         validators.push((p) => {
           if (p.value == null || p.value === "") return null;
@@ -236,9 +218,10 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
           const cur = getLength(p.value);
           if (cur === len) return null;
           return {
-            type: "e",
+            ...baseResult,
             code: "length",
-            message: getMessage({ ...p, length: len, currentLength: cur }),
+            length: len,
+            currentLength: cur,
           };
         });
       } else {
@@ -247,21 +230,15 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
           const cur = getLength(p.value);
           if (cur === length) return null;
           return {
-            type: "e",
+            ...baseResult,
             code: "length",
-            message: getMessage({ ...p, length: length, currentLength: cur }),
+            length,
+            currentLength: cur,
           };
         });
       }
     } else {
       if (minLength != null) {
-        const getMessage: Schema.MessageGetter<typeof getMinLengthMessage> = getMinLengthMessage ?
-          getMinLengthMessage :
-          (p) => p.env.t("minStrLength", {
-            label: p.label || p.env.t("default_label"),
-            minLength: p.minLength,
-          });
-
         if (typeof minLength === "function") {
           validators.push((p) => {
             if (p.value == null || p.value === "") return null;
@@ -269,9 +246,10 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
             const cur = getLength(p.value);
             if (minLen <= cur) return null;
             return {
-              type: "e",
+              ...baseResult,
               code: "minLength",
-              message: getMessage({ ...p, minLength: minLen, currentLength: cur }),
+              minLength: minLen,
+              currentLength: cur,
             };
           });
         } else {
@@ -280,22 +258,16 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
             const cur = getLength(p.value);
             if (minLength <= cur) return null;
             return {
-              type: "e",
+              ...baseResult,
               code: "minLength",
-              message: getMessage({ ...p, minLength, currentLength: cur }),
+              minLength,
+              currentLength: cur,
             };
           });
         }
       }
 
       if (maxLength != null) {
-        const getMessage: Schema.MessageGetter<typeof getMaxLengthMessage> = getMaxLengthMessage ?
-          getMaxLengthMessage :
-          (p) => p.env.t("maxStrLength", {
-            label: p.label || p.env.t("default_label"),
-            maxLength: p.maxLength,
-          });
-
         if (typeof maxLength === "function") {
           validators.push((p) => {
             if (p.value == null || p.value === "") return null;
@@ -303,9 +275,10 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
             const cur = getLength(p.value);
             if (cur <= maxLen) return null;
             return {
-              type: "e",
+              ...baseResult,
               code: "maxLength",
-              message: getMessage({ ...p, maxLength: maxLen, currentLength: cur }),
+              maxLength: maxLen,
+              currentLength: cur,
             };
           });
         } else {
@@ -314,9 +287,10 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
             const cur = getLength(p.value);
             if (cur <= maxLength) return null;
             return {
-              type: "e",
+              ...baseResult,
               code: "maxLength",
-              message: getMessage({ ...p, maxLength, currentLength: cur }),
+              maxLength,
+              currentLength: cur,
             };
           });
         }
@@ -324,13 +298,6 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
     }
 
     if (pattern) {
-      const getMessage: Schema.MessageGetter<typeof getPatternMessage> = getPatternMessage ?
-        getPatternMessage :
-        (p) => p.env.t("invalidPattern_input", {
-          label: p.label || p.env.t("default_label"),
-          pattern: p.env.t(typeof p.pattern === "string" ? p.pattern : "specifiedFormat"),
-        });
-
       if (typeof pattern === "function") {
         validators.push((p) => {
           if (p.value == null || p.value === "") return null;
@@ -339,16 +306,16 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
             const check = getStringPatternChecker(pat);
             if (check(p.value)) return null;
             return {
-              type: "e",
+              ...baseResult,
               code: "pattern",
-              message: getMessage({ ...p, pattern: pat }),
+              pattern: pat,
             };
           }
           if (pat.test(p.value)) return null;
           return {
-            type: "e",
+            ...baseResult,
             code: "pattern",
-            message: getMessage({ ...p, pattern: pat }),
+            pattern: pat,
           };
         });
       } else {
@@ -358,9 +325,9 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
             if (p.value == null || p.value === "") return null;
             if (check(p.value)) return null;
             return {
-              type: "e",
+              ...baseResult,
               code: "pattern",
-              message: getMessage({ ...p, pattern }),
+              pattern,
             };
           });
         } else {
@@ -368,9 +335,9 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
             if (p.value == null || p.value === "") return null;
             if (pattern.test(p.value)) return null;
             return {
-              type: "e",
+              ...baseResult,
               code: "pattern",
-              message: getMessage({ ...p, pattern }),
+              pattern,
             };
           });
         }
@@ -379,7 +346,7 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
   }
 
   if (props?.validators) {
-    validators.push(...props.validators);
+    (validators as typeof props.validators).push(...props.validators);
   }
 
   return {

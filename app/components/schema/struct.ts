@@ -1,33 +1,34 @@
-import { getRequiredTextKey, getValidationArray } from "./utilities";
+import { getValidationArray } from "./utilities";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function STRUCT_PARSER({ value }: Schema.ParserParams): Schema.ParserResult<Record<string, any>> {
+function STRUCT_PARSER({
+  value,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+}: Schema.ParserParams): Schema.ParserResult<Record<string, any>, Schema.StructValidationResult> {
   return { value: value as Record<string, unknown> };
 };
 
 export function $struct<Props extends Schema.StructProps>(props: Props) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const validators: Array<Schema.Validator<Record<string, any>>> = [];
+  const validators: Array<Schema.Validator<Record<string, any>, Schema.StructValidationResult>> = [];
 
   const actionType = props.actionType ?? "set";
   const [required, getRequiredMessage] = getValidationArray(props?.required);
 
-  if (required) {
-    const textKey = getRequiredTextKey(actionType);
-    const getMessage: Schema.MessageGetter<typeof getRequiredMessage> = getRequiredMessage ?
-      getRequiredMessage :
-      (p) => p.env.t(textKey, {
-        label: p.label || p.env.t("default_label"),
-      });
+  const baseResult = {
+    label: props?.label,
+    otype: "struct",
+    type: "e",
+    actionType,
+  } as const satisfies Pick<Schema.StructValidationResult, "type" | "label" | "actionType" | "otype">;
 
+  if (required) {
     if (typeof required === "function") {
       validators.push((p) => {
         if (!required(p)) return null;
         if (p.value == null) {
           return {
-            type: "e",
+            ...baseResult,
             code: "required",
-            message: getMessage(p),
           };
         }
         return null;
@@ -36,9 +37,8 @@ export function $struct<Props extends Schema.StructProps>(props: Props) {
       validators.push((p) => {
         if (p.value == null) {
           return {
-            type: "e",
+            ...baseResult,
             code: "required",
-            message: getMessage(p),
           };
         }
         return null;
@@ -47,7 +47,7 @@ export function $struct<Props extends Schema.StructProps>(props: Props) {
   };
 
   if (props.validators) {
-    validators.push(...props.validators);
+    (validators as typeof props.validators).push(...props.validators);
   }
 
   return {
