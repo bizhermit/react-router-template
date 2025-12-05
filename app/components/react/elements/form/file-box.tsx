@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type ChangeEvent, type DragEvent, type Key
 import { convertBase64ToFile } from "~/components/objects/file";
 import { useSchemaItem } from "~/components/react/hooks/schema";
 import { clsx } from "../utilities";
-import { getValidationValue, InputField, type InputWrapProps } from "./common";
+import { getValidationValue, InputField, Placeholder, type InputWrapProps } from "./common";
 import type { FormItemHookProps } from "./hooks";
 
 export type FileBoxProps<D extends Schema.DataItem<Schema.$File>> = InputWrapProps & {
@@ -159,9 +159,13 @@ export function FileBox<D extends Schema.DataItem<Schema.$File>>({
         />
         {
           validScripts && placeholder &&
-          <div className="text-placeholder px-input-pad-x py-input-pad-y">
+          <Placeholder
+            className="relative pr-input-pad-x"
+            state={state}
+            validScripts={validScripts}
+          >
             {placeholder}
-          </div>
+          </Placeholder>
         }
       </InputField>
       {

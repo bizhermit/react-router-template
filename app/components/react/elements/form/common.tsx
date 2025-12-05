@@ -139,12 +139,14 @@ export function InputLabelText({
 }
 
 interface PlaceholderProps {
+  className?: string;
   validScripts: boolean;
   state: RefObject<Schema.Mode>;
-  children?: string;
+  children?: ReactNode;
 };
 
 export function Placeholder({
+  className,
   validScripts,
   state,
   children,
@@ -153,7 +155,7 @@ export function Placeholder({
   if (validScripts && state.current === "disabled") return null;
   return (
     <div
-      className="ipt-placeholder"
+      className={clsx("ipt-placeholder", className)}
     >
       <span className="w-full overflow-hidden">
         {children}
