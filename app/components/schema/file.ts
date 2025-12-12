@@ -135,7 +135,7 @@ export function $file<Props extends Schema.FileProps>(props?: Props) {
   } as const satisfies Pick<Schema.FileValidationResult, "type" | "label" | "actionType" | "otype">;
 
   if (required) {
-    const getMessage: Schema.ResultGetter<typeof getRequiredMessage> =
+    const getMessage: Schema.CustomValidationMessageOrDefault<typeof getRequiredMessage> =
       getRequiredMessage ??
       (() => ({
         ...baseResult,
@@ -161,7 +161,7 @@ export function $file<Props extends Schema.FileProps>(props?: Props) {
   };
 
   if (accept) {
-    const getMessage: Schema.ResultGetter<typeof getAcceptMessage> =
+    const getMessage: Schema.CustomValidationMessageOrDefault<typeof getAcceptMessage> =
       getAcceptMessage ??
       (({ accept, currentAccept }) => ({
         ...baseResult,
@@ -199,7 +199,7 @@ export function $file<Props extends Schema.FileProps>(props?: Props) {
   }
 
   if (maxSize != null) {
-    const getMessage: Schema.ResultGetter<typeof getMaxSizeMessage> =
+    const getMessage: Schema.CustomValidationMessageOrDefault<typeof getMaxSizeMessage> =
       getMaxSizeMessage ??
       (({ maxSize, currentSize }) => ({
         ...baseResult,

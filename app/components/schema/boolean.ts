@@ -30,7 +30,7 @@ export function $bool<Props extends Schema.BooleanProps>(props?: Props) {
 
   if (required) {
     const requiredAllowFalse = props?.requiredAllowFalse ?? false;
-    const getMessage: Schema.ResultGetter<typeof getRequiredMessage> =
+    const getMessage: Schema.CustomValidationMessageOrDefault<typeof getRequiredMessage> =
       getRequiredMessage ??
       (() => ({
         ...baseResult,

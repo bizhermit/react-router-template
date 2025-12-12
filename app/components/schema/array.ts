@@ -32,7 +32,7 @@ export function $array<Props extends Schema.ArrayProps>(props: Props) {
   } as const satisfies Pick<Schema.ArrayValidationResult, "type" | "label" | "actionType" | "otype">;
 
   if (required) {
-    const getMessage: Schema.ResultGetter<typeof getRequiredMessage> =
+    const getMessage: Schema.CustomValidationMessageOrDefault<typeof getRequiredMessage> =
       getRequiredMessage ??
       (() => ({
         ...baseResult,
@@ -58,7 +58,7 @@ export function $array<Props extends Schema.ArrayProps>(props: Props) {
   };
 
   if (length != null) {
-    const getMessage: Schema.ResultGetter<typeof getLengthMessage> =
+    const getMessage: Schema.CustomValidationMessageOrDefault<typeof getLengthMessage> =
       getLengthMessage ??
       (({ length, currentLength }) => ({
         ...baseResult,
@@ -93,7 +93,7 @@ export function $array<Props extends Schema.ArrayProps>(props: Props) {
     }
   } else {
     if (minLength != null) {
-      const getMessage: Schema.ResultGetter<typeof getMinLengthMessage> =
+      const getMessage: Schema.CustomValidationMessageOrDefault<typeof getMinLengthMessage> =
         getMinLengthMessage ??
         (({ minLength, currentLength }) => ({
           ...baseResult,
@@ -129,7 +129,7 @@ export function $array<Props extends Schema.ArrayProps>(props: Props) {
     }
 
     if (maxLength != null) {
-      const getMessage: Schema.ResultGetter<typeof getMaxLengthMessage> =
+      const getMessage: Schema.CustomValidationMessageOrDefault<typeof getMaxLengthMessage> =
         getMaxLengthMessage ??
         (({ maxLength, currentLength }) => ({
           ...baseResult,
@@ -167,7 +167,7 @@ export function $array<Props extends Schema.ArrayProps>(props: Props) {
 
   if (sourceValidation !== false && props.source) {
     const source = props.source;
-    const getMessage: Schema.ResultGetter<typeof getSourceValidationMessage> =
+    const getMessage: Schema.CustomValidationMessageOrDefault<typeof getSourceValidationMessage> =
       getSourceValidationMessage ??
       (() => ({
         ...baseResult,

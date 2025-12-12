@@ -22,7 +22,7 @@ export function $struct<Props extends Schema.StructProps>(props: Props) {
   } as const satisfies Pick<Schema.StructValidationResult, "type" | "label" | "actionType" | "otype">;
 
   if (required) {
-    const getMessage: Schema.ResultGetter<typeof getRequiredMessage> =
+    const getMessage: Schema.CustomValidationMessageOrDefault<typeof getRequiredMessage> =
       getRequiredMessage ??
       (() => ({
         ...baseResult,

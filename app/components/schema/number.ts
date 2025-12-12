@@ -36,7 +36,7 @@ export function $num<Props extends Schema.NumberProps>(props?: Props) {
   } as const satisfies Pick<Schema.NumberValidationResult, "type" | "label" | "actionType" | "otype">;
 
   if (required) {
-    const getMessage: Schema.ResultGetter<typeof getRequiredMessage> =
+    const getMessage: Schema.CustomValidationMessageOrDefault<typeof getRequiredMessage> =
       getRequiredMessage ??
       (() => ({
         ...baseResult,
@@ -63,7 +63,7 @@ export function $num<Props extends Schema.NumberProps>(props?: Props) {
 
   if (sourceValidation !== false && props?.source) {
     const source = props.source;
-    const getMessage: Schema.ResultGetter<typeof getSourceValidationMessage> =
+    const getMessage: Schema.CustomValidationMessageOrDefault<typeof getSourceValidationMessage> =
       getSourceValidationMessage ??
       (() => ({
         ...baseResult,
@@ -86,7 +86,7 @@ export function $num<Props extends Schema.NumberProps>(props?: Props) {
     }
   } else {
     if (min != null) {
-      const getMessage: Schema.ResultGetter<typeof getMinMessage> =
+      const getMessage: Schema.CustomValidationMessageOrDefault<typeof getMinMessage> =
         getMinMessage ??
         (({ min }) => ({
           ...baseResult,
@@ -117,7 +117,7 @@ export function $num<Props extends Schema.NumberProps>(props?: Props) {
     }
 
     if (max != null) {
-      const getMessage: Schema.ResultGetter<typeof getMaxMessage> =
+      const getMessage: Schema.CustomValidationMessageOrDefault<typeof getMaxMessage> =
         getMaxMessage ??
         (({ max }) => ({
           ...baseResult,
@@ -148,7 +148,7 @@ export function $num<Props extends Schema.NumberProps>(props?: Props) {
     }
 
     if (float != null) {
-      const getMessage: Schema.ResultGetter<typeof getFloatMessage> =
+      const getMessage: Schema.CustomValidationMessageOrDefault<typeof getFloatMessage> =
         getFloatMessage ??
         (({ float, currentFloat }) => ({
           ...baseResult,

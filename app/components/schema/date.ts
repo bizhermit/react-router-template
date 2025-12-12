@@ -43,7 +43,7 @@ function splitDate<Props extends Schema.SplitDateProps, T extends Schema.SplitDa
   } as const satisfies Pick<Schema.SplitDateValidationResult, "type" | "label" | "actionType" | "otype">;
 
   if (required) {
-    const getMessage: Schema.ResultGetter<typeof getRequiredMessage> =
+    const getMessage: Schema.CustomValidationMessageOrDefault<typeof getRequiredMessage> =
       getRequiredMessage ??
       (() => ({
         ...baseResult,
@@ -69,7 +69,7 @@ function splitDate<Props extends Schema.SplitDateProps, T extends Schema.SplitDa
   }
 
   if (min != null) {
-    const getMessage: Schema.ResultGetter<typeof getMinMessage> =
+    const getMessage: Schema.CustomValidationMessageOrDefault<typeof getMinMessage> =
       getMinMessage ??
       (({ min }) => ({
         ...baseResult,
@@ -100,7 +100,7 @@ function splitDate<Props extends Schema.SplitDateProps, T extends Schema.SplitDa
   }
 
   if (max != null) {
-    const getMessage: Schema.ResultGetter<typeof getMaxMessage> =
+    const getMessage: Schema.CustomValidationMessageOrDefault<typeof getMaxMessage> =
       getMaxMessage ??
       (({ max }) => ({
         ...baseResult,
@@ -177,7 +177,7 @@ function common<Props extends Schema.DateBaseProps>(
   } as const satisfies Pick<Schema.DateValidationResult, "type" | "label" | "actionType" | "otype" | "formatPattern">;
 
   if (required) {
-    const getMessage: Schema.ResultGetter<typeof getRequiredMessage> =
+    const getMessage: Schema.CustomValidationMessageOrDefault<typeof getRequiredMessage> =
       getRequiredMessage ??
       (() => ({
         ...baseResult,
@@ -203,7 +203,7 @@ function common<Props extends Schema.DateBaseProps>(
   }
 
   if (minDate) {
-    const getMessage: Schema.ResultGetter<typeof getMinDateMessage> =
+    const getMessage: Schema.CustomValidationMessageOrDefault<typeof getMinDateMessage> =
       getMinDateMessage ??
       (({ minDate }) => ({
         ...baseResult,
@@ -244,7 +244,7 @@ function common<Props extends Schema.DateBaseProps>(
   }
 
   if (maxDate) {
-    const getMessage: Schema.ResultGetter<typeof getMaxDateMessage> =
+    const getMessage: Schema.CustomValidationMessageOrDefault<typeof getMaxDateMessage> =
       getMaxDateMessage ??
       (({ maxDate }) => ({
         ...baseResult,
@@ -287,7 +287,7 @@ function common<Props extends Schema.DateBaseProps>(
   options.beforePairValidation?.({ baseResult });
 
   if (pair) {
-    const getMessage: Schema.ResultGetter<typeof getPairMessage> =
+    const getMessage: Schema.CustomValidationMessageOrDefault<typeof getPairMessage> =
       getPairMessage ??
       (({ pairDate, position }) => ({
         ...baseResult,
@@ -617,7 +617,7 @@ export function $datetime<Props extends Schema.DateTimeProps>(props?: Props) {
       pattern: "yyyy/M/d h:m:s",
       beforePairValidation: function ({ baseResult }) {
         if (minTime) {
-          const getMessage: Schema.ResultGetter<typeof getMinTimeMessage> =
+          const getMessage: Schema.CustomValidationMessageOrDefault<typeof getMinTimeMessage> =
             getMinTimeMessage ??
             (({ minTime }) => ({
               ...baseResult,
@@ -658,7 +658,7 @@ export function $datetime<Props extends Schema.DateTimeProps>(props?: Props) {
         }
 
         if (maxTime) {
-          const getMessage: Schema.ResultGetter<typeof getMaxTimeMessage> =
+          const getMessage: Schema.CustomValidationMessageOrDefault<typeof getMaxTimeMessage> =
             getMaxTimeMessage ??
             (({ maxTime }) => ({
               ...baseResult,

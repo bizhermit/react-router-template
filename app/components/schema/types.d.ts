@@ -108,7 +108,8 @@ namespace Schema {
     | [T | DynamicValidationValue<T>, (CustomValidationMessage<V, P> | Result | string)?]
     ;
 
-  type ResultGetter<T> = (p: Exclude<Parameters<Exclude<T, undefined>>[0], undefined>) => (Result | null | undefined);
+  type CustomValidationMessageOrDefault<T> =
+    (p: Exclude<Parameters<Exclude<T, undefined>>[0], undefined>) => (Result | null | undefined);
 
   type ParseValidationResultFunction<T> =
     T extends string ? () => { type: "e"; message: T; } :

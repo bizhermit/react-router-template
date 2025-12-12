@@ -162,7 +162,7 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
   } as const satisfies Pick<Schema.StringValidationResult, "type" | "label" | "actionType" | "otype">;
 
   if (required) {
-    const getMessage: Schema.ResultGetter<typeof getRequiredMessage> =
+    const getMessage: Schema.CustomValidationMessageOrDefault<typeof getRequiredMessage> =
       getRequiredMessage ??
       (() => ({
         ...baseResult,
@@ -189,7 +189,7 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
 
   if (sourceValidation !== false && props?.source) {
     const source = props.source;
-    const getMessage: Schema.ResultGetter<typeof getSourceValidationMessage> =
+    const getMessage: Schema.CustomValidationMessageOrDefault<typeof getSourceValidationMessage> =
       getSourceValidationMessage ??
       (() => ({
         ...baseResult,
@@ -212,7 +212,7 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
     }
   } else {
     if (length != null) {
-      const getMessage: Schema.ResultGetter<typeof getLengthMessage> =
+      const getMessage: Schema.CustomValidationMessageOrDefault<typeof getLengthMessage> =
         getLengthMessage ??
         (({ length, currentLength }) => ({
           ...baseResult,
@@ -247,7 +247,7 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
       }
     } else {
       if (minLength != null) {
-        const getMessage: Schema.ResultGetter<typeof getMinLengthMessage> =
+        const getMessage: Schema.CustomValidationMessageOrDefault<typeof getMinLengthMessage> =
           getMinLengthMessage ??
           (({ minLength, currentLength }) => ({
             ...baseResult,
@@ -283,7 +283,7 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
       }
 
       if (maxLength != null) {
-        const getMessage: Schema.ResultGetter<typeof getMaxLengthMessage> =
+        const getMessage: Schema.CustomValidationMessageOrDefault<typeof getMaxLengthMessage> =
           getMaxLengthMessage ??
           (({ maxLength, currentLength }) => ({
             ...baseResult,
@@ -320,7 +320,7 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
     }
 
     if (pattern) {
-      const getMessage: Schema.ResultGetter<typeof getPatternMessage> =
+      const getMessage: Schema.CustomValidationMessageOrDefault<typeof getPatternMessage> =
         getPatternMessage ??
         (({ pattern }) => ({
           ...baseResult,
