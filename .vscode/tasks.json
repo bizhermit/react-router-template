@@ -11,7 +11,7 @@
       "label": "[git] merge default branch",
       "group": "none",
       "type": "shell",
-      "command": "bash scripts/git-merge-default-branch.sh"
+      "command": "bash scripts/git-merge-default-branch.mjs"
     },
     {
       "label": "[devcontainer] remove container&volumes",

@@ -14,15 +14,14 @@ try {
   const match = output.match(/HEAD branch:\s+(\S+)/m);
 
   if (!match) {
-    process.stderr.write("\nError: Could not detect default branch from origin.");
+    process.stderr.write("Error: Could not detect default branch from origin.\n");
     process.exit(1);
   }
 
   const defaultBranch = match[1];
 
-  process.stdout.write(`\nDefault branch detected: ${defaultBranch}`);
+  process.stdout.write(`Default branch detected: ${defaultBranch}\n`);
   // default ブランチへ切り替え
-  process.stdout.write("\n");
   run(`git switch ${defaultBranch}`);
 
   // 最新を取得
@@ -44,23 +43,23 @@ try {
     });
 
   if (goneBranches.length === 0) {
-    process.stdout.write("\nNo branches to delete.\n\n");
+    process.stdout.write("\nNo branches to delete.\n");
     process.exit(0);
   }
 
   // 削除実行
   goneBranches.forEach(branch => {
-    process.stdout.write(`\n  - Deleting branch: ${branch}`);
+    process.stdout.write(`  - Deleting branch: ${branch}\n`);
     try {
       run(`git branch -d ${branch}`);
     } catch {
-      process.stderr.write(`\nFailed to delete ${branch} (maybe not fully merged).`);
+      process.stderr.write(`Failed to delete ${branch} (maybe not fully merged).\n`);
     }
   });
 
-  process.stdout.write("\n\nDone!\n\n");
+  process.stdout.write("\nDone!\n");
 } catch (err) {
-  process.stderr.write("\n\nError:");
-  process.stderr.write(`\n${err.message ?? err}\n`);
+  process.stderr.write("\nError:\n");
+  process.stderr.write(`${err.message ?? err}\n`);
   process.exit(1);
 }
