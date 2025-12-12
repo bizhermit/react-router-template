@@ -5,7 +5,7 @@
       "label": "[git] cleanup branch",
       "group": "none",
       "type": "shell",
-      "command": "bash scripts/git-cleanup-branch.sh"
+      "command": "node scripts/git-cleanup-branch.mjs"
     },
     {
       "label": "[git] merge default branch",
