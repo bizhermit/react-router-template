@@ -15,7 +15,7 @@ export function $array<Props extends Schema.ArrayProps>(props: Props) {
   const key = props.prop.type === "struct" ? props.prop.key : undefined;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const validators: Array<Schema.Validator<Array<any>, Schema.ArrayValidationResult>> = [];
+  const validators: Array<Schema.Validator<Array<any>, Schema.Result>> = [];
 
   const actionType = props?.actionType ?? "set";
   const [required, getRequiredMessage] = getValidationArray(props?.required);
@@ -32,24 +32,25 @@ export function $array<Props extends Schema.ArrayProps>(props: Props) {
   } as const satisfies Pick<Schema.ArrayValidationResult, "type" | "label" | "actionType" | "otype">;
 
   if (required) {
+    const getMessage: Schema.ResultGetter<typeof getRequiredMessage> =
+      getRequiredMessage ??
+      (() => ({
+        ...baseResult,
+        code: "required",
+      }));
+
     if (typeof required === "function") {
       validators.push((p) => {
         if (!required(p)) return null;
         if (p.value == null) {
-          return {
-            ...baseResult,
-            code: "required",
-          };
+          return getMessage(p);
         }
         return null;
       });
     } else {
       validators.push((p) => {
         if (p.value == null) {
-          return {
-            ...baseResult,
-            code: "required",
-          };
+          return getMessage(p);
         }
         return null;
       });
@@ -57,87 +58,108 @@ export function $array<Props extends Schema.ArrayProps>(props: Props) {
   };
 
   if (length != null) {
+    const getMessage: Schema.ResultGetter<typeof getLengthMessage> =
+      getLengthMessage ??
+      (({ length, currentLength }) => ({
+        ...baseResult,
+        code: "length",
+        length,
+        currentLength,
+      }));
+
     if (typeof length === "function") {
       validators.push((p) => {
         if (p.value == null) return null;
         const len = length(p);
         const cur = p.value.length;
         if (cur === len) return null;
-        return {
-          ...baseResult,
-          code: "length",
+        return getMessage({
+          ...p,
           length: len,
           currentLength: cur,
-        };
+        });
       });
     } else {
       validators.push((p) => {
         if (p.value == null) return null;
         const cur = p.value.length;
         if (cur === length) return null;
-        return {
-          ...baseResult,
-          code: "length",
+        return getMessage({
+          ...p,
           length,
           currentLength: cur,
-        };
+        });
       });
     }
   } else {
     if (minLength != null) {
+      const getMessage: Schema.ResultGetter<typeof getMinLengthMessage> =
+        getMinLengthMessage ??
+        (({ minLength, currentLength }) => ({
+          ...baseResult,
+          code: "minLength",
+          minLength,
+          currentLength,
+        }));
+
       if (typeof minLength === "function") {
         validators.push((p) => {
           if (p.value == null) return null;
           const minLen = minLength(p);
           const cur = p.value.length;
           if (minLen <= cur) return null;
-          return {
-            ...baseResult,
-            code: "minLength",
+          return getMessage({
+            ...p,
             minLength: minLen,
             currentLength: cur,
-          };
+          });
         });
       } else {
         validators.push((p) => {
           if (p.value == null) return null;
           const cur = p.value.length;
           if (minLength <= cur) return null;
-          return {
-            ...baseResult,
-            code: "minLength",
+          return getMessage({
+            ...p,
             minLength,
             currentLength: cur,
-          };
+          });
         });
       }
     }
 
     if (maxLength != null) {
+      const getMessage: Schema.ResultGetter<typeof getMaxLengthMessage> =
+        getMaxLengthMessage ??
+        (({ maxLength, currentLength }) => ({
+          ...baseResult,
+          code: "maxLength",
+          maxLength,
+          currentLength,
+        }));
+
       if (typeof maxLength === "function") {
         validators.push((p) => {
           if (p.value == null) return null;
           const maxLen = maxLength(p);
           const cur = p.value.length;
           if (cur >= maxLen) return null;
-          return {
-            ...baseResult,
-            code: "maxLength",
+          return getMessage({
+            ...p,
             maxLength: maxLen,
             currentLength: cur,
-          };
+          });
         });
       } else {
         validators.push((p) => {
           if (p.value == null) return null;
           const cur = p.value.length;
           if (cur >= maxLength) return null;
-          return {
-            ...baseResult,
-            code: "maxLength",
+          return getMessage({
+            ...p,
             maxLength,
             currentLength: cur,
-          };
+          });
         });
       }
     }
@@ -145,25 +167,25 @@ export function $array<Props extends Schema.ArrayProps>(props: Props) {
 
   if (sourceValidation !== false && props.source) {
     const source = props.source;
+    const getMessage: Schema.ResultGetter<typeof getSourceValidationMessage> =
+      getSourceValidationMessage ??
+      (() => ({
+        ...baseResult,
+        code: "source",
+      }));
 
     if (typeof source === "function") {
       validators.push((p) => {
         if (p.value == null || p.value.length === 0) return null;
         const src = source(p);
         if (!p.value.some(v => !src.some(item => item.value === v))) return null;
-        return {
-          ...baseResult,
-          code: "source",
-        };
+        return getMessage({ ...p, source: src });
       });
     } else {
       validators.push((p) => {
         if (p.value == null || p.value.length === 0) return null;
         if (!p.value.some(v => !source.some(item => item.value === v))) return null;
-        return {
-          ...baseResult,
-          code: "source",
-        };
+        return getMessage({ ...p, source });
       });
     }
   }

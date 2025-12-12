@@ -18,7 +18,7 @@ namespace Schema {
     actionType?: ActionType;
   }
 
-  type CustomResult<K extends I18nTextKey = I18nTextKey> = BaseResult & (
+  type CommonValidationResult<K extends I18nTextKey = I18nTextKey> = BaseResult & (
     | {
       otype: "i18n";
       code: K;
@@ -33,7 +33,7 @@ namespace Schema {
   );
 
   type Result =
-    | CustomResult
+    | CommonValidationResult
     | StringValidationResult
     | NumberValidationResult
     | BooleanValidationResult
@@ -87,7 +87,7 @@ namespace Schema {
   };
 
   interface CustomValidationMessage<V, P = {}> {
-    (params: ValidationParams<V> & P): string;
+    (params: ValidationParams<V> & P): Result | null | undefined;
   };
 
   interface DynamicValidationValueParams {
@@ -105,11 +105,17 @@ namespace Schema {
   type Validation<T, V, P = {}> =
     | T
     | DynamicValidationValue<T>
-    | [T | DynamicValidationValue<T>, CustomValidationMessage<V, P>?]
+    | [T | DynamicValidationValue<T>, (CustomValidationMessage<V, P> | Result | string)?]
     ;
 
+  type ResultGetter<T> = (p: Exclude<Parameters<Exclude<T, undefined>>[0], undefined>) => (Result | null | undefined);
+
+  type ParseValidationResultFunction<T> =
+    T extends string ? () => { type: "e"; message: T; } :
+    T extends Result ? () => Result : T;
+
   type ValidationArray<T extends Validation<unknown, unknown>> =
-    T extends Array<unknown> ? T : [Exclude<T, undefined>];
+    T extends Array<unknown> ? [T[0], ParseValidationResultFunction<T[1]>] : [Exclude<T, undefined>];
 
   type PickCustomValidationMessageAddonParams<T extends CustomValidationMessage<unknown, unknown> | undefined> =
     Omit<Parameters<Exclude<T, undefined>>[0], keyof ValidationParams<unknown>>;
@@ -191,7 +197,7 @@ namespace Schema {
     min?: Validation<number, V, { minLength: number; currentLength: number; }>;
     max?: Validation<number, V, { maxLength: number; currentLength: number; }>;
     pattern?: Validation<RegExp | StrPattern, V, { pattern: RegExp | StrPattern; }>;
-    validators?: Array<Validator<V, StringValidationResult | CustomResult>>;
+    validators?: Array<Validator<V, StringValidationResult | CommonValidationResult>>;
   };
 
   interface $String<V extends string = string> extends $Base {
@@ -227,7 +233,7 @@ namespace Schema {
     min?: Validation<number, V, { min: number; }>;
     max?: Validation<number, V, { max: number; }>;
     float?: Validation<number, V, { float: number; currentFloat: number; }>;
-    validators?: Array<Validator<V, NumberValidationResult | CustomResult>>;
+    validators?: Array<Validator<V, NumberValidationResult | CommonValidationResult>>;
   };
 
   interface $Number<V extends number = number> extends $Base {
@@ -264,7 +270,7 @@ namespace Schema {
     parser?: Parser<TV | FV>;
     required?: Validation<boolean, TV | FV>;
     requiredAllowFalse?: boolean;
-    validators?: Array<Validator<TV | FV, BooleanValidationResult | CustomResult>>;
+    validators?: Array<Validator<TV | FV, BooleanValidationResult | CommonValidationResult>>;
   };
 
   interface $Boolean<
@@ -324,8 +330,8 @@ namespace Schema {
       name: string;
       position: "before" | "after";
       same?: boolean;
-    }, V, { pairDate: Date; date: Date; }>;
-    validators?: Array<Validator<V, DateValidationResult | CustomResult>>;
+    }, V, { pairDate: Date; position: "before" | "after"; date: Date; }>;
+    validators?: Array<Validator<V, DateValidationResult | CommonValidationResult>>;
   };
 
   interface MonthProps<V extends MonthString = MonthString> extends DateBaseProps<V> { };
@@ -334,8 +340,8 @@ namespace Schema {
 
   interface DateTimeProps<V extends DateTimeString = DateTimeString> extends DateBaseProps<V> {
     time?: "hm" | "hms";
-    minTime?: Validation<TimeString, V, { minTime: TimeString; date: Date; }>;
-    maxTime?: Validation<TimeString, V, { maxTime: TimeString; date: Date; }>;
+    minTime?: Validation<TimeString, V, { minTime: TimeString; }>;
+    maxTime?: Validation<TimeString, V, { maxTime: TimeString; }>;
   };
 
   type SplitDateValidationResult = Schema.BaseResult & {
@@ -433,9 +439,9 @@ namespace Schema {
   interface FileProps<V extends File | string = File | string> extends BaseProps {
     parser?: Parser<V>;
     required?: Validation<boolean, V>;
-    accept?: Validation<string, V, { accept: string; }>;
-    maxSize?: Validation<number, V, { maxSize: number; maxSizeText: string; }>;
-    validators?: Array<Validator<V, FileValidationResult | CustomResult>>;
+    accept?: Validation<string, V, { accept: string; currentAccept: string; }>;
+    maxSize?: Validation<number, V, { maxSize: number; currentSize: number; }>;
+    validators?: Array<Validator<V, FileValidationResult | CommonValidationResult>>;
   };
 
   interface $File<V extends File | string = File | string> extends $Base {
@@ -467,7 +473,7 @@ namespace Schema {
     len?: Validation<number, ValueType<Prop>[], { length: number; currentLength: number; }>;
     min?: Validation<number, ValueType<Prop>[], { minLength: number; currentLength: number; }>;
     max?: Validation<number, ValueType<Prop>[], { maxLength: number; currentLength: number; }>;
-    validators?: Array<Validator<ValueType<Prop>[], ArrayValidationResult | CustomResult>>;
+    validators?: Array<Validator<ValueType<Prop>[], ArrayValidationResult | CommonValidationResult>>;
   };
 
   interface $Array<Prop extends $Any = $Any> extends $Base {
@@ -498,7 +504,7 @@ namespace Schema {
     key?: string | ((value: Record<string, unknown> | null | undefined) => string);
     parser?: Parser<SchemaValue<Props>>;
     required?: Validation<boolean, SchemaValue<Props>>;
-    validators?: Array<Validator<SchemaValue<Props>, StructValidationResult | CustomResult>>;
+    validators?: Array<Validator<SchemaValue<Props>, StructValidationResult | CommonValidationResult>>;
   };
 
   interface $Struct<Props extends Record<string, $Any> = Record<string, $Any>> extends $Base {

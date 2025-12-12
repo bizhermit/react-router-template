@@ -144,7 +144,7 @@ function STRING_PARSER({ value }: Schema.ParserParams): Schema.ParserResult<stri
 };
 
 export function $str<Props extends Schema.StringProps>(props?: Props) {
-  const validators: Array<Schema.Validator<string, Schema.StringValidationResult>> = [];
+  const validators: Array<Schema.Validator<string, Schema.Result>> = [];
 
   const actionType = props?.actionType ?? (props?.source && props.sourceValidation !== false ? "select" : "input");
   const [required, getRequiredMessage] = getValidationArray(props?.required);
@@ -156,30 +156,31 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
 
   const baseResult = {
     label: props?.label,
-    otype: "str",
+    otype: "str" as const,
     type: "e",
     actionType,
   } as const satisfies Pick<Schema.StringValidationResult, "type" | "label" | "actionType" | "otype">;
 
   if (required) {
+    const getMessage: Schema.ResultGetter<typeof getRequiredMessage> =
+      getRequiredMessage ??
+      (() => ({
+        ...baseResult,
+        code: "required",
+      }));
+
     if (typeof required === "function") {
       validators.push((p) => {
         if (!required(p)) return null;
         if (p.value == null || p.value === "") {
-          return {
-            ...baseResult,
-            code: "required",
-          };
+          return getMessage(p);
         }
         return null;
       });
     } else {
       validators.push((p) => {
         if (p.value == null || p.value === "") {
-          return {
-            ...baseResult,
-            code: "required",
-          };
+          return getMessage(p);
         }
         return null;
       });
@@ -188,116 +189,145 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
 
   if (sourceValidation !== false && props?.source) {
     const source = props.source;
+    const getMessage: Schema.ResultGetter<typeof getSourceValidationMessage> =
+      getSourceValidationMessage ??
+      (() => ({
+        ...baseResult,
+        code: "source",
+      }));
 
     if (typeof source === "function") {
       validators.push((p) => {
         if (p.value == null || p.value === "") return null;
         const src = source(p);
         if (src.some(item => item.value === p.value)) return null;
-        return {
-          ...baseResult,
-          code: "source",
-        };
+        return getMessage({ ...p, source: src });
       });
     } else {
       validators.push((p) => {
         if (p.value == null || p.value === "") return null;
         if (source.some(item => item.value === p.value)) return null;
-        return {
-          ...baseResult,
-          code: "source",
-        };
+        return getMessage({ ...p, source });
       });
     }
   } else {
     if (length != null) {
+      const getMessage: Schema.ResultGetter<typeof getLengthMessage> =
+        getLengthMessage ??
+        (({ length, currentLength }) => ({
+          ...baseResult,
+          code: "length",
+          length,
+          currentLength,
+        }));
+
       if (typeof length === "function") {
         validators.push((p) => {
           if (p.value == null || p.value === "") return null;
           const len = length(p);
           const cur = getLength(p.value);
           if (cur === len) return null;
-          return {
-            ...baseResult,
-            code: "length",
+          return getMessage({
+            ...p,
             length: len,
             currentLength: cur,
-          };
+          });
         });
       } else {
         validators.push((p) => {
           if (p.value == null || p.value === "") return null;
           const cur = getLength(p.value);
           if (cur === length) return null;
-          return {
-            ...baseResult,
-            code: "length",
+          return getMessage({
+            ...p,
             length,
             currentLength: cur,
-          };
+          });
         });
       }
     } else {
       if (minLength != null) {
+        const getMessage: Schema.ResultGetter<typeof getMinLengthMessage> =
+          getMinLengthMessage ??
+          (({ minLength, currentLength }) => ({
+            ...baseResult,
+            code: "minLength",
+            minLength,
+            currentLength,
+          }));
+
         if (typeof minLength === "function") {
           validators.push((p) => {
             if (p.value == null || p.value === "") return null;
             const minLen = minLength(p);
             const cur = getLength(p.value);
             if (minLen <= cur) return null;
-            return {
-              ...baseResult,
-              code: "minLength",
+            return getMessage({
+              ...p,
               minLength: minLen,
               currentLength: cur,
-            };
+            });
           });
         } else {
           validators.push((p) => {
             if (p.value == null || p.value === "") return null;
             const cur = getLength(p.value);
             if (minLength <= cur) return null;
-            return {
-              ...baseResult,
-              code: "minLength",
+            return getMessage({
+              ...p,
               minLength,
               currentLength: cur,
-            };
+            });
           });
         }
       }
 
       if (maxLength != null) {
+        const getMessage: Schema.ResultGetter<typeof getMaxLengthMessage> =
+          getMaxLengthMessage ??
+          (({ maxLength, currentLength }) => ({
+            ...baseResult,
+            code: "maxLength",
+            maxLength,
+            currentLength,
+          }));
+
         if (typeof maxLength === "function") {
           validators.push((p) => {
             if (p.value == null || p.value === "") return null;
             const maxLen = maxLength(p);
             const cur = getLength(p.value);
             if (cur <= maxLen) return null;
-            return {
-              ...baseResult,
-              code: "maxLength",
+            return getMessage({
+              ...p,
               maxLength: maxLen,
               currentLength: cur,
-            };
+            });
           });
         } else {
           validators.push((p) => {
             if (p.value == null || p.value === "") return null;
             const cur = getLength(p.value);
             if (cur <= maxLength) return null;
-            return {
-              ...baseResult,
-              code: "maxLength",
+            return getMessage({
+              ...p,
               maxLength,
               currentLength: cur,
-            };
+            });
           });
         }
       }
     }
 
     if (pattern) {
+      const getMessage: Schema.ResultGetter<typeof getPatternMessage> =
+        getPatternMessage ??
+        (({ pattern }) => ({
+          ...baseResult,
+          code: "pattern",
+          pattern,
+        }));
+
       if (typeof pattern === "function") {
         validators.push((p) => {
           if (p.value == null || p.value === "") return null;
@@ -305,18 +335,16 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
           if (typeof pat === "string") {
             const check = getStringPatternChecker(pat);
             if (check(p.value)) return null;
-            return {
-              ...baseResult,
-              code: "pattern",
+            return getMessage({
+              ...p,
               pattern: pat,
-            };
+            });
           }
           if (pat.test(p.value)) return null;
-          return {
-            ...baseResult,
-            code: "pattern",
+          return getMessage({
+            ...p,
             pattern: pat,
-          };
+          });
         });
       } else {
         if (typeof pattern === "string") {
@@ -324,21 +352,19 @@ export function $str<Props extends Schema.StringProps>(props?: Props) {
           validators.push((p) => {
             if (p.value == null || p.value === "") return null;
             if (check(p.value)) return null;
-            return {
-              ...baseResult,
-              code: "pattern",
+            return getMessage({
+              ...p,
               pattern,
-            };
+            });
           });
         } else {
           validators.push((p) => {
             if (p.value == null || p.value === "") return null;
             if (pattern.test(p.value)) return null;
-            return {
-              ...baseResult,
-              code: "pattern",
+            return getMessage({
+              ...p,
               pattern,
-            };
+            });
           });
         }
       }

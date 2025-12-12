@@ -19,7 +19,7 @@ function NUMBER_PARSER({
 };
 
 export function $num<Props extends Schema.NumberProps>(props?: Props) {
-  const validators: Array<Schema.Validator<number, Schema.NumberValidationResult>> = [];
+  const validators: Array<Schema.Validator<number, Schema.Result>> = [];
 
   const actionType = props?.actionType ?? (props?.source ? "select" : "input");
   const [required, getRequiredMessage] = getValidationArray(props?.required);
@@ -36,24 +36,25 @@ export function $num<Props extends Schema.NumberProps>(props?: Props) {
   } as const satisfies Pick<Schema.NumberValidationResult, "type" | "label" | "actionType" | "otype">;
 
   if (required) {
+    const getMessage: Schema.ResultGetter<typeof getRequiredMessage> =
+      getRequiredMessage ??
+      (() => ({
+        ...baseResult,
+        code: "required",
+      }));
+
     if (typeof required === "function") {
       validators.push((p) => {
         if (!required(p)) return null;
         if (p.value == null) {
-          return {
-            ...baseResult,
-            code: "required",
-          };
+          return getMessage(p);
         }
         return null;
       });
     } else {
       validators.push((p) => {
         if (p.value == null) {
-          return {
-            ...baseResult,
-            code: "required",
-          };
+          return getMessage(p);
         }
         return null;
       });
@@ -62,79 +63,100 @@ export function $num<Props extends Schema.NumberProps>(props?: Props) {
 
   if (sourceValidation !== false && props?.source) {
     const source = props.source;
+    const getMessage: Schema.ResultGetter<typeof getSourceValidationMessage> =
+      getSourceValidationMessage ??
+      (() => ({
+        ...baseResult,
+        code: "source",
+      }));
 
     if (typeof source === "function") {
       validators.push((p) => {
         if (p.value == null) return null;
         const src = source(p);
         if (src.some(item => item.value === p.value)) return null;
-        return {
-          ...baseResult,
-          code: "source",
-        };
+        return getMessage({ ...p, source: src });
       });
     } else {
       validators.push((p) => {
         if (p.value == null) return null;
         if (source.some(item => item.value === p.value)) return null;
-        return {
-          ...baseResult,
-          code: "source",
-        };
+        return getMessage({ ...p, source });
       });
     }
   } else {
     if (min != null) {
+      const getMessage: Schema.ResultGetter<typeof getMinMessage> =
+        getMinMessage ??
+        (({ min }) => ({
+          ...baseResult,
+          code: "min",
+          min,
+        }));
+
       if (typeof min === "function") {
         validators.push((p) => {
           if (p.value == null) return null;
           const m = min(p);
           if (m <= p.value) return null;
-          return {
-            ...baseResult,
-            code: "min",
+          return getMessage({
+            ...p,
             min: m,
-          };
+          });
         });
       } else {
         validators.push((p) => {
           if (p.value == null) return null;
           if (min <= p.value) return null;
-          return {
-            ...baseResult,
-            code: "min",
+          return getMessage({
+            ...p,
             min,
-          };
+          });
         });
       }
     }
 
     if (max != null) {
+      const getMessage: Schema.ResultGetter<typeof getMaxMessage> =
+        getMaxMessage ??
+        (({ max }) => ({
+          ...baseResult,
+          code: "max",
+          max,
+        }));
+
       if (typeof max === "function") {
         validators.push((p) => {
           if (p.value == null) return null;
           const m = max(p);
           if (p.value <= m) return null;
-          return {
-            ...baseResult,
-            code: "max",
+          return getMessage({
+            ...p,
             max: m,
-          };
+          });
         });
       } else {
         validators.push((p) => {
           if (p.value == null) return null;
           if (p.value <= max) return null;
-          return {
-            ...baseResult,
-            code: "max",
+          return getMessage({
+            ...p,
             max,
-          };
+          });
         });
       }
     }
 
     if (float != null) {
+      const getMessage: Schema.ResultGetter<typeof getFloatMessage> =
+        getFloatMessage ??
+        (({ float, currentFloat }) => ({
+          ...baseResult,
+          code: "float",
+          float,
+          currentFloat,
+        }));
+
       if (typeof float === "function") {
         validators.push((p) => {
           if (p.value == null) return null;
@@ -142,12 +164,11 @@ export function $num<Props extends Schema.NumberProps>(props?: Props) {
           const [_, n] = String(p.value).split(".");
           const cur = n?.length ?? 0;
           if (cur <= f) return null;
-          return {
-            ...baseResult,
-            code: "float",
+          return getMessage({
+            ...p,
             float: f,
             currentFloat: cur,
-          };
+          });
         });
       } else {
         validators.push((p) => {
@@ -155,12 +176,11 @@ export function $num<Props extends Schema.NumberProps>(props?: Props) {
           const [_, n] = String(p.value).split(".");
           const cur = n?.length ?? 0;
           if (cur <= float) return null;
-          return {
-            ...baseResult,
-            code: "float",
+          return getMessage({
+            ...p,
             float,
             currentFloat: cur,
-          };
+          });
         });
       }
     }

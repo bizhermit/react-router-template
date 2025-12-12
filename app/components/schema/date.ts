@@ -28,7 +28,7 @@ function splitDate<Props extends Schema.SplitDateProps, T extends Schema.SplitDa
   target: T;
   core: Schema.$Date | Schema.$Month | Schema.$DateTime;
 }) {
-  const validators: Array<Schema.Validator<number, Schema.SplitDateValidationResult>> = [];
+  const validators: Array<Schema.Validator<number, Schema.Result>> = [];
 
   const actionType = splitProps?.actionType ?? "select";
   const [required, getRequiredMessage] = getValidationArray(splitProps?.required);
@@ -43,24 +43,25 @@ function splitDate<Props extends Schema.SplitDateProps, T extends Schema.SplitDa
   } as const satisfies Pick<Schema.SplitDateValidationResult, "type" | "label" | "actionType" | "otype">;
 
   if (required) {
+    const getMessage: Schema.ResultGetter<typeof getRequiredMessage> =
+      getRequiredMessage ??
+      (() => ({
+        ...baseResult,
+        code: "required",
+      }));
+
     if (typeof required === "function") {
       validators.push((p) => {
         if (!required(p)) return null;
         if (p.value == null) {
-          return {
-            ...baseResult,
-            code: "required",
-          };
+          return getMessage(p);
         }
         return null;
       });
     } else {
       validators.push((p) => {
         if (p.value == null) {
-          return {
-            ...baseResult,
-            code: "required",
-          };
+          return getMessage(p);
         }
         return null;
       });
@@ -68,51 +69,63 @@ function splitDate<Props extends Schema.SplitDateProps, T extends Schema.SplitDa
   }
 
   if (min != null) {
+    const getMessage: Schema.ResultGetter<typeof getMinMessage> =
+      getMinMessage ??
+      (({ min }) => ({
+        ...baseResult,
+        code: "min",
+        min,
+      }));
+
     if (typeof min === "function") {
       validators.push((p) => {
         if (p.value == null) return null;
         const m = min(p);
         if (m <= p.value) return null;
-        return {
-          ...baseResult,
-          code: "min",
+        return getMessage({
+          ...p,
           min: m,
-        };
+        });
       });
     } else {
       validators.push((p) => {
         if (p.value == null) return null;
         if (min <= p.value) return null;
-        return {
-          ...baseResult,
-          code: "min",
+        return getMessage({
+          ...p,
           min,
-        };
+        });
       });
     }
   }
 
   if (max != null) {
+    const getMessage: Schema.ResultGetter<typeof getMaxMessage> =
+      getMaxMessage ??
+      (({ max }) => ({
+        ...baseResult,
+        code: "max",
+        max,
+      }));
+
     if (typeof max === "function") {
       validators.push((p) => {
         if (p.value == null) return null;
         const m = max(p);
         if (p.value >= m) return null;
-        return {
-          ...baseResult,
-          code: "max",
+        return getMessage({
+          ...p,
           max: m,
-        };
+        });
       });
     } else {
       validators.push((p) => {
         if (p.value == null) return null;
         if (p.value >= max) return null;
-        return {
-          ...baseResult,
-          code: "max",
+        return getMessage({
+          ...p,
           max,
-        };
+        });
       });
     }
   }
@@ -141,7 +154,7 @@ function splitDate<Props extends Schema.SplitDateProps, T extends Schema.SplitDa
 function common<Props extends Schema.DateBaseProps>(
   otype: "month" | "date" | "datetime",
   props: Props | undefined,
-  validators: Array<Schema.Validator<Schema.DateValueString, Schema.DateValidationResult>>,
+  validators: Array<Schema.Validator<Schema.DateValueString, Schema.Result>>,
   options: {
     pattern: string;
     beforePairValidation?: (params: {
@@ -164,24 +177,25 @@ function common<Props extends Schema.DateBaseProps>(
   } as const satisfies Pick<Schema.DateValidationResult, "type" | "label" | "actionType" | "otype" | "formatPattern">;
 
   if (required) {
+    const getMessage: Schema.ResultGetter<typeof getRequiredMessage> =
+      getRequiredMessage ??
+      (() => ({
+        ...baseResult,
+        code: "required",
+      }));
+
     if (typeof required === "function") {
       validators.push((p) => {
         if (!required(p)) return null;
         if (p.value == null) {
-          return {
-            ...baseResult,
-            code: "required",
-          };
+          return getMessage(p);
         }
         return null;
       });
     } else {
       validators.push((p) => {
         if (p.value == null) {
-          return {
-            ...baseResult,
-            code: "required",
-          };
+          return getMessage(p);
         }
         return null;
       });
@@ -189,6 +203,14 @@ function common<Props extends Schema.DateBaseProps>(
   }
 
   if (minDate) {
+    const getMessage: Schema.ResultGetter<typeof getMinDateMessage> =
+      getMinDateMessage ??
+      (({ minDate }) => ({
+        ...baseResult,
+        code: "minDate",
+        minDate,
+      }));
+
     if (typeof minDate === "function") {
       validators.push((p) => {
         if (p.value == null) return null;
@@ -196,20 +218,13 @@ function common<Props extends Schema.DateBaseProps>(
         if (date == null) return null;
         const min = minDate(p);
         const m = parseDate(min);
-        if (m == null) {
-          return {
-            ...baseResult,
-            type: "w",
-            code: "minDate",
-            minDate: null!,
-          };
-        }
+        if (m == null) return null;
         if (m.getTime() <= date.getTime()) return null;
-        return {
-          ...baseResult,
-          code: "minDate",
+        return getMessage({
+          ...p,
           minDate: m,
-        };
+          date,
+        });
       });
     } else {
       const min = parseDate(minDate);
@@ -219,16 +234,24 @@ function common<Props extends Schema.DateBaseProps>(
         const date = parseDate(p.value);
         if (date == null) return null;
         if (min.getTime() <= date.getTime()) return null;
-        return {
-          ...baseResult,
-          code: "minDate",
+        return getMessage({
+          ...p,
           minDate: min,
-        };
+          date,
+        });
       });
     };
   }
 
   if (maxDate) {
+    const getMessage: Schema.ResultGetter<typeof getMaxDateMessage> =
+      getMaxDateMessage ??
+      (({ maxDate }) => ({
+        ...baseResult,
+        code: "maxDate",
+        maxDate,
+      }));
+
     if (typeof maxDate === "function") {
       validators.push((p) => {
         if (p.value == null) return null;
@@ -236,20 +259,13 @@ function common<Props extends Schema.DateBaseProps>(
         if (date == null) return null;
         const max = maxDate(p);
         const m = parseDate(max);
-        if (m == null) {
-          return {
-            ...baseResult,
-            type: "w",
-            code: "maxDate",
-            maxDate: null!,
-          };
-        }
+        if (m == null) return null;
         if (date.getTime() <= m.getTime()) return null;
-        return {
-          ...baseResult,
-          code: "maxDate",
+        return getMessage({
+          ...p,
           maxDate: m,
-        };
+          date,
+        });
       });
     } else {
       const max = parseDate(maxDate);
@@ -259,11 +275,11 @@ function common<Props extends Schema.DateBaseProps>(
         const date = parseDate(p.value);
         if (date == null) return null;
         if (date.getTime() <= max.getTime()) return null;
-        return {
-          ...baseResult,
-          code: "maxDate",
+        return getMessage({
+          ...p,
           maxDate: max,
-        };
+          date,
+        });
       });
     };
   }
@@ -271,6 +287,15 @@ function common<Props extends Schema.DateBaseProps>(
   options.beforePairValidation?.({ baseResult });
 
   if (pair) {
+    const getMessage: Schema.ResultGetter<typeof getPairMessage> =
+      getPairMessage ??
+      (({ pairDate, position }) => ({
+        ...baseResult,
+        code: "pair",
+        pairDate,
+        position,
+      }));
+
     if (typeof pair === "function") {
       validators.push((p) => {
         if (p.value == null) return null;
@@ -288,20 +313,20 @@ function common<Props extends Schema.DateBaseProps>(
         if (pa.same !== false && time === pairTime) return null;
         if (pa.position === "before") {
           if (pairTime < time) return null;
-          return {
-            ...baseResult,
-            code: "pair",
+          return getMessage({
+            ...p,
             position: "before",
             pairDate,
-          };
+            date,
+          });
         } else {
           if (time < pairTime) return null;
-          return {
-            ...baseResult,
-            code: "pair",
+          return getMessage({
+            ...p,
             position: "after",
             pairDate,
-          };
+            date,
+          });
         }
       });
     } else {
@@ -320,20 +345,20 @@ function common<Props extends Schema.DateBaseProps>(
         if (pair.same !== false && time === pairTime) return null;
         if (pair.position === "before") {
           if (pairTime < time) return null;
-          return {
-            ...baseResult,
-            code: "pair",
+          return getMessage({
+            ...p,
             position: "before",
             pairDate,
-          };
+            date,
+          });
         } else {
           if (time < pairTime) return null;
-          return {
-            ...baseResult,
-            code: "pair",
+          return getMessage({
+            ...p,
             position: "after",
             pairDate,
-          };
+            date,
+          });
         }
       });
     }
@@ -579,7 +604,7 @@ export function $datetime<Props extends Schema.DateTimeProps>(props?: Props) {
 
   const splits: Schema.$DateTime["splits"] = {};
 
-  const validators: Array<Schema.Validator<Schema.DateTimeString, Schema.DateValidationResult>> = [];
+  const validators: Array<Schema.Validator<Schema.DateTimeString, Schema.Result>> = [];
 
   const [minTime, getMinTimeMessage] = getValidationArray(props?.minTime);
   const [maxTime, getMaxTimeMessage] = getValidationArray(props?.maxTime);
@@ -592,6 +617,14 @@ export function $datetime<Props extends Schema.DateTimeProps>(props?: Props) {
       pattern: "yyyy/M/d h:m:s",
       beforePairValidation: function ({ baseResult }) {
         if (minTime) {
+          const getMessage: Schema.ResultGetter<typeof getMinTimeMessage> =
+            getMinTimeMessage ??
+            (({ minTime }) => ({
+              ...baseResult,
+              code: "minTime",
+              minTime,
+            }));
+
           if (typeof minTime === "function") {
             validators.push((p) => {
               if (p.value == null) return null;
@@ -602,11 +635,10 @@ export function $datetime<Props extends Schema.DateTimeProps>(props?: Props) {
               const timeNum = timeToNumber(p.value.split("T")[1] as Schema.TimeString);
               if (timeNum == null) throw new Error(`failed to parse time number [${p.value}]`);
               if (m <= timeNum) return null;
-              return {
-                ...baseResult,
-                code: "minTime",
+              return getMessage({
+                ...p,
                 minTime: min,
-              };
+              });
             });
           } else {
             const min = timeToNumber(minTime);
@@ -617,16 +649,23 @@ export function $datetime<Props extends Schema.DateTimeProps>(props?: Props) {
               const timeNum = timeToNumber(p.value.split("T")[1] as Schema.TimeString);
               if (timeNum == null) throw new Error(`failed to parse time number [${p.value}]`);
               if (min <= timeNum) return null;
-              return {
-                ...baseResult,
-                code: "minTime",
+              return getMessage({
+                ...p,
                 minTime,
-              };
+              });
             });
           }
         }
 
         if (maxTime) {
+          const getMessage: Schema.ResultGetter<typeof getMaxTimeMessage> =
+            getMaxTimeMessage ??
+            (({ maxTime }) => ({
+              ...baseResult,
+              code: "maxTime",
+              maxTime,
+            }));
+
           if (typeof maxTime === "function") {
             validators.push((p) => {
               if (p.value == null) return null;
@@ -637,11 +676,10 @@ export function $datetime<Props extends Schema.DateTimeProps>(props?: Props) {
               const timeNum = timeToNumber(p.value.split("T")[1] as Schema.TimeString);
               if (timeNum == null) throw new Error(`failed to parse time number [${p.value}]`);
               if (timeNum <= m) return null;
-              return {
-                ...baseResult,
-                code: "maxTime",
+              return getMessage({
+                ...p,
                 maxTime: max,
-              };
+              });
             });
           } else {
             const max = timeToNumber(maxTime);
@@ -652,11 +690,10 @@ export function $datetime<Props extends Schema.DateTimeProps>(props?: Props) {
               const timeNum = timeToNumber(p.value.split("T")[1] as Schema.TimeString);
               if (timeNum == null) throw new Error(`failed to parse time number [${p.value}]`);
               if (timeNum <= max) return null;
-              return {
-                ...baseResult,
-                code: "maxTime",
+              return getMessage({
+                ...p,
                 maxTime,
-              };
+              });
             });
           }
         }

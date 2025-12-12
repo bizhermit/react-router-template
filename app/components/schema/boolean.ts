@@ -4,7 +4,7 @@ const TRUE = true;
 const FALSE = false;
 
 export function $bool<Props extends Schema.BooleanProps>(props?: Props) {
-  const validators: Array<Schema.Validator<Schema.BooleanValue, Schema.BooleanValidationResult>> = [];
+  const validators: Array<Schema.Validator<Schema.BooleanValue, Schema.Result>> = [];
   type TrueValue = Props extends undefined ? typeof TRUE :
     (Props extends { trueValue: infer T; } ?
       (T extends Schema.BooleanValue ? T : typeof TRUE) :
@@ -30,25 +30,25 @@ export function $bool<Props extends Schema.BooleanProps>(props?: Props) {
 
   if (required) {
     const requiredAllowFalse = props?.requiredAllowFalse ?? false;
+    const getMessage: Schema.ResultGetter<typeof getRequiredMessage> =
+      getRequiredMessage ??
+      (() => ({
+        ...baseResult,
+        code: "required",
+      }));
 
     if (typeof required === "function") {
       validators.push((p) => {
         if (!required(p)) return null;
         if (requiredAllowFalse && p.value === falseValue) return null;
         if (p.value === trueValue) return null;
-        return {
-          ...baseResult,
-          code: "required",
-        };
+        return getMessage(p);
       });
     } else {
       validators.push((p) => {
         if (requiredAllowFalse && p.value === falseValue) return null;
         if (p.value === trueValue) return null;
-        return {
-          ...baseResult,
-          code: "required",
-        };
+        return getMessage(p);
       });
     }
   };

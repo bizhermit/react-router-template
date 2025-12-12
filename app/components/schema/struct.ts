@@ -9,7 +9,7 @@ function STRUCT_PARSER({
 
 export function $struct<Props extends Schema.StructProps>(props: Props) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const validators: Array<Schema.Validator<Record<string, any>, Schema.StructValidationResult>> = [];
+  const validators: Array<Schema.Validator<Record<string, any>, Schema.Result>> = [];
 
   const actionType = props.actionType ?? "set";
   const [required, getRequiredMessage] = getValidationArray(props?.required);
@@ -22,24 +22,25 @@ export function $struct<Props extends Schema.StructProps>(props: Props) {
   } as const satisfies Pick<Schema.StructValidationResult, "type" | "label" | "actionType" | "otype">;
 
   if (required) {
+    const getMessage: Schema.ResultGetter<typeof getRequiredMessage> =
+      getRequiredMessage ??
+      (() => ({
+        ...baseResult,
+        code: "required",
+      }));
+
     if (typeof required === "function") {
       validators.push((p) => {
         if (!required(p)) return null;
         if (p.value == null) {
-          return {
-            ...baseResult,
-            code: "required",
-          };
+          return getMessage(p);
         }
         return null;
       });
     } else {
       validators.push((p) => {
         if (p.value == null) {
-          return {
-            ...baseResult,
-            code: "required",
-          };
+          return getMessage(p);
         }
         return null;
       });

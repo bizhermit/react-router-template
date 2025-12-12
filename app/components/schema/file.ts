@@ -120,7 +120,7 @@ function getAcceptChecker(accept: string) {
 };
 
 export function $file<Props extends Schema.FileProps>(props?: Props) {
-  const validators: Array<Schema.Validator<File | string, Schema.FileValidationResult>> = [];
+  const validators: Array<Schema.Validator<File | string, Schema.Result>> = [];
 
   const actionType = props?.actionType ?? "select";
   const [required, getRequiredMessage] = getValidationArray(props?.required);
@@ -135,24 +135,25 @@ export function $file<Props extends Schema.FileProps>(props?: Props) {
   } as const satisfies Pick<Schema.FileValidationResult, "type" | "label" | "actionType" | "otype">;
 
   if (required) {
+    const getMessage: Schema.ResultGetter<typeof getRequiredMessage> =
+      getRequiredMessage ??
+      (() => ({
+        ...baseResult,
+        code: "required",
+      }));
+
     if (typeof required === "function") {
       validators.push((p) => {
         if (!required(p)) return null;
         if (p.value == null || p.value === "") {
-          return {
-            ...baseResult,
-            code: "required",
-          };
+          return getMessage(p);
         }
         return null;
       });
     } else {
       validators.push((p) => {
         if (p.value == null || p.value === "") {
-          return {
-            ...baseResult,
-            code: "required",
-          };
+          return getMessage(p);
         }
         return null;
       });
@@ -160,6 +161,15 @@ export function $file<Props extends Schema.FileProps>(props?: Props) {
   };
 
   if (accept) {
+    const getMessage: Schema.ResultGetter<typeof getAcceptMessage> =
+      getAcceptMessage ??
+      (({ accept, currentAccept }) => ({
+        ...baseResult,
+        code: "accept",
+        accept,
+        currentAccept,
+      }));
+
     if (typeof accept === "function") {
       validators.push((p) => {
         if (p.value == null || p.value === "") return null;
@@ -167,12 +177,11 @@ export function $file<Props extends Schema.FileProps>(props?: Props) {
         const ac = accept(p);
         const ctx = getAcceptChecker(ac);
         if (ctx.check(p.value)) return null;
-        return {
-          ...baseResult,
-          code: "accept",
+        return getMessage({
+          ...p,
           accept: ac,
           currentAccept: ctx.accept,
-        };
+        });
       });
     } else {
       const ctx = getAcceptChecker(accept);
@@ -180,41 +189,47 @@ export function $file<Props extends Schema.FileProps>(props?: Props) {
         if (p.value == null || p.value === "") return null;
         if (!isFile(p.value)) return null;
         if (ctx.check(p.value)) return null;
-        return {
-          ...baseResult,
-          code: "accept",
+        return getMessage({
+          ...p,
           accept,
           currentAccept: ctx.accept,
-        };
+        });
       });
     }
   }
 
   if (maxSize != null) {
+    const getMessage: Schema.ResultGetter<typeof getMaxSizeMessage> =
+      getMaxSizeMessage ??
+      (({ maxSize, currentSize }) => ({
+        ...baseResult,
+        code: "maxSize",
+        maxSize,
+        currentSize,
+      }));
+
     if (typeof maxSize === "function") {
       validators.push((p) => {
         if (p.value == null || p.value === "") return null;
         if (!isFile(p.value)) return null;
         const m = maxSize(p);
         if (p.value.size <= m) return null;
-        return {
-          ...baseResult,
-          code: "maxSize",
+        return getMessage({
+          ...p,
           maxSize: m,
           currentSize: p.value.size,
-        };
+        });
       });
     } else {
       validators.push((p) => {
         if (p.value == null || p.value === "") return null;
         if (!isFile(p.value)) return null;
         if (p.value.size <= maxSize) return null;
-        return {
-          ...baseResult,
-          code: "maxSize",
+        return getMessage({
+          ...p,
           maxSize,
           currentSize: p.value.size,
-        };
+        });
       });
     }
   }
