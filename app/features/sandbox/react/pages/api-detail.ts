@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable no-console */
 import { data } from "react-router";
 import type { InternalApiPaths } from "~/features/common/api/internal";
 import type { Route } from "./+types/api-detail";

@@ -31,7 +31,6 @@ export function parseWithSchema<$Schema extends Record<string, Schema.$Any>>(par
           `${name}`;
 
     let val: unknown = undefined;
-    const label = item.label ? params.env.t(item.label as I18nTextKey) : undefined;
 
     const dataItem: Schema.DataItem = (() => {
       switch (item.type) {
@@ -50,7 +49,7 @@ export function parseWithSchema<$Schema extends Record<string, Schema.$Any>>(par
         default:
           return {
             name: fullName!,
-            label,
+            label: item.label,
             parent,
             _: item,
           };
@@ -111,7 +110,7 @@ export function parseWithSchema<$Schema extends Record<string, Schema.$Any>>(par
         value: val,
         dep,
         env: params.env,
-        label,
+        label: item.label,
       });
       result = parsed.result;
 
@@ -124,7 +123,7 @@ export function parseWithSchema<$Schema extends Record<string, Schema.$Any>>(par
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const validationParams: Schema.ValidationParams<any> = {
             name: fullName,
-            label,
+            label: item.label,
             data,
             dep,
             env: params.env,
@@ -137,7 +136,7 @@ export function parseWithSchema<$Schema extends Record<string, Schema.$Any>>(par
                     data,
                     dep,
                     env: params.env,
-                    label,
+                    label: item.label,
                     name: fullName,
                   });
                 }

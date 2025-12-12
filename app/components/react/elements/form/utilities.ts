@@ -1,4 +1,5 @@
-import { useLayoutEffect, useState } from "react";
+import { use, useLayoutEffect, useState } from "react";
+import { I18nContext } from "../../hooks/i18n";
 import { getValidationValue } from "./common";
 
 export function getBooleanSource({
@@ -6,7 +7,7 @@ export function getBooleanSource({
   t,
 }: {
   dataItem: Schema.DataItem<Schema.$Boolean>;
-  t: Schema.Env["t"];
+  t: I18nGetter;
 }) {
   let trueText = "", falseText = "";
   if (dataItem._.trueText) trueText = t(dataItem._.trueText as I18nTextKey) || "";
@@ -23,7 +24,6 @@ export function useSource<D extends Schema.DataItem>({
   dataItem,
   propsSource,
   getCommonParams,
-  env,
 }: {
   dataItem: D;
   propsSource: Schema.Source<Schema.ValueType<D["_"]>> | undefined;
@@ -31,32 +31,46 @@ export function useSource<D extends Schema.DataItem>({
   env: Schema.Env;
 }) {
   type T = Schema.Source<Schema.ValueType<D["_"], true, false>>;
+  const { t, locale } = use(I18nContext);
 
-  const [source, setSource] = useState<null | T>(() => {
+  function getSource() {
     if (propsSource) return propsSource;
     if ("source" in dataItem._) {
-      return (getValidationValue(getCommonParams(), dataItem._.source) as T) || null;
+      return getParsedDataItemSource();
     }
     if (dataItem._.type === "bool") {
       return getBooleanSource({
         dataItem: dataItem as Schema.DataItem<Schema.$Boolean>,
-        t: env.t,
+        t: t,
       }) as T;
     }
     return null;
+  }
+
+  const [source, setSource] = useState<null | T>(() => {
+    return getSource();
   });
 
-  function resetDataItemSource() {
-    if (propsSource === null && "source" in dataItem._) {
-      setSource((getValidationValue(getCommonParams(), dataItem._.source) as T) || null);
+  function getParsedDataItemSource() {
+    if ("source" in dataItem._) {
+      return (getValidationValue(getCommonParams(), dataItem._.source) as T)?.map(item => {
+        return {
+          value: item.value,
+          text: t(item.text as I18nTextKey) || "",
+          node: item.node,
+        };
+      });
     }
+    return null;
+  }
+
+  function resetDataItemSource() {
+    setSource(getSource());
   };
 
   useLayoutEffect(() => {
-    if (propsSource) {
-      setSource(propsSource);
-    }
-  }, [propsSource]);
+    resetDataItemSource();
+  }, [propsSource, locale]);
 
   return {
     source,

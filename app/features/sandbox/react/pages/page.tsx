@@ -75,7 +75,13 @@ const birth = $date({
 
 const schema = $schema({
   text: $str({
-    required: true,
+    // required: true,
+    // required: [true, "入力ヲ求ム"],
+    required: [true, { type: "e", message: "入力しようよ！" }],
+    // required: [true, (p) => {
+    //   console.log(p);
+    //   return { type: "e", otype: "str", code: "required", label: p.label };
+    // }],
     min: 4,
     pattern: "email",
     label: "テキスト",
@@ -96,7 +102,7 @@ const schema = $schema({
   //   required: () => true,
   // }),
   customMessageText: $str({
-    required: [true, () => "入力しない場合、あなたの命は保証されません。"],
+    required: [true, () => ({ type: "e", message: "入力しない場合、あなたの命は保証されません。" })],
   }),
   // customDynamicRequiredText: $str({
   //   required: [() => true, () => "入力しなくても命だけは獲らないでいてやる。"],
@@ -104,6 +110,7 @@ const schema = $schema({
   sourceText: $str({
     required: true,
     source: [
+      { value: "helloworld", text: "halloWorld" },
       { value: "hoge", text: "HOGE" },
       { value: "fuga", text: "FUGA" },
       { value: "piyo", text: "PIYO" },

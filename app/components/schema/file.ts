@@ -1,5 +1,5 @@
-import { convertBase64ToFile, convertBlobToFile, getFileSize10Text } from "../objects/file";
-import { getRequiredTextKey, getValidationArray } from "./utilities";
+import { convertBase64ToFile, convertBlobToFile } from "../objects/file";
+import { getValidationArray } from "./utilities";
 
 function isFile(value: unknown): value is File {
   return value != null && value instanceof File;
@@ -7,9 +7,8 @@ function isFile(value: unknown): value is File {
 
 function FILE_PARSER({
   value,
-  env,
   label,
-}: Schema.ParserParams): Schema.ParserResult<File | string> {
+}: Schema.ParserParams): Schema.ParserResult<File | string, Schema.FileValidationResult> {
   if (value == null) return { value };
   if (value instanceof File) {
     if (value.size === 0) return { value: undefined };
@@ -23,10 +22,9 @@ function FILE_PARSER({
         value: undefined,
         result: {
           type: "e",
+          otype: "file",
+          label,
           code: "parse",
-          message: env.t("invalidFile", {
-            label: label || env.t("default_label"),
-          }),
         },
       };
     }
@@ -43,10 +41,9 @@ function FILE_PARSER({
         value: undefined,
         result: {
           type: "e",
+          otype: "file",
+          label,
           code: "parse",
-          message: env.t("invalidFile", {
-            label: label || env.t("default_label"),
-          }),
         },
       };
     }
@@ -55,10 +52,9 @@ function FILE_PARSER({
     value: undefined,
     result: {
       type: "e",
+      otype: "file",
+      label,
       code: "parse",
-      message: env.t("invalidFile", {
-        label: label || env.t("default_label"),
-      }),
     },
   };
 }
@@ -124,41 +120,40 @@ function getAcceptChecker(accept: string) {
 };
 
 export function $file<Props extends Schema.FileProps>(props?: Props) {
-  const validators: Array<Schema.Validator<File | string>> = [];
+  const validators: Array<Schema.Validator<File | string, Schema.Result>> = [];
 
   const actionType = props?.actionType ?? "select";
   const [required, getRequiredMessage] = getValidationArray(props?.required);
   const [accept, getAcceptMessage] = getValidationArray(props?.accept);
   const [maxSize, getMaxSizeMessage] = getValidationArray(props?.maxSize);
 
+  const baseResult = {
+    label: props?.label,
+    otype: "file",
+    type: "e",
+    actionType,
+  } as const satisfies Pick<Schema.FileValidationResult, "type" | "label" | "actionType" | "otype">;
+
   if (required) {
-    const textKey = getRequiredTextKey(actionType);
-    const getMessage: Schema.MessageGetter<typeof getRequiredMessage> = getRequiredMessage ?
-      getRequiredMessage :
-      (p) => p.env.t(textKey, {
-        label: p.label || p.env.t("default_label"),
-      });
+    const getMessage: Schema.CustomValidationMessageOrDefault<typeof getRequiredMessage> =
+      getRequiredMessage ??
+      (() => ({
+        ...baseResult,
+        code: "required",
+      }));
 
     if (typeof required === "function") {
       validators.push((p) => {
         if (!required(p)) return null;
         if (p.value == null || p.value === "") {
-          return {
-            type: "e",
-            code: "required",
-            message: getMessage(p),
-          };
+          return getMessage(p);
         }
         return null;
       });
     } else {
       validators.push((p) => {
         if (p.value == null || p.value === "") {
-          return {
-            type: "e",
-            code: "required",
-            message: getMessage(p),
-          };
+          return getMessage(p);
         }
         return null;
       });
@@ -166,23 +161,27 @@ export function $file<Props extends Schema.FileProps>(props?: Props) {
   };
 
   if (accept) {
-    const getMessage: Schema.MessageGetter<typeof getAcceptMessage> = getAcceptMessage ?
-      getAcceptMessage :
-      (p) => p.env.t("fileAccept", {
-        label: p.label || p.env.t("default_label"),
-      });
+    const getMessage: Schema.CustomValidationMessageOrDefault<typeof getAcceptMessage> =
+      getAcceptMessage ??
+      (({ accept, currentAccept }) => ({
+        ...baseResult,
+        code: "accept",
+        accept,
+        currentAccept,
+      }));
 
     if (typeof accept === "function") {
       validators.push((p) => {
         if (p.value == null || p.value === "") return null;
         if (!isFile(p.value)) return null;
-        const ctx = getAcceptChecker(accept(p));
+        const ac = accept(p);
+        const ctx = getAcceptChecker(ac);
         if (ctx.check(p.value)) return null;
-        return {
-          type: "e",
-          code: "accept",
-          message: getMessage({ ...p, accept: ctx.accept }),
-        };
+        return getMessage({
+          ...p,
+          accept: ac,
+          currentAccept: ctx.accept,
+        });
       });
     } else {
       const ctx = getAcceptChecker(accept);
@@ -190,22 +189,24 @@ export function $file<Props extends Schema.FileProps>(props?: Props) {
         if (p.value == null || p.value === "") return null;
         if (!isFile(p.value)) return null;
         if (ctx.check(p.value)) return null;
-        return {
-          type: "e",
-          code: "accept",
-          message: getMessage({ ...p, accept: ctx.accept }),
-        };
+        return getMessage({
+          ...p,
+          accept,
+          currentAccept: ctx.accept,
+        });
       });
     }
   }
 
   if (maxSize != null) {
-    const getMessage: Schema.MessageGetter<typeof getMaxSizeMessage> = getMaxSizeMessage ?
-      getMaxSizeMessage :
-      (p) => p.env.t("maxFileSize", {
-        label: p.label || p.env.t("default_label"),
-        maxSize: p.maxSizeText,
-      });
+    const getMessage: Schema.CustomValidationMessageOrDefault<typeof getMaxSizeMessage> =
+      getMaxSizeMessage ??
+      (({ maxSize, currentSize }) => ({
+        ...baseResult,
+        code: "maxSize",
+        maxSize,
+        currentSize,
+      }));
 
     if (typeof maxSize === "function") {
       validators.push((p) => {
@@ -213,29 +214,28 @@ export function $file<Props extends Schema.FileProps>(props?: Props) {
         if (!isFile(p.value)) return null;
         const m = maxSize(p);
         if (p.value.size <= m) return null;
-        return {
-          type: "e",
-          code: "maxSize",
-          message: getMessage({ ...p, maxSize: m, maxSizeText: getFileSize10Text(m) }),
-        };
+        return getMessage({
+          ...p,
+          maxSize: m,
+          currentSize: p.value.size,
+        });
       });
     } else {
-      const maxSizeText = getFileSize10Text(maxSize);
       validators.push((p) => {
         if (p.value == null || p.value === "") return null;
         if (!isFile(p.value)) return null;
         if (p.value.size <= maxSize) return null;
-        return {
-          type: "e",
-          code: "maxSize",
-          message: getMessage({ ...p, maxSize, maxSizeText }),
-        };
+        return getMessage({
+          ...p,
+          maxSize,
+          currentSize: p.value.size,
+        });
       });
     }
   }
 
   if (props?.validators) {
-    validators.push(...props.validators);
+    (validators as typeof props.validators).push(...props.validators);
   }
 
   return {

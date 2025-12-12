@@ -1,5 +1,4 @@
 import { AUTH_COOKIE_NAMES } from "~/auth/consts";
-import { getI18n } from "~/i18n/server/loader";
 import { parseWithSchema } from ".";
 import { cookieStore } from "../cookie/server";
 
@@ -20,13 +19,11 @@ export async function getPayload<$Schema extends Record<string, Schema.$Any>>({
   skipCsrfCheck = false,
   session,
 }: Params<$Schema>) {
-  const i18n = getI18n(request);
   const formData = data ?? await request.formData();
   const submission = parseWithSchema({
     data: formData,
     env: {
       isServer: true,
-      t: i18n.t,
     },
     schema,
     dep,
@@ -46,7 +43,6 @@ export async function getPayload<$Schema extends Record<string, Schema.$Any>>({
         data: {},
         results: {
           csrfToken: {
-            code: "csrf",
             type: "e",
             message: "Invalid CSRF token",
           } satisfies Schema.Result,

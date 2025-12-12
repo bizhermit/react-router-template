@@ -1,22 +1,20 @@
 import { formatDate, parseDate } from "../objects/date";
 import { parseNumber } from "../objects/numeric";
-import { getRequiredTextKey, getValidationArray } from "./utilities";
+import { getValidationArray } from "./utilities";
 
 function SPLIT_DATE_PARSER({
   value,
-  env,
   label,
-}: Schema.ParserParams): Schema.ParserResult<number> {
+}: Schema.ParserParams): Schema.ParserResult<number, Schema.SplitDateValidationResult> {
   const [num, succeeded] = parseNumber(value);
   if (succeeded) return { value: num };
   return {
     value: num,
     result: {
       type: "e",
+      otype: "sdate",
+      label,
       code: "parse",
-      message: env.t("invalidNumeric", {
-        label: label || env.t("default_label"),
-      }),
     },
   };
 };
@@ -30,41 +28,40 @@ function splitDate<Props extends Schema.SplitDateProps, T extends Schema.SplitDa
   target: T;
   core: Schema.$Date | Schema.$Month | Schema.$DateTime;
 }) {
-  const validators: Array<Schema.Validator<number>> = [];
+  const validators: Array<Schema.Validator<number, Schema.Result>> = [];
 
   const actionType = splitProps?.actionType ?? "select";
   const [required, getRequiredMessage] = getValidationArray(splitProps?.required);
   const [min, getMinMessage] = getValidationArray(splitProps?.min);
   const [max, getMaxMessage] = getValidationArray(splitProps?.max);
 
+  const baseResult = {
+    label: splitProps?.label,
+    otype: `sdate-${target}`,
+    type: "e",
+    actionType,
+  } as const satisfies Pick<Schema.SplitDateValidationResult, "type" | "label" | "actionType" | "otype">;
+
   if (required) {
-    const textKey = getRequiredTextKey(actionType);
-    const getMessage: Schema.MessageGetter<typeof getRequiredMessage> = getRequiredMessage ?
-      getRequiredMessage :
-      (p) => p.env.t(textKey, {
-        label: p.label || p.env.t("default_label"),
-      });
+    const getMessage: Schema.CustomValidationMessageOrDefault<typeof getRequiredMessage> =
+      getRequiredMessage ??
+      (() => ({
+        ...baseResult,
+        code: "required",
+      }));
 
     if (typeof required === "function") {
       validators.push((p) => {
         if (!required(p)) return null;
         if (p.value == null) {
-          return {
-            type: "e",
-            code: "required",
-            message: getMessage(p),
-          };
+          return getMessage(p);
         }
         return null;
       });
     } else {
       validators.push((p) => {
         if (p.value == null) {
-          return {
-            type: "e",
-            code: "required",
-            message: getMessage(p),
-          };
+          return getMessage(p);
         }
         return null;
       });
@@ -72,67 +69,63 @@ function splitDate<Props extends Schema.SplitDateProps, T extends Schema.SplitDa
   }
 
   if (min != null) {
-    const textKey: I18nTextKey = `minNum_${actionType}`;
-    const getMessage: Schema.MessageGetter<typeof getMinMessage> = getMinMessage ?
-      getMinMessage :
-      (p) => p.env.t(textKey, {
-        label: p.label || p.env.t("default_label"),
-        min: p.min,
-      });
+    const getMessage: Schema.CustomValidationMessageOrDefault<typeof getMinMessage> =
+      getMinMessage ??
+      (({ min }) => ({
+        ...baseResult,
+        code: "min",
+        min,
+      }));
 
     if (typeof min === "function") {
       validators.push((p) => {
         if (p.value == null) return null;
         const m = min(p);
         if (m <= p.value) return null;
-        return {
-          type: "e",
-          code: "minLength",
-          message: getMessage({ ...p, min: m }),
-        };
+        return getMessage({
+          ...p,
+          min: m,
+        });
       });
     } else {
       validators.push((p) => {
         if (p.value == null) return null;
         if (min <= p.value) return null;
-        return {
-          type: "e",
-          code: "minLength",
-          message: getMessage({ ...p, min }),
-        };
+        return getMessage({
+          ...p,
+          min,
+        });
       });
     }
   }
 
   if (max != null) {
-    const textKey: I18nTextKey = `maxNum_${actionType}`;
-    const getMessage: Schema.MessageGetter<typeof getMaxMessage> = getMaxMessage ?
-      getMaxMessage :
-      (p) => p.env.t(textKey, {
-        label: p.label || p.env.t("default_label"),
-        max: p.max,
-      });
+    const getMessage: Schema.CustomValidationMessageOrDefault<typeof getMaxMessage> =
+      getMaxMessage ??
+      (({ max }) => ({
+        ...baseResult,
+        code: "max",
+        max,
+      }));
 
     if (typeof max === "function") {
       validators.push((p) => {
         if (p.value == null) return null;
         const m = max(p);
         if (p.value >= m) return null;
-        return {
-          type: "e",
-          code: "maxLength",
-          message: getMessage({ ...p, max: m }),
-        };
+        return getMessage({
+          ...p,
+          max: m,
+        });
       });
     } else {
       validators.push((p) => {
         if (p.value == null) return null;
         if (p.value >= max) return null;
-        return {
-          type: "e",
-          code: "maxLength",
-          message: getMessage({ ...p, max }),
-        };
+        return getMessage({
+          ...p,
+          max,
+        });
       });
     }
   }
@@ -159,11 +152,14 @@ function splitDate<Props extends Schema.SplitDateProps, T extends Schema.SplitDa
 };
 
 function common<Props extends Schema.DateBaseProps>(
+  otype: "month" | "date" | "datetime",
   props: Props | undefined,
-  validators: Array<Schema.Validator<Schema.DateValueString>>,
+  validators: Array<Schema.Validator<Schema.DateValueString, Schema.Result>>,
   options: {
     pattern: string;
-    beforePairValidation?: () => void;
+    beforePairValidation?: (params: {
+      baseResult: Pick<Schema.DateValidationResult, "type" | "label" | "actionType" | "otype" | "formatPattern">;
+    }) => void;
   },
 ) {
   const actionType = props?.actionType ?? "input";
@@ -172,34 +168,34 @@ function common<Props extends Schema.DateBaseProps>(
   const [maxDate, getMaxDateMessage] = getValidationArray(props?.maxDate);
   const [pair, getPairMessage] = getValidationArray(props?.pair);
 
+  const baseResult = {
+    label: props?.label,
+    otype,
+    type: "e",
+    actionType,
+    formatPattern: options.pattern,
+  } as const satisfies Pick<Schema.DateValidationResult, "type" | "label" | "actionType" | "otype" | "formatPattern">;
+
   if (required) {
-    const textKey = getRequiredTextKey(actionType);
-    const getMessage: Schema.MessageGetter<typeof getRequiredMessage> = getRequiredMessage ?
-      getRequiredMessage :
-      (p) => p.env.t(textKey, {
-        label: p.label || p.env.t("default_label"),
-      });
+    const getMessage: Schema.CustomValidationMessageOrDefault<typeof getRequiredMessage> =
+      getRequiredMessage ??
+      (() => ({
+        ...baseResult,
+        code: "required",
+      }));
 
     if (typeof required === "function") {
       validators.push((p) => {
         if (!required(p)) return null;
         if (p.value == null) {
-          return {
-            type: "e",
-            code: "required",
-            message: getMessage(p),
-          };
+          return getMessage(p);
         }
         return null;
       });
     } else {
       validators.push((p) => {
         if (p.value == null) {
-          return {
-            type: "e",
-            code: "required",
-            message: getMessage(p),
-          };
+          return getMessage(p);
         }
         return null;
       });
@@ -207,13 +203,13 @@ function common<Props extends Schema.DateBaseProps>(
   }
 
   if (minDate) {
-    const textKey: I18nTextKey = `minDate_${actionType}`;
-    const getMessage: Schema.MessageGetter<typeof getMinDateMessage> = getMinDateMessage ?
-      getMinDateMessage :
-      (p) => p.env.t(textKey, {
-        label: p.label || p.env.t("default_label"),
-        minDate: formatDate(p.minDate, options.pattern),
-      });
+    const getMessage: Schema.CustomValidationMessageOrDefault<typeof getMinDateMessage> =
+      getMinDateMessage ??
+      (({ minDate }) => ({
+        ...baseResult,
+        code: "minDate",
+        minDate,
+      }));
 
     if (typeof minDate === "function") {
       validators.push((p) => {
@@ -222,19 +218,13 @@ function common<Props extends Schema.DateBaseProps>(
         if (date == null) return null;
         const min = minDate(p);
         const m = parseDate(min);
-        if (m == null) {
-          return {
-            type: "w",
-            code: "minDate",
-            message: `failed parse date: [${min}]`,
-          };
-        }
+        if (m == null) return null;
         if (m.getTime() <= date.getTime()) return null;
-        return {
-          type: "e",
-          code: "minDate",
-          message: getMessage({ ...p, minDate: m, date }),
-        };
+        return getMessage({
+          ...p,
+          minDate: m,
+          date,
+        });
       });
     } else {
       const min = parseDate(minDate);
@@ -244,23 +234,23 @@ function common<Props extends Schema.DateBaseProps>(
         const date = parseDate(p.value);
         if (date == null) return null;
         if (min.getTime() <= date.getTime()) return null;
-        return {
-          type: "e",
-          code: "minDate",
-          message: getMessage({ ...p, minDate: min, date }),
-        };
+        return getMessage({
+          ...p,
+          minDate: min,
+          date,
+        });
       });
     };
   }
 
   if (maxDate) {
-    const textKey = `maxDate_${actionType}` satisfies I18nTextKey;
-    const getMessage: Schema.MessageGetter<typeof getMaxDateMessage> = getMaxDateMessage ?
-      getMaxDateMessage :
-      (p) => p.env.t(textKey, {
-        label: p.label || p.env.t("default_label"),
-        maxDate: formatDate(p.maxDate, options.pattern),
-      });
+    const getMessage: Schema.CustomValidationMessageOrDefault<typeof getMaxDateMessage> =
+      getMaxDateMessage ??
+      (({ maxDate }) => ({
+        ...baseResult,
+        code: "maxDate",
+        maxDate,
+      }));
 
     if (typeof maxDate === "function") {
       validators.push((p) => {
@@ -269,19 +259,13 @@ function common<Props extends Schema.DateBaseProps>(
         if (date == null) return null;
         const max = maxDate(p);
         const m = parseDate(max);
-        if (m == null) {
-          return {
-            type: "w",
-            code: "maxDate",
-            message: `failed parse date: [${max}]`,
-          };
-        }
+        if (m == null) return null;
         if (date.getTime() <= m.getTime()) return null;
-        return {
-          type: "e",
-          code: "maxDate",
-          message: getMessage({ ...p, maxDate: m, date }),
-        };
+        return getMessage({
+          ...p,
+          maxDate: m,
+          date,
+        });
       });
     } else {
       const max = parseDate(maxDate);
@@ -291,23 +275,26 @@ function common<Props extends Schema.DateBaseProps>(
         const date = parseDate(p.value);
         if (date == null) return null;
         if (date.getTime() <= max.getTime()) return null;
-        return {
-          type: "e",
-          code: "maxDate",
-          message: getMessage({ ...p, maxDate: max, date }),
-        };
+        return getMessage({
+          ...p,
+          maxDate: max,
+          date,
+        });
       });
     };
   }
 
-  options.beforePairValidation?.();
+  options.beforePairValidation?.({ baseResult });
 
   if (pair) {
-    const getMessage: Schema.MessageGetter<typeof getPairMessage> = getPairMessage ?
-      getPairMessage :
-      (p) => p.env.t("contextDate", {
-        label: p.label || p.env.t("default_label"),
-      });
+    const getMessage: Schema.CustomValidationMessageOrDefault<typeof getPairMessage> =
+      getPairMessage ??
+      (({ pairDate, position }) => ({
+        ...baseResult,
+        code: "pair",
+        pairDate,
+        position,
+      }));
 
     if (typeof pair === "function") {
       validators.push((p) => {
@@ -326,18 +313,20 @@ function common<Props extends Schema.DateBaseProps>(
         if (pa.same !== false && time === pairTime) return null;
         if (pa.position === "before") {
           if (pairTime < time) return null;
-          return {
-            type: "e",
-            code: "pairBefore",
-            message: getMessage({ ...p, pairDate, date }),
-          };
+          return getMessage({
+            ...p,
+            position: "before",
+            pairDate,
+            date,
+          });
         } else {
           if (time < pairTime) return null;
-          return {
-            type: "e",
-            code: "pairAfter",
-            message: getMessage({ ...p, pairDate, date }),
-          };
+          return getMessage({
+            ...p,
+            position: "after",
+            pairDate,
+            date,
+          });
         }
       });
     } else {
@@ -356,18 +345,20 @@ function common<Props extends Schema.DateBaseProps>(
         if (pair.same !== false && time === pairTime) return null;
         if (pair.position === "before") {
           if (pairTime < time) return null;
-          return {
-            type: "e",
-            code: "pairBefore",
-            message: getMessage({ ...p, pairDate, date }),
-          };
+          return getMessage({
+            ...p,
+            position: "before",
+            pairDate,
+            date,
+          });
         } else {
           if (time < pairTime) return null;
-          return {
-            type: "e",
-            code: "pairAfter",
-            message: getMessage({ ...p, pairDate, date }),
-          };
+          return getMessage({
+            ...p,
+            position: "after",
+            pairDate,
+            date,
+          });
         }
       });
     }
@@ -385,9 +376,8 @@ function common<Props extends Schema.DateBaseProps>(
 
 function MONTH_PARSER({
   value,
-  env,
   label,
-}: Schema.ParserParams): Schema.ParserResult<Schema.MonthString> {
+}: Schema.ParserParams): Schema.ParserResult<Schema.MonthString, Schema.DateValidationResult> {
   if (value == null || value === "") {
     return { value: undefined };
   }
@@ -397,10 +387,10 @@ function MONTH_PARSER({
       value: undefined,
       result: {
         type: "e",
+        otype: "month",
+        label,
         code: "parse",
-        message: env.t("invalidMonth", {
-          label: label || env.t("default_label"),
-        }),
+        formatPattern: "yyyy/MM",
       },
     };
   }
@@ -413,8 +403,9 @@ export function $month<Props extends Schema.MonthProps>(props?: Props) {
   const validators: Array<Schema.Validator<Schema.MonthString>> = [];
 
   const commonProps = common(
+    "month",
     props as Schema.BaseProps,
-    validators as Array<Schema.Validator<Schema.DateValueString>>,
+    validators as Array<Schema.Validator<Schema.DateValueString, Schema.DateValidationResult>>,
     {
       pattern: "yyyy/M",
     }
@@ -460,9 +451,8 @@ export function $month<Props extends Schema.MonthProps>(props?: Props) {
 
 function DATE_PARSER({
   value,
-  env,
   label,
-}: Schema.ParserParams): Schema.ParserResult<Schema.DateString> {
+}: Schema.ParserParams): Schema.ParserResult<Schema.DateString, Schema.DateValidationResult> {
   if (value == null || value === "") {
     return { value: undefined };
   }
@@ -472,10 +462,10 @@ function DATE_PARSER({
       value: undefined,
       result: {
         type: "e",
+        otype: "date",
+        label,
         code: "parse",
-        message: env.t("invalidDate", {
-          label: label || env.t("default_label"),
-        }),
+        formatPattern: "yyyy/MM/dd",
       },
     };
   }
@@ -500,8 +490,9 @@ export function $date<Props extends Schema.DateProps>(props?: Props) {
   const validators: Array<Schema.Validator<Schema.DateString>> = [];
 
   const commonProps = common(
+    "date",
     props as Schema.BaseProps,
-    validators as Array<Schema.Validator<Schema.DateValueString>>,
+    validators as Array<Schema.Validator<Schema.DateValueString, Schema.DateValidationResult>>,
     {
       pattern: "yyyy/M/d",
     }
@@ -564,9 +555,8 @@ function timeToNumber(time: Schema.TimeString | undefined) {
 
 function DATETIME_HM_PARSER({
   value,
-  env,
   label,
-}: Schema.ParserParams): Schema.ParserResult<Schema.DateTime_HM_String> {
+}: Schema.ParserParams): Schema.ParserResult<Schema.DateTime_HM_String, Schema.DateValidationResult> {
   if (value == null || value === "") {
     return { value: undefined };
   }
@@ -576,10 +566,10 @@ function DATETIME_HM_PARSER({
       value: undefined,
       result: {
         type: "e",
+        otype: "datetime",
+        label,
         code: "parse",
-        message: env.t("invalidDatetime", {
-          label: label || env.t("default_label"),
-        }),
+        formatPattern: "yyyy/M/d h:m:s",
       },
     };
   }
@@ -588,9 +578,8 @@ function DATETIME_HM_PARSER({
 
 function DATETIME_HMS_PARSER({
   value,
-  env,
   label,
-}: Schema.ParserParams): Schema.ParserResult<Schema.DateTime_HMS_String> {
+}: Schema.ParserParams): Schema.ParserResult<Schema.DateTime_HMS_String, Schema.DateValidationResult> {
   if (value == null || value === "") {
     return { value: undefined };
   }
@@ -600,10 +589,10 @@ function DATETIME_HMS_PARSER({
       value: undefined,
       result: {
         type: "e",
+        otype: "datetime",
+        label,
         code: "parse",
-        message: env.t("invalidDatetime", {
-          label: label || env.t("default_label"),
-        }),
+        formatPattern: "yyyy/M/d h:m:s",
       },
     };
   }
@@ -615,26 +604,26 @@ export function $datetime<Props extends Schema.DateTimeProps>(props?: Props) {
 
   const splits: Schema.$DateTime["splits"] = {};
 
-  const validators: Array<Schema.Validator<Schema.DateTimeString>> = [];
+  const validators: Array<Schema.Validator<Schema.DateTimeString, Schema.Result>> = [];
 
-  const actionType = props?.actionType ?? "input";
   const [minTime, getMinTimeMessage] = getValidationArray(props?.minTime);
   const [maxTime, getMaxTimeMessage] = getValidationArray(props?.maxTime);
 
   const commonProps = common(
+    "datetime",
     props as Schema.BaseProps,
-    validators as Array<Schema.Validator<Schema.DateValueString>>,
+    validators as Array<Schema.Validator<Schema.DateValueString, Schema.DateValidationResult>>,
     {
       pattern: "yyyy/M/d h:m:s",
-      beforePairValidation: function () {
+      beforePairValidation: function ({ baseResult }) {
         if (minTime) {
-          const textKey: I18nTextKey = `minTime_${actionType}`;
-          const getMessage: Schema.MessageGetter<typeof getMinTimeMessage> = getMinTimeMessage ?
-            getMinTimeMessage :
-            (p) => p.env.t(textKey, {
-              label: p.label || p.env.t("default_label"),
-              minTime: p.minTime,
-            });
+          const getMessage: Schema.CustomValidationMessageOrDefault<typeof getMinTimeMessage> =
+            getMinTimeMessage ??
+            (({ minTime }) => ({
+              ...baseResult,
+              code: "minTime",
+              minTime,
+            }));
 
           if (typeof minTime === "function") {
             validators.push((p) => {
@@ -646,11 +635,10 @@ export function $datetime<Props extends Schema.DateTimeProps>(props?: Props) {
               const timeNum = timeToNumber(p.value.split("T")[1] as Schema.TimeString);
               if (timeNum == null) throw new Error(`failed to parse time number [${p.value}]`);
               if (m <= timeNum) return null;
-              return {
-                type: "e",
-                code: "minTime",
-                message: getMessage({ ...p, minTime: min, date: parseDate(p.value)! }),
-              };
+              return getMessage({
+                ...p,
+                minTime: min,
+              });
             });
           } else {
             const min = timeToNumber(minTime);
@@ -661,23 +649,22 @@ export function $datetime<Props extends Schema.DateTimeProps>(props?: Props) {
               const timeNum = timeToNumber(p.value.split("T")[1] as Schema.TimeString);
               if (timeNum == null) throw new Error(`failed to parse time number [${p.value}]`);
               if (min <= timeNum) return null;
-              return {
-                type: "e",
-                code: "minTime",
-                message: getMessage({ ...p, minTime, date: parseDate(p.value)! }),
-              };
+              return getMessage({
+                ...p,
+                minTime,
+              });
             });
           }
         }
 
         if (maxTime) {
-          const textKey: I18nTextKey = `maxTime_${actionType}`;
-          const getMessage: Schema.MessageGetter<typeof getMaxTimeMessage> = getMaxTimeMessage ?
-            getMaxTimeMessage :
-            (p) => p.env.t(textKey, {
-              label: p.label || p.env.t("default_label"),
-              maxTime: p.maxTime,
-            });
+          const getMessage: Schema.CustomValidationMessageOrDefault<typeof getMaxTimeMessage> =
+            getMaxTimeMessage ??
+            (({ maxTime }) => ({
+              ...baseResult,
+              code: "maxTime",
+              maxTime,
+            }));
 
           if (typeof maxTime === "function") {
             validators.push((p) => {
@@ -689,11 +676,10 @@ export function $datetime<Props extends Schema.DateTimeProps>(props?: Props) {
               const timeNum = timeToNumber(p.value.split("T")[1] as Schema.TimeString);
               if (timeNum == null) throw new Error(`failed to parse time number [${p.value}]`);
               if (timeNum <= m) return null;
-              return {
-                type: "e",
-                code: "minTime",
-                message: getMessage({ ...p, maxTime: max, date: parseDate(p.value)! }),
-              };
+              return getMessage({
+                ...p,
+                maxTime: max,
+              });
             });
           } else {
             const max = timeToNumber(maxTime);
@@ -704,11 +690,10 @@ export function $datetime<Props extends Schema.DateTimeProps>(props?: Props) {
               const timeNum = timeToNumber(p.value.split("T")[1] as Schema.TimeString);
               if (timeNum == null) throw new Error(`failed to parse time number [${p.value}]`);
               if (timeNum <= max) return null;
-              return {
-                type: "e",
-                code: "minTime",
-                message: getMessage({ ...p, maxTime, date: parseDate(p.value)! }),
-              };
+              return getMessage({
+                ...p,
+                maxTime,
+              });
             });
           }
         }
@@ -717,7 +702,7 @@ export function $datetime<Props extends Schema.DateTimeProps>(props?: Props) {
   );
 
   if (props?.validators) {
-    validators.push(...props.validators);
+    (validators as typeof props.validators).push(...props.validators);
   }
 
   let core: Schema.$DateTime;
