@@ -286,7 +286,6 @@ namespace Schema {
     parser: Parser<TV | FV>;
     validators: Array<Validator<TV | FV>>;
     required: $ValidationValue<boolean>;
-    getSource: (params: { env: Schema.Env; }) => Source<TV | FV>;
   };
 
   type MonthString = `${number}-${number}`;

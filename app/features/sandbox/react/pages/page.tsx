@@ -110,6 +110,7 @@ const schema = $schema({
   sourceText: $str({
     required: true,
     source: [
+      { value: "helloworld", text: "halloWorld" },
       { value: "hoge", text: "HOGE" },
       { value: "fuga", text: "FUGA" },
       { value: "piyo", text: "PIYO" },

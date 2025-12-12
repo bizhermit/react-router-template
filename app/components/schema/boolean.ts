@@ -96,23 +96,5 @@ export function $bool<Props extends Schema.BooleanProps>(props?: Props) {
       },
     validators,
     required: required as Schema.GetValidationValue<Props, "required">,
-    getSource: function (params: { env: Schema.Env; }) {
-      function getText(v: unknown) {
-        if (v == null) return undefined;
-        // TODO:
-        // return params.env.t(String(v) as I18nTextKey);
-        return String(v);
-      };
-      return [
-        {
-          value: trueValue,
-          text: getText(props?.trueText) ?? getText(trueValue) ?? "",
-        },
-        {
-          value: falseValue,
-          text: getText(props?.falseText) ?? getText(falseValue) ?? "",
-        },
-      ] as const;
-    },
   } as const satisfies Schema.$Boolean<typeof trueValue, typeof falseValue>;
 };
