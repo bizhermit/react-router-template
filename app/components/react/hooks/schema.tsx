@@ -1138,7 +1138,9 @@ export function useSchemaArray<D extends Schema.DataItem<Schema.$Array>>(dataIte
     index: number;
     name: string;
     dataItem: Schema.DataItem<D["_"]["prop"]>;
-    remove: () => void;
+    remove: (options?: {
+      allowState?: Schema.Mode[];
+    }) => void;
   }) => T) {
     return schemaItem.value?.map((value, index) => {
       const di = dataItem.generateDataItem(index) as Schema.DataItem<D["_"]["prop"]>;
@@ -1151,7 +1153,7 @@ export function useSchemaArray<D extends Schema.DataItem<Schema.$Array>>(dataIte
         index,
         name: di.name,
         dataItem: di,
-        remove: () => remove(index),
+        remove: (options) => remove(index, options),
       });
     });
   };
