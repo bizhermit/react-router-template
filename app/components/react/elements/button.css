@@ -97,6 +97,10 @@
       cursor: not-allowed;
     }
 
+    &[data-processing="true"] {
+      cursor: wait;
+    }
+
     >.icon {
       min-width: calc(var(--spacing-button) * 0.5);
       max-width: calc(var(--spacing-button) * 0.5);

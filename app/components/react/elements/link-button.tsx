@@ -6,7 +6,10 @@ import { clsx, getColorClassName } from "./utilities";
 
 type LinkButtonProps = LinkProps
   & React.RefAttributes<HTMLAnchorElement>
-  & Omit<ButtonOptions, "onClick">;
+  & ButtonOptions
+  & {
+    disabled?: boolean;
+  };
 
 export function LinkButton({
   className,
@@ -23,7 +26,10 @@ export function LinkButton({
   return (
     <Link
       {...props}
-      className={clsx(getColorClassName(color), className)}
+      className={clsx(
+        getColorClassName(color),
+        className,
+      )}
       role="button"
       aria-disabled={disabled}
       data-appearance={appearance || "fill"}

@@ -721,6 +721,7 @@ function DynamicSelectBoxComponent() {
 
 function ThemeComponent() {
   const { theme, setTheme } = useTheme();
+  const { flag, toggle } = useToggle(false);
 
   const colors = ["primary", "secondary", "sub", "danger"] as const;
 
@@ -753,12 +754,24 @@ function ThemeComponent() {
             {theme}
           </span>
         </div>
+        <div className="flex flex-row gap-2">
+          <Button onClick={toggle}>disbaled: {String(flag)}</Button>
+        </div>
         <ul>
           <li>
             <h2>default</h2>
-            <Button>FillButton</Button>
-            <Button appearance="outline">OutlineButton</Button>
-            <Button appearance="text">TextButton</Button>
+            <Button
+              disabled={flag}
+              onClick={async ({ unlock }) => {
+                console.log("click");
+                await sleep(3000);
+                unlock();
+              }}
+            >
+              FillButton
+            </Button>
+            <Button disabled={flag} appearance="outline">OutlineButton</Button>
+            <Button disabled={flag} appearance="text">TextButton</Button>
           </li>
           {colors.map(color => {
             return (
@@ -773,9 +786,9 @@ function ThemeComponent() {
                 >
                   {color}
                 </h2>
-                <Button color={color}>FillButton</Button>
-                <Button color={color} appearance="outline">OutlineButton</Button>
-                <Button color={color} appearance="text">TextButton</Button>
+                <Button disabled={flag} color={color}>FillButton</Button>
+                <Button disabled={flag} color={color} appearance="outline">OutlineButton</Button>
+                <Button disabled={flag} color={color} appearance="text">TextButton</Button>
               </li>
             );
           })}

@@ -1,4 +1,4 @@
-import { useRef, useState, type ButtonHTMLAttributes, type MouseEvent, type RefObject } from "react";
+import { useRef, useState, type ButtonHTMLAttributes, type MouseEvent, type MouseEventHandler, type RefObject } from "react";
 import { clsx, getColorClassName } from "./utilities";
 
 export interface ButtonClickParams {
@@ -6,38 +6,77 @@ export interface ButtonClickParams {
   unlock: (focus?: boolean) => void;
 };
 
+type ButtonClickEventHandler = (parmas: ButtonClickParams) => (void | Promise<void>);
+
+export interface ButtonActionProps {
+  disabled?: boolean;
+  onClick?: ButtonClickEventHandler;
+};
+
 export interface ButtonOptions {
   ref?: RefObject<HTMLButtonElement>;
-  disabled?: boolean;
   color?: StyleColor;
   appearance?: "fill" | "outline" | "text";
   round?: boolean;
-  onClick?: (parmas: ButtonClickParams) => (void | Promise<void>);
 };
 
-type ButtonProps = Overwrite<ButtonHTMLAttributes<HTMLButtonElement>, ButtonOptions>;
+type ButtonProps = Overwrite<ButtonHTMLAttributes<HTMLButtonElement>, ButtonActionProps & ButtonOptions>;
+
+export function useButtonClickHandler(props: ButtonActionProps): {
+  handleClick: MouseEventHandler;
+  disabled: boolean;
+  processing: boolean;
+  processingRef: RefObject<boolean>;
+} {
+  const disabledRef = useRef(false);
+  disabledRef.current = props.disabled ?? false;
+  const [processing, setProcessing] = useState(false);
+  const processingRef = useRef(processing);
+  const revRef = useRef(0);
+
+  function handleClick(event: MouseEvent<HTMLButtonElement>) {
+    if (
+      disabledRef.current ||
+      processingRef.current ||
+      event.currentTarget.matches(":disabled")
+    ) {
+      event.preventDefault();
+      return;
+    }
+    setProcessing(processingRef.current = true);
+    const rev = ++revRef.current;
+    const unlock = () => {
+      if (revRef.current !== rev) return;
+      setProcessing(processingRef.current = false);
+    };
+    const res = props.onClick?.({ event, unlock });
+    if (res == null) unlock();
+  };
+
+  return {
+    handleClick,
+    disabled: disabledRef.current,
+    processing,
+    processingRef,
+  } as const;
+};
 
 export function Button({
   className,
   color,
   appearance,
   round,
+  disabled,
   onClick,
   ...props
 }: ButtonProps) {
-  const [disabled, setDisabled] = useState(false);
-  const disabledRef = useRef(disabled);
-
-  function handleClick(e: MouseEvent<HTMLButtonElement>) {
-    if (props.disabled || disabledRef.current || e.currentTarget.matches(":disabled")) {
-      e.preventDefault();
-      return;
-    }
-    setDisabled(disabledRef.current = true);
-    const unlock = () => setDisabled(disabledRef.current = false);
-    const res = onClick?.({ event: e, unlock });
-    if (res == null) unlock();
-  };
+  const {
+    handleClick,
+    processing,
+  } = useButtonClickHandler({
+    disabled,
+    onClick,
+  });
 
   return (
     <button
@@ -48,9 +87,10 @@ export function Button({
         getColorClassName(color),
         className,
       )}
-      disabled={props.disabled || disabled}
+      disabled={disabled || processing}
       data-appearance={appearance || "fill"}
       data-round={round}
+      data-processing={processing}
       onClick={handleClick}
     />
   );
