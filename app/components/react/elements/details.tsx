@@ -18,21 +18,26 @@ export function Details({
   return (
     <details
       {...props}
-      className={clsx("details", className)}
+      className={clsx(
+        "_details",
+        className,
+      )}
     >
       {
         summary &&
         <summary
           {...summaryProps}
           className={clsx(
-            "summary",
+            "_summary",
             summaryProps?.className,
           )}
         >
           {summary}
         </summary>
       }
-      <div className="overflow-hidden w-full">
+      <div
+        className="_detail-content"
+      >
         {children}
       </div>
     </details>

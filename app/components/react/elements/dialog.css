@@ -1,13 +1,13 @@
 @layer components {
 
-  .dialog,
-  .dialog::backdrop {
+  ._dialog,
+  ._dialog::backdrop {
     opacity: 0;
     transition: opacity .2s, display .2s allow-discrete, overlay .2s allow-discrete;
   }
 
-  .dialog[open],
-  .dialog[open]::backdrop {
+  ._dialog[open],
+  ._dialog[open]::backdrop {
     opacity: 1;
     z-index: 99999;
 
@@ -16,12 +16,12 @@
     }
   }
 
-  .dialog::backdrop {
+  ._dialog::backdrop {
     background-color: var(--color-mask);
     backdrop-filter: blur(0.4px);
   }
 
-  .dialog {
+  ._dialog {
     --header-height: 0;
     position: fixed;
     overscroll-behavior: contain;

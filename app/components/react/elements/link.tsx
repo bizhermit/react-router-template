@@ -12,7 +12,10 @@ export function Link({
   return (
     <$Link
       {...props}
-      className={clsx("link", className)}
+      className={clsx(
+        "_link",
+        className,
+      )}
     />
   );
 };

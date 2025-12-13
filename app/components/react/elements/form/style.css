@@ -240,7 +240,7 @@
     .ipt-label-text {
       color: var(---color);
 
-      >.icon {
+      >._icon {
         &:only-child {
           position: absolute;
         }
@@ -281,7 +281,7 @@
     display: grid;
     place-items: center;
 
-    >.icon {
+    >._icon {
       width: calc(var(--spacing-input) * 0.5);
       height: calc(var(--spacing-input) * 0.5);
       overflow: hidden;
@@ -301,7 +301,7 @@
     background-color: transparent;
     transition: transform 0.2s;
 
-    >.icon {
+    >._icon {
       width: 1.0rem;
     }
   }
@@ -474,7 +474,7 @@
     display: grid;
     justify-content: center;
 
-    >.icon {
+    >._icon {
       width: 1.0rem;
     }
   }

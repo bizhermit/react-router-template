@@ -16,7 +16,7 @@ export function LoadingBar({
     <div
       {...props}
       className={clsx(
-        "loading-bar",
+        "_loading-bar",
         getColorClassName(color),
         className,
       )}

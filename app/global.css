@@ -145,7 +145,7 @@
     align-items: stretch;
   }
 
-  .link {
+  ._link {
     text-decoration: underline;
     color: var(--color-link);
 
@@ -183,7 +183,7 @@
 
 @layer components {
 
-  .icon {
+  ._icon {
     width: 1.6rem;
     fill: currentColor;
     stroke: currentColor;

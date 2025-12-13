@@ -147,6 +147,10 @@ export function HogeFuga(props: HogeFuga) {
 - TailwindCSSのユーティリティの拡張および、スタイル
 - [global.css](../../app/global.css)の`@theme`に追加する
 
+### クラス名
+
+ライブラリ等の導入時にクラス名の衝突を避けるため、独自クラスは`_`から始める
+
 ### レイヤー
 
 #### 通常（グローバルスタイル）
@@ -179,7 +183,7 @@ export function HogeFuga(props: HogeFuga) {
 
 @layer components {
 
-  .icon {
+  ._icon {
     width: 1.6rem;
     fill: currentColor;
     stroke: currentColor;
