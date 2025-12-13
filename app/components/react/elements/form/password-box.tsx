@@ -82,14 +82,14 @@ export function PasswordBox<D extends Schema.DataItem<Schema.$String>>({
     <InputField
       {...props}
       core={{
-        className: "ipt-default-width",
+        className: "_ipt-default-width",
         state,
         result,
       }}
     >
       <input
         className={clsx(
-          "ipt-main",
+          "_ipt-main",
           validScripts && "pr-input-pad-bt"
         )}
         ref={ref}
@@ -112,11 +112,12 @@ export function PasswordBox<D extends Schema.DataItem<Schema.$String>>({
         autoCapitalize={autoCapitalize}
       />
       {
-        validScripts && state.current === "enabled" &&
+        validScripts &&
+        state.current === "enabled" &&
         <button
           type="button"
           className={clsx(
-            "ipt-btn",
+            "_ipt-btn",
             state.current === "enabled" && "cursor-pointer",
           )}
           aria-label="toggle masked"

@@ -36,7 +36,7 @@ export function InputField({
       <div
         {...props}
         className={clsx(
-          "ipt ipt-field",
+          "_ipt _ipt-field",
           core?.className,
           className,
         )}
@@ -44,21 +44,26 @@ export function InputField({
         <fieldset
           aria-hidden
           className={clsx(
-            "ipt-field-appearance",
+            "_ipt-field-appearance",
             core?.state?.current === "disabled" ?
-              "ipt-field-disabled" :
+              "_ipt-field-disabled" :
               core?.state?.current === "readonly" ?
-                "ipt-field-readonly" :
-                "ipt-field-enabled",
+                "_ipt-field-readonly" :
+                "_ipt-field-enabled",
           )}
         >
-          <legend>{ZERO_WIDTH_SPACE}</legend>
+          <legend>
+            {ZERO_WIDTH_SPACE}
+          </legend>
         </fieldset>
         {children}
       </div>
       {
-        !hideMessage && core?.state?.current === "enabled" &&
-        <InputMessageSpan result={core.result} />
+        !hideMessage &&
+        core?.state?.current === "enabled" &&
+        <InputMessageSpan
+          result={core.result}
+        />
       }
     </>
   );
@@ -80,20 +85,24 @@ export function InputGroup({
   ...props
 }: InputGroupProps) {
   if (core?.state?.current === "hidden") return null;
+
   return (
     <>
       <div
         {...props}
         ref={ref}
         className={clsx(
-          "ipt ipt-group",
+          "_ipt _ipt-group",
           core?.className,
           className,
         )}
       />
       {
-        !hideMessage && core?.state?.current === "enabled" &&
-        <InputMessageSpan result={core.result} />
+        !hideMessage &&
+        core?.state?.current === "enabled" &&
+        <InputMessageSpan
+          result={core.result}
+        />
       }
     </>
   );
@@ -117,14 +126,17 @@ export function InputLabel({
       <label
         {...props}
         className={clsx(
-          "ipt-label",
+          "_ipt-label",
           core?.className,
           className,
         )}
       />
       {
-        !hideMessage && core?.state?.current === "enabled" &&
-        <InputMessageSpan result={core.result} />
+        !hideMessage &&
+        core?.state?.current === "enabled" &&
+        <InputMessageSpan
+          result={core.result}
+        />
       }
     </>
   );
@@ -135,7 +147,16 @@ export function InputLabelText({
   children,
 }: { className?: string; children?: ReactNode; }) {
   if (!children) return;
-  return <span className={clsx("ipt-label-text", className)}>{children}</span>;
+  return (
+    <span
+      className={clsx(
+        "_ipt-label-text",
+        className,
+      )}
+    >
+      {children}
+    </span>
+  );
 }
 
 interface PlaceholderProps {
@@ -153,11 +174,17 @@ export function Placeholder({
 }: PlaceholderProps) {
   if (!children) return null;
   if (validScripts && state.current === "disabled") return null;
+
   return (
     <div
-      className={clsx("ipt-placeholder", className)}
+      className={clsx(
+        "_ipt-placeholder",
+        className,
+      )}
     >
-      <span className="w-full overflow-hidden">
+      <span
+        className="w-full overflow-hidden"
+      >
         {children}
       </span>
     </div>
@@ -187,7 +214,10 @@ export function FormItem({
   return (
     <div
       {...props}
-      className={clsx("form-item", className)}
+      className={clsx(
+        "_form-item",
+        className,
+      )}
     >
       {children}
     </div>

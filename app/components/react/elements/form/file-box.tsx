@@ -131,7 +131,7 @@ export function FileBox<D extends Schema.DataItem<Schema.$File>>({
       >
         <input
           className={clsx(
-            "ipt-file",
+            "_ipt-file",
             state.current === "enabled" && "cursor-pointer",
             validScripts && placeholder && "absolute opacity-0",
           )}
@@ -171,9 +171,21 @@ export function FileBox<D extends Schema.DataItem<Schema.$File>>({
       {
         value && (
           viewMode === "link"
-            ? <FileBoxLinkView value={value} fileName={name} onClick={onViewClick} /> :
+            ? (
+              <FileBoxLinkView
+                value={value}
+                fileName={name}
+                onClick={onViewClick}
+              />
+            ) :
             viewMode === "image"
-              ? <FileBoxImageView value={value} fileName={name} onClick={onViewClick} /> :
+              ? (
+                <FileBoxImageView
+                  value={value}
+                  fileName={name}
+                  onClick={onViewClick}
+                />
+              ) :
               undefined
         )
       }
@@ -254,7 +266,7 @@ export function FileBoxLinkView({ value, fileName, onClick }: ViewerProps & {
   if (!ctx || !ctx.href || ctx.children == null) return null;
   return (
     <a
-      className="ipt-file-link-view"
+      className="_ipt-file-link-view"
       href={ctx.href}
       target="_blank"
       rel="noopener noreferrer"

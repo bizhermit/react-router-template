@@ -335,6 +335,8 @@ function NavMenu() {
         >
           <HomeIcon />index
         </Link>
+      </li>
+      <li>
         <Button
           title="close menu"
           appearance="outline"
@@ -344,6 +346,11 @@ function NavMenu() {
         >
           <CrossIcon />
         </Button>
+      </li>
+      <li>
+        <Link to="/sandbox/hoge">
+          sandbox/hgoe
+        </Link>
       </li>
     </ul>
   );

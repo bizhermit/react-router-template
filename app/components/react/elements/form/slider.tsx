@@ -107,11 +107,14 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
       core={{
         state,
         result,
-        className: "ipt-slider-wrap",
+        className: "_ipt-slider-wrap",
       }}
     >
       <input
-        className={clsx("ipt-slider", getColorClassName(color))}
+        className={clsx(
+          "_ipt-slider",
+          getColorClassName(color),
+        )}
         style={validScripts ? {
           "--rate": `${getRate(value)}%`,
         } as CSSProperties : undefined}
@@ -135,8 +138,11 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
         autoFocus={autoFocus}
       />
       {
-        showValueText && value != null &&
-        <span className="ipt-slider-label">
+        showValueText &&
+        value != null &&
+        <span
+          className="_ipt-slider-label"
+        >
           {value}
         </span>
       }
@@ -148,7 +154,9 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
             name={name}
             value={value == null ? "" : String(value)}
           />
-          <InputDummyFocus ref={dummyRef} />
+          <InputDummyFocus
+            ref={dummyRef}
+          />
         </>
       }
       {
@@ -168,12 +176,14 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
           </datalist>
           {
             !hideScales &&
-            <ul className="ipt-slider-scales">
+            <ul
+              className="_ipt-slider-scales"
+            >
               {source.map(item => {
                 return (
                   <li
                     key={item.value}
-                    className="ipt-slider-tick"
+                    className="_ipt-slider-tick"
                     style={{
                       "--rate": `${getRate(item.value)}%`,
                     } as CSSProperties}

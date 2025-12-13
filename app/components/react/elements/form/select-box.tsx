@@ -82,7 +82,7 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
       }}
     >
       <select
-        className="ipt-main ipt-select"
+        className="_ipt-main _ipt-select"
         ref={ref}
         name={omitOnSubmit ? undefined : name}
         disabled={state.current !== "enabled"}
@@ -129,7 +129,7 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
       </Placeholder>
       <div
         className={clsx(
-          "ipt-btn",
+          "_ipt-btn",
           state.current !== "enabled" && "opacity-0"
         )}
       >
@@ -143,7 +143,9 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
             name={name}
             value={value as string || undefined}
           />
-          <InputDummyFocus ref={dummyRef} />
+          <InputDummyFocus
+            ref={dummyRef}
+          />
         </>
       }
     </InputField>

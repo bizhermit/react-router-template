@@ -57,7 +57,10 @@ export function InputMessageSpan({
   return (
     <span
       {...props}
-      className={clsx("ipt-msg", props.className)}
+      className={clsx(
+        "_ipt-msg",
+        props.className,
+      )}
     >
       {message}
     </span>

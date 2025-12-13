@@ -1274,7 +1274,7 @@ function SplittedSelect({
     >
       <select
         ref={ref}
-        className="ipt-main ipt-select"
+        className="_ipt-main _ipt-select"
         name={omitOnSubmit ? undefined : $?.name}
         required={required}
         disabled={state.current !== "enabled"}
@@ -1302,21 +1302,24 @@ function SplittedSelect({
       </Placeholder>
       <div
         className={clsx(
-          "ipt-btn",
+          "_ipt-btn",
           state.current !== "enabled" && "opacity-0"
         )}
       >
         <DownIcon />
       </div>
       {
-        state.current === "readonly" && $?.name &&
+        state.current === "readonly" &&
+        $?.name &&
         <>
           <input
             type="hidden"
             name={$?.name}
             value={value ?? ""}
           />
-          <InputDummyFocus ref={dummyRef} />
+          <InputDummyFocus
+            ref={dummyRef}
+          />
         </>
       }
     </InputField>
