@@ -3,7 +3,7 @@ import { useAuthContext } from "~/auth/client/context";
 import { SIGN_IN_PATHNAME } from "~/auth/consts";
 import { getSession } from "~/auth/server/session";
 import { signOut } from "~/auth/server/sign-out";
-import { Button } from "~/components/react/elements/button";
+import { Button$ } from "~/components/react/elements/button";
 import type { Route } from "./+types/sign-out";
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -36,12 +36,12 @@ export default function Page() {
       className="grow min-h-0 grid place-items-center"
     >
       <auth.CsrfTokenHidden />
-      <Button
+      <Button$
         type="submit"
         color="primary"
       >
         Sign Out
-      </Button>
+      </Button$>
     </fetcher.Form>
   );
 };

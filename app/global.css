@@ -194,7 +194,7 @@
 }
 
 @import "./components/react/elements/loading.css";
-@import "./components/react/elements/button.css";
+@import "./components/react/elements/button/index.css";
 @import "./components/react/elements/nav-layout.css";
 @import "./components/react/elements/dialog.css";
 @import "./components/react/elements/message-box.css";

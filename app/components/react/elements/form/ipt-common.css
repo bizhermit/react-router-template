@@ -112,7 +112,7 @@
       cursor: pointer;
 
       &._ipt-label-button {
-        @media (hover: hover) {
+        @media (any-hover: hover) {
           &:hover {
             opacity: 0.75;
 

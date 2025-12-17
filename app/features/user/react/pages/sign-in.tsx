@@ -3,7 +3,7 @@ import { data, redirect, useFetcher } from "react-router";
 import { useAuthContext } from "~/auth/client/context";
 import { authSchema } from "~/auth/schema";
 import { signIn_credentials } from "~/auth/server/sign-in";
-import { Button } from "~/components/react/elements/button";
+import { Button$ } from "~/components/react/elements/button";
 import { FormItem } from "~/components/react/elements/form/common";
 import { useFormItem } from "~/components/react/elements/form/hooks";
 import { PasswordBox } from "~/components/react/elements/form/password-box";
@@ -77,13 +77,13 @@ export default function Page({ actionData }: Route.ComponentProps) {
               hideMessage
             />
           </FormItem>
-          <Button
+          <Button$
             type="submit"
             color="primary"
             disabled={fetcher.state === "submitting"}
           >
             Sign In
-          </Button>
+          </Button$>
         </fetcher.Form>
         {
           errorMessage &&

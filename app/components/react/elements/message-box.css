@@ -10,8 +10,8 @@
   }
 
   ._msgbox {
-    ---color: var(--color-primary);
-    ---color-fg: var(--color-primary-fg);
+    ---color: var(--color-fg);
+    ---color-fg: var(--color-bg);
 
     display: flex;
     flex-flow: column nowrap;

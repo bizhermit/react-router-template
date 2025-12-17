@@ -27,13 +27,6 @@
       }
     }
 
-    &[data-appearance="fill"] {
-      transition: opacity 0.2s;
-      background-color: var(---color);
-
-      color: var(---color-fg);
-    }
-
     &[data-appearance="outline"] {
       transition: background-color 0.2s, color 0.2s, opacity 0.2s;
       background-color: transparent;
@@ -49,6 +42,12 @@
         opacity: 0.1;
         transition: opacity 0.2s;
       }
+    }
+
+    &[data-appearance="fill"] {
+      transition: opacity 0.2s;
+      background-color: var(---color);
+      color: var(---color-fg);
     }
 
     &[data-appearance="text"] {
@@ -69,7 +68,7 @@
     &:not(:is(:disabled, [aria-disabled="true"])) {
       cursor: pointer;
 
-      @media (hover: hover) {
+      @media (any-hover: hover) {
         &:hover {
           opacity: 0.75;
 

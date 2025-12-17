@@ -1,5 +1,41 @@
 import { useRef, useState, type ButtonHTMLAttributes, type MouseEvent, type MouseEventHandler, type RefObject } from "react";
-import { clsx, getColorClassName } from "./utilities";
+import { clsx, getColorClassName } from "../utilities";
+
+export interface ButtonOptions {
+  ref?: RefObject<HTMLButtonElement>;
+  color?: StyleColor;
+  appearance?: "outline" | "fill" | "text";
+  processing?: boolean;
+  round?: boolean;
+};
+
+type ButtonProps = Overwrite<ButtonHTMLAttributes<HTMLButtonElement>, ButtonOptions>;
+
+export function Button$({
+  className,
+  color,
+  appearance = "outline",
+  round,
+  disabled,
+  processing,
+  ...props
+}: ButtonProps) {
+  return (
+    <button
+      type="button"
+      {...props}
+      className={clsx(
+        "_btn",
+        getColorClassName(color),
+        className,
+      )}
+      disabled={disabled || processing}
+      data-appearance={appearance}
+      data-round={round}
+      data-processing={processing}
+    />
+  );
+};
 
 export interface ButtonClickParams {
   event: MouseEvent<HTMLButtonElement>;
@@ -12,15 +48,6 @@ export interface ButtonActionProps {
   disabled?: boolean;
   onClick?: ButtonClickEventHandler;
 };
-
-export interface ButtonOptions {
-  ref?: RefObject<HTMLButtonElement>;
-  color?: StyleColor;
-  appearance?: "fill" | "outline" | "text";
-  round?: boolean;
-};
-
-type ButtonProps = Overwrite<ButtonHTMLAttributes<HTMLButtonElement>, ButtonActionProps & ButtonOptions>;
 
 export function useButtonClickHandler(props: ButtonActionProps): {
   handleClick: MouseEventHandler;
@@ -61,15 +88,13 @@ export function useButtonClickHandler(props: ButtonActionProps): {
   } as const;
 };
 
+type Button$Props = Overwrite<Omit<ButtonProps, "type">, ButtonActionProps>;
+
 export function Button({
-  className,
-  color,
-  appearance,
-  round,
   disabled,
   onClick,
   ...props
-}: ButtonProps) {
+}: Button$Props) {
   const {
     handleClick,
     processing,
@@ -79,18 +104,10 @@ export function Button({
   });
 
   return (
-    <button
-      type="button"
+    <Button$
       {...props}
-      className={clsx(
-        "_btn",
-        getColorClassName(color),
-        className,
-      )}
       disabled={disabled || processing}
-      data-appearance={appearance || "fill"}
-      data-round={round}
-      data-processing={processing}
+      processing={processing}
       onClick={handleClick}
     />
   );

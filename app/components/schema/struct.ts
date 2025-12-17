@@ -2,8 +2,7 @@ import { getValidationArray } from "./utilities";
 
 function STRUCT_PARSER({
   value,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-}: Schema.ParserParams): Schema.ParserResult<Record<string, any>, Schema.StructValidationResult> {
+}: Schema.ParserParams): Schema.ParserResult<Record<string, unknown>, Schema.StructValidationResult> {
   return { value: value as Record<string, unknown> };
 };
 

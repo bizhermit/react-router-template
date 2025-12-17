@@ -1,7 +1,7 @@
 import { data, useFetcher } from "react-router";
 import { useAuthContext } from "~/auth/client/context";
 import { actionWithAuth } from "~/auth/server/action";
-import { Button } from "~/components/react/elements/button";
+import { Button$ } from "~/components/react/elements/button";
 import { Link } from "~/components/react/elements/link";
 import { $schema } from "~/components/schema";
 import { getPayload } from "~/components/schema/server";
@@ -46,11 +46,11 @@ export default function Page() {
         method="post"
       >
         <auth.CsrfTokenHidden />
-        <Button
+        <Button$
           type="submit"
         >
           submit
-        </Button>
+        </Button$>
       </fetcher.Form>
     </div>
   );

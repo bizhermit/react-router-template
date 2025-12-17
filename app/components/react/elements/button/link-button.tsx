@@ -1,8 +1,8 @@
 import type { MouseEvent } from "react";
 // eslint-disable-next-line no-restricted-imports
 import { Link, type LinkProps } from "react-router";
-import type { ButtonOptions } from "./button";
-import { clsx, getColorClassName } from "./utilities";
+import type { ButtonOptions } from ".";
+import { clsx, getColorClassName } from "../utilities";
 
 type LinkButtonProps = LinkProps
   & React.RefAttributes<HTMLAnchorElement>
@@ -14,9 +14,10 @@ type LinkButtonProps = LinkProps
 export function LinkButton({
   className,
   color,
-  appearance,
+  appearance = "outline",
   round,
   disabled,
+  processing,
   ...props
 }: LinkButtonProps) {
   function handleClick(e: MouseEvent<HTMLAnchorElement>) {
@@ -33,8 +34,9 @@ export function LinkButton({
       )}
       role="button"
       aria-disabled={disabled}
-      data-appearance={appearance || "fill"}
+      data-appearance={appearance}
       data-round={round}
+      data-processing={processing}
       onClick={handleClick}
     />
   );

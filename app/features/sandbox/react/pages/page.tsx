@@ -8,7 +8,8 @@ import { getAuth } from "~/auth/server/loader";
 import getIndexedDB, { type IndexedDBController, type IndexedDBStores } from "~/components/client/indexeddb";
 import { formatDate } from "~/components/objects/date";
 import { parseNumber } from "~/components/objects/numeric";
-import { Button } from "~/components/react/elements/button";
+import { Button, Button$ } from "~/components/react/elements/button";
+import { LinkButton } from "~/components/react/elements/button/link-button";
 import { Carousel, useCarousel, type CarouselOptions } from "~/components/react/elements/carousel";
 import { Details } from "~/components/react/elements/details";
 import { useDialog } from "~/components/react/elements/dialog";
@@ -30,7 +31,6 @@ import { TextBox } from "~/components/react/elements/form/text-box";
 import { Text } from "~/components/react/elements/i18n-text";
 import { ArrowDownIcon, ArrowLeftIcon, ArrowRightIcon, ArrowUpIcon, BadgeIcon, BookmarkFillIcon, BookmarkIcon, ButtonIcon, CalendarFillIcon, CalendarIcon, CameraFillIcon, CameraIcon, CardIcon, CheckCircleFillIcon, CheckCircleIcon, CheckIcon, ChocolateMenuFillIcon, ChocolateMenuIcon, CircleFillIcon, CircleIcon, ClearAllIcon, ClockFillIcon, ClockIcon, CloudDownloadIcon, CloudFillIcon, CloudIcon, CloudUploadIcon, ContainerIcon, CrossCircleFillIcon, CrossCircleIcon, CrossIcon, DeleteBackFillIcon, DeleteBackIcon, DeleteFillIcon, DeleteIcon, DocumentFillIcon, DocumentIcon, DoubleDownFillIcon, DoubleDownIcon, DoubleLeftFillIcon, DoubleLeftIcon, DoubleRightFillIcon, DoubleRightIcon, DoubleUpFillIcon, DoubleUpIcon, DownFillIcon, DownIcon, DownloadIcon, ElementIcon, ExclamationCircleFillIcon, ExclamationCircleIcon, ExclamationDiamondFillIcon, ExclamationDiamondIcon, ExclamationIcon, ExclamationTriangleFillIcon, ExclamationTriangleIcon, ExLinkIcon, FileAddFillIcon, FileAddIcon, FileDeleteFillIcon, FileDeleteIcon, FileFillIcon, FileIcon, FilterFillIcon, FilterIcon, FolderAddFillIcon, FolderAddIcon, FolderDeleteFillIcon, FolderDeleteIcon, FolderFillIcon, FolderIcon, FormIcon, FormItemIcon, GearFillIcon, GearIcon, GridFillIcon, GridIcon, HeartFillIcon, HeartHalfFillIcon, HeartIcon, HomeFillIcon, HomeIcon, HorizontalDividerIcon, KebabMenuIcon, LabelFillIcon, LabelIcon, LeftFillIcon, LeftIcon, LeftRightIcon, LinkIcon, ListFilterIcon, ListIcon, LoadingIcon, LocationFillIcon, LocationIcon, MagnifyingGlassIcon, MagnifyingGlassMinusFillIcon, MagnifyingGlassMinusIcon, MagnifyingGlassPlusFillIcon, MagnifyingGlassPlusIcon, MailFillIcon, MailIcon, MeatballsMenuIcon, MenuIcon, MenuLeftIcon, MenuLeftRightIcon, MenuRightIcon, MinusCircleFillIcon, MinusCircleIcon, MinusIcon, NavContainerIcon, OrderListIcon, PinFillIcon, PinIcon, PlusCircleFillIcon, PlusCircleIcon, PlusIcon, PopupIcon, PowerIcon, QuestionCircleFillIcon, QuestionCircleIcon, QuestionIcon, RedoIcon, ReloadIcon, RightFillIcon, RightIcon, SaveFillIcon, SaveIcon, ShareFillIcon, ShareIcon, SignInIcon, SignOutIcon, SlideContainerIcon, SmileFillIcon, SmileIcon, SplitContainerIcon, StarFillIcon, StarHalfFillIcon, StarIcon, StepperIcon, SyncIcon, TabContainerIcon, TextBoxIcon, TodayFillIcon, TodayIcon, TooltipIcon, TrashCanFillIcon, TrashCanIcon, UndoIcon, UnloadIcon, UpDownIcon, UpFillIcon, UpIcon, UploadIcon, UserAddIcon, UserFillIcon, UserIcon, UserMinusIcon, UsersFillIcon, UsersIcon, VerticalDividerIcon } from "~/components/react/elements/icon";
 import { Link } from "~/components/react/elements/link";
-import { LinkButton } from "~/components/react/elements/link-button";
 import { LoadingBar } from "~/components/react/elements/loading";
 import { $alert, $confirm, $toast } from "~/components/react/elements/message-box";
 import { NavLayout, useNavLayout } from "~/components/react/elements/nav-layout";
@@ -451,19 +451,19 @@ function Contents(props: Route.ComponentProps) {
               <Component2 />
             </FieldSet>
             <div className="flex gap-2">
-              <Button
+              <Button$
                 type="submit"
                 round
               >
                 submit
-              </Button>
-              <Button
+              </Button$>
+              <Button$
                 type="reset"
                 color="sub"
                 round
               >
                 reset
-              </Button>
+              </Button$>
             </div>
           </fetcher.Form>
         </SchemaProvider>
@@ -768,18 +768,20 @@ function ThemeComponent() {
         <ul>
           <li>
             <h2>default</h2>
-            <Button
-              disabled={flag}
-              onClick={async ({ unlock }) => {
-                console.log("click");
-                await sleep(3000);
-                unlock();
-              }}
-            >
-              FillButton
-            </Button>
-            <Button disabled={flag} appearance="outline">OutlineButton</Button>
-            <Button disabled={flag} appearance="text">TextButton</Button>
+            <div className="flex flex-row gap-2">
+              <Button
+                disabled={flag}
+                onClick={async ({ unlock }) => {
+                  console.log("click");
+                  await sleep(3000);
+                  unlock();
+                }}
+              >
+                OutlineButton
+              </Button>
+              <Button disabled={flag} appearance="fill">FillButton</Button>
+              <Button disabled={flag} appearance="text">TextButton</Button>
+            </div>
           </li>
           {colors.map(color => {
             return (
@@ -794,9 +796,11 @@ function ThemeComponent() {
                 >
                   {color}
                 </h2>
-                <Button disabled={flag} color={color}>FillButton</Button>
-                <Button disabled={flag} color={color} appearance="outline">OutlineButton</Button>
-                <Button disabled={flag} color={color} appearance="text">TextButton</Button>
+                <div className="flex flex-row gap-2">
+                  <Button disabled={flag} color={color}>OutlineButton</Button>
+                  <Button disabled={flag} color={color} appearance="fill">FillButton</Button>
+                  <Button disabled={flag} color={color} appearance="text">TextButton</Button>
+                </div>
               </li>
             );
           })}

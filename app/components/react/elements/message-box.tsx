@@ -176,19 +176,18 @@ export function $alert(props: AlertProps) {
             headerId={headerId}
             body={props.body}
             bodyId={bodyId}
-            footer={
-              <>
-                <Button
-                  autoFocus
-                  color={props.color}
-                  onClick={async () => {
-                    close();
-                  }}
-                >
-                  {props.buttonText ?? (props.t?.("OK") || "OK")}
-                </Button>
-              </>
-            }
+            footer={(
+              <Button
+                autoFocus
+                color={props.color}
+                appearance="fill"
+                onClick={async () => {
+                  close();
+                }}
+              >
+                {props.buttonText ?? (props.t?.("OK") || "OK")}
+              </Button>
+            )}
           />
         );
       },
@@ -233,10 +232,11 @@ export function $confirm(props: ConfirmProps) {
             headerId={headerId}
             body={props.body}
             bodyId={bodyId}
-            footer={
+            footer={(
               <>
                 <Button
                   color={props.color}
+                  appearance="fill"
                   onClick={async () => {
                     close(true);
                   }}
@@ -245,8 +245,8 @@ export function $confirm(props: ConfirmProps) {
                 </Button>
                 <Button
                   autoFocus
-                  appearance="outline"
                   color={props.color}
+                  appearance="outline"
                   onClick={async () => {
                     close(false);
                   }}
@@ -254,7 +254,7 @@ export function $confirm(props: ConfirmProps) {
                   {props.nevativeButtonText ?? (props.t?.("Cancel") || "キャンセル")}
                 </Button>
               </>
-            }
+            )}
           />
         );
       },

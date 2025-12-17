@@ -3,7 +3,7 @@ import { data, Outlet, redirect } from "react-router";
 import { useAuthContext } from "~/auth/client/context";
 import { SIGN_IN_PATHNAME, SIGN_OUT_PATHNAME } from "~/auth/consts";
 import { getAuthSession } from "~/auth/server/loader";
-import { Button } from "~/components/react/elements/button";
+import { Button$ } from "~/components/react/elements/button";
 import { Details } from "~/components/react/elements/details";
 import type { Route } from "./+types/layout";
 
@@ -39,20 +39,20 @@ export default function Layout() {
           name="csrfToken"
           value={auth.csrfToken}
         />
-        <Button
+        <Button$
           type="submit"
           color="sub"
         >
           Sign Out
-        </Button>
+        </Button$>
       </form>
-      <Button
+      <Button$
         onClick={() => {
           setCount(c => c + 1);
         }}
       >
         count: {count}
-      </Button>
+      </Button$>
       <Outlet />
     </div>
   );

@@ -1,7 +1,6 @@
 import { getValidationArray } from "./utilities";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function ARRAY_PARSER({ value }: Schema.ParserParams): Schema.ParserResult<Array<any>> {
+function ARRAY_PARSER({ value }: Schema.ParserParams): Schema.ParserResult<Array<unknown>> {
   if (value == null || value === "") {
     return { value: undefined };
   }
