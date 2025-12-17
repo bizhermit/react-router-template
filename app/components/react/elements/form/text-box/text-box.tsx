@@ -1,4 +1,4 @@
-import { useRef, useState, type ChangeEvent, type HTMLAttributes, type HTMLInputTypeAttribute, type InputHTMLAttributes } from "react";
+import { useRef, useState, type HTMLAttributes, type HTMLInputTypeAttribute, type InputHTMLAttributes } from "react";
 import { useSchemaItem } from "~/components/react/hooks/schema";
 import { TextBox$ } from ".";
 import { getValidationValue, WithMessage, type InputWrapProps } from "../common";
@@ -101,9 +101,9 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
     getCommonParams,
   });
 
-  function handleChange(e: ChangeEvent<HTMLInputElement>) {
+  function handleChange(v: string) {
     if (state.current !== "enabled") return;
-    setValue(e.target.value);
+    setValue(v);
   };
 
   const patternProps = getPatternInputProps(dataItem._.pattern);
@@ -124,6 +124,8 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
         className={className}
         style={style}
         state={state.current}
+        value={value}
+        onChangeValue={handleChange}
         inputRef={ref}
         inputProps={{
           type: patternProps.type || "text",
@@ -131,8 +133,6 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
           required,
           minLength: minLen,
           maxLength: maxLen,
-          defaultValue: value || undefined,
-          onChange: handleChange,
           placeholder,
           inputMode: patternProps.inputMode,
           "aria-label": label,

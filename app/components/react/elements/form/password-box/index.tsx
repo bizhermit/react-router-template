@@ -1,4 +1,4 @@
-import { use, useState, type InputHTMLAttributes, type ReactNode, type RefObject } from "react";
+import { use, useState, type ChangeEvent, type InputHTMLAttributes, type RefObject } from "react";
 import { ValidScriptsContext } from "~/components/react/providers/valid-scripts";
 import { CircleFillIcon, CircleIcon } from "../../icon";
 import { clsx } from "../../utilities";
@@ -6,10 +6,11 @@ import { InputField, type InputFieldProps } from "../common";
 
 type PasswordBox$Props = Overwrite<InputFieldProps, {
   ref?: RefObject<HTMLDivElement>;
-  inputProps?: InputHTMLAttributes<HTMLInputElement>;
+  inputProps?: Omit<InputHTMLAttributes<HTMLInputElement>, "value" | "defaultValue">;
   inputRef?: RefObject<HTMLInputElement>;
   state?: Schema.Mode;
-  children?: ReactNode;
+  value?: string | null | undefined;
+  onChangeValue?: (value: string) => void;
 }>;
 
 export function PasswordBox$({
@@ -18,7 +19,8 @@ export function PasswordBox$({
   inputRef,
   state = "enabled",
   className,
-  children,
+  value,
+  onChangeValue,
   ...props
 }: PasswordBox$Props) {
   const validScripts = use(ValidScriptsContext).valid;
@@ -28,6 +30,11 @@ export function PasswordBox$({
   function handleClickToggleButton() {
     if (state !== "enabled") return;
     setType(type => type === "password" ? "text" : "password");
+  };
+
+  function handleChange(e: ChangeEvent<HTMLInputElement>) {
+    onChangeValue?.(e.target.value);
+    inputProps?.onChange?.(e);
   };
 
   return (
@@ -51,8 +58,9 @@ export function PasswordBox$({
           inputProps?.className,
         )}
         ref={inputRef}
+        onChange={handleChange}
+        defaultValue={value || undefined}
       />
-      {children}
       {
         validScripts &&
         state === "enabled" &&

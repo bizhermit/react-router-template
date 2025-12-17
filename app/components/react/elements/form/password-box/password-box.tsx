@@ -1,4 +1,4 @@
-import { useRef, useState, type ChangeEvent, type InputHTMLAttributes } from "react";
+import { useRef, useState, type InputHTMLAttributes } from "react";
 import { PasswordBox$ } from ".";
 import { useSchemaItem } from "../../../hooks/schema";
 import { getValidationValue, WithMessage, type InputWrapProps } from "../common";
@@ -66,9 +66,9 @@ export function PasswordBox<D extends Schema.DataItem<Schema.$String>>({
 
   const [maxLen, setMaxLen] = useState<number | undefined>(getMaxLen);
 
-  function handleChange(e: ChangeEvent<HTMLInputElement>) {
+  function handleChange(v: string) {
     if (state.current !== "enabled") return;
-    setValue(e.target.value);
+    setValue(v);
   };
 
   return (
@@ -81,6 +81,8 @@ export function PasswordBox<D extends Schema.DataItem<Schema.$String>>({
         className={className}
         style={style}
         state={state.current}
+        value={value}
+        onChangeValue={handleChange}
         inputRef={ref}
         inputProps={{
           name: omitOnSubmit ? undefined : name,
@@ -88,7 +90,6 @@ export function PasswordBox<D extends Schema.DataItem<Schema.$String>>({
           minLength: minLen,
           maxLength: maxLen,
           defaultValue: value || undefined,
-          onChange: handleChange,
           placeholder,
           inputMode: "url",
           "aria-label": label,
