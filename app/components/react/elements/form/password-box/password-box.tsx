@@ -1,8 +1,6 @@
 import { useRef, useState, type ChangeEvent, type InputHTMLAttributes } from "react";
-import { TextBox$ } from ".";
+import { PasswordBox$ } from ".";
 import { useSchemaItem } from "../../../hooks/schema";
-import { CircleFillIcon, CircleIcon } from "../../icon";
-import { clsx } from "../../utilities";
 import { getValidationValue, WithMessage, type InputWrapProps } from "../common";
 import type { FormItemHookProps } from "../hooks";
 
@@ -41,7 +39,6 @@ export function PasswordBox<D extends Schema.DataItem<Schema.$String>>({
     getCommonParams,
     omitOnSubmit,
     hideMessage,
-    validScripts,
   } = useSchemaItem<Schema.DataItem<Schema.$String>>($props, {
     effect: function ({ value }) {
       if (!ref.current) return;
@@ -69,16 +66,9 @@ export function PasswordBox<D extends Schema.DataItem<Schema.$String>>({
 
   const [maxLen, setMaxLen] = useState<number | undefined>(getMaxLen);
 
-  const [type, setType] = useState<"password" | "text">("password");
-
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
     if (state.current !== "enabled") return;
     setValue(e.target.value);
-  };
-
-  function handleClickToggleButton() {
-    if (state.current !== "enabled") return;
-    setType(type => type === "password" ? "text" : "password");
   };
 
   return (
@@ -87,17 +77,12 @@ export function PasswordBox<D extends Schema.DataItem<Schema.$String>>({
       state={state.current}
       result={result}
     >
-      <TextBox$
-        className={clsx(
-          "_ipt-default-width",
-          className,
-        )}
+      <PasswordBox$
+        className={className}
         style={style}
         state={state.current}
         inputRef={ref}
         inputProps={{
-          className: validScripts ? "pr-input-pad-bt" : undefined,
-          type,
           name: omitOnSubmit ? undefined : name,
           required,
           minLength: minLen,
@@ -113,24 +98,7 @@ export function PasswordBox<D extends Schema.DataItem<Schema.$String>>({
           autoComplete,
           autoCapitalize,
         }}
-      >
-        {
-          validScripts &&
-          state.current === "enabled" &&
-          <button
-            type="button"
-            className={clsx(
-              "_ipt-btn",
-              state.current === "enabled" && "cursor-pointer",
-            )}
-            aria-label="toggle masked"
-            tabIndex={-1}
-            onClick={handleClickToggleButton}
-          >
-            {type === "text" ? <CircleFillIcon /> : <CircleIcon />}
-          </button>
-        }
-      </TextBox$>
+      />
     </WithMessage>
   );
 };

@@ -15,12 +15,17 @@ export function TextBox$({
   inputProps,
   inputRef,
   state = "enabled",
+  className,
   children,
   ...props
 }: TextBox$Props) {
   return (
     <InputField
       {...props}
+      className={clsx(
+        "_ipt-default-width",
+        className,
+      )}
       ref={ref}
       state={state}
     >

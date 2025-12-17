@@ -1,10 +1,11 @@
 import { useMemo, useRef, useState, type ChangeEvent, type FocusEvent, type InputHTMLAttributes, type KeyboardEvent } from "react";
 import { useSchemaItem } from "~/components/react/hooks/schema";
-import { DownIcon, UpIcon } from "../icon";
-import { clsx } from "../utilities";
-import { getValidationValue, OldInputField, type InputWrapProps } from "./common";
-import type { FormItemHookProps } from "./hooks";
-import { useSource } from "./utilities";
+import { DownIcon, UpIcon } from "../../icon";
+import { clsx } from "../../utilities";
+import { getValidationValue, WithMessage, type InputWrapProps } from "../common";
+import type { FormItemHookProps } from "../hooks";
+import { TextBox$ } from "../text-box";
+import { useSource } from "../utilities";
 
 export type NumberBoxProps<D extends Schema.DataItem<Schema.$Number>> = InputWrapProps & {
   $: D;
@@ -28,11 +29,13 @@ function preventParse(result: Schema.Result | null | undefined) {
 };
 
 export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
+  className,
+  style,
   placeholder,
   source: propsSource,
   step,
   autoFocus,
-  autoComplete,
+  autoComplete = "off",
   enterKeyHint,
   hook,
   ...$props
@@ -58,7 +61,7 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
     getCommonParams,
     env,
     omitOnSubmit,
-    props,
+    hideMessage,
   } = useSchemaItem<Schema.DataItem<Schema.$Number>>($props, {
     effect: function ({ value, result }) {
       if (!ref.current) return;
@@ -240,106 +243,110 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
   }
 
   return (
-    <OldInputField
-      {...props}
-      core={{
-        className: "_ipt-default-width",
-        state,
-        result,
-      }}
+    <WithMessage
+      hide={hideMessage}
+      state={state.current}
+      result={result}
     >
-      <input
+      <TextBox$
         className={clsx(
-          "_ipt-box text-right z-0",
-          validScripts && "pr-input-pad-btn"
+          "_ipt-default-width",
+          className,
         )}
-        ref={ref}
-        type={validScripts ? "text" : "number"}
-        inputMode={inputMode}
-        name={validScripts ? undefined : (omitOnSubmit ? undefined : name)}
-        disabled={state.current === "disabled"}
-        readOnly={state.current === "readonly"}
-        required={required}
-        min={min}
-        max={max}
-        step={$step}
-        defaultValue={(validScripts && !preventParse(result)) ? format(value) : (value ?? "")}
-        onChange={handleChange}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-        onCompositionStart={handleCompositionStart}
-        onCompositionEnd={handleCompositionEnd}
-        onKeyDown={handleKeydown}
-        placeholder={placeholder}
-        aria-label={label}
-        aria-invalid={invalid}
-        aria-errormessage={errormessage}
-        list={dataListId}
-        autoFocus={autoFocus}
-        autoComplete={autoComplete || "off"}
-        enterKeyHint={enterKeyHint}
-      />
-      {
-        validScripts &&
-        <>
-          <div
-            className={clsx(
-              "_ipt-outer-spin-button",
-              state.current !== "enabled" && "opacity-0"
-            )}
-          >
-            <button
-              type="button"
-              aria-label="increment"
-              tabIndex={-1}
+        style={style}
+        state={state.current}
+        inputRef={ref}
+        inputProps={{
+          className: clsx(
+            "text-right z-0",
+            validScripts && "pr-input-pad-btn"
+          ),
+          type: validScripts ? "text" : "number",
+          inputMode,
+          name: validScripts ? undefined : (omitOnSubmit ? undefined : name),
+          required,
+          min,
+          max,
+          step: $step,
+          defaultValue: (validScripts && !preventParse(result)) ? format(value) : (value ?? ""),
+          onChange: handleChange,
+          onFocus: handleFocus,
+          onBlur: handleBlur,
+          onCompositionStart: handleCompositionStart,
+          onCompositionEnd: handleCompositionEnd,
+          onKeyDown: handleKeydown,
+          placeholder,
+          "aria-label": label,
+          "aria-invalid": invalid,
+          "aria-errormessage": errormessage,
+          list: dataListId,
+          autoFocus,
+          autoComplete,
+          enterKeyHint,
+        }}
+      >
+        {
+          validScripts &&
+          <>
+            <div
               className={clsx(
-                "_ipt-inner-spin-button items-end",
-                state.current === "enabled" && "cursor-pointer",
+                "_ipt-outer-spin-button",
+                state.current !== "enabled" && "opacity-0"
               )}
-              disabled={state.current !== "enabled"}
-              onMouseDown={handleMousedownIncrement}
             >
-              <UpIcon />
-            </button>
-            <button
-              type="button"
-              aria-label="decrement"
-              tabIndex={-1}
-              className={clsx(
-                "_ipt-inner-spin-button items-start",
-                state.current === "enabled" && "cursor-pointer",
-              )}
-              disabled={state.current !== "enabled"}
-              onMouseDown={handleMousedownDecrement}
-            >
-              <DownIcon />
-            </button>
-          </div>
-          <input
-            name={omitOnSubmit ? undefined : name}
-            type="hidden"
-            disabled={state.current === "disabled"}
-            value={value ?? ""}
-          />
-        </>
-      }
-      {
-        source &&
-        <datalist
-          id={dataListId}
-        >
-          {source.map(item => {
-            return (
-              <option
-                key={item.value}
-                value={item.value ?? ""}
+              <button
+                type="button"
+                aria-label="increment"
+                tabIndex={-1}
+                className={clsx(
+                  "_ipt-inner-spin-button items-end",
+                  state.current === "enabled" && "cursor-pointer",
+                )}
+                disabled={state.current !== "enabled"}
+                onMouseDown={handleMousedownIncrement}
               >
-                {item.text}
-              </option>
-            );
-          })}
-        </datalist>
-      }
-    </OldInputField>
+                <UpIcon />
+              </button>
+              <button
+                type="button"
+                aria-label="decrement"
+                tabIndex={-1}
+                className={clsx(
+                  "_ipt-inner-spin-button items-start",
+                  state.current === "enabled" && "cursor-pointer",
+                )}
+                disabled={state.current !== "enabled"}
+                onMouseDown={handleMousedownDecrement}
+              >
+                <DownIcon />
+              </button>
+            </div>
+            <input
+              name={omitOnSubmit ? undefined : name}
+              type="hidden"
+              disabled={state.current === "disabled"}
+              value={value ?? ""}
+            />
+          </>
+        }
+        {
+          source &&
+          <datalist
+            id={dataListId}
+          >
+            {source.map(item => {
+              return (
+                <option
+                  key={item.value}
+                  value={item.value ?? ""}
+                >
+                  {item.text}
+                </option>
+              );
+            })}
+          </datalist>
+        }
+      </TextBox$>
+    </WithMessage>
   );
 };

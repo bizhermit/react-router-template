@@ -1,7 +1,6 @@
 import { useRef, useState, type ChangeEvent, type HTMLAttributes, type HTMLInputTypeAttribute, type InputHTMLAttributes } from "react";
 import { useSchemaItem } from "~/components/react/hooks/schema";
 import { TextBox$ } from ".";
-import { clsx } from "../../utilities";
 import { getValidationValue, WithMessage, type InputWrapProps } from "../common";
 import type { FormItemHookProps } from "../hooks";
 import { useSource } from "../utilities";
@@ -122,10 +121,7 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
       result={result}
     >
       <TextBox$
-        className={clsx(
-          "_ipt-default-width",
-          className,
-        )}
+        className={className}
         style={style}
         state={state.current}
         inputRef={ref}
