@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import { useSchemaItem } from "~/components/react/hooks/schema";
-import { getValidationValue, InputField, type InputWrapProps } from "./common";
+import { getValidationValue, OldInputField, type InputWrapProps } from "./common";
 import type { FormItemHookProps } from "./hooks";
 
 type Resize = "none" | "vertical" | "horizontal" | "both";
@@ -131,7 +131,7 @@ export function TextArea<D extends Schema.DataItem<Schema.$String>>({
   }, []);
 
   return (
-    <InputField
+    <OldInputField
       {...props}
       core={{
         state,
@@ -157,6 +157,6 @@ export function TextArea<D extends Schema.DataItem<Schema.$String>>({
         aria-errormessage={errormessage}
         autoFocus={autoFocus}
       />
-    </InputField>
+    </OldInputField>
   );
 };

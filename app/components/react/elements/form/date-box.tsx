@@ -2,7 +2,7 @@ import { useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { useSchemaItem } from "~/components/react/hooks/schema";
 import { parseTypedDateString } from "~/components/schema/date";
 import { clsx } from "../utilities";
-import { getValidationValue, InputDummyFocus, InputField, type InputWrapProps } from "./common";
+import { getValidationValue, InputDummyFocus, OldInputField, type InputWrapProps } from "./common";
 import type { FormItemHookProps } from "./hooks";
 import { useSource } from "./utilities";
 
@@ -129,7 +129,7 @@ export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
   }
 
   return (
-    <InputField
+    <OldInputField
       {...props}
       core={{
         state,
@@ -193,6 +193,6 @@ export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
           })}
         </datalist>
       }
-    </InputField>
+    </OldInputField>
   );
 };

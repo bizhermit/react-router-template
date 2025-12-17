@@ -2,7 +2,7 @@ import { useRef, useState, type ChangeEvent, type InputHTMLAttributes } from "re
 import { useSchemaItem } from "../../hooks/schema";
 import { CircleFillIcon, CircleIcon } from "../icon";
 import { clsx } from "../utilities";
-import { getValidationValue, InputField, type InputWrapProps } from "./common";
+import { getValidationValue, OldInputField, type InputWrapProps } from "./common";
 import type { FormItemHookProps } from "./hooks";
 
 export type PasswordBoxProps<D extends Schema.DataItem<Schema.$String>> = InputWrapProps & {
@@ -79,7 +79,7 @@ export function PasswordBox<D extends Schema.DataItem<Schema.$String>>({
   };
 
   return (
-    <InputField
+    <OldInputField
       {...props}
       core={{
         className: "_ipt-default-width",
@@ -127,6 +127,6 @@ export function PasswordBox<D extends Schema.DataItem<Schema.$String>>({
           {type === "text" ? <CircleFillIcon /> : <CircleIcon />}
         </button>
       }
-    </InputField>
+    </OldInputField>
   );
 };

@@ -2,7 +2,7 @@ import { useMemo, useRef, useState, type ChangeEvent, type FocusEvent, type Inpu
 import { useSchemaItem } from "~/components/react/hooks/schema";
 import { DownIcon, UpIcon } from "../icon";
 import { clsx } from "../utilities";
-import { getValidationValue, InputField, type InputWrapProps } from "./common";
+import { getValidationValue, OldInputField, type InputWrapProps } from "./common";
 import type { FormItemHookProps } from "./hooks";
 import { useSource } from "./utilities";
 
@@ -240,7 +240,7 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
   }
 
   return (
-    <InputField
+    <OldInputField
       {...props}
       core={{
         className: "_ipt-default-width",
@@ -340,6 +340,6 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
           })}
         </datalist>
       }
-    </InputField>
+    </OldInputField>
   );
 };

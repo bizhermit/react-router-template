@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type ChangeEvent, type DragEvent, type Key
 import { convertBase64ToFile } from "~/components/objects/file";
 import { useSchemaItem } from "~/components/react/hooks/schema";
 import { clsx } from "../utilities";
-import { getValidationValue, InputField, Placeholder, type InputWrapProps } from "./common";
+import { getValidationValue, OldInputField, Placeholder, type InputWrapProps } from "./common";
 import type { FormItemHookProps } from "./hooks";
 
 export type FileBoxProps<D extends Schema.DataItem<Schema.$File>> = InputWrapProps & {
@@ -122,7 +122,7 @@ export function FileBox<D extends Schema.DataItem<Schema.$File>>({
 
   return (
     <>
-      <InputField
+      <OldInputField
         {...props}
         core={{
           state,
@@ -167,7 +167,7 @@ export function FileBox<D extends Schema.DataItem<Schema.$File>>({
             {placeholder}
           </Placeholder>
         }
-      </InputField>
+      </OldInputField>
       {
         value && (
           viewMode === "link"

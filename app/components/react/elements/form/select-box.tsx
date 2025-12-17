@@ -3,7 +3,7 @@ import { isEmpty } from "~/components/objects";
 import { useSchemaItem } from "~/components/react/hooks/schema";
 import { DownIcon } from "../icon";
 import { clsx, ZERO_WIDTH_SPACE } from "../utilities";
-import { InputDummyFocus, InputField, Placeholder, type InputWrapProps } from "./common";
+import { InputDummyFocus, OldInputField, Placeholder, type InputWrapProps } from "./common";
 import type { FormItemHookProps } from "./hooks";
 import { useSource } from "./utilities";
 
@@ -74,7 +74,7 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
   }
 
   return (
-    <InputField
+    <OldInputField
       {...props}
       core={{
         state,
@@ -148,6 +148,6 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
           />
         </>
       }
-    </InputField>
+    </OldInputField>
   );
 };

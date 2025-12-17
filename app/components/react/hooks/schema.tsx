@@ -646,7 +646,7 @@ export function useFieldSet() {
   return use(FieldSetContext);
 };
 
-export interface SchemaItemProps<D extends Schema.DataItem> extends InputWrapProps {
+export interface SchemaItemProps<D extends Schema.DataItem> extends Pick<InputWrapProps, "hideMessage" | "omitOnSubmit"> {
   $: D;
   readOnly?: boolean;
 };
@@ -801,6 +801,7 @@ export function optimizeRefs(
 export function useSchemaItem<D extends Schema.DataItem>({
   $,
   omitOnSubmit,
+  hideMessage,
   ...props
 }: SchemaItemProps<D>, options: {
   effect?: (params: {
@@ -1000,7 +1001,7 @@ export function useSchemaItem<D extends Schema.DataItem>({
   const isInvalid = result?.type === "e";
 
   const errormessage = isInvalid ? (
-    props.hideMessage ? getResultMessage(use(I18nContext).t, result) : `${schema.id}_${$.name}__msg`
+    hideMessage ? getResultMessage(use(I18nContext).t, result) : `${schema.id}_${$.name}__msg`
   ) : undefined;
 
   return {
@@ -1027,6 +1028,7 @@ export function useSchemaItem<D extends Schema.DataItem>({
     getCommonParams,
     setRefs,
     omitOnSubmit,
+    hideMessage,
     formState: schema.state,
   } as const;
 };

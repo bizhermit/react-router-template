@@ -1,8 +1,9 @@
 import { useRef, useState, type ChangeEvent, type HTMLAttributes, type HTMLInputTypeAttribute, type InputHTMLAttributes } from "react";
 import { useSchemaItem } from "~/components/react/hooks/schema";
-import { getValidationValue, InputField, type InputWrapProps } from "./common";
-import type { FormItemHookProps } from "./hooks";
-import { useSource } from "./utilities";
+import { TextBox$ } from ".";
+import { getValidationValue, WithMessage, type InputWrapProps } from "../common";
+import type { FormItemHookProps } from "../hooks";
+import { useSource } from "../utilities";
 
 export type TextBoxProps<D extends Schema.DataItem<Schema.$String>> = InputWrapProps & {
   $: D;
@@ -37,10 +38,12 @@ function getPatternInputProps(pattern: Schema.StringProps["pattern"]): { type?: 
 }
 
 export function TextBox<D extends Schema.DataItem<Schema.$String>>({
+  className,
+  style,
   placeholder,
   source: propsSource,
   autoFocus,
-  autoComplete,
+  autoComplete = "off",
   autoCapitalize,
   enterKeyHint,
   hook,
@@ -62,7 +65,7 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
     getCommonParams,
     env,
     omitOnSubmit,
-    props,
+    hideMessage,
   } = useSchemaItem<Schema.DataItem<Schema.$String>>($props, {
     effect: function ({ value }) {
       if (!ref.current) return;
@@ -112,54 +115,55 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
   }
 
   return (
-    <InputField
-      {...props}
-      core={{
-        className: "_ipt-default-width",
-        state,
-        result,
-      }}
+    <WithMessage
+      hide={hideMessage}
+      state={state.current}
+      result={result}
     >
-      <input
-        className="_ipt-box"
-        ref={ref}
-        type={patternProps.type || "text"}
-        name={omitOnSubmit ? undefined : name}
-        disabled={state.current === "disabled"}
-        readOnly={state.current === "readonly"}
-        required={required}
-        minLength={minLen}
-        maxLength={maxLen}
-        defaultValue={value || undefined}
-        onChange={handleChange}
-        placeholder={placeholder}
-        inputMode={patternProps.inputMode}
-        aria-label={label}
-        aria-invalid={invalid}
-        aria-errormessage={errormessage}
-        list={dataListId}
-        autoFocus={autoFocus}
-        autoComplete={autoComplete || "off"}
-        autoCapitalize={autoCapitalize}
-        enterKeyHint={enterKeyHint}
-      />
-      {
-        source &&
-        <datalist
-          id={dataListId}
-        >
-          {source.map(item => {
-            return (
-              <option
-                key={item.value}
-                value={item.value ?? ""}
-              >
-                {item.text}
-              </option>
-            );
-          })}
-        </datalist>
-      }
-    </InputField>
+      <TextBox$
+        className={className}
+        style={style}
+        state={state.current}
+        inputRef={ref}
+        inputProps={{
+          "className": "_ipt-default-width",
+          "type": patternProps.type || "text",
+          "name": omitOnSubmit ? undefined : name,
+          required,
+          "minLength": minLen,
+          "maxLength": maxLen,
+          "defaultValue": value || undefined,
+          "onChange": handleChange,
+          placeholder,
+          "inputMode": patternProps.inputMode,
+          "aria-label": label,
+          "aria-invalid": invalid,
+          "aria-errormessage": errormessage,
+          "list": dataListId,
+          autoFocus,
+          autoComplete,
+          autoCapitalize,
+          enterKeyHint,
+        }}
+      >
+        {
+          source &&
+          <datalist
+            id={dataListId}
+          >
+            {source.map(item => {
+              return (
+                <option
+                  key={item.value}
+                  value={item.value ?? ""}
+                >
+                  {item.text}
+                </option>
+              );
+            })}
+          </datalist>
+        }
+      </TextBox$>
+    </WithMessage>
   );
 };

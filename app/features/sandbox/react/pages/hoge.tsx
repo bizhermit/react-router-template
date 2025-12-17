@@ -1,4 +1,4 @@
-import { Button } from "~/components/react/elements/button";
+import { Button } from "~/components/react/elements/button/button";
 import { Link } from "~/components/react/elements/link";
 
 export default function Page() {

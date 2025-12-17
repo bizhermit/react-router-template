@@ -5,7 +5,7 @@ import { parseTimeNums, parseTypedDate } from "~/components/schema/date";
 import { I18nContext } from "../../hooks/i18n";
 import { DownIcon } from "../icon";
 import { clsx, ZERO_WIDTH_SPACE } from "../utilities";
-import { getValidationValue, InputDummyFocus, InputField, InputGroup, Placeholder, type InputWrapProps } from "./common";
+import { getValidationValue, InputDummyFocus, InputGroup, OldInputField, Placeholder, type InputWrapProps } from "./common";
 import type { FormItemHookProps } from "./hooks";
 
 export type DateSelectBoxProps<D extends Schema.DataItem<Schema.$SplitDate>> = InputWrapProps & {
@@ -1265,7 +1265,7 @@ function SplittedSelect({
   const isInvalid = result?.type === "e" || coreResult?.type === "e";
 
   return (
-    <InputField
+    <OldInputField
       core={{
         state,
         result,
@@ -1322,6 +1322,6 @@ function SplittedSelect({
           />
         </>
       }
-    </InputField>
+    </OldInputField>
   );
 };

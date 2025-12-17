@@ -1,9 +1,10 @@
-import type { HTMLAttributes, ReactNode, RefObject } from "react";
+import type { CSSProperties, HTMLAttributes, ReactNode, RefObject } from "react";
 import { clsx, ZERO_WIDTH_SPACE } from "../utilities";
 import { InputMessageSpan } from "./message";
 
 export type InputWrapProps = {
   className?: string;
+  style?: CSSProperties;
   autoFocus?: boolean;
   hideMessage?: boolean;
   omitOnSubmit?: boolean;
@@ -17,18 +18,81 @@ type CoreProps = {
   };
 };
 
-type InputFieldProps =
+export interface WithMessage {
+  hide?: boolean;
+  state: Schema.Mode;
+  result: Schema.Result | null | undefined;
+  children?: ReactNode;
+};
+
+export function WithMessage({
+  hide = false,
+  state,
+  result,
+  children,
+}: WithMessage) {
+  return (
+    <>
+      {children}
+      {
+        !hide &&
+        state === "enabled" &&
+        <InputMessageSpan
+          result={result}
+        />
+      }
+    </>
+  );
+}
+
+export type InputFieldProps = Overwrite<HTMLAttributes<HTMLDivElement>, {
+  ref?: RefObject<HTMLDivElement>;
+  label?: ReactNode;
+  state: Schema.Mode;
+}>;
+
+export function InputField({
+  className,
+  children,
+  ref,
+  label,
+  state,
+  ...props
+}: InputFieldProps) {
+  return (
+    <div
+      {...props}
+      ref={ref}
+      className={clsx(
+        "_ipt _ipt-field",
+        className,
+      )}
+    >
+      <fieldset
+        aria-hidden
+        className={`_ipt-field-appearance _ipt-field-${state}`}
+      >
+        <legend>
+          {label ?? ZERO_WIDTH_SPACE}
+        </legend>
+      </fieldset>
+      {children}
+    </div>
+  );
+};
+
+type OldInputFieldProps =
   & HTMLAttributes<HTMLDivElement>
   & InputWrapProps
   & CoreProps;
 
-export function InputField({
+export function OldInputField({
   className,
   hideMessage,
   core,
   children,
   ...props
-}: InputFieldProps) {
+}: OldInputFieldProps) {
   if (core?.state?.current === "hidden") return null;
 
   return (

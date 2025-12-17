@@ -2,7 +2,7 @@ import { type ReactNode, type RefObject } from "react";
 import { createRoot } from "react-dom/client";
 import { parseToReactNode } from "~/components/react/elements/i18n-text";
 import { preventScroll } from "../../client/dom/prevent-scroll";
-import { Button } from "./button";
+import { Button } from "./button/button";
 import { FocusTrap } from "./focus-trap";
 import { CrossIcon } from "./icon";
 import { clsx, getColorClassName } from "./utilities";
