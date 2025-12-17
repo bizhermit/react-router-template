@@ -23,6 +23,7 @@ export default [
     route("auth/*", "auth/page.ts"),
     ...prefix("sandbox", [
       index(getSandboxPageFilePath("page.tsx")),
+      route("/hoge", getSandboxPageFilePath("hoge.tsx")),
       route("/api", getSandboxPageFilePath("api.ts")),
       route("/api/:id", getSandboxPageFilePath("api-detail.ts")),
       route("/stream", getSandboxPageFilePath("stream-api.ts")),

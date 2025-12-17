@@ -89,7 +89,7 @@ export function PasswordBox<D extends Schema.DataItem<Schema.$String>>({
     >
       <input
         className={clsx(
-          "_ipt-main",
+          "_ipt-box",
           validScripts && "pr-input-pad-bt"
         )}
         ref={ref}

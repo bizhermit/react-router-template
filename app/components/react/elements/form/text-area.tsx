@@ -139,7 +139,7 @@ export function TextArea<D extends Schema.DataItem<Schema.$String>>({
       }}
     >
       <textarea
-        className={`_ipt-main py-input-pad-y min-h-input min-w-input ${getResizeClassName(resize)}`}
+        className={`_ipt-box py-input-pad-y min-h-input min-w-input ${getResizeClassName(resize)}`}
         ref={ref}
         name={omitOnSubmit ? undefined : name}
         disabled={state.current === "disabled"}

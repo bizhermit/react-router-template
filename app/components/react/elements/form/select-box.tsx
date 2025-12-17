@@ -82,7 +82,7 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
       }}
     >
       <select
-        className="_ipt-main _ipt-select"
+        className="_ipt-box _ipt-select"
         ref={ref}
         name={omitOnSubmit ? undefined : name}
         disabled={state.current !== "enabled"}

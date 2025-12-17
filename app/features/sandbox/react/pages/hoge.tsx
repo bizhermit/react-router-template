@@ -10,6 +10,9 @@ export default function Page() {
       <Button>
         button
       </Button>
+      {/* <form> */}
+      <button>button (unset type)</button>
+      {/* </form> */}
     </div>
   );
 }

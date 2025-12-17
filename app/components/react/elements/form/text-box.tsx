@@ -121,7 +121,7 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
       }}
     >
       <input
-        className="_ipt-main"
+        className="_ipt-box"
         ref={ref}
         type={patternProps.type || "text"}
         name={omitOnSubmit ? undefined : name}

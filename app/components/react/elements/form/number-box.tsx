@@ -250,7 +250,7 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
     >
       <input
         className={clsx(
-          "_ipt-main text-right z-0",
+          "_ipt-box text-right z-0",
           validScripts && "pr-input-pad-btn"
         )}
         ref={ref}

@@ -138,7 +138,7 @@ export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
     >
       <input
         className={clsx(
-          "_ipt-main",
+          "_ipt-box",
           validScripts && "_ipt-date",
         )}
         ref={ref}

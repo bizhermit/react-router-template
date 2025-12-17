@@ -1274,7 +1274,7 @@ function SplittedSelect({
     >
       <select
         ref={ref}
-        className="_ipt-main _ipt-select"
+        className="_ipt-box _ipt-select"
         name={omitOnSubmit ? undefined : $?.name}
         required={required}
         disabled={state.current !== "enabled"}

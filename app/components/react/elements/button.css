@@ -1,6 +1,6 @@
 @layer components {
 
-  :is(._btn, a[role="button"], label[role="button"]) {
+  ._btn {
     ---color: var(--color-fg);
     ---color-fg: var(--color-bg);
 

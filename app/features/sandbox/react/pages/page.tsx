@@ -333,7 +333,8 @@ function NavMenu() {
             nav?.toggleMenu(false);
           }}
         >
-          <HomeIcon />index
+          <HomeIcon />
+          <span>index</span>
         </Link>
       </li>
       <li>
