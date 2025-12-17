@@ -144,21 +144,32 @@ export function Carousel({
       {...props}
       data-align={align}
       data-nopad={removePadding}
-      className={clsx("carousel", className)}
+      className={clsx(
+        "_carousel",
+        className,
+      )}
     >
-      <div className="carousel-dummy-slides">
+      <div
+        className="_carousel-dummy-slides"
+      >
         {
           children.map((_, index) => (
-            <div key={index} className="carousel-dummy-slide" />
+            <div
+              key={index}
+              className="_carousel-dummy-slide"
+            />
           ))
         }
       </div>
-      <ol ref={ref} className="carousel-slides">
+      <ol
+        ref={ref}
+        className="_carousel-slides"
+      >
         {
           children.map((item, index) => (
             <li
               key={index}
-              className="carousel-slide"
+              className="_carousel-slide"
             >
               {item.element}
             </li>

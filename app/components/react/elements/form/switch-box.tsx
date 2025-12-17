@@ -59,7 +59,10 @@ export function SwitchBox<D extends Schema.DataItem<Schema.$Boolean>>({
       }}
     >
       <input
-        className={clsx("ipt-switch", getColorClassName(color))}
+        className={clsx(
+          "_ipt-switch",
+          getColorClassName(color),
+        )}
         ref={ref}
         type="checkbox"
         name={omitOnSubmit ? undefined : name}

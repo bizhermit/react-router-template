@@ -10,7 +10,7 @@ const attrs = (p: IconProps) => {
     viewBox: "0 0 20 20",
     xmlns: "http://www.w2.5.org/2000/svg",
     ...p,
-    className: clsx("icon", p.className),
+    className: clsx("_icon", p.className),
   };
 };
 

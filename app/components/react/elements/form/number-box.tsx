@@ -243,14 +243,14 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
     <InputField
       {...props}
       core={{
-        className: "ipt-default-width",
+        className: "_ipt-default-width",
         state,
         result,
       }}
     >
       <input
         className={clsx(
-          "ipt-main text-right z-0",
+          "_ipt-box text-right z-0",
           validScripts && "pr-input-pad-btn"
         )}
         ref={ref}
@@ -284,7 +284,7 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
         <>
           <div
             className={clsx(
-              "ipt-outer-spin-button",
+              "_ipt-outer-spin-button",
               state.current !== "enabled" && "opacity-0"
             )}
           >
@@ -293,7 +293,7 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
               aria-label="increment"
               tabIndex={-1}
               className={clsx(
-                "ipt-inner-spin-button items-end",
+                "_ipt-inner-spin-button items-end",
                 state.current === "enabled" && "cursor-pointer",
               )}
               disabled={state.current !== "enabled"}
@@ -306,7 +306,7 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
               aria-label="decrement"
               tabIndex={-1}
               className={clsx(
-                "ipt-inner-spin-button items-start",
+                "_ipt-inner-spin-button items-start",
                 state.current === "enabled" && "cursor-pointer",
               )}
               disabled={state.current !== "enabled"}
@@ -325,7 +325,9 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
       }
       {
         source &&
-        <datalist id={dataListId}>
+        <datalist
+          id={dataListId}
+        >
           {source.map(item => {
             return (
               <option

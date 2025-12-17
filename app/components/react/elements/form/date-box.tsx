@@ -138,8 +138,8 @@ export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
     >
       <input
         className={clsx(
-          "ipt-main",
-          validScripts && "ipt-date",
+          "_ipt-box",
+          validScripts && "_ipt-date",
         )}
         ref={ref}
         type={type === "datetime" ? "datetime-local" : type}
@@ -171,12 +171,16 @@ export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
             name={name}
             value={value as string || undefined}
           />
-          <InputDummyFocus ref={dummyRef} />
+          <InputDummyFocus
+            ref={dummyRef}
+          />
         </>
       }
       {
         source &&
-        <datalist id={dataListId}>
+        <datalist
+          id={dataListId}
+        >
           {source.map(item => {
             return (
               <option

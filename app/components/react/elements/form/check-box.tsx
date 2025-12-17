@@ -61,14 +61,20 @@ export function CheckBox<D extends Schema.DataItem<Schema.$Boolean>>({
         state,
         result,
         className: appearance === "button" ?
-          clsx("ipt-label-button", colorClassName) :
+          clsx(
+            "_ipt-label-button",
+            colorClassName,
+          ) :
           undefined,
       }}
     >
       <input
         className={
           appearance === "checkbox" ?
-            clsx("ipt-point ipt-check", colorClassName) :
+            clsx(
+              "_ipt-point _ipt-check",
+              colorClassName,
+            ) :
             "appearance-none"
         }
         ref={ref}

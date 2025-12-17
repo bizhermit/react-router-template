@@ -26,13 +26,16 @@ function MessageBox(props: MessageBoxProps) {
   return (
     <FocusTrap>
       <div
-        className={clsx("msgbox", getColorClassName(props.color))}
+        className={clsx(
+          "_msgbox",
+          getColorClassName(props.color),
+        )}
         ref={props.ref}
       >
         {
           props.header &&
           <div
-            className="msgbox-header"
+            className="_msgbox-header"
             id={props.headerId}
           >
             {optimizeEndOfLines(props.header)}
@@ -41,7 +44,7 @@ function MessageBox(props: MessageBoxProps) {
         {
           props.body &&
           <div
-            className="msgbox-body"
+            className="_msgbox-body"
             id={props.bodyId}
           >
             {optimizeEndOfLines(props.body)}
@@ -49,7 +52,9 @@ function MessageBox(props: MessageBoxProps) {
         }
         {
           props.footer &&
-          <div className="msgbox-footer">
+          <div
+            className="_msgbox-footer"
+          >
             {props.footer}
           </div>
         }
@@ -68,7 +73,7 @@ interface OpenMessageProps {
 
 function openMessage(props: OpenMessageProps) {
   const elem = document.createElement("dialog");
-  elem.classList.add("dialog", "msgbox-dialog");
+  elem.classList.add("_dialog", "_msgbox-dialog");
   props.setupElement(elem);
   const root = createRoot(elem);
   document.body.appendChild(elem);
@@ -269,7 +274,10 @@ export function $toast(props: ToastProps) {
       modeless: true,
       setupElement: (elem) => {
         elem.setAttribute("role", props.role ?? "status");
-        elem.setAttribute("aria-live", props.role === "alert" ? "assertive" : "polite");
+        elem.setAttribute(
+          "aria-live",
+          props.role === "alert" ? "assertive" : "polite"
+        );
       },
       closeCallback: () => {
         if (timeout) {
@@ -285,9 +293,11 @@ export function $toast(props: ToastProps) {
           }, props.duration ?? 10000);
         }
         return (
-          <div className="msgbox-toast">
+          <div
+            className="_msgbox-toast"
+          >
             <div
-              className="msgbox-toast-body"
+              className="_msgbox-toast-body"
             >
               {optimizeEndOfLines(props.body)}
             </div>

@@ -145,7 +145,7 @@
     align-items: stretch;
   }
 
-  .link {
+  ._link {
     text-decoration: underline;
     color: var(--color-link);
 
@@ -183,7 +183,7 @@
 
 @layer components {
 
-  .icon {
+  ._icon {
     width: 1.6rem;
     fill: currentColor;
     stroke: currentColor;
@@ -198,6 +198,9 @@
 @import "./components/react/elements/nav-layout.css";
 @import "./components/react/elements/dialog.css";
 @import "./components/react/elements/message-box.css";
-@import "./components/react/elements/form/style.css";
+@import "./components/react/elements/form/ipt-common.css";
+@import "./components/react/elements/form/ipt-box.css";
+@import "./components/react/elements/form/ipt-point.css";
+@import "./components/react/elements/form/ipt-slider.css";
 @import "./components/react/elements/details.css";
 @import "./components/react/elements/carousel.css"

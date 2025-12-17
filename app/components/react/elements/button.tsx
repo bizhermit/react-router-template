@@ -83,7 +83,7 @@ export function Button({
       type="button"
       {...props}
       className={clsx(
-        "btn",
+        "_btn",
         getColorClassName(color),
         className,
       )}

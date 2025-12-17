@@ -1,6 +1,6 @@
 @layer components {
 
-  .nav-wrap {
+  ._nav-wrap {
     --nav-min-width: 3.6rem;
     --nav-width: 26rem;
     --header-height: var(--nav-min-width);
@@ -19,17 +19,17 @@
   }
 
   body {
-    >.nav-wrap {
+    >._nav-wrap {
       --height: 100dvh;
     }
   }
 
-  .nav-toggle,
-  .nav-scaling {
+  ._nav-toggle,
+  ._nav-scaling {
     display: none;
   }
 
-  .nav-btn {
+  ._nav-btn {
     width: var(--nav-min-width);
     height: var(--nav-min-width);
     display: grid;
@@ -38,7 +38,7 @@
     cursor: pointer;
   }
 
-  .nav-header {
+  ._nav-header {
     z-index: 1;
     position: sticky;
     height: var(--header-height);
@@ -52,7 +52,7 @@
     backdrop-filter: blur(4px);
   }
 
-  .nav-header-main {
+  ._nav-header-main {
     flex: 1 0 0rem;
     height: 100%;
     display: flex;
@@ -61,17 +61,17 @@
     align-items: center;
   }
 
-  .nav-menu-cross {
+  ._nav-menu-cross {
     display: none;
   }
 
-  .nav-footer {
+  ._nav-footer {
     z-index: 0;
     background-color: var(--color-footer-bg);
     color: var(--color-footer-fg);
   }
 
-  .nav-content {
+  ._nav-content {
     z-index: 0;
     flex: 1 0 0rem;
     display: flex;
@@ -86,7 +86,7 @@
     }
   }
 
-  .nav-nav {
+  ._nav-nav {
     z-index: 2;
     position: fixed;
     top: 0;
@@ -109,7 +109,7 @@
     }
   }
 
-  .nav-btns-scaling {
+  ._nav-btns-scaling {
     height: var(--nav-min-width);
     transition: height 0.2s;
     pointer-events: all;
@@ -118,23 +118,23 @@
     backdrop-filter: blur(4px);
   }
 
-  .nav-btn-scaling {
+  ._nav-btn-scaling {
     margin-left: auto;
   }
 
-  .nav-widen {
+  ._nav-widen {
     display: none;
   }
 
-  .nav-scaling {
+  ._nav-scaling {
     &:checked {
-      &~.nav-nav {
-        .nav-btn-scaling {
-          >.nav-narrow {
+      &~._nav-nav {
+        ._nav-btn-scaling {
+          >._nav-narrow {
             display: none;
           }
 
-          >.nav-widen {
+          >._nav-widen {
             display: unset;
           }
         }
@@ -142,7 +142,7 @@
     }
   }
 
-  .nav-nav-main {
+  ._nav-nav-main {
     z-index: 1;
     flex: 1 0 0 rem;
     min-height: 100%;
@@ -154,7 +154,7 @@
     backdrop-filter: blur(4px);
   }
 
-  .nav-mask {
+  ._nav-mask {
     position: fixed;
     z-index: 2;
     top: var(--header-height);
@@ -170,40 +170,40 @@
 
   /* ヘッダーメニューアイコンボタンで開閉 */
   @media screen and (max-width: 799.98px) {
-    .nav-wrap {
+    ._nav-wrap {
       ---nav-width: 0;
     }
 
-    .nav-nav {
+    ._nav-nav {
       display: none;
     }
 
-    .nav-btns-scaling {
+    ._nav-btns-scaling {
       height: 0;
     }
 
-    .nav-btn-scaling {
+    ._nav-btn-scaling {
       display: none;
     }
 
-    .nav-toggle {
+    ._nav-toggle {
       &:checked {
-        &~.nav-header {
-          .nav-menu-cross {
+        &~._nav-header {
+          ._nav-menu-cross {
             display: unset;
           }
 
-          .nav-menu {
+          ._nav-menu {
             display: none;
           }
         }
 
-        &~.nav-mask {
+        &~._nav-mask {
           opacity: 1;
           pointer-events: unset;
         }
 
-        &~.nav-nav {
+        &~._nav-nav {
           display: flex;
           ---nav-width: var(--nav-width);
         }
@@ -214,27 +214,27 @@
 
   /* 常時展開 */
   @media screen and (min-width: 800px) {
-    .nav-btn-toggle {
+    ._nav-btn-toggle {
       display: none;
     }
 
-    .nav-nav {
+    ._nav-nav {
       padding-top: 0;
       width: var(--nav-width);
     }
 
-    .nav-wrap {
-      &:has(>.nav-header .nav-header-main:empty) {
+    ._nav-wrap {
+      &:has(>._nav-header ._nav-header-main:empty) {
         --header-height: 0;
       }
 
-      &:has(.nav-scaling:checked) {
+      &:has(._nav-scaling:checked) {
         ---nav-width: var(--nav-min-width);
 
-        >.nav-nav {
+        >._nav-nav {
           width: var(---nav-width);
 
-          >.nav-nav-main {
+          >._nav-nav-main {
             overflow: hidden;
           }
         }

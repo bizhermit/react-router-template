@@ -27,6 +27,7 @@ export function LinkButton({
     <Link
       {...props}
       className={clsx(
+        "_btn",
         getColorClassName(color),
         className,
       )}

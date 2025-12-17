@@ -1,0 +1,205 @@
+@layer components {
+
+  ._ipt-point {
+    ---color: var(--color-input-bg);
+    ---color-fg: var(--color-input);
+
+    -webkit-appearance: none;
+    appearance: none;
+    outline: none;
+    position: relative;
+    width: var(--spacing-input);
+    height: var(--spacing-input);
+    cursor: inherit;
+
+    &::before {
+      position: absolute;
+      inset: 20%;
+      content: "";
+      border: 1px solid var(--color-input-bd);
+      transition: border-color 0.2s, background-color 0.2s;
+    }
+
+    &::after {
+      position: absolute;
+      content: "";
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    &:enabled {
+      &::before {
+        background-color: var(--color-input-bg);
+      }
+
+      &[aria-invalid="true"] {
+        &::before {
+          background-color: var(--color-input-err-bg);
+          border-color: var(--color-input-err-bd);
+        }
+      }
+    }
+
+    &:checked {
+      &::before {
+        background-color: var(---color);
+      }
+
+      &::after {
+        opacity: 1;
+      }
+    }
+  }
+
+  ._ipt-label-button {
+    ---color: var(--color-input);
+    ---color-fg: var(--color-input-bg);
+
+    border: 1px solid var(---color);
+    transition: background-color 0.2s, opacity 0.2s;
+    padding-inline: calc(var(--spacing-button) / 2 - 1px);
+    border-radius: unset;
+
+    &::before {
+      position: absolute;
+      inset: 0;
+      content: "";
+      background-color: var(---color);
+      opacity: 0.1;
+      transition: opacity 0.2s;
+    }
+
+    ._ipt-label-text {
+      color: var(---color);
+
+      >._icon {
+        &:only-child {
+          position: absolute;
+        }
+      }
+    }
+
+    &:is(:focus-within, :active) {
+      z-index: 1;
+    }
+
+    &:has(input:checked) {
+      background-color: var(---color);
+
+      ._ipt-label-text {
+        color: var(---color-fg);
+      }
+    }
+
+    &:first-child {
+      border-top-left-radius: 2px;
+      border-bottom-left-radius: 2px;
+    }
+
+    &:last-child {
+      border-top-right-radius: 2px;
+      border-bottom-right-radius: 2px;
+    }
+
+    &:not(:first-child) {
+      border-left: none;
+    }
+  }
+
+  ._ipt-radio {
+    &::before {
+      border-radius: 9999px;
+    }
+
+    &::after {
+      inset: calc(20% + 5px);
+      background-color: var(---color-fg);
+      border-radius: 9999px;
+    }
+  }
+
+  ._ipt-check {
+    &::before {
+      border-radius: var(--radius-input);
+    }
+
+    &::after {
+      inset: 20%;
+      border-radius: var(--radius-input);
+      background-color: var(---color-fg);
+      mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M20 50 L40 70 L80 30" stroke="currentColor" stroke-width="0.75rem" fill="none" stroke-linecap="round" /></svg>') center / contain no-repeat;
+    }
+  }
+
+  ._ipt-switch {
+    ---color: var(--color-primary);
+
+    -webkit-appearance: none;
+    appearance: none;
+    position: relative;
+    width: calc(var(--spacing-input) * 1.6);
+    height: var(--spacing-input);
+    outline: none;
+
+    &::before {
+      position: absolute;
+      content: "";
+      inset: calc(var(--spacing-input) * 0.2);
+      border: 1px solid var(--color-input-bd);
+      border-radius: 9999px;
+      transition: background-color 0.2s;
+    }
+
+    &::after {
+      position: absolute;
+      content: "";
+      width: calc(var(--spacing-input) * 0.45);
+      height: calc(var(--spacing-input) * 0.45);
+      top: calc(50% - var(--spacing-input) * 0.225);
+      left: calc(var(--spacing-input) * 0.3);
+      border: 1px solid var(--color-input-bd);
+      border-radius: 9999px;
+      transition: left 0.2s;
+    }
+
+    &:enabled {
+      cursor: pointer;
+
+      &::before {
+        background-color: var(--color-input-bg);
+      }
+
+      &::after {
+        background-color: var(--color-input-bg);
+      }
+
+      &[aria-invalid="true"] {
+        &::before {
+          background-color: var(--color-input-err-bg);
+          border-color: var(--color-input-err-bd);
+        }
+
+        &::after {
+          border-color: var(--color-input-err-bd);
+        }
+
+        &:checked {
+          &::before {
+            background-color: var(---color);
+          }
+        }
+      }
+    }
+
+    &:checked {
+      &::before {
+        background-color: var(---color);
+      }
+
+      &::after {
+        left: calc(var(--spacing-input) * 0.85);
+      }
+    }
+  }
+
+}

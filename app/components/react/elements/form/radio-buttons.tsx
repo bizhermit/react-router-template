@@ -85,17 +85,18 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
   if (hook) {
     hook.focus = () => {
       if (dummyRef.current) return dummyRef.current.focus();
-      const checkedElem = ref.current.querySelector(`input[type="radio"]:checked`) ?? ref.current.querySelector(`input[type="radio"]`);
+      const checkedElem = ref.current.querySelector(`input[type="radio"]:checked`)
+        ?? ref.current.querySelector(`input[type="radio"]`);
       (checkedElem as HTMLInputElement | null)?.focus();
     };
   }
 
   const colorClassName = getColorClassName(color);
   const radioClassName = appearance === "radio" ?
-    clsx("ipt-point ipt-radio", colorClassName) :
+    clsx("_ipt-point _ipt-radio", colorClassName) :
     "appearance-none";
   const labelClassName = appearance === "button" ?
-    clsx("ipt-label-button", colorClassName)
+    clsx("_ipt-label-button", colorClassName)
     : undefined;
   const labelTextClassName = appearance === "button" ? "px-0" : undefined;
 
@@ -142,8 +143,11 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
               {item.node || item.text}
             </InputLabelText>
             {
-              state.current === "readonly" && ((value == null && index === 0) || isSelected) &&
-              <InputDummyFocus ref={dummyRef} />
+              state.current === "readonly" &&
+              ((value == null && index === 0) || isSelected) &&
+              <InputDummyFocus
+                ref={dummyRef}
+              />
             }
           </InputLabel>
         );

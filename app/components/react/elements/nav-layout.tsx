@@ -153,14 +153,14 @@ export function NavLayout(props: NavLayoutProps) {
       >
         <div
           className={clsx(
-            "nav-wrap",
+            "_nav-wrap",
             props.className
           )}
           onKeyDown={handleKeydown}
           tabIndex={-1}
         >
           <input
-            className="nav-toggle"
+            className="_nav-toggle"
             type="checkbox"
             id={toggleId}
             ref={toggleRef}
@@ -168,7 +168,7 @@ export function NavLayout(props: NavLayoutProps) {
             aria-hidden
           />
           <input
-            className="nav-scaling"
+            className="_nav-scaling"
             type="checkbox"
             id={scalingId}
             ref={scalingRef}
@@ -176,27 +176,27 @@ export function NavLayout(props: NavLayoutProps) {
             aria-hidden
           />
           <label
-            className="nav-mask"
+            className="_nav-mask"
             htmlFor={toggleId}
             aria-hidden
           />
           <header
-            className="nav-header"
+            className="_nav-header"
             ref={headerRef}
           >
             <label
-              className="nav-btn nav-btn-toggle"
+              className="_nav-btn _nav-btn-toggle"
               htmlFor={toggleId}
               tabIndex={0}
               onKeyDown={handleKeydownLabelButton}
             >
-              <MenuIcon className="nav-menu" />
-              <CrossIcon className="nav-menu-cross" />
+              <MenuIcon className="_nav-menu" />
+              <CrossIcon className="_nav-menu-cross" />
             </label>
             <div
               {...props.headerProps}
               className={clsx(
-                "nav-header-main",
+                "_nav-header-main",
                 props.headerProps?.className
               )}
             >
@@ -204,28 +204,34 @@ export function NavLayout(props: NavLayoutProps) {
             </div>
           </header>
           <nav
-            className="nav-nav"
+            className="_nav-nav"
             ref={navRef}
           >
             <FocusTrap
               onFocusHead={handleFocusNavHead}
               onFocusLast={handleFocusNavLast}
             >
-              <div className="nav-btns-scaling">
+              <div
+                className="_nav-btns-scaling"
+              >
                 <label
-                  className="nav-btn nav-btn-scaling"
+                  className="_nav-btn _nav-btn-scaling"
                   htmlFor={scalingId}
                   tabIndex={0}
                   onKeyDown={handleKeydownLabelButton}
                 >
-                  <MenuLeftIcon className="nav-narrow" />
-                  <MenuRightIcon className="nav-widen" />
+                  <MenuLeftIcon
+                    className="_nav-narrow"
+                  />
+                  <MenuRightIcon
+                    className="_nav-widen"
+                  />
                 </label>
               </div>
               <div
                 {...props.navigationProps}
                 className={clsx(
-                  "nav-nav-main",
+                  "_nav-nav-main",
                   props.navigationProps?.className
                 )}
               >
@@ -237,7 +243,7 @@ export function NavLayout(props: NavLayoutProps) {
             {...props.contentProps}
             ref={bodyRef}
             className={clsx(
-              "nav-content",
+              "_nav-content",
               props.contentProps?.className
             )}
           >
@@ -249,7 +255,7 @@ export function NavLayout(props: NavLayoutProps) {
               {...props.footerProps}
               ref={footerRef}
               className={clsx(
-                "nav-footer",
+                "_nav-footer",
                 props.footerProps?.className
               )}
             >

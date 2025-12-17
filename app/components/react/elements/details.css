@@ -1,6 +1,6 @@
 @layer components {
 
-  .details {
+  ._details {
     &::details-content {
       display: grid;
       grid-template-rows: 0fr;
@@ -15,10 +15,15 @@
     }
   }
 
-  .summary {
+  ._summary {
     cursor: pointer;
     user-select: none;
     touch-action: none;
+  }
+
+  ._detail-content {
+    overflow: hidden;
+    width: 100%;
   }
 
 }

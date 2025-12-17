@@ -211,7 +211,10 @@ export function useDialog(options?: DialogOptions & {
     return (
       <dialog
         {...props}
-        className={clsx("dialog", props.className)}
+        className={clsx(
+          "_dialog",
+          props.className,
+        )}
         ref={dref}
         onClick={handleClick}
         onKeyDown={handleKeydown}

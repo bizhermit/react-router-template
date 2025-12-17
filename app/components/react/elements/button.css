@@ -1,6 +1,6 @@
 @layer components {
 
-  :is(.btn, a[role="button"], label[role="button"]) {
+  ._btn {
     ---color: var(--color-fg);
     ---color-fg: var(--color-bg);
 
@@ -101,7 +101,7 @@
       cursor: wait;
     }
 
-    >.icon {
+    >._icon {
       min-width: calc(var(--spacing-button) * 0.5);
       max-width: calc(var(--spacing-button) * 0.5);
       overflow: hidden;

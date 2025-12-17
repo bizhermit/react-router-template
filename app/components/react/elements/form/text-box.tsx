@@ -115,13 +115,13 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
     <InputField
       {...props}
       core={{
-        className: "ipt-default-width",
+        className: "_ipt-default-width",
         state,
         result,
       }}
     >
       <input
-        className="ipt-main"
+        className="_ipt-box"
         ref={ref}
         type={patternProps.type || "text"}
         name={omitOnSubmit ? undefined : name}
@@ -145,7 +145,9 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
       />
       {
         source &&
-        <datalist id={dataListId}>
+        <datalist
+          id={dataListId}
+        >
           {source.map(item => {
             return (
               <option

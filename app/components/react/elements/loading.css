@@ -1,6 +1,6 @@
 @layer components {
 
-  .loading-bar {
+  ._loading-bar {
     position: absolute;
     top: 0;
     left: 0;

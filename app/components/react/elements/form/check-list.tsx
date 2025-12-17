@@ -44,7 +44,8 @@ export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemS
   } = useSchemaItem<Schema.DataItem<Schema.$Array>>($props, {
     effect: function ({ value }) {
       if (!ref.current) return;
-      const arr = ((value == null || !Array.isArray(value)) ? [] : value).map(v => v == null ? "" : String(v));
+      const arr = ((value == null || !Array.isArray(value)) ? [] : value)
+        .map(v => v == null ? "" : String(v));
       ref.current.querySelectorAll(`input[type="checkbox"]`).forEach(elem => {
         const v = (elem as HTMLInputElement).value;
         const isChecked = arr.some(av => av === v);
@@ -79,17 +80,18 @@ export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemS
   if (hook) {
     hook.focus = () => {
       if (dummyRef.current) return dummyRef.current.focus();
-      const checkedElem = ref.current.querySelector(`input[type="checkbox"]:checked`) ?? ref.current.querySelector(`input[type="checkbox"]`);
+      const checkedElem = ref.current.querySelector(`input[type="checkbox"]:checked`)
+        ?? ref.current.querySelector(`input[type="checkbox"]`);
       (checkedElem as HTMLInputElement | null)?.focus();
     };
   }
 
   const colorClassName = getColorClassName(color);
   const checkBoxClassName = appearance === "checkbox" ?
-    clsx("ipt-point ipt-check", colorClassName) :
+    clsx("_ipt-point _ipt-check", colorClassName) :
     "appearance-none";
   const labelClassName = appearance === "button" ?
-    clsx("ipt-label-button", colorClassName)
+    clsx("_ipt-label-button", colorClassName)
     : undefined;
   const labelTextClassName = appearance === "button" ? "px-0" : undefined;
 
