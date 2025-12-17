@@ -176,7 +176,10 @@ export default tseslint.config({
         allow: ["warn", "error"],
       },
     ],
-    "@stylistic/quote-props": "warn",
+    "@stylistic/quote-props": [
+      "warn",
+      "as-needed",
+    ],
     // TypeScript
     "@typescript-eslint/no-empty-object-type": "off",
     "no-unused-expressions": "off",

@@ -1,9 +1,10 @@
 import { useRef, useState, type ChangeEvent, type InputHTMLAttributes } from "react";
-import { useSchemaItem } from "../../hooks/schema";
-import { CircleFillIcon, CircleIcon } from "../icon";
-import { clsx } from "../utilities";
-import { getValidationValue, OldInputField, type InputWrapProps } from "./common";
-import type { FormItemHookProps } from "./hooks";
+import { TextBox$ } from ".";
+import { useSchemaItem } from "../../../hooks/schema";
+import { CircleFillIcon, CircleIcon } from "../../icon";
+import { clsx } from "../../utilities";
+import { getValidationValue, WithMessage, type InputWrapProps } from "../common";
+import type { FormItemHookProps } from "../hooks";
 
 export type PasswordBoxProps<D extends Schema.DataItem<Schema.$String>> = InputWrapProps & {
   $: D;
@@ -15,10 +16,12 @@ export type PasswordBoxProps<D extends Schema.DataItem<Schema.$String>> = InputW
 >;
 
 export function PasswordBox<D extends Schema.DataItem<Schema.$String>>({
+  className,
+  style,
   placeholder,
   autoFocus,
   hook,
-  autoComplete,
+  autoComplete = "off",
   autoCapitalize,
   ...$props
 }: PasswordBoxProps<D>) {
@@ -37,8 +40,8 @@ export function PasswordBox<D extends Schema.DataItem<Schema.$String>>({
     errormessage,
     getCommonParams,
     omitOnSubmit,
+    hideMessage,
     validScripts,
-    props,
   } = useSchemaItem<Schema.DataItem<Schema.$String>>($props, {
     effect: function ({ value }) {
       if (!ref.current) return;
@@ -79,54 +82,58 @@ export function PasswordBox<D extends Schema.DataItem<Schema.$String>>({
   };
 
   return (
-    <OldInputField
-      {...props}
-      core={{
-        className: "_ipt-default-width",
-        state,
-        result,
-      }}
+    <WithMessage
+      hide={hideMessage}
+      state={state.current}
+      result={result}
     >
-      <input
+      <TextBox$
         className={clsx(
-          "_ipt-box",
-          validScripts && "pr-input-pad-bt"
+          "_ipt-default-width",
+          className,
         )}
-        ref={ref}
-        type={type}
-        name={omitOnSubmit ? undefined : name}
-        disabled={state.current === "disabled"}
-        readOnly={state.current === "readonly"}
-        required={required}
-        minLength={minLen}
-        maxLength={maxLen}
-        defaultValue={value || undefined}
-        onChange={handleChange}
-        placeholder={placeholder}
-        inputMode="url"
-        aria-label={label}
-        aria-invalid={invalid}
-        aria-errormessage={errormessage}
-        autoFocus={autoFocus}
-        autoComplete={autoComplete || "off"}
-        autoCapitalize={autoCapitalize}
-      />
-      {
-        validScripts &&
-        state.current === "enabled" &&
-        <button
-          type="button"
-          className={clsx(
-            "_ipt-btn",
-            state.current === "enabled" && "cursor-pointer",
-          )}
-          aria-label="toggle masked"
-          tabIndex={-1}
-          onClick={handleClickToggleButton}
-        >
-          {type === "text" ? <CircleFillIcon /> : <CircleIcon />}
-        </button>
-      }
-    </OldInputField>
+        style={style}
+        state={state.current}
+        inputRef={ref}
+        inputProps={{
+          className: clsx(
+            "_ipt-box",
+            validScripts && "pr-input-pad-bt"
+          ),
+          type,
+          name: omitOnSubmit ? undefined : name,
+          required,
+          minLength: minLen,
+          maxLength: maxLen,
+          defaultValue: value || undefined,
+          onChange: handleChange,
+          placeholder,
+          inputMode: "url",
+          "aria-label": label,
+          "aria-invalid": invalid,
+          "aria-errormessage": errormessage,
+          autoFocus,
+          autoComplete,
+          autoCapitalize,
+        }}
+      >
+        {
+          validScripts &&
+          state.current === "enabled" &&
+          <button
+            type="button"
+            className={clsx(
+              "_ipt-btn",
+              state.current === "enabled" && "cursor-pointer",
+            )}
+            aria-label="toggle masked"
+            tabIndex={-1}
+            onClick={handleClickToggleButton}
+          >
+            {type === "text" ? <CircleFillIcon /> : <CircleIcon />}
+          </button>
+        }
+      </TextBox$>
+    </WithMessage>
   );
 };
