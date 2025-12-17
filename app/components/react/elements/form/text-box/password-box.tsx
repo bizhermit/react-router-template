@@ -96,10 +96,7 @@ export function PasswordBox<D extends Schema.DataItem<Schema.$String>>({
         state={state.current}
         inputRef={ref}
         inputProps={{
-          className: clsx(
-            "_ipt-box",
-            validScripts && "pr-input-pad-bt"
-          ),
+          className: validScripts ? "pr-input-pad-bt" : undefined,
           type,
           name: omitOnSubmit ? undefined : name,
           required,
