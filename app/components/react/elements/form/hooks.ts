@@ -5,6 +5,6 @@ export interface FormItemHookProps {
   focus: () => void;
 };
 
-export function useFormItem<T extends InputRef<HTMLElement> = InputRef<HTMLElement>>() {
+export function useFormItem<T extends InputRef = InputRef>() {
   return useRef<T>(null);
 };

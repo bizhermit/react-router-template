@@ -4,7 +4,9 @@ import { CircleFillIcon, CircleIcon } from "../../icon";
 import { clsx } from "../../utilities";
 import { InputField, type InputFieldProps, type InputRef } from "../common";
 
-export interface PasswordBox$Ref extends InputRef<HTMLInputElement> { };
+export interface PasswordBox$Ref extends InputRef {
+  inputElement: HTMLInputElement;
+};
 
 export type PasswordBox$Props = Overwrite<InputFieldProps, {
   ref?: RefObject<InputRef | null>;

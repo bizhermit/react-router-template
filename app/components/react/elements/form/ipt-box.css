@@ -62,9 +62,13 @@
       cursor: pointer;
     }
 
-    &:has(option[value=""][data-notext="false"], option[value=""][data-notext="true"]:not(:checked)) {
+    &+._ipt-placeholder {
+      display: none;
+    }
+
+    &:has(option[value=""][data-notext="true"]:checked) {
       &+._ipt-placeholder {
-        display: none;
+        display: flex;
       }
     }
 

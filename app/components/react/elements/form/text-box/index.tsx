@@ -2,7 +2,9 @@ import { useImperativeHandle, useRef, type InputHTMLAttributes, type ReactNode, 
 import { clsx } from "../../utilities";
 import { InputField, type InputFieldProps, type InputRef } from "../common";
 
-export interface TextBox$Ref extends InputRef<HTMLInputElement> { };
+export interface TextBox$Ref extends InputRef {
+  inputElement: HTMLInputElement;
+};
 
 export type TextBox$Props = Overwrite<InputFieldProps, {
   ref?: RefObject<InputRef | null>;

@@ -5,7 +5,8 @@ import { DownIcon, UpIcon } from "../../icon";
 import { clsx } from "../../utilities";
 import { InputField, type InputFieldProps, type InputRef } from "../common";
 
-export interface NumberBox$Ref extends InputRef<HTMLInputElement> {
+export interface NumberBox$Ref extends InputRef {
+  inputElement: HTMLInputElement;
   format: (value: unknown) => string;
   parse: (value: number | string | null | undefined) => (number | null | undefined);
   isComposing: () => boolean;

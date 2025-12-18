@@ -26,7 +26,8 @@ import { NumberBox } from "~/components/react/elements/form/number-box/number-bo
 import { PasswordBox$ } from "~/components/react/elements/form/password-box";
 import { PasswordBox } from "~/components/react/elements/form/password-box/password-box";
 import { RadioButtons } from "~/components/react/elements/form/radio-buttons";
-import { SelectBox } from "~/components/react/elements/form/select-box";
+import { SelectBox$, SelectBoxEmptyOption } from "~/components/react/elements/form/select-box";
+import { SelectBox } from "~/components/react/elements/form/select-box/select-box";
 import { Slider } from "~/components/react/elements/form/slider";
 import { SwitchBox } from "~/components/react/elements/form/switch-box";
 import { TextArea } from "~/components/react/elements/form/text-area";
@@ -76,6 +77,16 @@ const birth = $date({
     position: "before",
   },
 });
+
+const source = [
+  { value: 0, text: "無印" },
+  { value: 1, text: "AG" },
+  { value: 2, text: "DP" },
+  { value: 3, text: "BW" },
+  { value: 4, text: "XY" },
+  { value: 5, text: "SM" },
+  { value: 6, text: "新無印" },
+] as const satisfies Schema.Source<number>;
 
 const schema = $schema({
   text: $str({
@@ -142,15 +153,7 @@ const schema = $schema({
     ],
   }),
   generation: $num({
-    source: [
-      { value: 0, text: "無印" },
-      { value: 1, text: "AG" },
-      { value: 2, text: "DP" },
-      { value: 3, text: "BW" },
-      { value: 4, text: "XY" },
-      { value: 5, text: "SM" },
-      { value: 6, text: "新無印" },
-    ] as const,
+    source: source,
   }),
   check: $bool(),
   // agreement: $bool({
@@ -613,6 +616,21 @@ function Component2() {
         />
       </FormItem>
       <FormItem>
+        <SelectBox$ placeholder="世代">
+          <SelectBoxEmptyOption>
+            {/* (世代) */}
+          </SelectBoxEmptyOption>
+          {source.map(item => {
+            return (
+              <option
+                key={item.value}
+                value={item.value}
+              >
+                {item.text}
+              </option>
+            );
+          })}
+        </SelectBox$>
         <SelectBox
           $={dataItems.generation}
           placeholder="世代"

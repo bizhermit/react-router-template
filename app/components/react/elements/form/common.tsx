@@ -2,9 +2,8 @@ import type { CSSProperties, HTMLAttributes, ReactNode, RefObject } from "react"
 import { clsx, ZERO_WIDTH_SPACE } from "../utilities";
 import { InputMessageSpan } from "./message";
 
-export interface InputRef<T extends HTMLElement = HTMLElement> {
+export interface InputRef {
   element: HTMLDivElement;
-  inputElement: T;
   focus: () => void;
 };
 
