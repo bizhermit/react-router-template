@@ -2,6 +2,12 @@ import type { CSSProperties, HTMLAttributes, ReactNode, RefObject } from "react"
 import { clsx, ZERO_WIDTH_SPACE } from "../utilities";
 import { InputMessageSpan } from "./message";
 
+export interface InputRef<T extends HTMLElement = HTMLElement> {
+  element: HTMLDivElement;
+  inputElement: T;
+  focus: () => void;
+};
+
 export type InputWrapProps = {
   className?: string;
   style?: CSSProperties;
@@ -48,7 +54,7 @@ export function WithMessage({
 export type InputFieldProps = Overwrite<HTMLAttributes<HTMLDivElement>, {
   ref?: RefObject<HTMLDivElement>;
   label?: ReactNode;
-  state: Schema.Mode;
+  state?: RefObject<Schema.Mode>;
 }>;
 
 export function InputField({
@@ -70,7 +76,7 @@ export function InputField({
     >
       <fieldset
         aria-hidden
-        className={`_ipt-field-appearance _ipt-field-${state}`}
+        className={`_ipt-field-appearance _ipt-field-${state?.current || "enabled"}`}
       >
         <legend>
           {label ?? ZERO_WIDTH_SPACE}

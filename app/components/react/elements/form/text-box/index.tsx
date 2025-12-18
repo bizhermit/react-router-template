@@ -1,23 +1,19 @@
 import { useImperativeHandle, useRef, type InputHTMLAttributes, type ReactNode, type RefObject } from "react";
 import { clsx } from "../../utilities";
-import { InputField, type InputFieldProps } from "../common";
+import { InputField, type InputFieldProps, type InputRef } from "../common";
 
-export type TextBox$Ref = {
-  element: HTMLDivElement;
-  inputElement: HTMLInputElement;
-};
+export interface TextBox$Ref extends InputRef<HTMLInputElement> { };
 
 export type TextBox$Props = Overwrite<InputFieldProps, {
-  ref?: RefObject<TextBox$Ref>;
+  ref?: RefObject<InputRef | null>;
   inputProps?: InputHTMLAttributes<HTMLInputElement>;
-  state?: Schema.Mode;
   children?: ReactNode;
 }>;
 
 export function TextBox$({
   ref,
   inputProps,
-  state = "enabled",
+  state = { current: "enabled" },
   className,
   children,
   ...props
@@ -29,6 +25,7 @@ export function TextBox$({
     return {
       element: wref.current,
       inputElement: iref.current,
+      focus: () => iref.current.focus(),
     };
   });
 
@@ -44,8 +41,8 @@ export function TextBox$({
     >
       <input
         type="text"
-        disabled={state === "disabled"}
-        readOnly={state === "readonly"}
+        disabled={state.current === "disabled"}
+        readOnly={state.current === "readonly"}
         {...inputProps}
         className={clsx(
           "_ipt-box",

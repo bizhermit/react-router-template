@@ -1,25 +1,21 @@
-import { useMemo, useRef, useState, type ChangeEvent, type FocusEvent, type InputHTMLAttributes, type KeyboardEvent } from "react";
+import { useImperativeHandle, useRef, useState, type ChangeEvent, type InputHTMLAttributes, type RefObject } from "react";
 import { useSchemaItem } from "~/components/react/hooks/schema";
-import { DownIcon, UpIcon } from "../../icon";
-import { clsx } from "../../utilities";
-import { getValidationValue, WithMessage, type InputWrapProps } from "../common";
-import type { FormItemHookProps } from "../hooks";
-import { TextBox$, type TextBox$Ref } from "../text-box";
+import { NumberBox$, type NumberBox$Ref } from ".";
+import { getValidationValue, WithMessage, type InputRef, type InputWrapProps } from "../common";
 import { useSource } from "../utilities";
+
+export interface NumberBoxRef extends NumberBox$Ref { };
 
 export type NumberBoxProps<D extends Schema.DataItem<Schema.$Number>> = InputWrapProps & {
   $: D;
   placeholder?: string;
   source?: Schema.Source<Schema.ValueType<D["_"]>>;
   step?: number;
-  hook?: FormItemHookProps;
+  ref?: RefObject<InputRef | null>;
 } & Pick<InputHTMLAttributes<HTMLInputElement>,
   | "autoComplete"
   | "enterKeyHint"
 >;
-
-const UP_DOWN_ROOP_WAIT = 500;
-const UP_DOWN_INTERVAL = 50;
 
 function preventParse(result: Schema.Result | null | undefined) {
   return result?.type === "e" && (
@@ -37,13 +33,9 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
   autoFocus,
   autoComplete = "off",
   enterKeyHint,
-  hook,
   ...$props
 }: NumberBoxProps<D>) {
-  const ref = useRef<TextBox$Ref>(null!);
-  const $step = Math.abs(step || 1);
-
-  const isComposing = useRef(false);
+  const ref = useRef<NumberBox$Ref>(null!);
 
   const {
     name,
@@ -51,13 +43,11 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
     state,
     required,
     value,
-    getValue,
     setValue,
     result,
     label,
     invalid,
     errormessage,
-    validScripts,
     getCommonParams,
     env,
     omitOnSubmit,
@@ -68,13 +58,15 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
       if (preventParse(result)) return;
       const sv = (() => {
         if (document.activeElement === ref.current.inputElement) {
-          const num = parse(value);
+          const num = ref.current.parse(value);
           if (num == null || isNaN(num)) return "";
           return String(num);
         }
-        return format(value);
+        return ref.current.format(value);
       })();
-      if (!isComposing.current && ref.current.inputElement.value !== sv) ref.current.inputElement.value = sv;
+      if (!ref.current.isComposing() && ref.current.inputElement.value !== sv) {
+        ref.current.inputElement.value = sv;
+      }
     },
     effectContext: function () {
       setMin(getMin);
@@ -109,138 +101,15 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
     getCommonParams,
   });
 
-  const { inputMode, formatter } = useMemo(() => {
-    return {
-      inputMode: (float ?? 0) > 0 ? "numeric" : "decimal",
-      formatter: new Intl.NumberFormat(undefined, {
-        useGrouping: true,
-        minimumFractionDigits: float,
-        maximumFractionDigits: float,
-      }),
-    } as const;
-  }, [float]);
-
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
     if (state.current !== "enabled") return;
-    const rawValue = e.currentTarget.value;
+    const rawValue = e.target.value;
     setValue(rawValue as `${number}`);
-  };
-
-  function handleFocus(e: FocusEvent<HTMLInputElement>) {
-    if (state.current !== "enabled") return;
-    if (preventParse(result)) return;
-    const num = parse(getValue());
-    e.currentTarget.value = num == null || isNaN(num) ? "" : String(num);
-  };
-
-  function handleBlur(e: FocusEvent<HTMLInputElement>) {
-    if (preventParse(result)) return;
-    const text = format(getValue());
-    e.currentTarget.value = text || "";
-  };
-
-  function handleCompositionStart() {
-    isComposing.current = true;
-  };
-
-  function handleCompositionEnd() {
-    isComposing.current = false;
-  };
-
-  function format(value: unknown) {
-    if (value == null || value === "") return "";
-    const num = Number(value);
-    if (isNaN(num)) return "";
-    return formatter.format(num);
-  };
-
-  function parse(text: string | number | null | undefined) {
-    if (text == null || text === "") return null;
-    return Number(text);
-  };
-
-  function minmax(num: number | null | undefined) {
-    if (num == null) return num;
-    let ret = num;
-    if (min != null) ret = Math.max(min, ret);
-    if (max != null) ret = Math.min(max, ret);
-    return ret;
-  };
-
-  function increment() {
-    let v = getValue();
-    if (v == null) v = min ?? 0;
-    else v = minmax(v + $step);
-    setValue(v);
-  };
-
-  function decrement() {
-    let v = getValue();
-    if (v == null) v = min ?? 0;
-    else v = minmax(v - $step);
-    setValue(v);
-  };
-
-  function handleKeydown(e: KeyboardEvent<HTMLInputElement>) {
-    switch (e.key) {
-      case "ArrowUp":
-        if (state.current === "enabled") {
-          increment();
-          e.preventDefault();
-        }
-        break;
-      case "ArrowDown":
-        if (state.current === "enabled") {
-          decrement();
-          e.preventDefault();
-        }
-        break;
-      case "Enter":
-        if (!isComposing.current) {
-          ref.current.inputElement.value = String(value ?? "");
-        }
-        break;
-      default: break;
-    }
-  };
-
-  function handleMousedown(mode: "up" | "down") {
-    if (state.current !== "enabled") return;
-    if (mode === "up") increment();
-    else decrement();
-    let finished = false;
-    window.addEventListener("mouseup", () => {
-      finished = true;
-    }, { once: true });
-
-    let lastTime = performance.now();
-    function loop(time: number) {
-      if (finished) return;
-      if (time - lastTime >= UP_DOWN_INTERVAL) {
-        if (mode === "up") increment();
-        else decrement();
-        lastTime = time;
-      }
-      requestAnimationFrame(loop);
-    };
-    setTimeout(() => {
-      requestAnimationFrame(loop);
-    }, UP_DOWN_ROOP_WAIT);
-  };
-
-  function handleMousedownIncrement() {
-    handleMousedown("up");
-  };
-
-  function handleMousedownDecrement() {
-    handleMousedown("down");
   };
 
   const dataListId = source == null ? undefined : `${name}_dl`;
 
-  if (hook) {
-    hook.focus = () => ref.current.inputElement.focus();
-  }
+  useImperativeHandle($props.ref, () => ref.current);
 
   return (
     <WithMessage
@@ -248,26 +117,19 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
       state={state.current}
       result={result}
     >
-      <TextBox$
-        className={clsx(
-          "_ipt-default-width",
-          className,
-        )}
+      <NumberBox$
+        className={className}
         style={style}
-        state={state.current}
+        state={state}
         ref={ref}
+        bindMode="dom"
         inputProps={{
-          className: clsx(
-            "text-right z-0",
-            validScripts && "pr-input-pad-btn"
-          ),
-          type: validScripts ? "text" : "number",
-          inputMode,
-          name: validScripts ? undefined : (omitOnSubmit ? undefined : name),
+          name: omitOnSubmit ? undefined : name,
           required,
           min,
           max,
-          step: $step,
+          float,
+          step,
           placeholder,
           "aria-label": label,
           "aria-invalid": invalid,
@@ -276,59 +138,10 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
           autoFocus,
           autoComplete,
           enterKeyHint,
-          defaultValue: (validScripts && !preventParse(result)) ? format(value) : (value ?? ""),
+          value,
           onChange: handleChange,
-          onFocus: handleFocus,
-          onBlur: handleBlur,
-          onCompositionStart: handleCompositionStart,
-          onCompositionEnd: handleCompositionEnd,
-          onKeyDown: handleKeydown,
         }}
       >
-        {
-          validScripts &&
-          <>
-            <div
-              className={clsx(
-                "_ipt-outer-spin-button",
-                state.current !== "enabled" && "opacity-0"
-              )}
-            >
-              <button
-                type="button"
-                aria-label="increment"
-                tabIndex={-1}
-                className={clsx(
-                  "_ipt-inner-spin-button items-end",
-                  state.current === "enabled" && "cursor-pointer",
-                )}
-                disabled={state.current !== "enabled"}
-                onMouseDown={handleMousedownIncrement}
-              >
-                <UpIcon />
-              </button>
-              <button
-                type="button"
-                aria-label="decrement"
-                tabIndex={-1}
-                className={clsx(
-                  "_ipt-inner-spin-button items-start",
-                  state.current === "enabled" && "cursor-pointer",
-                )}
-                disabled={state.current !== "enabled"}
-                onMouseDown={handleMousedownDecrement}
-              >
-                <DownIcon />
-              </button>
-            </div>
-            <input
-              name={omitOnSubmit ? undefined : name}
-              type="hidden"
-              disabled={state.current === "disabled"}
-              value={value ?? ""}
-            />
-          </>
-        }
         {
           source &&
           <datalist
@@ -346,7 +159,7 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
             })}
           </datalist>
         }
-      </TextBox$>
+      </NumberBox$>
     </WithMessage>
   );
 };

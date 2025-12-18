@@ -1,15 +1,16 @@
-import { useRef, useState, type ChangeEvent, type HTMLAttributes, type HTMLInputTypeAttribute, type InputHTMLAttributes } from "react";
+import { useImperativeHandle, useRef, useState, type ChangeEvent, type HTMLAttributes, type HTMLInputTypeAttribute, type InputHTMLAttributes, type RefObject } from "react";
 import { useSchemaItem } from "~/components/react/hooks/schema";
 import { TextBox$, type TextBox$Ref } from ".";
-import { getValidationValue, WithMessage, type InputWrapProps } from "../common";
-import type { FormItemHookProps } from "../hooks";
+import { getValidationValue, WithMessage, type InputRef, type InputWrapProps } from "../common";
 import { useSource } from "../utilities";
+
+export interface TextBoxRef extends TextBox$Ref { };
 
 export type TextBoxProps<D extends Schema.DataItem<Schema.$String>> = InputWrapProps & {
   $: D;
   placeholder?: string;
   source?: Schema.Source<Schema.ValueType<D["_"]>>;
-  hook?: FormItemHookProps;
+  ref?: RefObject<InputRef | null>;
 } & Pick<InputHTMLAttributes<HTMLInputElement>,
   | "autoComplete"
   | "autoCapitalize"
@@ -46,7 +47,6 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
   autoComplete = "off",
   autoCapitalize,
   enterKeyHint,
-  hook,
   ...$props
 }: TextBoxProps<D>) {
   const ref = useRef<TextBox$Ref>(null!);
@@ -112,9 +112,7 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
 
   const dataListId = source == null ? undefined : `${name}_dl`;
 
-  if (hook) {
-    hook.focus = () => ref.current.inputElement.focus();
-  }
+  useImperativeHandle($props.ref, () => ref.current);
 
   return (
     <WithMessage
@@ -126,7 +124,7 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
         className={className}
         style={style}
         ref={ref}
-        state={state.current}
+        state={state}
         inputProps={{
           type: patternProps.type || "text",
           name: omitOnSubmit ? undefined : name,

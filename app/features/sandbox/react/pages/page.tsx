@@ -21,6 +21,7 @@ import { DateBox } from "~/components/react/elements/form/date-box";
 import { DateSelectBox } from "~/components/react/elements/form/date-select-box";
 import { FieldSet } from "~/components/react/elements/form/fieldset";
 import { FileBox } from "~/components/react/elements/form/file-box";
+import { NumberBox$ } from "~/components/react/elements/form/number-box";
 import { NumberBox } from "~/components/react/elements/form/number-box/number-box";
 import { PasswordBox$ } from "~/components/react/elements/form/password-box";
 import { PasswordBox } from "~/components/react/elements/form/password-box/password-box";
@@ -591,20 +592,21 @@ function Component2() {
     <div className="flex flex-row flex-wrap gap-2">
       <FormValueSetterComponent />
       <FormItem>
-        <TextBox$ label="hoge" />
+        <TextBox$ inputProps={{ placeholder: "テキスト" }} />
         <TextBox
           $={dataItems.text}
           placeholder="テキスト"
         />
       </FormItem>
       <FormItem>
-        <PasswordBox$ />
+        <PasswordBox$ inputProps={{ placeholder: "パスワード" }} />
         <PasswordBox
           $={dataItems.password}
           placeholder="パスワード"
         />
       </FormItem>
       <FormItem>
+        <NumberBox$ inputProps={{ placeholder: "数値", min: 0 }} />
         <NumberBox
           $={dataItems.count}
           placeholder="数値"

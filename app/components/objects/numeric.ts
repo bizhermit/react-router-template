@@ -17,7 +17,7 @@ export function parseNumber(value: unknown): [number: number | undefined, succee
       default:
         return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
     }
-  }));
+  }).replace(/,/g, ""));
   if (num == null || isNaN(num)) return [undefined, false];
   return [num, true];
 };

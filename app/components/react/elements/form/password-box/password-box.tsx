@@ -1,13 +1,14 @@
-import { useRef, useState, type ChangeEvent, type InputHTMLAttributes } from "react";
-import { PasswordBox$ } from ".";
+import { useImperativeHandle, useRef, useState, type ChangeEvent, type InputHTMLAttributes, type RefObject } from "react";
+import { PasswordBox$, type PasswordBox$Ref } from ".";
 import { useSchemaItem } from "../../../hooks/schema";
-import { getValidationValue, WithMessage, type InputWrapProps } from "../common";
-import type { FormItemHookProps } from "../hooks";
+import { getValidationValue, WithMessage, type InputRef, type InputWrapProps } from "../common";
+
+export interface PasswordBoxRef extends PasswordBox$Ref { };
 
 export type PasswordBoxProps<D extends Schema.DataItem<Schema.$String>> = InputWrapProps & {
   $: D;
   placeholder?: string;
-  hook?: FormItemHookProps;
+  ref?: RefObject<InputRef | null>;
 } & Pick<InputHTMLAttributes<HTMLInputElement>,
   | "autoComplete"
   | "autoCapitalize"
@@ -18,12 +19,11 @@ export function PasswordBox<D extends Schema.DataItem<Schema.$String>>({
   style,
   placeholder,
   autoFocus,
-  hook,
   autoComplete = "off",
   autoCapitalize,
   ...$props
 }: PasswordBoxProps<D>) {
-  const ref = useRef<HTMLInputElement>(null!);
+  const ref = useRef<PasswordBox$Ref>(null!);
 
   const {
     name,
@@ -43,7 +43,9 @@ export function PasswordBox<D extends Schema.DataItem<Schema.$String>>({
     effect: function ({ value }) {
       if (!ref.current) return;
       const sv = String(value || "");
-      if (ref.current.value !== sv) ref.current.value = sv;
+      if (ref.current.inputElement.value !== sv) {
+        ref.current.inputElement.value = sv;
+      }
     },
     effectContext: function () {
       setMinLen(getMinLen);
@@ -71,6 +73,8 @@ export function PasswordBox<D extends Schema.DataItem<Schema.$String>>({
     setValue(e.target.value);
   };
 
+  useImperativeHandle($props.ref, () => ref.current);
+
   return (
     <WithMessage
       hide={hideMessage}
@@ -80,8 +84,8 @@ export function PasswordBox<D extends Schema.DataItem<Schema.$String>>({
       <PasswordBox$
         className={className}
         style={style}
-        state={state.current}
-        inputRef={ref}
+        ref={ref}
+        state={state}
         inputProps={{
           name: omitOnSubmit ? undefined : name,
           required,

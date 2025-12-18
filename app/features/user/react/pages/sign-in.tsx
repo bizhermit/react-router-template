@@ -49,7 +49,7 @@ export default function Page({ actionData }: Route.ComponentProps) {
 
   useEffect(() => {
     if (fetcher.state === "idle") {
-      userId.focus();
+      userId.current?.focus();
     }
   }, [fetcher.state]);
 
@@ -68,7 +68,7 @@ export default function Page({ actionData }: Route.ComponentProps) {
             <TextBox
               $={dataItems.userId}
               hideMessage
-              hook={userId}
+              ref={userId}
             />
           </FormItem>
           <FormItem>
