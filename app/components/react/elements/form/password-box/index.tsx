@@ -1,4 +1,4 @@
-import { use, useState, type ChangeEvent, type InputHTMLAttributes, type RefObject } from "react";
+import { use, useState, type InputHTMLAttributes, type RefObject } from "react";
 import { ValidScriptsContext } from "~/components/react/providers/valid-scripts";
 import { CircleFillIcon, CircleIcon } from "../../icon";
 import { clsx } from "../../utilities";
@@ -6,11 +6,9 @@ import { InputField, type InputFieldProps } from "../common";
 
 type PasswordBox$Props = Overwrite<InputFieldProps, {
   ref?: RefObject<HTMLDivElement>;
-  inputProps?: Omit<InputHTMLAttributes<HTMLInputElement>, "value" | "defaultValue">;
+  inputProps?: InputHTMLAttributes<HTMLInputElement>;
   inputRef?: RefObject<HTMLInputElement>;
   state?: Schema.Mode;
-  value?: string | null | undefined;
-  onChangeValue?: (value: string) => void;
 }>;
 
 export function PasswordBox$({
@@ -19,8 +17,6 @@ export function PasswordBox$({
   inputRef,
   state = "enabled",
   className,
-  value,
-  onChangeValue,
   ...props
 }: PasswordBox$Props) {
   const validScripts = use(ValidScriptsContext).valid;
@@ -30,11 +26,6 @@ export function PasswordBox$({
   function handleClickToggleButton() {
     if (state !== "enabled") return;
     setType(type => type === "password" ? "text" : "password");
-  };
-
-  function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    onChangeValue?.(e.target.value);
-    inputProps?.onChange?.(e);
   };
 
   return (
@@ -58,8 +49,6 @@ export function PasswordBox$({
           inputProps?.className,
         )}
         ref={inputRef}
-        onChange={handleChange}
-        defaultValue={value || undefined}
       />
       {
         validScripts &&

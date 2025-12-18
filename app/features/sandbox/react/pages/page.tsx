@@ -561,7 +561,7 @@ function Component1() {
 function FormValueSetterComponent() {
   const { dataItems } = useSchemaContext<typeof schema>();
 
-  const [value, setValue] = useSchemaValue(dataItems.birth_month);
+  const [value, setValue] = useSchemaValue(dataItems.text);
 
   return (
     <>
@@ -570,7 +570,14 @@ function FormValueSetterComponent() {
           setValue(null);
         }}
       >
-        set value
+        set null
+      </Button>
+      <Button
+        onClick={() => {
+          setValue("hoge");
+        }}
+      >
+        set hoge
       </Button>
       <span>{value}</span>
     </>

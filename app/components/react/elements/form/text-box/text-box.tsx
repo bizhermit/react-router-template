@@ -1,6 +1,6 @@
-import { useRef, useState, type HTMLAttributes, type HTMLInputTypeAttribute, type InputHTMLAttributes } from "react";
+import { useRef, useState, type ChangeEvent, type HTMLAttributes, type HTMLInputTypeAttribute, type InputHTMLAttributes } from "react";
 import { useSchemaItem } from "~/components/react/hooks/schema";
-import { TextBox$ } from ".";
+import { TextBox$, type TextBox$Ref } from ".";
 import { getValidationValue, WithMessage, type InputWrapProps } from "../common";
 import type { FormItemHookProps } from "../hooks";
 import { useSource } from "../utilities";
@@ -49,7 +49,7 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
   hook,
   ...$props
 }: TextBoxProps<D>) {
-  const ref = useRef<HTMLInputElement>(null!);
+  const ref = useRef<TextBox$Ref>(null!);
 
   const {
     name,
@@ -70,7 +70,9 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
     effect: function ({ value }) {
       if (!ref.current) return;
       const sv = String(value || "");
-      if (ref.current.value !== sv) ref.current.value = sv;
+      if (ref.current.inputElement.value !== sv) {
+        ref.current.inputElement.value = sv;
+      }
     },
     effectContext: function () {
       setMinLen(getMinLen);
@@ -101,9 +103,9 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
     getCommonParams,
   });
 
-  function handleChange(v: string) {
+  function handleChange(e: ChangeEvent<HTMLInputElement>) {
     if (state.current !== "enabled") return;
-    setValue(v);
+    setValue(e.target.value);
   };
 
   const patternProps = getPatternInputProps(dataItem._.pattern);
@@ -111,7 +113,7 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
   const dataListId = source == null ? undefined : `${name}_dl`;
 
   if (hook) {
-    hook.focus = () => ref.current.focus();
+    hook.focus = () => ref.current.inputElement.focus();
   }
 
   return (
@@ -123,10 +125,8 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
       <TextBox$
         className={className}
         style={style}
+        ref={ref}
         state={state.current}
-        value={value}
-        onChangeValue={handleChange}
-        inputRef={ref}
         inputProps={{
           type: patternProps.type || "text",
           name: omitOnSubmit ? undefined : name,
@@ -143,6 +143,8 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
           autoComplete,
           autoCapitalize,
           enterKeyHint,
+          defaultValue: value || "",
+          onChange: handleChange,
         }}
       >
         {

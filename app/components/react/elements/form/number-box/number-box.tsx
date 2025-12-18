@@ -4,7 +4,7 @@ import { DownIcon, UpIcon } from "../../icon";
 import { clsx } from "../../utilities";
 import { getValidationValue, WithMessage, type InputWrapProps } from "../common";
 import type { FormItemHookProps } from "../hooks";
-import { TextBox$ } from "../text-box";
+import { TextBox$, type TextBox$Ref } from "../text-box";
 import { useSource } from "../utilities";
 
 export type NumberBoxProps<D extends Schema.DataItem<Schema.$Number>> = InputWrapProps & {
@@ -40,7 +40,7 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
   hook,
   ...$props
 }: NumberBoxProps<D>) {
-  const ref = useRef<HTMLInputElement>(null!);
+  const ref = useRef<TextBox$Ref>(null!);
   const $step = Math.abs(step || 1);
 
   const isComposing = useRef(false);
@@ -67,14 +67,14 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
       if (!ref.current) return;
       if (preventParse(result)) return;
       const sv = (() => {
-        if (document.activeElement === ref.current) {
+        if (document.activeElement === ref.current.inputElement) {
           const num = parse(value);
           if (num == null || isNaN(num)) return "";
           return String(num);
         }
         return format(value);
       })();
-      if (!isComposing.current && ref.current.value !== sv) ref.current.value = sv;
+      if (!isComposing.current && ref.current.inputElement.value !== sv) ref.current.inputElement.value = sv;
     },
     effectContext: function () {
       setMin(getMin);
@@ -197,7 +197,7 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
         break;
       case "Enter":
         if (!isComposing.current) {
-          ref.current.value = String(value ?? "");
+          ref.current.inputElement.value = String(value ?? "");
         }
         break;
       default: break;
@@ -239,7 +239,7 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
   const dataListId = source == null ? undefined : `${name}_dl`;
 
   if (hook) {
-    hook.focus = () => ref.current.focus();
+    hook.focus = () => ref.current.inputElement.focus();
   }
 
   return (
@@ -255,7 +255,7 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
         )}
         style={style}
         state={state.current}
-        inputRef={ref}
+        ref={ref}
         inputProps={{
           className: clsx(
             "text-right z-0",
@@ -268,13 +268,6 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
           min,
           max,
           step: $step,
-          defaultValue: (validScripts && !preventParse(result)) ? format(value) : (value ?? ""),
-          onChange: handleChange,
-          onFocus: handleFocus,
-          onBlur: handleBlur,
-          onCompositionStart: handleCompositionStart,
-          onCompositionEnd: handleCompositionEnd,
-          onKeyDown: handleKeydown,
           placeholder,
           "aria-label": label,
           "aria-invalid": invalid,
@@ -283,6 +276,13 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
           autoFocus,
           autoComplete,
           enterKeyHint,
+          defaultValue: (validScripts && !preventParse(result)) ? format(value) : (value ?? ""),
+          onChange: handleChange,
+          onFocus: handleFocus,
+          onBlur: handleBlur,
+          onCompositionStart: handleCompositionStart,
+          onCompositionEnd: handleCompositionEnd,
+          onKeyDown: handleKeydown,
         }}
       >
         {
