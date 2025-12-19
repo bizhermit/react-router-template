@@ -1,18 +1,24 @@
 import { useImperativeHandle, useRef, type ChangeEvent, type ReactNode, type RefObject } from "react";
 import { useSchemaItem } from "~/components/react/hooks/schema";
 import { SwitchBox$, type SwitchBox$Ref } from ".";
-import { WithMessage, type InputRef, type InputWrapProps } from "../common";
+import { type InputRef, type InputWrapProps } from "../common";
+import { WithMessage } from "../message";
 
 export interface SwitchBoxRef extends SwitchBox$Ref { };
 
-export type SwitchBoxProps<D extends Schema.DataItem<Schema.$Boolean>> = InputWrapProps & {
-  $: D;
-  color?: StyleColor;
-  ref?: RefObject<InputRef | null>;
-  children?: ReactNode;
-};
+export type SwitchBoxProps<D extends Schema.DataItem<Schema.$Boolean>> = Overwrite<
+  InputWrapProps,
+  {
+    $: D;
+    color?: StyleColor;
+    ref?: RefObject<InputRef | null>;
+    children?: ReactNode;
+  }
+>;
 
 export function SwitchBox<D extends Schema.DataItem<Schema.$Boolean>>({
+  className,
+  style,
   children,
   color,
   autoFocus,
@@ -57,6 +63,8 @@ export function SwitchBox<D extends Schema.DataItem<Schema.$Boolean>>({
       result={result}
     >
       <SwitchBox$
+        className={className}
+        style={style}
         ref={ref}
         state={state}
         color={color}

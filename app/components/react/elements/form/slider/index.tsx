@@ -1,30 +1,35 @@
 import { use, useImperativeHandle, useRef, type CSSProperties, type HTMLAttributes, type InputHTMLAttributes, type RefObject } from "react";
 import { ValidScriptsContext } from "~/components/react/providers/valid-scripts";
 import { clsx, getColorClassName } from "../../utilities";
-import { InputDummyFocus, InputLabel, type InputLabelProps, type InputRef } from "../common";
+import { type InputRef } from "../common";
+import { InputDummyFocus } from "../dummy-focus";
+import { InputLabelWrapper, type InputLabelWrapperProps } from "../wrapper/input-label";
 
 export interface Slider$Ref extends InputRef {
   inputElement: HTMLInputElement;
 };
 
-export type Slider$Props = Overwrite<InputLabelProps, {
-  ref?: RefObject<InputRef | null>;
-  inputProps?: Overwrite<InputHTMLAttributes<HTMLInputElement>, {
-    value?: number | null;
-    defaultValue?: number | null;
-    min?: number;
-    max?: number;
-    step?: number;
-  }>;
-  labelProps?: HTMLAttributes<HTMLSpanElement>;
-  color?: StyleColor;
-  showValueText?: boolean;
-  dataList?: {
-    id: string;
-    source: Schema.Source<number | null | undefined>;
-    hideScales?: boolean;
-  };
-}>;
+export type Slider$Props = Overwrite<
+  InputLabelWrapperProps,
+  {
+    ref?: RefObject<InputRef | null>;
+    inputProps?: Overwrite<InputHTMLAttributes<HTMLInputElement>, {
+      value?: number | null;
+      defaultValue?: number | null;
+      min?: number;
+      max?: number;
+      step?: number;
+    }>;
+    labelProps?: HTMLAttributes<HTMLSpanElement>;
+    color?: StyleColor;
+    showValueText?: boolean;
+    dataList?: {
+      id: string;
+      source: Schema.Source<number | null | undefined>;
+      hideScales?: boolean;
+    };
+  }
+>;
 
 const DEFAULT_MIN = 0;
 const DEFAULT_MAX = 100;
@@ -81,7 +86,7 @@ export function Slider$({
   } as const satisfies Slider$Ref));
 
   return (
-    <InputLabel
+    <InputLabelWrapper
       {...props}
       ref={wref}
       state={state}
@@ -136,13 +141,15 @@ export function Slider$({
       }
       {
         state.current === "readonly" &&
-        inputProps?.name &&
         <>
-          <input
-            type="hidden"
-            name={inputProps.name}
-            value={inputProps?.value == null ? "" : String(inputProps.value)}
-          />
+          {
+            inputProps?.name &&
+            <input
+              type="hidden"
+              name={inputProps.name}
+              value={inputProps?.value == null ? "" : String(inputProps.value)}
+            />
+          }
           <InputDummyFocus
             ref={dref}
           />
@@ -188,6 +195,6 @@ export function Slider$({
           }
         </>
       }
-    </InputLabel>
+    </InputLabelWrapper>
   );
 };

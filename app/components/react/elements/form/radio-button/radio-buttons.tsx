@@ -1,24 +1,33 @@
 import { useImperativeHandle, useRef, type ChangeEvent, type MouseEvent, type RefObject } from "react";
 import { useSchemaItem } from "~/components/react/hooks/schema";
 import { RadioButton$, type RadioButton$Ref, type RadioButtonAppearance } from ".";
-import { InputGroup, WithMessage, type InputRef, type InputWrapProps } from "../common";
-import { useSource } from "../utilities";
+import { useSource } from "../../../hooks/data-item-source";
+import { type InputRef, type InputWrapProps } from "../common";
+import { WithMessage } from "../message";
+import { InputGroupWrapper } from "../wrapper/input-group";
 
-type RadioButtonsSchemaProps = Schema.$String | Schema.$Number | Schema.$Boolean;
+type RadioButtonsSchemaProps =
+  | Schema.$String
+  | Schema.$Number
+  | Schema.$Boolean;
+;
 
 export interface RadioButtonsRef extends InputRef { };
 
-export type RadioButtonsProps<D extends Schema.DataItem<RadioButtonsSchemaProps>> =
-  & InputWrapProps
-  & {
+export type RadioButtonsProps<D extends Schema.DataItem<RadioButtonsSchemaProps>> = Overwrite<
+  InputWrapProps,
+  {
     $: D;
     appearance?: RadioButtonAppearance;
     color?: StyleColor;
     source?: Schema.Source<Schema.ValueType<D["_"]>>;
     ref?: RefObject<InputRef | null>;
-  };
+  }
+>;
 
 export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>({
+  className,
+  style,
   appearance = "radio",
   color,
   source: propsSource,
@@ -43,7 +52,6 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
     getCommonParams,
     omitOnSubmit,
     hideMessage,
-    props,
   } = useSchemaItem<Schema.DataItem<RadioButtonsSchemaProps>>($props, {
     effect: function ({ value }) {
       if (!wref.current) return;
@@ -94,8 +102,9 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
       state={state.current}
       result={result}
     >
-      <InputGroup
-        {...props}
+      <InputGroupWrapper
+        className={className}
+        style={style}
         ref={wref}
         state={state}
       >
@@ -135,7 +144,7 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
             value={value as string || undefined}
           />
         }
-      </InputGroup>
+      </InputGroupWrapper>
     </WithMessage>
   );
 };

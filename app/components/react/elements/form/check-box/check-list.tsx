@@ -1,22 +1,33 @@
 import { useImperativeHandle, useRef, type ChangeEvent, type RefObject } from "react";
 import { useSchemaItem } from "~/components/react/hooks/schema";
 import { CheckBox$, type CheckBox$Ref } from ".";
-import { InputGroup, WithMessage, type InputRef, type InputWrapProps } from "../common";
-import { useSource } from "../utilities";
+import { useSource } from "../../../hooks/data-item-source";
+import { type InputRef, type InputWrapProps } from "../common";
+import { WithMessage } from "../message";
+import { InputGroupWrapper } from "../wrapper/input-group";
 
-type CheckListItemSchemaProps = Schema.$String | Schema.$Number | Schema.$Boolean;
+type CheckListItemSchemaProps =
+  | Schema.$String
+  | Schema.$Number
+  | Schema.$Boolean
+  ;
 
 export interface CheckListRef extends InputRef { };
 
-export type CheckListProps<D extends Schema.DataItem<Schema.$Array<CheckListItemSchemaProps>>> = InputWrapProps & {
-  $: D;
-  appearance?: "checkbox" | "button";
-  color?: StyleColor;
-  source?: Schema.Source<Schema.ValueType<D["_"]>>;
-  ref?: RefObject<InputRef | null>;
-};
+export type CheckListProps<D extends Schema.DataItem<Schema.$Array<CheckListItemSchemaProps>>> = Overwrite<
+  InputWrapProps,
+  {
+    $: D;
+    appearance?: "checkbox" | "button";
+    color?: StyleColor;
+    source?: Schema.Source<Schema.ValueType<D["_"]>>;
+    ref?: RefObject<InputRef | null>;
+  }
+>;
 
 export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemSchemaProps>>>({
+  className,
+  style,
   appearance = "checkbox",
   color,
   autoFocus,
@@ -41,7 +52,6 @@ export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemS
     getCommonParams,
     omitOnSubmit,
     hideMessage,
-    props,
   } = useSchemaItem<Schema.DataItem<Schema.$Array>>($props, {
     effect: function ({ value }) {
       if (!wref.current) return;
@@ -89,8 +99,10 @@ export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemS
       state={state.current}
       result={result}
     >
-      <InputGroup
-        {...props}
+      <InputGroupWrapper
+        className={className}
+        style={style}
+        ref={wref}
         state={state}
       >
         {source?.map((item, index) => {
@@ -120,7 +132,7 @@ export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemS
             </CheckBox$>
           );
         })}
-      </InputGroup>
+      </InputGroupWrapper>
     </WithMessage>
   );
 };

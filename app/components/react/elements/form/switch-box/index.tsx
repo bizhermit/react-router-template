@@ -1,16 +1,22 @@
 import { useImperativeHandle, useRef, type InputHTMLAttributes, type RefObject } from "react";
 import { clsx, getColorClassName } from "../../utilities";
-import { InputDummyFocus, InputLabel, InputLabelText, type InputLabelProps, type InputRef } from "../common";
+import { type InputRef } from "../common";
+import { InputDummyFocus } from "../dummy-focus";
+import { InputLabelText } from "../input-label-text";
+import { InputLabelWrapper, type InputLabelWrapperProps } from "../wrapper/input-label";
 
 export interface SwitchBox$Ref extends InputRef {
   inputElement: HTMLInputElement;
 };
 
-export type SwitchBox$Props = Overwrite<InputLabelProps, {
-  ref?: RefObject<InputRef | null>;
-  inputProps?: InputHTMLAttributes<HTMLInputElement>;
-  color?: StyleColor;
-}>;
+export type SwitchBox$Props = Overwrite<
+  InputLabelWrapperProps,
+  {
+    ref?: RefObject<InputRef | null>;
+    inputProps?: InputHTMLAttributes<HTMLInputElement>;
+    color?: StyleColor;
+  }
+>;
 
 export function SwitchBox$({
   ref,
@@ -31,7 +37,7 @@ export function SwitchBox$({
   } as const satisfies SwitchBox$Ref));
 
   return (
-    <InputLabel
+    <InputLabelWrapper
       {...props}
       ref={wref}
       state={state}
@@ -54,18 +60,20 @@ export function SwitchBox$({
       </InputLabelText>
       {
         state.current === "readonly" &&
-        inputProps?.name &&
         <>
-          <input
-            type="hidden"
-            name={inputProps.name}
-            value={inputProps?.value as string || undefined}
-          />
+          {
+            inputProps?.name &&
+            <input
+              type="hidden"
+              name={inputProps.name}
+              value={inputProps?.value as string || undefined}
+            />
+          }
           <InputDummyFocus
             ref={dref}
           />
         </>
       }
-    </InputLabel>
+    </InputLabelWrapper>
   );
 };

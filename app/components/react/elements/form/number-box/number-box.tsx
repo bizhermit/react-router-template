@@ -1,20 +1,25 @@
 import { useImperativeHandle, useRef, useState, type ChangeEvent, type InputHTMLAttributes, type RefObject } from "react";
 import { useSchemaItem } from "~/components/react/hooks/schema";
+import { getValidationValue } from "~/components/schema/utilities";
 import { NumberBox$, type NumberBox$Ref } from ".";
-import { getValidationValue, WithMessage, type InputRef, type InputWrapProps } from "../common";
-import { useSource } from "../utilities";
+import { useSource } from "../../../hooks/data-item-source";
+import { type InputRef, type InputWrapProps } from "../common";
+import { WithMessage } from "../message";
 
 export interface NumberBoxRef extends NumberBox$Ref { };
 
-export type NumberBoxProps<D extends Schema.DataItem<Schema.$Number>> = InputWrapProps & {
-  $: D;
-  placeholder?: string;
-  source?: Schema.Source<Schema.ValueType<D["_"]>>;
-  step?: number;
-  ref?: RefObject<InputRef | null>;
-} & Pick<InputHTMLAttributes<HTMLInputElement>,
-  | "autoComplete"
-  | "enterKeyHint"
+export type NumberBoxProps<D extends Schema.DataItem<Schema.$Number>> = Overwrite<
+  InputWrapProps,
+  {
+    $: D;
+    placeholder?: string;
+    source?: Schema.Source<Schema.ValueType<D["_"]>>;
+    step?: number;
+    ref?: RefObject<InputRef | null>;
+  } & Pick<InputHTMLAttributes<HTMLInputElement>,
+    | "autoComplete"
+    | "enterKeyHint"
+  >
 >;
 
 function preventParse(result: Schema.Result | null | undefined) {

@@ -1,6 +1,6 @@
 import { use, useLayoutEffect, useState } from "react";
-import { I18nContext } from "../../hooks/i18n";
-import { getValidationValue } from "./common";
+import { getValidationValue } from "~/components/schema/utilities";
+import { I18nContext } from "./i18n";
 
 export function getBooleanSource({
   dataItem,

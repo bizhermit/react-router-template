@@ -2,18 +2,24 @@ import { use, useImperativeHandle, useRef, type ReactNode, type RefObject, type 
 import { ValidScriptsContext } from "~/components/react/providers/valid-scripts";
 import { DownIcon } from "../../icon";
 import { clsx, ZERO_WIDTH_SPACE } from "../../utilities";
-import { InputDummyFocus, InputField, Placeholder, type InputFieldProps, type InputRef } from "../common";
+import { type InputRef } from "../common";
+import { InputDummyFocus } from "../dummy-focus";
+import { Placeholder } from "../placeholder";
+import { InputFieldWrapper, type InputFieldWrapperProps } from "../wrapper/input-field";
 
 export interface SelectBox$Ref extends InputRef {
   selectElement: HTMLSelectElement;
 };
 
-export type SelectBox$Props = Overwrite<InputFieldProps, {
-  ref?: RefObject<InputRef | null>;
-  selectProps?: SelectHTMLAttributes<HTMLSelectElement>;
-  children?: ReactNode;
-  placeholder?: ReactNode;
-}>;
+export type SelectBox$Props = Overwrite<
+  InputFieldWrapperProps,
+  {
+    ref?: RefObject<InputRef | null>;
+    selectProps?: SelectHTMLAttributes<HTMLSelectElement>;
+    children?: ReactNode;
+    placeholder?: ReactNode;
+  }
+>;
 
 export function SelectBox$({
   ref,
@@ -36,7 +42,7 @@ export function SelectBox$({
   } as const satisfies SelectBox$Ref));
 
   return (
-    <InputField
+    <InputFieldWrapper
       {...props}
       ref={wref}
       state={state}
@@ -51,12 +57,13 @@ export function SelectBox$({
       >
         {children}
       </select>
-      <Placeholder
-        validScripts={validScripts}
-        state={state}
-      >
-        {placeholder}
-      </Placeholder>
+      {
+        validScripts &&
+        state.current !== "disabled" &&
+        <Placeholder>
+          {placeholder}
+        </Placeholder>
+      }
       <div
         className={clsx(
           "_ipt-btn",
@@ -67,19 +74,21 @@ export function SelectBox$({
       </div>
       {
         state.current === "readonly" &&
-        selectProps?.name &&
         <>
-          <input
-            type="hidden"
-            name={selectProps.name}
-            value={selectProps.value as string || undefined}
-          />
+          {
+            selectProps?.name &&
+            <input
+              type="hidden"
+              name={selectProps.name}
+              value={selectProps.value as string || undefined}
+            />
+          }
           <InputDummyFocus
             ref={dref}
           />
         </>
       }
-    </InputField>
+    </InputFieldWrapper>
   );
 };
 

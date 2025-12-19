@@ -1,19 +1,24 @@
 import { use, useImperativeHandle, useRef, type DragEvent, type InputHTMLAttributes, type KeyboardEvent, type MouseEvent, type ReactNode, type RefObject } from "react";
 import { ValidScriptsContext } from "~/components/react/providers/valid-scripts";
 import { clsx } from "../../utilities";
-import { InputField, Placeholder, type InputFieldProps, type InputRef } from "../common";
+import { type InputRef } from "../common";
+import { Placeholder } from "../placeholder";
+import { InputFieldWrapper, type InputFieldWrapperProps } from "../wrapper/input-field";
 
 export interface FileBox$Ref extends InputRef {
   inputElement: HTMLInputElement;
 };
 
-export type FileBox$Props = Overwrite<InputFieldProps, {
-  ref?: RefObject<InputRef | null>;
-  inputProps?: Overwrite<InputHTMLAttributes<HTMLInputElement>, {
-    placeholder?: ReactNode;
-  }>;
-  children?: ReactNode;
-}>;
+export type FileBox$Props = Overwrite<
+  InputFieldWrapperProps,
+  {
+    ref?: RefObject<InputRef | null>;
+    inputProps?: Overwrite<InputHTMLAttributes<HTMLInputElement>, {
+      placeholder?: ReactNode;
+    }>;
+    children?: ReactNode;
+  }
+>;
 
 const DRAGGING_CLASSNAME = ["bg-sky-500", "dark:bg-sky-900"];
 
@@ -71,7 +76,7 @@ export function FileBox$({
   } as const satisfies FileBox$Ref));
 
   return (
-    <InputField
+    <InputFieldWrapper
       {...props}
       ref={wref}
       state={state}
@@ -98,15 +103,13 @@ export function FileBox$({
       />
       {
         validScripts &&
-        inputProps?.placeholder &&
+        state.current !== "disabled" &&
         <Placeholder
           className="relative pr-input-pad-x"
-          state={state}
-          validScripts={validScripts}
         >
           {inputProps?.placeholder}
         </Placeholder>
       }
-    </InputField>
+    </InputFieldWrapper>
   );
-}
+};

@@ -1,22 +1,29 @@
 import { useImperativeHandle, useRef, useState, type ChangeEvent, type RefObject } from "react";
 import { useSchemaItem } from "~/components/react/hooks/schema";
+import { getValidationValue } from "~/components/schema/utilities";
 import { Slider$, type Slider$Ref } from ".";
-import { getValidationValue, WithMessage, type InputRef, type InputWrapProps } from "../common";
-import { useSource } from "../utilities";
+import { useSource } from "../../../hooks/data-item-source";
+import { type InputRef, type InputWrapProps } from "../common";
+import { WithMessage } from "../message";
 
 export interface SliderRef extends Slider$Ref { };
 
-export type SliderProps<D extends Schema.DataItem<Schema.$Number>> = InputWrapProps & {
-  $: D;
-  color?: StyleColor;
-  source?: Schema.Source<Schema.ValueType<D["_"]>>;
-  step?: number;
-  showValueText?: boolean;
-  hideScales?: boolean;
-  ref?: RefObject<InputRef | null>;
-};
+export type SliderProps<D extends Schema.DataItem<Schema.$Number>> = Overwrite<
+  InputWrapProps,
+  {
+    $: D;
+    color?: StyleColor;
+    source?: Schema.Source<Schema.ValueType<D["_"]>>;
+    step?: number;
+    showValueText?: boolean;
+    hideScales?: boolean;
+    ref?: RefObject<InputRef | null>;
+  }
+>;
 
 export function Slider<D extends Schema.DataItem<Schema.$Number>>({
+  className,
+  style,
   color,
   source: propsSource,
   step,
@@ -88,6 +95,8 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
       result={result}
     >
       <Slider$
+        className={className}
+        style={style}
         ref={ref}
         state={state}
         color={color}

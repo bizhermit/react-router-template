@@ -1,16 +1,20 @@
 import { useImperativeHandle, useRef, type InputHTMLAttributes, type ReactNode, type RefObject } from "react";
 import { clsx } from "../../utilities";
-import { InputField, type InputFieldProps, type InputRef } from "../common";
+import { type InputRef } from "../common";
+import { InputFieldWrapper, type InputFieldWrapperProps } from "../wrapper/input-field";
 
 export interface TextBox$Ref extends InputRef {
   inputElement: HTMLInputElement;
 };
 
-export type TextBox$Props = Overwrite<InputFieldProps, {
-  ref?: RefObject<InputRef | null>;
-  inputProps?: InputHTMLAttributes<HTMLInputElement>;
-  children?: ReactNode;
-}>;
+export type TextBox$Props = Overwrite<
+  InputFieldWrapperProps,
+  {
+    ref?: RefObject<InputRef | null>;
+    inputProps?: InputHTMLAttributes<HTMLInputElement>;
+    children?: ReactNode;
+  }
+>;
 
 export function TextBox$({
   ref,
@@ -30,7 +34,7 @@ export function TextBox$({
   } as const satisfies TextBox$Ref));
 
   return (
-    <InputField
+    <InputFieldWrapper
       {...props}
       className={clsx(
         "_ipt-default-width",
@@ -51,6 +55,6 @@ export function TextBox$({
         ref={iref}
       />
       {children}
-    </InputField>
+    </InputFieldWrapper>
   );
 };

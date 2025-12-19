@@ -16,10 +16,13 @@ export function getValidationArray<T extends Schema.Validation<unknown, unknown>
   return [validation] as U;
 };
 
-export function getRequiredTextKey(actionType: NonNullable<Schema.BaseProps["actionType"]>) {
-  return `required_${actionType}` satisfies I18nTextKey;
-};
-
-export function getInvalidValueTextKey(actionType: NonNullable<Schema.BaseProps["actionType"]>) {
-  return `invalidValue_${actionType}` satisfies I18nTextKey;
+export function getValidationValue<T extends Schema.$ValidationValue<unknown>>(
+  params: Schema.DynamicValidationValueParams,
+  validationValue: T,
+) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  type V = T extends ((...args: any[]) => infer V) ? V : T;
+  if (validationValue == null) return undefined as V;
+  if (typeof validationValue === "function") return validationValue(params) as V;
+  return validationValue as V;
 };

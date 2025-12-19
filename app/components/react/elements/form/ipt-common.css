@@ -179,5 +179,12 @@
     color: var(--color-placeholder);
   }
 
+  ._ipt-dummy-focus {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    user-select: none;
+    outline: none;
+  }
 
 }

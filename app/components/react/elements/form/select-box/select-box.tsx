@@ -1,21 +1,29 @@
 import { useImperativeHandle, useRef, type ChangeEvent, type ReactNode, type RefObject } from "react";
 import { useSchemaItem } from "~/components/react/hooks/schema";
 import { SelectBox$, SelectBoxEmptyOption, type SelectBox$Ref } from ".";
-import { WithMessage, type InputWrapProps } from "../common";
-import { useSource } from "../utilities";
+import { useSource } from "../../../hooks/data-item-source";
+import { type InputWrapProps } from "../common";
+import { WithMessage } from "../message";
 
-type SelectBoxSchemaProps = Schema.$String | Schema.$Number | Schema.$Boolean;
+type SelectBoxSchemaProps =
+  | Schema.$String
+  | Schema.$Number
+  | Schema.$Boolean
+  ;
 
 export interface SelectBoxRef extends SelectBox$Ref { };
 
-export type SelectBoxProps<D extends Schema.DataItem<SelectBoxSchemaProps>> = InputWrapProps & {
-  $: D;
-  placeholder?: string;
-  emptyText?: string;
-  source?: Schema.Source<Schema.ValueType<D["_"]>>;
-  ref?: RefObject<SelectBoxRef>;
-  children?: ReactNode;
-};
+export type SelectBoxProps<D extends Schema.DataItem<SelectBoxSchemaProps>> = Overwrite<
+  InputWrapProps,
+  {
+    $: D;
+    placeholder?: string;
+    emptyText?: string;
+    source?: Schema.Source<Schema.ValueType<D["_"]>>;
+    ref?: RefObject<SelectBoxRef>;
+    children?: ReactNode;
+  }
+>;
 
 export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
   className,

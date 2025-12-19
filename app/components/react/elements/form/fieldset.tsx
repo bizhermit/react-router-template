@@ -1,10 +1,13 @@
 import { use, type FieldsetHTMLAttributes } from "react";
 import { FieldSetContext } from "~/components/react/hooks/schema";
 
-type FieldSetProps = FieldsetHTMLAttributes<HTMLFieldSetElement> & {
-  readOnly?: boolean;
-  hide?: boolean;
-};
+type FieldSetProps = Overwrite<
+  FieldsetHTMLAttributes<HTMLFieldSetElement>,
+  {
+    readOnly?: boolean;
+    hide?: boolean;
+  }
+>;
 
 export function FieldSet({
   disabled,

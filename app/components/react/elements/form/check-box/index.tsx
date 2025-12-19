@@ -1,6 +1,9 @@
 import { useImperativeHandle, useRef, type InputHTMLAttributes, type RefObject } from "react";
 import { clsx, getColorClassName } from "../../utilities";
-import { InputDummyFocus, InputLabel, InputLabelText, type InputLabelProps, type InputRef } from "../common";
+import { type InputRef } from "../common";
+import { InputDummyFocus } from "../dummy-focus";
+import { InputLabelText } from "../input-label-text";
+import { InputLabelWrapper, type InputLabelWrapperProps } from "../wrapper/input-label";
 
 export interface CheckBox$Ref extends InputRef {
   inputElement: HTMLInputElement;
@@ -11,20 +14,23 @@ export type CheckBoxAppearance =
   | "button"
   ;
 
-export type CheckBox$Props = Overwrite<InputLabelProps, {
-  ref?: RefObject<InputRef | null>;
-  inputProps?: InputHTMLAttributes<HTMLInputElement>;
-  appearance?: CheckBoxAppearance;
-  color?: StyleColor;
-  omitDummy?: boolean;
-}>;
+export type CheckBox$Props = Overwrite<
+  InputLabelWrapperProps,
+  {
+    inputProps?: InputHTMLAttributes<HTMLInputElement>;
+    ref?: RefObject<InputRef | null>;
+    appearance?: CheckBoxAppearance;
+    color?: StyleColor;
+    omitDummy?: boolean;
+  }
+>;
 
 export function CheckBox$({
-  ref,
-  inputProps,
-  state = { current: "enabled" },
   className,
   children,
+  inputProps,
+  ref,
+  state = { current: "enabled" },
   appearance = "checkbox",
   color,
   omitDummy,
@@ -43,7 +49,7 @@ export function CheckBox$({
   } as const satisfies CheckBox$Ref));
 
   return (
-    <InputLabel
+    <InputLabelWrapper
       {...props}
       ref={wref}
       state={state}
@@ -105,6 +111,6 @@ export function CheckBox$({
           }
         </>
       }
-    </InputLabel>
+    </InputLabelWrapper>
   );
 };

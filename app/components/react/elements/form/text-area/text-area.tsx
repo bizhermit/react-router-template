@@ -1,29 +1,36 @@
 import { useImperativeHandle, useRef, useState, type ChangeEvent, type RefObject } from "react";
 import { useSchemaItem } from "~/components/react/hooks/schema";
+import { getValidationValue } from "~/components/schema/utilities";
 import { TextArea$, type TextArea$Ref } from ".";
-import { getValidationValue, WithMessage, type InputRef, type InputWrapProps } from "../common";
+import { type InputRef, type InputWrapProps } from "../common";
+import { WithMessage } from "../message";
 
 type Resize = "none" | "vertical" | "horizontal" | "both";
 
 export interface TextAreaRef extends TextArea$Ref { };
 
-export type TextAreaProps<D extends Schema.DataItem<Schema.$String>> = InputWrapProps & {
-  $: D;
-  placeholder?: string;
-  cols?: number;
-  resize?: Resize;
-  ref?: RefObject<InputRef | null>;
-} & ({
-  rows?: number;
-  minRows?: undefined;
-  maxRows?: undefined;
-} | {
-  rows: "fit";
-  minRows?: number;
-  maxRows?: number;
-});
+export type TextAreaProps<D extends Schema.DataItem<Schema.$String>> = Overwrite<
+  InputWrapProps,
+  {
+    $: D;
+    placeholder?: string;
+    cols?: number;
+    resize?: Resize;
+    ref?: RefObject<InputRef | null>;
+  } & ({
+    rows?: number;
+    minRows?: undefined;
+    maxRows?: undefined;
+  } | {
+    rows: "fit";
+    minRows?: number;
+    maxRows?: number;
+  })
+>;
 
 export function TextArea<D extends Schema.DataItem<Schema.$String>>({
+  className,
+  style,
   placeholder,
   rows,
   minRows,
@@ -93,6 +100,8 @@ export function TextArea<D extends Schema.DataItem<Schema.$String>>({
       result={result}
     >
       <TextArea$
+        className={className}
+        style={style}
         ref={ref}
         state={state}
         resize={resize}

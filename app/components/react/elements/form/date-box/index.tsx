@@ -1,20 +1,25 @@
 import { use, useImperativeHandle, useRef, type FocusEvent, type InputHTMLAttributes, type KeyboardEvent, type ReactNode, type RefObject } from "react";
 import { ValidScriptsContext } from "~/components/react/providers/valid-scripts";
 import { clsx } from "../../utilities";
-import { InputDummyFocus, InputField, type InputFieldProps, type InputRef } from "../common";
+import { type InputRef } from "../common";
+import { InputDummyFocus } from "../dummy-focus";
+import { InputFieldWrapper, type InputFieldWrapperProps } from "../wrapper/input-field";
 
 export interface DateBox$Ref extends InputRef {
   inputElement: HTMLInputElement;
 };
 
-export type DateBox$Props = Overwrite<InputFieldProps, {
-  ref?: RefObject<InputRef | null>;
-  inputProps?: Overwrite<InputHTMLAttributes<HTMLInputElement>, {
-    type: "date" | "month" | "datetime-local";
-  }>;
-  children?: ReactNode;
-  bindMode?: "state" | "dom";
-}>;
+export type DateBox$Props = Overwrite<
+  InputFieldWrapperProps,
+  {
+    ref?: RefObject<InputRef | null>;
+    inputProps?: Overwrite<InputHTMLAttributes<HTMLInputElement>, {
+      type: "date" | "month" | "datetime-local";
+    }>;
+    children?: ReactNode;
+    bindMode?: "state" | "dom";
+  }
+>;
 
 export function DateBox$({
   ref,
@@ -54,7 +59,7 @@ export function DateBox$({
   } as const satisfies DateBox$Ref));
 
   return (
-    <InputField
+    <InputFieldWrapper
       {...props}
       ref={wref}
       state={state}
@@ -84,17 +89,20 @@ export function DateBox$({
       {
         state.current === "readonly" &&
         <>
-          <input
-            type="hidden"
-            name={inputProps?.name}
-            value={inputProps?.value as string || undefined}
-          />
+          {
+            inputProps?.name &&
+            <input
+              type="hidden"
+              name={inputProps.name}
+              value={inputProps?.value as string || undefined}
+            />
+          }
           <InputDummyFocus
             ref={dref}
           />
         </>
       }
       {children}
-    </InputField>
+    </InputFieldWrapper>
   );
 }

@@ -1,20 +1,25 @@
 import { useImperativeHandle, useRef, useState, type ChangeEvent, type HTMLAttributes, type HTMLInputTypeAttribute, type InputHTMLAttributes, type RefObject } from "react";
 import { useSchemaItem } from "~/components/react/hooks/schema";
+import { getValidationValue } from "~/components/schema/utilities";
 import { TextBox$, type TextBox$Ref } from ".";
-import { getValidationValue, WithMessage, type InputRef, type InputWrapProps } from "../common";
-import { useSource } from "../utilities";
+import { useSource } from "../../../hooks/data-item-source";
+import { type InputRef, type InputWrapProps } from "../common";
+import { WithMessage } from "../message";
 
 export interface TextBoxRef extends TextBox$Ref { };
 
-export type TextBoxProps<D extends Schema.DataItem<Schema.$String>> = InputWrapProps & {
-  $: D;
-  placeholder?: string;
-  source?: Schema.Source<Schema.ValueType<D["_"]>>;
-  ref?: RefObject<InputRef | null>;
-} & Pick<InputHTMLAttributes<HTMLInputElement>,
-  | "autoComplete"
-  | "autoCapitalize"
-  | "enterKeyHint"
+export type TextBoxProps<D extends Schema.DataItem<Schema.$String>> = Overwrite<
+  InputWrapProps,
+  {
+    $: D;
+    placeholder?: string;
+    source?: Schema.Source<Schema.ValueType<D["_"]>>;
+    ref?: RefObject<InputRef | null>;
+  } & Pick<InputHTMLAttributes<HTMLInputElement>,
+    | "autoComplete"
+    | "autoCapitalize"
+    | "enterKeyHint"
+  >
 >;
 
 function getPatternInputProps(pattern: Schema.StringProps["pattern"]): { type?: HTMLInputTypeAttribute; inputMode?: HTMLAttributes<HTMLInputElement>["inputMode"]; } {

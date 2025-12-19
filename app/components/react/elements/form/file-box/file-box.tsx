@@ -1,16 +1,20 @@
 import { useEffect, useRef, useState, type ChangeEvent, type MouseEvent, type ReactNode, type RefObject } from "react";
 import { convertBase64ToFile } from "~/components/objects/file";
 import { useSchemaItem } from "~/components/react/hooks/schema";
+import { getValidationValue } from "~/components/schema/utilities";
 import { FileBox$, type FileBox$Ref } from ".";
-import { getValidationValue, WithMessage, type InputRef, type InputWrapProps } from "../common";
+import { type InputRef, type InputWrapProps } from "../common";
+import { WithMessage } from "../message";
 
 export interface FileBoxRef extends FileBox$Ref { };
 
-export type FileBoxProps<D extends Schema.DataItem<Schema.$File>> = InputWrapProps & {
-  $: D;
-  placeholder?: ReactNode;
-  ref?: RefObject<InputRef | null>;
-} & (
+export type FileBoxProps<D extends Schema.DataItem<Schema.$File>> = Overwrite<
+  InputWrapProps,
+  {
+    $: D;
+    placeholder?: ReactNode;
+    ref?: RefObject<InputRef | null>;
+  } & (
     | {
       viewMode?: "link";
       onViewClick?: (context: LinkContext, e: MouseEvent<HTMLAnchorElement>) => void;
@@ -19,9 +23,12 @@ export type FileBoxProps<D extends Schema.DataItem<Schema.$File>> = InputWrapPro
       viewMode?: "image";
       onViewClick?: (context: ImageContext, e: MouseEvent<HTMLImageElement>) => void;
     }
-  );
+  )
+>;
 
 export function FileBox<D extends Schema.DataItem<Schema.$File>>({
+  className,
+  style,
   placeholder,
   viewMode,
   onViewClick,
@@ -93,6 +100,8 @@ export function FileBox<D extends Schema.DataItem<Schema.$File>>({
         result={result}
       >
         <FileBox$
+          className={className}
+          style={style}
           ref={ref}
           state={state}
           inputProps={{

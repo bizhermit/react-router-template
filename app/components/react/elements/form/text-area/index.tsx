@@ -1,6 +1,7 @@
 import { useEffect, useImperativeHandle, useRef, type ChangeEvent, type RefObject, type TextareaHTMLAttributes } from "react";
 import { clsx } from "../../utilities";
-import { InputField, type InputFieldProps, type InputRef } from "../common";
+import { type InputRef } from "../common";
+import { InputFieldWrapper, type InputFieldWrapperProps } from "../wrapper/input-field";
 
 export interface TextArea$Ref extends InputRef {
   textAreaElement: HTMLTextAreaElement;
@@ -9,15 +10,18 @@ export interface TextArea$Ref extends InputRef {
 
 export type Resize = "none" | "vertical" | "horizontal" | "both";
 
-export type TextArea$Props = Overwrite<InputFieldProps, {
-  ref?: RefObject<InputRef | null>;
-  textAreaProps?: Overwrite<TextareaHTMLAttributes<HTMLTextAreaElement>, {
-    rows?: number | "fit";
-  }>;
-  minRows?: number;
-  maxRows?: number;
-  resize?: Resize;
-}>;
+export type TextArea$Props = Overwrite<
+  InputFieldWrapperProps,
+  {
+    ref?: RefObject<InputRef | null>;
+    textAreaProps?: Overwrite<TextareaHTMLAttributes<HTMLTextAreaElement>, {
+      rows?: number | "fit";
+    }>;
+    minRows?: number;
+    maxRows?: number;
+    resize?: Resize;
+  }
+>;
 
 const DEFAULT_ROWS = 3;
 
@@ -106,7 +110,7 @@ export function TextArea$({
   } as const satisfies TextArea$Ref));
 
   return (
-    <InputField
+    <InputFieldWrapper
       {...props}
       ref={wref}
       state={state}
@@ -123,6 +127,6 @@ export function TextArea$({
         onChange={handleChange}
         rows={rows}
       />
-    </InputField>
+    </InputFieldWrapper>
   );
 };

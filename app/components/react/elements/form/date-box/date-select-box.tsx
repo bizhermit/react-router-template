@@ -2,22 +2,28 @@ import { use, useId, useImperativeHandle, useLayoutEffect, useMemo, useRef, useS
 import { formatDate, parseDate } from "~/components/objects/date";
 import { getSchemaItemMode, getSchemaItemRequired, getSchemaItemResult, optimizeRefs, schemaItemEffect, schemaItemValidation, useFieldSet, useSchemaEffect, type SchemaEffectParams_Result, type SchemaEffectParams_ValueResult } from "~/components/react/hooks/schema";
 import { parseTimeNums, parseTypedDate } from "~/components/schema/date";
+import { getValidationValue } from "~/components/schema/utilities";
 import { I18nContext } from "../../../hooks/i18n";
-import { getValidationValue, InputGroup, WithMessage, type InputRef, type InputWrapProps } from "../common";
+import { type InputRef, type InputWrapProps } from "../common";
+import { WithMessage } from "../message";
 import { SelectBox$, SelectBoxEmptyOption, type SelectBox$Ref } from "../select-box";
+import { InputGroupWrapper } from "../wrapper/input-group";
 
 export interface DateSelectBoxRef extends InputRef { };
 
-export type DateSelectBoxProps<D extends Schema.DataItem<Schema.$SplitDate>> = InputWrapProps & {
-  $: D;
-  placeholder?:
-  | [string, string]
-  | [string, string, string]
-  | [string, string, string, string]
-  | [string, string, string, string, string]
-  | [string, string, string, string, string, string];
-  ref?: RefObject<InputRef | null>;
-};
+export type DateSelectBoxProps<D extends Schema.DataItem<Schema.$SplitDate>> = Overwrite<
+  InputWrapProps,
+  {
+    $: D;
+    placeholder?:
+    | [string, string]
+    | [string, string, string]
+    | [string, string, string, string]
+    | [string, string, string, string, string]
+    | [string, string, string, string, string, string];
+    ref?: RefObject<InputRef | null>;
+  }
+>;
 
 const DEFAULT_MIN_DATE = new Date("1900-01-01T00:00:00");
 const DEFAULT_MAX_DATE = new Date("2099-12-31T23:59:59");
@@ -1086,7 +1092,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
       state={state.current}
       result={dispayResult}
     >
-      <InputGroup
+      <InputGroupWrapper
         {...props}
         ref={wref}
         state={state}
@@ -1216,7 +1222,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
             }
           </>
         }
-      </InputGroup>
+      </InputGroupWrapper>
     </WithMessage>
   );
 };

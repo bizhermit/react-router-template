@@ -1,17 +1,22 @@
 import { useImperativeHandle, useRef, useState, type ChangeEvent, type InputHTMLAttributes, type RefObject } from "react";
+import { getValidationValue } from "~/components/schema/utilities";
 import { PasswordBox$, type PasswordBox$Ref } from ".";
 import { useSchemaItem } from "../../../hooks/schema";
-import { getValidationValue, WithMessage, type InputRef, type InputWrapProps } from "../common";
+import { type InputRef, type InputWrapProps } from "../common";
+import { WithMessage } from "../message";
 
 export interface PasswordBoxRef extends PasswordBox$Ref { };
 
-export type PasswordBoxProps<D extends Schema.DataItem<Schema.$String>> = InputWrapProps & {
-  $: D;
-  placeholder?: string;
-  ref?: RefObject<InputRef | null>;
-} & Pick<InputHTMLAttributes<HTMLInputElement>,
-  | "autoComplete"
-  | "autoCapitalize"
+export type PasswordBoxProps<D extends Schema.DataItem<Schema.$String>> = Overwrite<
+  InputWrapProps,
+  {
+    $: D;
+    placeholder?: string;
+    ref?: RefObject<InputRef | null>;
+  } & Pick<InputHTMLAttributes<HTMLInputElement>,
+    | "autoComplete"
+    | "autoCapitalize"
+  >
 >;
 
 export function PasswordBox<D extends Schema.DataItem<Schema.$String>>({

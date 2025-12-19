@@ -1,9 +1,11 @@
 import { useImperativeHandle, useMemo, useRef, useState, type ChangeEvent, type RefObject } from "react";
 import { useSchemaItem } from "~/components/react/hooks/schema";
 import { parseTypedDateString } from "~/components/schema/date";
+import { getValidationValue } from "~/components/schema/utilities";
 import { DateBox$, type DateBox$Ref } from ".";
-import { getValidationValue, WithMessage, type InputRef, type InputWrapProps } from "../common";
-import { useSource } from "../utilities";
+import { useSource } from "../../../hooks/data-item-source";
+import { type InputRef, type InputWrapProps } from "../common";
+import { WithMessage } from "../message";
 
 type DateBoxSchemaProps = Schema.$Date | Schema.$Month | Schema.$DateTime;
 
@@ -17,6 +19,8 @@ export type DateBoxProps<D extends Schema.DataItem<DateBoxSchemaProps>> = InputW
 };
 
 export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
+  className,
+  style,
   placeholder,
   autoFocus,
   source: propsSource,
@@ -118,6 +122,8 @@ export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
       result={result}
     >
       <DateBox$
+        className={className}
+        style={style}
         ref={ref}
         state={state}
         bindMode="dom"

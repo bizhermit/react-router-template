@@ -1,6 +1,9 @@
 import { useImperativeHandle, useRef, type InputHTMLAttributes, type RefObject } from "react";
 import { clsx, getColorClassName } from "../../utilities";
-import { InputDummyFocus, InputLabel, InputLabelText, type InputLabelProps, type InputRef } from "../common";
+import { type InputRef } from "../common";
+import { InputDummyFocus } from "../dummy-focus";
+import { InputLabelText } from "../input-label-text";
+import { InputLabelWrapper, type InputLabelWrapperProps } from "../wrapper/input-label";
 
 export interface RadioButton$Ref extends InputRef {
   inputElement: HTMLInputElement;
@@ -11,13 +14,16 @@ export type RadioButtonAppearance =
   | "button"
   ;
 
-export type RadioButton$Props = Overwrite<InputLabelProps, {
-  ref?: RefObject<InputRef | null>;
-  inputProps?: InputHTMLAttributes<HTMLInputElement>;
-  appearance?: RadioButtonAppearance;
-  color?: StyleColor;
-  omitDummy?: boolean;
-}>;
+export type RadioButton$Props = Overwrite<
+  InputLabelWrapperProps,
+  {
+    ref?: RefObject<InputRef | null>;
+    inputProps?: InputHTMLAttributes<HTMLInputElement>;
+    appearance?: RadioButtonAppearance;
+    color?: StyleColor;
+    omitDummy?: boolean;
+  }
+>;
 
 export function RadioButton$({
   ref,
@@ -43,7 +49,7 @@ export function RadioButton$({
   } as const satisfies RadioButton$Ref));
 
   return (
-    <InputLabel
+    <InputLabelWrapper
       {...props}
       className={
         appearance === "button" ?
@@ -90,6 +96,6 @@ export function RadioButton$({
           ref={dref}
         />
       }
-    </InputLabel>
+    </InputLabelWrapper>
   );
 };
