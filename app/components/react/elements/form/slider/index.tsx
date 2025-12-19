@@ -61,6 +61,7 @@ export function Slider$({
   };
 
   function handleClickOption(v: number | null | undefined) {
+    if (state.current !== "enabled") return;
     if (setterRef.current == null) {
       setterRef.current = createSetter();
     }
