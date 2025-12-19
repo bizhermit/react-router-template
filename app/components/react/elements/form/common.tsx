@@ -15,14 +15,6 @@ export type InputWrapProps = {
   omitOnSubmit?: boolean;
 };
 
-type CoreProps = {
-  core?: {
-    className?: string;
-    state?: RefObject<Schema.Mode>;
-    result?: Schema.Result | null | undefined;
-  };
-};
-
 export interface WithMessage {
   hide?: boolean;
   state: Schema.Mode;
@@ -85,58 +77,6 @@ export function InputField({
       </fieldset>
       {children}
     </div>
-  );
-};
-
-type OldInputFieldProps =
-  & HTMLAttributes<HTMLDivElement>
-  & InputWrapProps
-  & CoreProps;
-
-export function OldInputField({
-  className,
-  hideMessage,
-  core,
-  children,
-  ...props
-}: OldInputFieldProps) {
-  if (core?.state?.current === "hidden") return null;
-
-  return (
-    <>
-      <div
-        {...props}
-        className={clsx(
-          "_ipt _ipt-field",
-          core?.className,
-          className,
-        )}
-      >
-        <fieldset
-          aria-hidden
-          className={clsx(
-            "_ipt-field-appearance",
-            core?.state?.current === "disabled" ?
-              "_ipt-field-disabled" :
-              core?.state?.current === "readonly" ?
-                "_ipt-field-readonly" :
-                "_ipt-field-enabled",
-          )}
-        >
-          <legend>
-            {ZERO_WIDTH_SPACE}
-          </legend>
-        </fieldset>
-        {children}
-      </div>
-      {
-        !hideMessage &&
-        core?.state?.current === "enabled" &&
-        <InputMessageSpan
-          result={core.result}
-        />
-      }
-    </>
   );
 };
 
