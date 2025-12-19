@@ -15,7 +15,7 @@ import { Carousel, useCarousel, type CarouselOptions } from "~/components/react/
 import { Details } from "~/components/react/elements/details";
 import { useDialog } from "~/components/react/elements/dialog";
 import { CheckBox } from "~/components/react/elements/form/check-box/check-box";
-import { CheckList } from "~/components/react/elements/form/check-list";
+import { CheckList } from "~/components/react/elements/form/check-box/check-list";
 import { FormItem } from "~/components/react/elements/form/common";
 import { DateBox$ } from "~/components/react/elements/form/date-box";
 import { DateBox } from "~/components/react/elements/form/date-box/date-box";
@@ -30,6 +30,7 @@ import { PasswordBox } from "~/components/react/elements/form/password-box/passw
 import { RadioButtons } from "~/components/react/elements/form/radio-buttons";
 import { SelectBox$, SelectBoxEmptyOption } from "~/components/react/elements/form/select-box";
 import { SelectBox } from "~/components/react/elements/form/select-box/select-box";
+import { Slider$ } from "~/components/react/elements/form/slider";
 import { Slider } from "~/components/react/elements/form/slider/slider";
 import { SwitchBox } from "~/components/react/elements/form/switch-box";
 import { TextArea$ } from "~/components/react/elements/form/text-area";
@@ -714,6 +715,7 @@ function Component2() {
         />
       </FormItem>
       <FormItem>
+        <Slider$ showValueText />
         <Slider
           $={dataItems.range}
           omitOnSubmit

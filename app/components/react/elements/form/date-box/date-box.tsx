@@ -119,6 +119,7 @@ export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
     >
       <DateBox$
         ref={ref}
+        state={state}
         bindMode="dom"
         inputProps={{
           type: type === "datetime" ? "datetime-local" : type,

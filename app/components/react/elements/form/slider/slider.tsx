@@ -82,8 +82,6 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
     setValue(e.currentTarget.value as `${number}`);
   };
 
-  const dataListId = source == null ? undefined : `${name}_dl`;
-
   useImperativeHandle($props.ref, () => ref.current);
 
   return (
@@ -94,10 +92,11 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
     >
       <Slider$
         ref={ref}
+        state={state}
         color={color}
         showValueText
-        dataList={dataListId && source ? {
-          id: dataListId,
+        dataList={source ? {
+          id: `${name}_dl`,
           source,
         } : undefined}
         inputProps={{

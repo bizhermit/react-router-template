@@ -94,6 +94,7 @@ export function TextArea<D extends Schema.DataItem<Schema.$String>>({
     >
       <TextArea$
         ref={ref}
+        state={state}
         resize={resize}
         minRows={minRows}
         maxRows={maxRows}

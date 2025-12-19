@@ -94,6 +94,7 @@ export function FileBox<D extends Schema.DataItem<Schema.$File>>({
       >
         <FileBox$
           ref={ref}
+          state={state}
           inputProps={{
             name: omitOnSubmit ? undefined : name,
             title: validScripts ?
