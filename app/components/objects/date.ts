@@ -24,7 +24,9 @@ export type TimeZone =
   ;
 
 const TIME_ZONE_OFFSET = {
+  // eslint-disable-next-line @stylistic/quote-props
   "Z": 0,
+  // eslint-disable-next-line @stylistic/quote-props
   "UTC": 0,
   "Asia/Tokyo": -540,
   "America/Los_Angeles": 480,

@@ -52,7 +52,7 @@ files.forEach(file => {
   }
 });
 
-let output = `// This file is auto-generated. Do not edit manually.\n\n`;
+let output = `/* eslint-disable @stylistic/quote-props */\n// This file is auto-generated. Do not edit manually.\n\n`;
 output += `interface I18N_Texts {\n`;
 for (const key in map) {
   const replaceKeys = Array.from(new Set(map[key]));

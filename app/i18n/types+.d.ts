@@ -1,3 +1,4 @@
+/* eslint-disable @stylistic/quote-props */
 // This file is auto-generated. Do not edit manually.
 
 interface I18N_Texts {
