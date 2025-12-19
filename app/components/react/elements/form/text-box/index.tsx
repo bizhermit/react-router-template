@@ -23,13 +23,11 @@ export function TextBox$({
   const wref = useRef<HTMLDivElement>(null!);
   const iref = useRef<HTMLInputElement>(null!);
 
-  useImperativeHandle(ref, () => {
-    return {
-      element: wref.current,
-      inputElement: iref.current,
-      focus: () => iref.current.focus(),
-    };
-  });
+  useImperativeHandle(ref, () => ({
+    element: wref.current,
+    inputElement: iref.current,
+    focus: () => iref.current.focus(),
+  } as const satisfies TextBox$Ref));
 
   return (
     <InputField

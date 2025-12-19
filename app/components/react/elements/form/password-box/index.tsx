@@ -36,7 +36,7 @@ export function PasswordBox$({
     element: wref.current,
     inputElement: iref.current,
     focus: () => iref.current.focus(),
-  }));
+  } as const satisfies PasswordBox$Ref));
 
   return (
     <InputField

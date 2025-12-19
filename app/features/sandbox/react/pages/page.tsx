@@ -17,7 +17,8 @@ import { useDialog } from "~/components/react/elements/dialog";
 import { CheckBox } from "~/components/react/elements/form/check-box";
 import { CheckList } from "~/components/react/elements/form/check-list";
 import { FormItem } from "~/components/react/elements/form/common";
-import { DateBox } from "~/components/react/elements/form/date-box";
+import { DateBox$ } from "~/components/react/elements/form/date-box";
+import { DateBox } from "~/components/react/elements/form/date-box/date-box";
 import { DateSelectBox } from "~/components/react/elements/form/date-select-box";
 import { FieldSet } from "~/components/react/elements/form/fieldset";
 import { FileBox } from "~/components/react/elements/form/file-box";
@@ -661,6 +662,7 @@ function Component2() {
         />
       </FormItem>
       <FormItem>
+        <DateBox$ />
         <DateBox
           $={dataItems.date}
         />

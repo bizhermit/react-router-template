@@ -43,13 +43,15 @@
   }
 
   ._ipt-date {
-    &[data-hasvalue="false"]:not(:focus) {
-      color: var(--color-placeholder);
-    }
+    &:not([value]) {
+      &[data-hasvalue="false"]:not(:focus) {
+        color: var(--color-placeholder);
+      }
 
-    &:disabled[aria-disabled="true"] {
-      &[data-hasvalue="false"] {
-        color: transparent;
+      &:disabled[aria-disabled="true"] {
+        &[data-hasvalue="false"] {
+          color: transparent;
+        }
       }
     }
   }

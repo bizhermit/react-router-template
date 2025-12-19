@@ -230,7 +230,7 @@ export function NumberBox$({
     format,
     parse,
     isComposing: () => isComposing.current,
-  }));
+  } as const satisfies NumberBox$Ref));
 
   return (
     <InputField

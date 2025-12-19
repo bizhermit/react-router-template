@@ -33,7 +33,7 @@ export function SelectBox$({
     element: wref.current,
     selectElement: sref.current,
     focus: () => (dummyRef.current ?? sref.current)?.focus(),
-  }));
+  } as const satisfies SelectBox$Ref));
 
   return (
     <InputField
