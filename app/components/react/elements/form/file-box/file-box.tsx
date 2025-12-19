@@ -1,14 +1,15 @@
-import { useEffect, useRef, useState, type ChangeEvent, type DragEvent, type KeyboardEvent, type MouseEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ChangeEvent, type MouseEvent, type ReactNode, type RefObject } from "react";
 import { convertBase64ToFile } from "~/components/objects/file";
 import { useSchemaItem } from "~/components/react/hooks/schema";
-import { clsx } from "../utilities";
-import { getValidationValue, OldInputField, Placeholder, type InputWrapProps } from "./common";
-import type { FormItemHookProps } from "./hooks";
+import { FileBox$, type FileBox$Ref } from ".";
+import { getValidationValue, WithMessage, type InputRef, type InputWrapProps } from "../common";
+
+export interface FileBoxRef extends FileBox$Ref { };
 
 export type FileBoxProps<D extends Schema.DataItem<Schema.$File>> = InputWrapProps & {
   $: D;
   placeholder?: ReactNode;
-  hook?: FormItemHookProps;
+  ref?: RefObject<InputRef | null>;
 } & (
     | {
       viewMode?: "link";
@@ -20,17 +21,14 @@ export type FileBoxProps<D extends Schema.DataItem<Schema.$File>> = InputWrapPro
     }
   );
 
-const draggingClassName = ["bg-sky-500", "dark:bg-sky-900"];
-
 export function FileBox<D extends Schema.DataItem<Schema.$File>>({
   placeholder,
   viewMode,
   onViewClick,
   autoFocus,
-  hook,
   ...$props
 }: FileBoxProps<D>) {
-  const ref = useRef<HTMLInputElement>(null!);
+  const ref = useRef<FileBox$Ref>(null!);
 
   const {
     name,
@@ -43,15 +41,15 @@ export function FileBox<D extends Schema.DataItem<Schema.$File>>({
     label,
     invalid,
     errormessage,
-    validScripts,
     getCommonParams,
     omitOnSubmit,
-    props,
+    hideMessage,
+    validScripts,
   } = useSchemaItem<Schema.DataItem<Schema.$File>>($props, {
     effect: function ({ value }) {
       if (!ref.current) return;
       if (value == null) {
-        ref.current.value = "";
+        ref.current.inputElement.value = "";
         return;
       }
       if (typeof value === "string") {
@@ -59,8 +57,8 @@ export function FileBox<D extends Schema.DataItem<Schema.$File>>({
       }
       const dt = new DataTransfer();
       dt.items.add(value);
-      ref.current.value = "";
-      ref.current.files = dt.files;
+      ref.current.inputElement.value = "";
+      ref.current.inputElement.files = dt.files;
     },
     effectContext: function () {
       setAccept(getAccept);
@@ -85,89 +83,37 @@ export function FileBox<D extends Schema.DataItem<Schema.$File>>({
     setValue(e.target.files?.[0]);
   };
 
-  function handleDragEnter(e: DragEvent<HTMLInputElement>) {
-    if (state.current !== "enabled") return;
-    e.currentTarget.parentElement?.classList.add(...draggingClassName);
-  };
-
-  function handleDragLeave(e: DragEvent<HTMLInputElement>) {
-    if (state.current !== "enabled") return;
-    e.currentTarget.parentElement?.classList.remove(...draggingClassName);
-  };
-
-  function handleDrop(e: DragEvent<HTMLInputElement>) {
-    if (state.current !== "enabled") {
-      e.preventDefault();
-      return;
-    }
-    e.currentTarget.parentElement?.classList.remove(...draggingClassName);
-  };
-
-  function handleClick(e: MouseEvent<HTMLInputElement>) {
-    if (state.current !== "enabled") e.preventDefault();
-  };
-
-  function handleKeydown(e: KeyboardEvent<HTMLInputElement>) {
-    if (state.current !== "enabled") {
-      if (e.key === "Enter" || e.key === " ") e.preventDefault();
-      return;
-    }
-  }
-
   const valueType = typeof value === "string" ? "url" : value == null ? undefined : "file";
-
-  if (hook) {
-    hook.focus = () => ref.current.focus();
-  }
 
   return (
     <>
-      <OldInputField
-        {...props}
-        core={{
-          state,
-          result,
-        }}
+      <WithMessage
+        hide={hideMessage}
+        state={state.current}
+        result={result}
       >
-        <input
-          className={clsx(
-            "_ipt-file",
-            state.current === "enabled" && "cursor-pointer",
-            validScripts && placeholder && "absolute opacity-0",
-          )}
+        <FileBox$
           ref={ref}
-          type="file"
-          name={omitOnSubmit ? undefined : name}
-          title={validScripts ? (valueType === "url" ? (value as string) : undefined) : undefined}
-          disabled={state.current === "disabled"}
-          aria-disabled={state.current === "disabled"}
-          aria-readonly={state.current === "readonly"}
-          required={required}
-          aria-required={validScripts ? (required && valueType !== "url") : required}
-          accept={accept}
-          max={maxSize}
-          onChange={handleChange}
-          onDragEnter={handleDragEnter}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-          onClick={handleClick}
-          onKeyDown={handleKeydown}
-          aria-label={label}
-          aria-invalid={invalid}
-          aria-errormessage={errormessage}
-          autoFocus={autoFocus}
+          inputProps={{
+            name: omitOnSubmit ? undefined : name,
+            title: validScripts ?
+              (valueType === "url" ? (value as string) : undefined) :
+              undefined,
+            placeholder,
+            required,
+            "aria-required": validScripts ?
+              (required && valueType !== "url") :
+              required,
+            accept,
+            max: maxSize,
+            "aria-label": label,
+            "aria-invalid": invalid,
+            "aria-errormessage": errormessage,
+            autoFocus,
+            onChange: handleChange,
+          }}
         />
-        {
-          validScripts && placeholder &&
-          <Placeholder
-            className="relative pr-input-pad-x"
-            state={state}
-            validScripts={validScripts}
-          >
-            {placeholder}
-          </Placeholder>
-        }
-      </OldInputField>
+      </WithMessage>
       {
         value && (
           viewMode === "link"

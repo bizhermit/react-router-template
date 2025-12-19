@@ -21,7 +21,8 @@ import { DateBox$ } from "~/components/react/elements/form/date-box";
 import { DateBox } from "~/components/react/elements/form/date-box/date-box";
 import { DateSelectBox } from "~/components/react/elements/form/date-box/date-select-box";
 import { FieldSet } from "~/components/react/elements/form/fieldset";
-import { FileBox } from "~/components/react/elements/form/file-box";
+import { FileBox$ } from "~/components/react/elements/form/file-box";
+import { FileBox } from "~/components/react/elements/form/file-box/file-box";
 import { NumberBox$ } from "~/components/react/elements/form/number-box";
 import { NumberBox } from "~/components/react/elements/form/number-box/number-box";
 import { PasswordBox$ } from "~/components/react/elements/form/password-box";
@@ -698,6 +699,7 @@ function Component2() {
         />
       </FormItem>
       <FormItem>
+        <FileBox$ inputProps={{ placeholder: "ファイルを選択してください。" }} />
         <FileBox
           $={dataItems.file}
           placeholder="ファイルを選択してください。"
