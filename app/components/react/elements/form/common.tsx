@@ -3,7 +3,7 @@ import { clsx, ZERO_WIDTH_SPACE } from "../utilities";
 import { InputMessageSpan } from "./message";
 
 export interface InputRef {
-  element: HTMLDivElement;
+  element: HTMLElement;
   focus: () => void;
 };
 
@@ -165,7 +165,7 @@ export function InputGroup({
   );
 };
 
-type InputLabelProps = Overwrite<LabelHTMLAttributes<HTMLLabelElement>, {
+export type InputLabelProps = Overwrite<LabelHTMLAttributes<HTMLLabelElement>, {
   ref?: RefObject<HTMLLabelElement>;
   state?: RefObject<Schema.Mode>;
 }>;

@@ -1,0 +1,120 @@
+import { useImperativeHandle, useRef, useState, type ChangeEvent, type RefObject } from "react";
+import { useSchemaItem } from "~/components/react/hooks/schema";
+import { Slider$, type Slider$Ref } from ".";
+import { getValidationValue, WithMessage, type InputRef, type InputWrapProps } from "../common";
+import { useSource } from "../utilities";
+
+export interface SliderRef extends Slider$Ref { };
+
+export type SliderProps<D extends Schema.DataItem<Schema.$Number>> = InputWrapProps & {
+  $: D;
+  color?: StyleColor;
+  source?: Schema.Source<Schema.ValueType<D["_"]>>;
+  step?: number;
+  showValueText?: boolean;
+  hideScales?: boolean;
+  ref?: RefObject<InputRef | null>;
+};
+
+const DEFAULT_MIN = 0;
+const DEFAULT_MAX = 100;
+
+export function Slider<D extends Schema.DataItem<Schema.$Number>>({
+  color,
+  source: propsSource,
+  step,
+  showValueText,
+  hideScales,
+  autoFocus,
+  ...$props
+}: SliderProps<D>) {
+  const ref = useRef<Slider$Ref>(null!);
+
+  const {
+    name,
+    dataItem,
+    state,
+    required,
+    value,
+    setValue,
+    result,
+    label,
+    invalid,
+    errormessage,
+    getCommonParams,
+    env,
+    omitOnSubmit,
+    hideMessage,
+  } = useSchemaItem<Schema.DataItem<Schema.$Number>>($props, {
+    effect: function ({ value }) {
+      if (!ref.current) return;
+      const v = value == null ? "" : String(value);
+      if (ref.current.inputElement.value !== v) ref.current.inputElement.value = v;
+    },
+    effectContext: function () {
+      setMin(getMin);
+      setMax(getMax);
+      resetDataItemSource();
+    },
+  });
+
+  function getMin() {
+    return getValidationValue(getCommonParams(), dataItem._.min) ?? DEFAULT_MIN;
+  };
+
+  const [min, setMin] = useState(getMin);
+
+  function getMax() {
+    return getValidationValue(getCommonParams(), dataItem._.max) ?? DEFAULT_MAX;
+  };
+
+  const [max, setMax] = useState(getMax);
+
+  const { source, resetDataItemSource } = useSource({
+    dataItem,
+    propsSource,
+    env,
+    getCommonParams,
+  });
+
+  function handleChange(e: ChangeEvent<HTMLInputElement>) {
+    if (state.current !== "enabled") return;
+    setValue(e.currentTarget.value as `${number}`);
+  };
+
+  const dataListId = source == null ? undefined : `${name}_dl`;
+
+  useImperativeHandle($props.ref, () => ref.current);
+
+  return (
+    <WithMessage
+      hide={hideMessage}
+      state={state.current}
+      result={result}
+    >
+      <Slider$
+        ref={ref}
+        color={color}
+        showValueText
+        dataList={dataListId && source ? {
+          id: dataListId,
+          source,
+        } : undefined}
+        inputProps={{
+          name: omitOnSubmit ? undefined : name,
+          required,
+          min,
+          max,
+          step,
+          value,
+          onChange: handleChange,
+          "aria-label": label,
+          "aria-invalid": invalid,
+          "aria-errormessage": errormessage,
+          title: value == null ? undefined : String(value),
+          autoFocus,
+        }}
+      />
+    </WithMessage>
+  );
+};

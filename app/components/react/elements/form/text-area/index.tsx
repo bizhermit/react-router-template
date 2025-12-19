@@ -89,7 +89,7 @@ export function TextArea$({
     if (textAreaProps?.rows == null) return DEFAULT_ROWS;
     if (textAreaProps?.rows === "fit") {
       if (minRows != null) return minRows;
-      return DEFAULT_ROWS;
+      return 1;
     }
     return textAreaProps?.rows;
   })();

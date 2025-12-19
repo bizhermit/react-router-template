@@ -30,7 +30,7 @@ import { PasswordBox } from "~/components/react/elements/form/password-box/passw
 import { RadioButtons } from "~/components/react/elements/form/radio-buttons";
 import { SelectBox$, SelectBoxEmptyOption } from "~/components/react/elements/form/select-box";
 import { SelectBox } from "~/components/react/elements/form/select-box/select-box";
-import { Slider } from "~/components/react/elements/form/slider";
+import { Slider } from "~/components/react/elements/form/slider/slider";
 import { SwitchBox } from "~/components/react/elements/form/switch-box";
 import { TextArea$ } from "~/components/react/elements/form/text-area";
 import { TextArea } from "~/components/react/elements/form/text-area/text-area";
