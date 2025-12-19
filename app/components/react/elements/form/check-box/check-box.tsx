@@ -62,6 +62,7 @@ export function CheckBox<D extends Schema.DataItem<Schema.$Boolean>>({
         ref={ref}
         color={color}
         appearance={appearance}
+        state={state}
         inputProps={{
           name: omitOnSubmit ? undefined : name,
           required,

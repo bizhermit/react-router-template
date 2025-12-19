@@ -30,13 +30,14 @@ export function CheckBox$({
 }: CheckBox$Props) {
   const wref = useRef<HTMLLabelElement>(null!);
   const iref = useRef<HTMLInputElement>(null!);
+  const dref = useRef<HTMLDivElement>(null!);
 
   const colorClassName = getColorClassName(color);
 
   useImperativeHandle(ref, () => ({
     element: wref.current,
     inputElement: iref.current,
-    focus: () => iref.current.focus(),
+    focus: () => (dref.current ?? iref.current).focus(),
   } as const satisfies CheckBox$Ref));
 
   return (
@@ -88,7 +89,9 @@ export function CheckBox$({
             name={inputProps.name}
             value={inputProps.value as string || undefined}
           />
-          <InputDummyFocus />
+          <InputDummyFocus
+            ref={dref}
+          />
         </>
       }
     </InputLabel>
