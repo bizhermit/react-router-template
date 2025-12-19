@@ -1,4 +1,4 @@
-import type { CSSProperties, HTMLAttributes, ReactNode, RefObject } from "react";
+import type { CSSProperties, HTMLAttributes, LabelHTMLAttributes, ReactNode, RefObject } from "react";
 import { clsx, ZERO_WIDTH_SPACE } from "../utilities";
 import { InputMessageSpan } from "./message";
 
@@ -65,6 +65,7 @@ export function InputField({
   ...props
 }: InputFieldProps) {
   if (state?.current === "hidden") return null;
+
   return (
     <div
       {...props}
@@ -164,37 +165,27 @@ export function InputGroup({
   );
 };
 
-type InputLabelProps =
-  & HTMLAttributes<HTMLLabelElement>
-  & InputWrapProps
-  & CoreProps;
+type InputLabelProps = Overwrite<LabelHTMLAttributes<HTMLLabelElement>, {
+  ref?: RefObject<HTMLLabelElement>;
+  state?: RefObject<Schema.Mode>;
+}>;
 
 export function InputLabel({
   className,
-  hideMessage,
-  core,
+  ref,
+  state,
   ...props
 }: InputLabelProps) {
-  if (core?.state?.current === "hidden") return null;
+  if (state?.current === "hidden") return null;
 
   return (
-    <>
-      <label
-        {...props}
-        className={clsx(
-          "_ipt-label",
-          core?.className,
-          className,
-        )}
-      />
-      {
-        !hideMessage &&
-        core?.state?.current === "enabled" &&
-        <InputMessageSpan
-          result={core.result}
-        />
-      }
-    </>
+    <label
+      {...props}
+      className={clsx(
+        "_ipt-label",
+        className,
+      )}
+    />
   );
 };
 

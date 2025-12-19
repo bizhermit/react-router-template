@@ -1,7 +1,7 @@
 import { useRef, useState, type ChangeEvent, type CSSProperties } from "react";
 import { useSchemaItem } from "~/components/react/hooks/schema";
 import { clsx, getColorClassName } from "../utilities";
-import { getValidationValue, InputDummyFocus, InputLabel, type InputWrapProps } from "./common";
+import { getValidationValue, InputDummyFocus, InputLabel, WithMessage, type InputWrapProps } from "./common";
 import type { FormItemHookProps } from "./hooks";
 import { useSource } from "./utilities";
 
@@ -46,6 +46,7 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
     getCommonParams,
     env,
     omitOnSubmit,
+    hideMessage,
     validScripts,
     props,
   } = useSchemaItem<Schema.DataItem<Schema.$Number>>($props, {
@@ -102,103 +103,107 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
   }
 
   return (
-    <InputLabel
-      {...props}
-      core={{
-        state,
-        result,
-        className: "_ipt-slider-wrap",
-      }}
+    <WithMessage
+      hide={hideMessage}
+      state={state.current}
+      result={result}
     >
-      <input
-        className={clsx(
-          "_ipt-slider",
-          getColorClassName(color),
-        )}
-        style={validScripts ? {
-          "--rate": `${getRate(value)}%`,
-        } as CSSProperties : undefined}
-        ref={ref}
-        type="range"
-        name={omitOnSubmit ? undefined : name}
-        disabled={state.current !== "enabled"}
-        aria-disabled={state.current === "disabled"}
-        aria-readonly={state.current === "readonly"}
-        required={required}
-        min={min}
-        max={max}
-        step={$step}
-        value={value == null ? "" : String(value)}
-        onChange={handleChange}
-        aria-label={label}
-        aria-invalid={invalid}
-        aria-errormessage={errormessage}
-        list={dataListId}
-        title={value == null ? undefined : String(value)}
-        autoFocus={autoFocus}
-      />
-      {
-        showValueText &&
-        value != null &&
-        <span
-          className="_ipt-slider-label"
-        >
-          {value}
-        </span>
-      }
-      {
-        state.current === "readonly" &&
-        <>
-          <input
-            type="hidden"
-            name={name}
-            value={value == null ? "" : String(value)}
-          />
-          <InputDummyFocus
-            ref={dummyRef}
-          />
-        </>
-      }
-      {
-        source &&
-        <>
-          <datalist id={dataListId}>
-            {source.map(item => {
-              return (
-                <option
-                  key={item.value}
-                  value={item.value ?? ""}
-                >
-                  {item.text}
-                </option>
-              );
-            })}
-          </datalist>
-          {
-            !hideScales &&
-            <ul
-              className="_ipt-slider-scales"
-            >
+
+      <InputLabel
+        {...props}
+        state={state}
+        className="_ipt-slider-wrap"
+      >
+        <input
+          className={clsx(
+            "_ipt-slider",
+            getColorClassName(color),
+          )}
+          style={validScripts ? {
+            "--rate": `${getRate(value)}%`,
+          } as CSSProperties : undefined}
+          ref={ref}
+          type="range"
+          name={omitOnSubmit ? undefined : name}
+          disabled={state.current !== "enabled"}
+          aria-disabled={state.current === "disabled"}
+          aria-readonly={state.current === "readonly"}
+          required={required}
+          min={min}
+          max={max}
+          step={$step}
+          value={value == null ? "" : String(value)}
+          onChange={handleChange}
+          aria-label={label}
+          aria-invalid={invalid}
+          aria-errormessage={errormessage}
+          list={dataListId}
+          title={value == null ? undefined : String(value)}
+          autoFocus={autoFocus}
+        />
+        {
+          showValueText &&
+          value != null &&
+          <span
+            className="_ipt-slider-label"
+          >
+            {value}
+          </span>
+        }
+        {
+          state.current === "readonly" &&
+          <>
+            <input
+              type="hidden"
+              name={name}
+              value={value == null ? "" : String(value)}
+            />
+            <InputDummyFocus
+              ref={dummyRef}
+            />
+          </>
+        }
+        {
+          source &&
+          <>
+            <datalist id={dataListId}>
               {source.map(item => {
                 return (
-                  <li
+                  <option
                     key={item.value}
-                    className="_ipt-slider-tick"
-                    style={{
-                      "--rate": `${getRate(item.value)}%`,
-                    } as CSSProperties}
-                    onClick={() => {
-                      handleClickOption(item.value);
-                    }}
+                    value={item.value ?? ""}
                   >
                     {item.text}
-                  </li>
+                  </option>
                 );
               })}
-            </ul>
-          }
-        </>
-      }
-    </InputLabel>
+            </datalist>
+            {
+              !hideScales &&
+              <ul
+                className="_ipt-slider-scales"
+              >
+                {source.map(item => {
+                  return (
+                    <li
+                      key={item.value}
+                      className="_ipt-slider-tick"
+                      style={{
+                        "--rate": `${getRate(item.value)}%`,
+                      } as CSSProperties}
+                      onClick={() => {
+                        handleClickOption(item.value);
+                      }}
+                    >
+                      {item.text}
+                    </li>
+                  );
+                })}
+              </ul>
+            }
+          </>
+        }
+      </InputLabel>
+    </WithMessage>
   );
 };

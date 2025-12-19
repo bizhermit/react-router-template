@@ -114,9 +114,7 @@ export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemS
           return (
             <InputLabel
               key={key}
-              core={{
-                className: labelClassName,
-              }}
+              className={labelClassName}
             >
               <input
                 className={checkBoxClassName}
