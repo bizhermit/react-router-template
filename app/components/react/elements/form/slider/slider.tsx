@@ -16,9 +16,6 @@ export type SliderProps<D extends Schema.DataItem<Schema.$Number>> = InputWrapPr
   ref?: RefObject<InputRef | null>;
 };
 
-const DEFAULT_MIN = 0;
-const DEFAULT_MAX = 100;
-
 export function Slider<D extends Schema.DataItem<Schema.$Number>>({
   color,
   source: propsSource,
@@ -59,13 +56,13 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
   });
 
   function getMin() {
-    return getValidationValue(getCommonParams(), dataItem._.min) ?? DEFAULT_MIN;
+    return getValidationValue(getCommonParams(), dataItem._.min);
   };
 
   const [min, setMin] = useState(getMin);
 
   function getMax() {
-    return getValidationValue(getCommonParams(), dataItem._.max) ?? DEFAULT_MAX;
+    return getValidationValue(getCommonParams(), dataItem._.max);
   };
 
   const [max, setMax] = useState(getMax);
