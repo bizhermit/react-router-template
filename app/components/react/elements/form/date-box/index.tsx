@@ -67,6 +67,7 @@ export function DateBox$({
         className={clsx(
           "_ipt-box",
           validScripts && "_ipt-date",
+          inputProps?.className,
         )}
         ref={iref}
         type={type}

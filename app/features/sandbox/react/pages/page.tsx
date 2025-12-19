@@ -14,7 +14,7 @@ import { LinkButton } from "~/components/react/elements/button/link-button";
 import { Carousel, useCarousel, type CarouselOptions } from "~/components/react/elements/carousel";
 import { Details } from "~/components/react/elements/details";
 import { useDialog } from "~/components/react/elements/dialog";
-import { CheckBox } from "~/components/react/elements/form/check-box";
+import { CheckBox } from "~/components/react/elements/form/check-box/check-box";
 import { CheckList } from "~/components/react/elements/form/check-list";
 import { FormItem } from "~/components/react/elements/form/common";
 import { DateBox$ } from "~/components/react/elements/form/date-box";

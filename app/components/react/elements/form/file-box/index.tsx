@@ -85,6 +85,7 @@ export function FileBox$({
           "_ipt-file",
           state.current === "enabled" && "cursor-pointer",
           validScripts && inputProps?.placeholder && "absolute opacity-0",
+          inputProps?.className
         )}
         ref={iref}
         type="file"
