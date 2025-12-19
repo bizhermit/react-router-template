@@ -1,8 +1,7 @@
-import { useImperativeHandle, useRef, useState, type ChangeEvent, type RefObject } from "react";
+import { useImperativeHandle, useRef, useState, type ChangeEvent } from "react";
 import { useSchemaItem } from "~/components/react/hooks/schema";
 import { getValidationValue } from "~/components/schema/utilities";
 import { TextArea$, type TextArea$Ref } from ".";
-import { type InputRef, type InputWrapProps } from "../common";
 import { WithMessage } from "../message";
 
 type Resize = "none" | "vertical" | "horizontal" | "both";
@@ -10,13 +9,11 @@ type Resize = "none" | "vertical" | "horizontal" | "both";
 export interface TextAreaRef extends TextArea$Ref { };
 
 export type TextAreaProps<D extends Schema.DataItem<Schema.$String>> = Overwrite<
-  InputWrapProps,
+  InputPropsWithDataItem<D>,
   {
-    $: D;
     placeholder?: string;
     cols?: number;
     resize?: Resize;
-    ref?: RefObject<InputRef | null>;
   } & ({
     rows?: number;
     minRows?: undefined;

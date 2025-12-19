@@ -1,6 +1,5 @@
 import { useImperativeHandle, useRef, type InputHTMLAttributes, type ReactNode, type RefObject } from "react";
 import { clsx } from "../../utilities";
-import { type InputRef } from "../common";
 import { InputFieldWrapper, type InputFieldWrapperProps } from "../wrapper/input-field";
 
 export interface TextBox$Ref extends InputRef {

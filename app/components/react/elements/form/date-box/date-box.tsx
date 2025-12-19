@@ -1,22 +1,22 @@
-import { useImperativeHandle, useMemo, useRef, useState, type ChangeEvent, type RefObject } from "react";
+import { useImperativeHandle, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { useSchemaItem } from "~/components/react/hooks/schema";
 import { parseTypedDateString } from "~/components/schema/date";
 import { getValidationValue } from "~/components/schema/utilities";
 import { DateBox$, type DateBox$Ref } from ".";
 import { useSource } from "../../../hooks/data-item-source";
-import { type InputRef, type InputWrapProps } from "../common";
 import { WithMessage } from "../message";
 
 type DateBoxSchemaProps = Schema.$Date | Schema.$Month | Schema.$DateTime;
 
 export interface DateBoxRef extends DateBox$Ref { };
 
-export type DateBoxProps<D extends Schema.DataItem<DateBoxSchemaProps>> = InputWrapProps & {
-  $: D;
-  source?: Schema.Source<Schema.ValueType<D["_"]>>;
-  placeholder?: string;
-  ref?: RefObject<InputRef | null>;
-};
+export type DateBoxProps<D extends Schema.DataItem<DateBoxSchemaProps>> = Overwrite<
+  InputPropsWithDataItem<D>,
+  {
+    source?: Schema.Source<Schema.ValueType<D["_"]>>;
+    placeholder?: string;
+  }
+>;
 
 export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
   className,

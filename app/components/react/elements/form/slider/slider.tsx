@@ -1,23 +1,20 @@
-import { useImperativeHandle, useRef, useState, type ChangeEvent, type RefObject } from "react";
+import { useImperativeHandle, useRef, useState, type ChangeEvent } from "react";
 import { useSchemaItem } from "~/components/react/hooks/schema";
 import { getValidationValue } from "~/components/schema/utilities";
 import { Slider$, type Slider$Ref } from ".";
 import { useSource } from "../../../hooks/data-item-source";
-import { type InputRef, type InputWrapProps } from "../common";
 import { WithMessage } from "../message";
 
 export interface SliderRef extends Slider$Ref { };
 
 export type SliderProps<D extends Schema.DataItem<Schema.$Number>> = Overwrite<
-  InputWrapProps,
+  InputPropsWithDataItem<D>,
   {
-    $: D;
     color?: StyleColor;
     source?: Schema.Source<Schema.ValueType<D["_"]>>;
     step?: number;
     showValueText?: boolean;
     hideScales?: boolean;
-    ref?: RefObject<InputRef | null>;
   }
 >;
 
@@ -53,7 +50,9 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
     effect: function ({ value }) {
       if (!ref.current) return;
       const v = value == null ? "" : String(value);
-      if (ref.current.inputElement.value !== v) ref.current.inputElement.value = v;
+      if (ref.current.inputElement.value !== v) {
+        ref.current.inputElement.value = v;
+      }
     },
     effectContext: function () {
       setMin(getMin);

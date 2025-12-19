@@ -1,6 +1,5 @@
 import { useImperativeHandle, useRef, type InputHTMLAttributes, type RefObject } from "react";
 import { clsx, getColorClassName } from "../../utilities";
-import { type InputRef } from "../common";
 import { InputDummyFocus } from "../dummy-focus";
 import { InputLabelText } from "../input-label-text";
 import { InputLabelWrapper, type InputLabelWrapperProps } from "../wrapper/input-label";

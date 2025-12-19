@@ -2,7 +2,6 @@ import { use, useImperativeHandle, useRef, useState, type InputHTMLAttributes, t
 import { ValidScriptsContext } from "~/components/react/providers/valid-scripts";
 import { CircleFillIcon, CircleIcon } from "../../icon";
 import { clsx } from "../../utilities";
-import { type InputRef } from "../common";
 import { InputFieldWrapper, type InputFieldWrapperProps } from "../wrapper/input-field";
 
 export interface PasswordBox$Ref extends InputRef {

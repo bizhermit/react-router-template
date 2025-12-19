@@ -4,7 +4,6 @@ import { getSchemaItemMode, getSchemaItemRequired, getSchemaItemResult, optimize
 import { parseTimeNums, parseTypedDate } from "~/components/schema/date";
 import { getValidationValue } from "~/components/schema/utilities";
 import { I18nContext } from "../../../hooks/i18n";
-import { type InputRef, type InputWrapProps } from "../common";
 import { WithMessage } from "../message";
 import { SelectBox$, SelectBoxEmptyOption, type SelectBox$Ref } from "../select-box";
 import { InputGroupWrapper } from "../wrapper/input-group";
@@ -12,16 +11,14 @@ import { InputGroupWrapper } from "../wrapper/input-group";
 export interface DateSelectBoxRef extends InputRef { };
 
 export type DateSelectBoxProps<D extends Schema.DataItem<Schema.$SplitDate>> = Overwrite<
-  InputWrapProps,
+  InputPropsWithDataItem<D>,
   {
-    $: D;
     placeholder?:
     | [string, string]
     | [string, string, string]
     | [string, string, string, string]
     | [string, string, string, string, string]
     | [string, string, string, string, string, string];
-    ref?: RefObject<InputRef | null>;
   }
 >;
 

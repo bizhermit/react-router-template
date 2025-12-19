@@ -1,7 +1,6 @@
 import { use, useImperativeHandle, useRef, type FocusEvent, type InputHTMLAttributes, type KeyboardEvent, type ReactNode, type RefObject } from "react";
 import { ValidScriptsContext } from "~/components/react/providers/valid-scripts";
 import { clsx } from "../../utilities";
-import { type InputRef } from "../common";
 import { InputDummyFocus } from "../dummy-focus";
 import { InputFieldWrapper, type InputFieldWrapperProps } from "../wrapper/input-field";
 
@@ -13,9 +12,12 @@ export type DateBox$Props = Overwrite<
   InputFieldWrapperProps,
   {
     ref?: RefObject<InputRef | null>;
-    inputProps?: Overwrite<InputHTMLAttributes<HTMLInputElement>, {
-      type: "date" | "month" | "datetime-local";
-    }>;
+    inputProps?: Overwrite<
+      InputHTMLAttributes<HTMLInputElement>,
+      {
+        type: "date" | "month" | "datetime-local";
+      }
+    >;
     children?: ReactNode;
     bindMode?: "state" | "dom";
   }

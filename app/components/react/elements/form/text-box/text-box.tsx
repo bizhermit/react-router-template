@@ -1,28 +1,31 @@
-import { useImperativeHandle, useRef, useState, type ChangeEvent, type HTMLAttributes, type HTMLInputTypeAttribute, type InputHTMLAttributes, type RefObject } from "react";
+import { useImperativeHandle, useRef, useState, type ChangeEvent, type HTMLAttributes, type HTMLInputTypeAttribute, type InputHTMLAttributes } from "react";
 import { useSchemaItem } from "~/components/react/hooks/schema";
 import { getValidationValue } from "~/components/schema/utilities";
 import { TextBox$, type TextBox$Ref } from ".";
 import { useSource } from "../../../hooks/data-item-source";
-import { type InputRef, type InputWrapProps } from "../common";
 import { WithMessage } from "../message";
 
 export interface TextBoxRef extends TextBox$Ref { };
 
 export type TextBoxProps<D extends Schema.DataItem<Schema.$String>> = Overwrite<
-  InputWrapProps,
+  InputPropsWithDataItem<D>,
   {
-    $: D;
     placeholder?: string;
     source?: Schema.Source<Schema.ValueType<D["_"]>>;
-    ref?: RefObject<InputRef | null>;
-  } & Pick<InputHTMLAttributes<HTMLInputElement>,
+  } & Pick<
+    InputHTMLAttributes<HTMLInputElement>,
     | "autoComplete"
     | "autoCapitalize"
     | "enterKeyHint"
   >
 >;
 
-function getPatternInputProps(pattern: Schema.StringProps["pattern"]): { type?: HTMLInputTypeAttribute; inputMode?: HTMLAttributes<HTMLInputElement>["inputMode"]; } {
+interface PatternProps {
+  type?: HTMLInputTypeAttribute;
+  inputMode?: HTMLAttributes<HTMLInputElement>["inputMode"];
+};
+
+function getPatternInputProps(pattern: Schema.StringProps["pattern"]): PatternProps {
   if (pattern == null || typeof pattern !== "string") return {};
   switch (pattern) {
     case "int":

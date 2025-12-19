@@ -1,7 +1,6 @@
 import { use, useImperativeHandle, useRef, type CSSProperties, type HTMLAttributes, type InputHTMLAttributes, type RefObject } from "react";
 import { ValidScriptsContext } from "~/components/react/providers/valid-scripts";
 import { clsx, getColorClassName } from "../../utilities";
-import { type InputRef } from "../common";
 import { InputDummyFocus } from "../dummy-focus";
 import { InputLabelWrapper, type InputLabelWrapperProps } from "../wrapper/input-label";
 
@@ -13,13 +12,16 @@ export type Slider$Props = Overwrite<
   InputLabelWrapperProps,
   {
     ref?: RefObject<InputRef | null>;
-    inputProps?: Overwrite<InputHTMLAttributes<HTMLInputElement>, {
-      value?: number | null;
-      defaultValue?: number | null;
-      min?: number;
-      max?: number;
-      step?: number;
-    }>;
+    inputProps?: Overwrite<
+      InputHTMLAttributes<HTMLInputElement>,
+      {
+        value?: number | null;
+        defaultValue?: number | null;
+        min?: number;
+        max?: number;
+        step?: number;
+      }
+    >;
     labelProps?: HTMLAttributes<HTMLSpanElement>;
     color?: StyleColor;
     showValueText?: boolean;

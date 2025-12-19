@@ -1,8 +1,7 @@
-import { useImperativeHandle, useRef, type ChangeEvent, type MouseEvent, type RefObject } from "react";
+import { useImperativeHandle, useRef, type ChangeEvent, type MouseEvent } from "react";
 import { useSchemaItem } from "~/components/react/hooks/schema";
 import { RadioButton$, type RadioButton$Ref, type RadioButtonAppearance } from ".";
 import { useSource } from "../../../hooks/data-item-source";
-import { type InputRef, type InputWrapProps } from "../common";
 import { WithMessage } from "../message";
 import { InputGroupWrapper } from "../wrapper/input-group";
 
@@ -15,13 +14,11 @@ type RadioButtonsSchemaProps =
 export interface RadioButtonsRef extends InputRef { };
 
 export type RadioButtonsProps<D extends Schema.DataItem<RadioButtonsSchemaProps>> = Overwrite<
-  InputWrapProps,
+  InputPropsWithDataItem<D>,
   {
-    $: D;
     appearance?: RadioButtonAppearance;
     color?: StyleColor;
     source?: Schema.Source<Schema.ValueType<D["_"]>>;
-    ref?: RefObject<InputRef | null>;
   }
 >;
 

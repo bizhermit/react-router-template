@@ -1,16 +1,13 @@
-import { useImperativeHandle, useRef, type ChangeEvent, type ReactNode, type RefObject } from "react";
+import { useImperativeHandle, useRef, type ChangeEvent, type ReactNode } from "react";
 import { useSchemaItem } from "~/components/react/hooks/schema";
 import { CheckBox$, type CheckBox$Ref, type CheckBoxAppearance } from ".";
-import { type InputRef, type InputWrapProps } from "../common";
 import { WithMessage } from "../message";
 
 export interface CheckBoxRef extends CheckBox$Ref { };
 
 export type CheckBoxProps<D extends Schema.DataItem<Schema.$Boolean>> = Overwrite<
-  InputWrapProps,
+  InputPropsWithDataItem<D>,
   {
-    $: D;
-    ref?: RefObject<InputRef | null>;
     appearance?: CheckBoxAppearance;
     color?: StyleColor;
     children?: ReactNode;

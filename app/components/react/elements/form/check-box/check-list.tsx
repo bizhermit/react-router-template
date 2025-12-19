@@ -1,8 +1,7 @@
-import { useImperativeHandle, useRef, type ChangeEvent, type RefObject } from "react";
+import { useImperativeHandle, useRef, type ChangeEvent } from "react";
 import { useSchemaItem } from "~/components/react/hooks/schema";
-import { CheckBox$, type CheckBox$Ref } from ".";
+import { CheckBox$, type CheckBox$Ref, type CheckBoxAppearance } from ".";
 import { useSource } from "../../../hooks/data-item-source";
-import { type InputRef, type InputWrapProps } from "../common";
 import { WithMessage } from "../message";
 import { InputGroupWrapper } from "../wrapper/input-group";
 
@@ -15,13 +14,11 @@ type CheckListItemSchemaProps =
 export interface CheckListRef extends InputRef { };
 
 export type CheckListProps<D extends Schema.DataItem<Schema.$Array<CheckListItemSchemaProps>>> = Overwrite<
-  InputWrapProps,
+  InputPropsWithDataItem<D>,
   {
-    $: D;
-    appearance?: "checkbox" | "button";
+    appearance?: CheckBoxAppearance;
     color?: StyleColor;
     source?: Schema.Source<Schema.ValueType<D["_"]>>;
-    ref?: RefObject<InputRef | null>;
   }
 >;
 

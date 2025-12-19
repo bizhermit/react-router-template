@@ -3,7 +3,6 @@ import { parseNumber } from "~/components/objects/numeric";
 import { ValidScriptsContext } from "~/components/react/providers/valid-scripts";
 import { DownIcon, UpIcon } from "../../icon";
 import { clsx } from "../../utilities";
-import { type InputRef } from "../common";
 import { InputFieldWrapper, type InputFieldWrapperProps } from "../wrapper/input-field";
 
 export interface NumberBox$Ref extends InputRef {
@@ -17,15 +16,17 @@ export type NumberBox$Props = Overwrite<
   InputFieldWrapperProps,
   {
     ref?: RefObject<InputRef | null>;
-    inputProps?: Overwrite<InputHTMLAttributes<HTMLInputElement>, {
-      defaultValue?: number | null;
-      value?: number | null;
-      min?: number;
-      max?: number;
-      step?: number;
-      float?: number;
-      onChangeValue?: (v: number | null | undefined) => void;
-    }>;
+    inputProps?: Overwrite<
+      InputHTMLAttributes<HTMLInputElement>,
+      {
+        defaultValue?: number | null;
+        value?: number | null;
+        min?: number;
+        max?: number;
+        step?: number;
+        float?: number;
+      }
+    >;
     children?: ReactNode;
     bindMode?: "state" | "dom";
   }

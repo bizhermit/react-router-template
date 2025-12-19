@@ -1,6 +1,5 @@
 import { useEffect, useImperativeHandle, useRef, type ChangeEvent, type RefObject, type TextareaHTMLAttributes } from "react";
 import { clsx } from "../../utilities";
-import { type InputRef } from "../common";
 import { InputFieldWrapper, type InputFieldWrapperProps } from "../wrapper/input-field";
 
 export interface TextArea$Ref extends InputRef {
@@ -8,15 +7,23 @@ export interface TextArea$Ref extends InputRef {
   calcFitContentHeight: () => void;
 };
 
-export type Resize = "none" | "vertical" | "horizontal" | "both";
+export type Resize =
+  | "none"
+  | "vertical"
+  | "horizontal"
+  | "both"
+  ;
 
 export type TextArea$Props = Overwrite<
   InputFieldWrapperProps,
   {
     ref?: RefObject<InputRef | null>;
-    textAreaProps?: Overwrite<TextareaHTMLAttributes<HTMLTextAreaElement>, {
-      rows?: number | "fit";
-    }>;
+    textAreaProps?: Overwrite<
+      TextareaHTMLAttributes<HTMLTextAreaElement>,
+      {
+        rows?: number | "fit";
+      }
+    >;
     minRows?: number;
     maxRows?: number;
     resize?: Resize;

@@ -7,7 +7,6 @@ import { getFocusableElement } from "../../client/dom/focus";
 import { clone } from "../../objects";
 import { ProxyData, getRelativeName } from "../../objects/data";
 import { parseWithSchema } from "../../schema";
-import type { InputWrapProps } from "../elements/form/common";
 import { ValidScriptsContext } from "../providers/valid-scripts";
 import { I18nContext } from "./i18n";
 
@@ -646,8 +645,12 @@ export function useFieldSet() {
   return use(FieldSetContext);
 };
 
-export interface SchemaItemProps<D extends Schema.DataItem> extends Pick<InputWrapProps, "hideMessage" | "omitOnSubmit"> {
-  $: D;
+export interface SchemaItemProps<D extends Schema.DataItem> extends Pick<
+  InputPropsWithDataItem<D>,
+  | "$"
+  | "hideMessage"
+  | "omitOnSubmit"
+> {
   readOnly?: boolean;
 };
 
@@ -798,25 +801,28 @@ export function optimizeRefs(
   return refs.map(ref => getRelativeName($.name, ref));
 };
 
-export function useSchemaItem<D extends Schema.DataItem>({
-  $,
-  omitOnSubmit,
-  hideMessage,
-  ...props
-}: SchemaItemProps<D>, options: {
-  effect?: (params: {
-    value: Schema.ValueType<D["_"], true, true> | null | undefined;
-    result: Schema.Result | null | undefined;
-  }) => void;
-  effectContext?: (params: {
-    name: string;
-    data: ProxyData;
-    dep: Record<string, unknown>;
-    env: Schema.Env;
-    label: string | undefined;
-  }) => void;
-  watchChildEffect?: (params: SchemaEffectParams) => void;
-}) {
+export function useSchemaItem<D extends Schema.DataItem>(
+  {
+    $,
+    omitOnSubmit,
+    hideMessage,
+    ...props
+  }: SchemaItemProps<D>,
+  options: {
+    effect?: (params: {
+      value: Schema.ValueType<D["_"], true, true> | null | undefined;
+      result: Schema.Result | null | undefined;
+    }) => void;
+    effectContext?: (params: {
+      name: string;
+      data: ProxyData;
+      dep: Record<string, unknown>;
+      env: Schema.Env;
+      label: string | undefined;
+    }) => void;
+    watchChildEffect?: (params: SchemaEffectParams) => void;
+  }
+) {
   const id = useId();
   const isEffected = useRef(false);
 

@@ -1,19 +1,16 @@
-import { useEffect, useRef, useState, type ChangeEvent, type MouseEvent, type ReactNode, type RefObject } from "react";
+import { useEffect, useRef, useState, type ChangeEvent, type MouseEvent, type ReactNode } from "react";
 import { convertBase64ToFile } from "~/components/objects/file";
 import { useSchemaItem } from "~/components/react/hooks/schema";
 import { getValidationValue } from "~/components/schema/utilities";
 import { FileBox$, type FileBox$Ref } from ".";
-import { type InputRef, type InputWrapProps } from "../common";
 import { WithMessage } from "../message";
 
 export interface FileBoxRef extends FileBox$Ref { };
 
 export type FileBoxProps<D extends Schema.DataItem<Schema.$File>> = Overwrite<
-  InputWrapProps,
+  InputPropsWithDataItem<D>,
   {
-    $: D;
     placeholder?: ReactNode;
-    ref?: RefObject<InputRef | null>;
   } & (
     | {
       viewMode?: "link";

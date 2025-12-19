@@ -2,7 +2,6 @@ import { use, useImperativeHandle, useRef, type ReactNode, type RefObject, type 
 import { ValidScriptsContext } from "~/components/react/providers/valid-scripts";
 import { DownIcon } from "../../icon";
 import { clsx, ZERO_WIDTH_SPACE } from "../../utilities";
-import { type InputRef } from "../common";
 import { InputDummyFocus } from "../dummy-focus";
 import { Placeholder } from "../placeholder";
 import { InputFieldWrapper, type InputFieldWrapperProps } from "../wrapper/input-field";

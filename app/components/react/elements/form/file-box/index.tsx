@@ -1,7 +1,6 @@
 import { use, useImperativeHandle, useRef, type DragEvent, type InputHTMLAttributes, type KeyboardEvent, type MouseEvent, type ReactNode, type RefObject } from "react";
 import { ValidScriptsContext } from "~/components/react/providers/valid-scripts";
 import { clsx } from "../../utilities";
-import { type InputRef } from "../common";
 import { Placeholder } from "../placeholder";
 import { InputFieldWrapper, type InputFieldWrapperProps } from "../wrapper/input-field";
 
@@ -13,9 +12,12 @@ export type FileBox$Props = Overwrite<
   InputFieldWrapperProps,
   {
     ref?: RefObject<InputRef | null>;
-    inputProps?: Overwrite<InputHTMLAttributes<HTMLInputElement>, {
-      placeholder?: ReactNode;
-    }>;
+    inputProps?: Overwrite<
+      InputHTMLAttributes<HTMLInputElement>,
+      {
+        placeholder?: ReactNode;
+      }
+    >;
     children?: ReactNode;
   }
 >;
