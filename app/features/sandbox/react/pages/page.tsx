@@ -19,7 +19,7 @@ import { CheckList } from "~/components/react/elements/form/check-list";
 import { FormItem } from "~/components/react/elements/form/common";
 import { DateBox$ } from "~/components/react/elements/form/date-box";
 import { DateBox } from "~/components/react/elements/form/date-box/date-box";
-import { DateSelectBox } from "~/components/react/elements/form/date-select-box";
+import { DateSelectBox } from "~/components/react/elements/form/date-box/date-select-box";
 import { FieldSet } from "~/components/react/elements/form/fieldset";
 import { FileBox } from "~/components/react/elements/form/file-box";
 import { NumberBox$ } from "~/components/react/elements/form/number-box";

@@ -64,6 +64,7 @@ export function InputField({
   state,
   ...props
 }: InputFieldProps) {
+  if (state?.current === "hidden") return null;
   return (
     <div
       {...props}
@@ -138,42 +139,28 @@ export function OldInputField({
   );
 };
 
-type InputGroupProps =
-  & HTMLAttributes<HTMLDivElement>
-  & InputWrapProps
-  & CoreProps
-  & {
-    ref?: RefObject<HTMLDivElement>;
-  };
+type InputGroupProps = Overwrite<HTMLAttributes<HTMLDivElement>, {
+  ref?: RefObject<HTMLDivElement>;
+  state?: RefObject<Schema.Mode>;
+}>;
 
 export function InputGroup({
   className,
-  hideMessage,
-  core,
   ref,
+  state,
   ...props
 }: InputGroupProps) {
-  if (core?.state?.current === "hidden") return null;
+  if (state?.current === "hidden") return null;
 
   return (
-    <>
-      <div
-        {...props}
-        ref={ref}
-        className={clsx(
-          "_ipt _ipt-group",
-          core?.className,
-          className,
-        )}
-      />
-      {
-        !hideMessage &&
-        core?.state?.current === "enabled" &&
-        <InputMessageSpan
-          result={core.result}
-        />
-      }
-    </>
+    <div
+      {...props}
+      ref={ref}
+      className={clsx(
+        "_ipt _ipt-group",
+        className,
+      )}
+    />
   );
 };
 

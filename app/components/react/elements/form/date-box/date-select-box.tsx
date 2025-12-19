@@ -1,12 +1,12 @@
-import { use, useId, useLayoutEffect, useMemo, useRef, useState, type ChangeEvent, type Dispatch, type ReactNode, type RefObject, type SetStateAction } from "react";
+import { use, useId, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState, type ChangeEvent, type Dispatch, type ReactNode, type RefObject, type SetStateAction } from "react";
 import { formatDate, parseDate } from "~/components/objects/date";
 import { getSchemaItemMode, getSchemaItemRequired, getSchemaItemResult, optimizeRefs, schemaItemEffect, schemaItemValidation, useFieldSet, useSchemaEffect, type SchemaEffectParams_Result, type SchemaEffectParams_ValueResult } from "~/components/react/hooks/schema";
 import { parseTimeNums, parseTypedDate } from "~/components/schema/date";
-import { I18nContext } from "../../hooks/i18n";
-import { DownIcon } from "../icon";
-import { clsx, ZERO_WIDTH_SPACE } from "../utilities";
-import { getValidationValue, InputDummyFocus, InputGroup, OldInputField, Placeholder, type InputWrapProps } from "./common";
-import type { FormItemHookProps } from "./hooks";
+import { I18nContext } from "../../../hooks/i18n";
+import { getValidationValue, InputGroup, WithMessage, type InputRef, type InputWrapProps } from "../common";
+import { SelectBox$, SelectBoxEmptyOption, type SelectBox$Ref } from "../select-box";
+
+export interface DateSelectBoxRef extends InputRef { };
 
 export type DateSelectBoxProps<D extends Schema.DataItem<Schema.$SplitDate>> = InputWrapProps & {
   $: D;
@@ -16,7 +16,7 @@ export type DateSelectBoxProps<D extends Schema.DataItem<Schema.$SplitDate>> = I
   | [string, string, string, string]
   | [string, string, string, string, string]
   | [string, string, string, string, string, string];
-  hook?: FormItemHookProps;
+  ref?: RefObject<InputRef | null>;
 };
 
 const DEFAULT_MIN_DATE = new Date("1900-01-01T00:00:00");
@@ -61,12 +61,14 @@ function selectBoxDisplayResult(
 function resetSelectValue<V>(
   value: V,
   valueSetter: Dispatch<SetStateAction<V>>,
-  selectRef?: RefObject<HTMLSelectElement>
+  selectRef?: RefObject<SelectBox$Ref | null>
 ) {
   valueSetter(value);
   if (!selectRef?.current) return value;
   const v = String(value || "");
-  if (selectRef.current.value !== v) selectRef.current.value = v;
+  if (selectRef.current.selectElement.value !== v) {
+    selectRef.current.selectElement.value = v;
+  }
   return value;
 };
 
@@ -75,14 +77,14 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
   placeholder,
   omitOnSubmit,
   autoFocus,
-  hook,
+  ref,
   ...props
 }: DateSelectBoxProps<P>) {
   const id = useId();
   const isEffected = useRef(false);
 
   const fs = useFieldSet();
-  const ref = useRef<HTMLDivElement>(null!);
+  const wref = useRef<HTMLDivElement>(null!);
 
   const $date = _$.core as Schema.DataItem<Schema.$DateTime>;
   const $year = $date.splits.Y;
@@ -92,13 +94,12 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
   const $minute = $date.splits.m;
   const $second = $date.splits.s;
 
-  const dummyRef = useRef<HTMLDivElement | null>(null);
-  const yearSelectRef = useRef<HTMLSelectElement>(null!);
-  const monthSelectRef = useRef<HTMLSelectElement>(null!);
-  const daySelectRef = useRef<HTMLSelectElement>(null!);
-  const hourSelectRef = useRef<HTMLSelectElement>(null!);
-  const minuteSelectRef = useRef<HTMLSelectElement>(null!);
-  const secondSelectRef = useRef<HTMLSelectElement>(null!);
+  const yearSelectRef = useRef<SelectBox$Ref>(null!);
+  const monthSelectRef = useRef<SelectBox$Ref>(null!);
+  const daySelectRef = useRef<SelectBox$Ref | null>(null);
+  const hourSelectRef = useRef<SelectBox$Ref | null>(null);
+  const minuteSelectRef = useRef<SelectBox$Ref | null>(null);
+  const secondSelectRef = useRef<SelectBox$Ref | null>(null);
 
   const dateRefs = useRef(optimizeRefs($date, $date._.refs));
   const yearRefs = useRef($year ? optimizeRefs($year, $year._.refs) : []);
@@ -186,7 +187,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           valueSetter: Dispatch<SetStateAction<any>>,
           resultSetter: Dispatch<SetStateAction<Schema.Result | null | undefined>>,
-          selectRef?: RefObject<HTMLSelectElement>
+          selectRef?: RefObject<SelectBox$Ref | null>
         ) {
           if (!$?.name) return false;
           const item = (params as SchemaEffectParams_ValueResult)
@@ -1074,152 +1075,154 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
     secondResult,
   );
 
-  if (hook) {
-    hook.focus = () => (dummyRef.current ?? yearSelectRef.current).focus();
-  }
+  useImperativeHandle(ref, () => ({
+    element: wref.current,
+    focus: () => yearSelectRef.current.focus(),
+  } as const satisfies DateSelectBoxRef));
 
   return (
-    <InputGroup
-      {...props}
-      ref={ref}
-      core={{
-        state,
-        result: dispayResult,
-      }}
+    <WithMessage
+      hide={props.hideMessage}
+      state={state.current}
+      result={dispayResult}
     >
-      {
-        $date.name &&
-        <input
-          type="hidden"
-          name={$date.name}
-          value={value ?? ""}
-        />
-      }
-      <SplittedSelect
-        ref={yearSelectRef}
-        dummyRef={dummyRef}
-        mergeState={mergeState}
-        coreResult={result}
-        $={$year}
-        mode={yearMode}
-        required={yearRequired}
-        value={yearValue}
-        onChange={handleYearChange}
-        result={yearResult}
-        placeholder={placeholder?.[0]}
-        omitOnSubmit={omitOnSubmit}
-        validScripts={isValidScripts}
-        autoFocus={autoFocus}
+      <InputGroup
+        {...props}
+        ref={wref}
+        state={state}
       >
-        {yearOptions}
-      </SplittedSelect>
-      <SepSpan>/</SepSpan>
-      <SplittedSelect
-        ref={monthSelectRef}
-        mergeState={mergeState}
-        coreResult={result}
-        $={$month}
-        mode={monthMode}
-        required={monthRequired}
-        value={monthValue}
-        onChange={handleMonthChange}
-        result={monthResult}
-        placeholder={placeholder?.[1]}
-        omitOnSubmit={omitOnSubmit}
-        validScripts={isValidScripts}
-      >
-        {monthOptions}
-      </SplittedSelect>
-      {
-        type !== "month" &&
-        <>
-          <SepSpan>/</SepSpan>
-          <SplittedSelect
-            ref={daySelectRef}
-            mergeState={mergeState}
-            coreResult={result}
-            $={$day}
-            mode={dayMode}
-            required={dayRequired}
-            value={dayValue}
-            onChange={handleDayChange}
-            result={dayResult}
-            placeholder={placeholder?.[2]}
-            omitOnSubmit={omitOnSubmit}
-            validScripts={isValidScripts}
-          >
-            {dayOptions}
-          </SplittedSelect>
-        </>
-      }
-      {
-        type === "datetime" &&
-        <>
-          <SepSpan>&nbsp;</SepSpan>
-          <SplittedSelect
-            ref={hourSelectRef}
-            mergeState={mergeState}
-            coreResult={result}
-            $={$hour}
-            mode={hourMode}
-            required={hourRequired}
-            value={hourValue}
-            onChange={handleHourChange}
-            result={hourResult}
-            placeholder={placeholder?.[3]}
-            omitOnSubmit={omitOnSubmit}
-            validScripts={isValidScripts}
-          >
-            {hourOptions}
-          </SplittedSelect>
-          <SepSpan>:</SepSpan>
-          <SplittedSelect
-            ref={minuteSelectRef}
-            mergeState={mergeState}
-            coreResult={result}
-            $={$minute}
-            mode={minuteMode}
-            required={minuteRequired}
-            value={minuteValue}
-            onChange={handleMinuteChange}
-            result={minuteResult}
-            placeholder={placeholder?.[4]}
-            omitOnSubmit={omitOnSubmit}
-            validScripts={isValidScripts}
-          >
-            {minuteOptions}
-          </SplittedSelect>
-          {
-            time === "hms" &&
-            <>
-              <SepSpan>:</SepSpan>
-              <SplittedSelect
-                ref={secondSelectRef}
-                mergeState={mergeState}
-                coreResult={result}
-                $={$second}
-                mode={secondMode}
-                required={secondRequired}
-                value={secondValue}
-                onChange={handleSecondChange}
-                result={secondResult}
-                placeholder={placeholder?.[5]}
-                omitOnSubmit={omitOnSubmit}
-                validScripts={isValidScripts}
-              >
-                {secondOptions}
-              </SplittedSelect>
-            </>
-          }
-        </>
-      }
-    </InputGroup>
+        {
+          $date.name &&
+          <input
+            type="hidden"
+            name={$date.name}
+            value={value ?? ""}
+          />
+        }
+        <SplittedSelect
+          ref={yearSelectRef}
+          mergeState={mergeState}
+          coreResult={result}
+          $={$year}
+          mode={yearMode}
+          required={yearRequired}
+          value={yearValue}
+          onChange={handleYearChange}
+          result={yearResult}
+          placeholder={placeholder?.[0]}
+          omitOnSubmit={omitOnSubmit}
+          validScripts={isValidScripts}
+          autoFocus={autoFocus}
+        >
+          {yearOptions}
+        </SplittedSelect>
+        <SepSpan>/</SepSpan>
+        <SplittedSelect
+          ref={monthSelectRef}
+          mergeState={mergeState}
+          coreResult={result}
+          $={$month}
+          mode={monthMode}
+          required={monthRequired}
+          value={monthValue}
+          onChange={handleMonthChange}
+          result={monthResult}
+          placeholder={placeholder?.[1]}
+          omitOnSubmit={omitOnSubmit}
+          validScripts={isValidScripts}
+        >
+          {monthOptions}
+        </SplittedSelect>
+        {
+          type !== "month" &&
+          <>
+            <SepSpan>/</SepSpan>
+            <SplittedSelect
+              ref={daySelectRef}
+              mergeState={mergeState}
+              coreResult={result}
+              $={$day}
+              mode={dayMode}
+              required={dayRequired}
+              value={dayValue}
+              onChange={handleDayChange}
+              result={dayResult}
+              placeholder={placeholder?.[2]}
+              omitOnSubmit={omitOnSubmit}
+              validScripts={isValidScripts}
+            >
+              {dayOptions}
+            </SplittedSelect>
+          </>
+        }
+        {
+          type === "datetime" &&
+          <>
+            <SepSpan>&nbsp;</SepSpan>
+            <SplittedSelect
+              ref={hourSelectRef}
+              mergeState={mergeState}
+              coreResult={result}
+              $={$hour}
+              mode={hourMode}
+              required={hourRequired}
+              value={hourValue}
+              onChange={handleHourChange}
+              result={hourResult}
+              placeholder={placeholder?.[3]}
+              omitOnSubmit={omitOnSubmit}
+              validScripts={isValidScripts}
+            >
+              {hourOptions}
+            </SplittedSelect>
+            <SepSpan>:</SepSpan>
+            <SplittedSelect
+              ref={minuteSelectRef}
+              mergeState={mergeState}
+              coreResult={result}
+              $={$minute}
+              mode={minuteMode}
+              required={minuteRequired}
+              value={minuteValue}
+              onChange={handleMinuteChange}
+              result={minuteResult}
+              placeholder={placeholder?.[4]}
+              omitOnSubmit={omitOnSubmit}
+              validScripts={isValidScripts}
+            >
+              {minuteOptions}
+            </SplittedSelect>
+            {
+              time === "hms" &&
+              <>
+                <SepSpan>:</SepSpan>
+                <SplittedSelect
+                  ref={secondSelectRef}
+                  mergeState={mergeState}
+                  coreResult={result}
+                  $={$second}
+                  mode={secondMode}
+                  required={secondRequired}
+                  value={secondValue}
+                  onChange={handleSecondChange}
+                  result={secondResult}
+                  placeholder={placeholder?.[5]}
+                  omitOnSubmit={omitOnSubmit}
+                  validScripts={isValidScripts}
+                >
+                  {secondOptions}
+                </SplittedSelect>
+              </>
+            }
+          </>
+        }
+      </InputGroup>
+    </WithMessage>
   );
 };
 
 interface SplittedSelectProps {
-  ref: RefObject<HTMLSelectElement>;
-  dummyRef?: RefObject<HTMLDivElement | null>;
+  ref: RefObject<SelectBox$Ref | null>;
   mergeState: (
     targetState: RefObject<Schema.Mode>,
     targetMode: Schema.Mode
@@ -1240,7 +1243,6 @@ interface SplittedSelectProps {
 
 function SplittedSelect({
   ref,
-  dummyRef,
   mergeState,
   coreResult,
   $,
@@ -1251,7 +1253,6 @@ function SplittedSelect({
   result,
   placeholder,
   omitOnSubmit,
-  validScripts,
   children,
 }: SplittedSelectProps) {
   const state = useRef<Schema.Mode>("enabled");
@@ -1265,63 +1266,22 @@ function SplittedSelect({
   const isInvalid = result?.type === "e" || coreResult?.type === "e";
 
   return (
-    <OldInputField
-      core={{
-        state,
-        result,
+    <SelectBox$
+      ref={ref}
+      state={state}
+      placeholder={placeholder}
+      selectProps={{
+        name: omitOnSubmit ? undefined : $?.name,
+        required,
+        defaultValue: value ?? "",
+        "aria-label": $?.label,
+        "aria-invalid": isInvalid,
+        "aria-errormessage": result?.type === "e" ? result.message : undefined,
+        onChange: handleChange,
       }}
-      hideMessage
     >
-      <select
-        ref={ref}
-        className="_ipt-box _ipt-select"
-        name={omitOnSubmit ? undefined : $?.name}
-        required={required}
-        disabled={state.current !== "enabled"}
-        aria-disabled={state.current === "disabled"}
-        aria-readonly={state.current === "readonly"}
-        defaultValue={value ?? ""}
-        aria-label={$?.label}
-        aria-invalid={isInvalid}
-        aria-errormessage={result?.type === "e" ? result.message : undefined}
-        onChange={handleChange}
-      >
-        <option
-          value=""
-          data-notext="true"
-        >
-          {ZERO_WIDTH_SPACE}
-        </option>
-        {children}
-      </select>
-      <Placeholder
-        validScripts={validScripts}
-        state={state}
-      >
-        {placeholder}
-      </Placeholder>
-      <div
-        className={clsx(
-          "_ipt-btn",
-          state.current !== "enabled" && "opacity-0"
-        )}
-      >
-        <DownIcon />
-      </div>
-      {
-        state.current === "readonly" &&
-        $?.name &&
-        <>
-          <input
-            type="hidden"
-            name={$?.name}
-            value={value ?? ""}
-          />
-          <InputDummyFocus
-            ref={dummyRef}
-          />
-        </>
-      }
-    </OldInputField>
+      <SelectBoxEmptyOption />
+      {children}
+    </SelectBox$>
   );
 };

@@ -1,7 +1,7 @@
 import { useRef, type ChangeEvent } from "react";
 import { useSchemaItem } from "~/components/react/hooks/schema";
 import { clsx, getColorClassName } from "../utilities";
-import { InputDummyFocus, InputGroup, InputLabel, InputLabelText, type InputWrapProps } from "./common";
+import { InputDummyFocus, InputGroup, InputLabel, InputLabelText, WithMessage, type InputWrapProps } from "./common";
 import type { FormItemHookProps } from "./hooks";
 import { useSource } from "./utilities";
 
@@ -40,6 +40,7 @@ export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemS
     env,
     getCommonParams,
     omitOnSubmit,
+    hideMessage,
     props,
   } = useSchemaItem<Schema.DataItem<Schema.$Array>>($props, {
     effect: function ({ value }) {
@@ -96,62 +97,65 @@ export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemS
   const labelTextClassName = appearance === "button" ? "px-0" : undefined;
 
   return (
-    <InputGroup
-      {...props}
-      ref={ref}
-      core={{
-        state,
-        result,
-      }}
+    <WithMessage
+      hide={hideMessage}
+      state={state.current}
+      result={result}
     >
-      {source?.map((item, index) => {
-        const key = String(item.value);
-        const isChecked = value?.some(v => v === item.value);
+      <InputGroup
+        {...props}
+        ref={ref}
+        state={state}
+      >
+        {source?.map((item, index) => {
+          const key = String(item.value);
+          const isChecked = value?.some(v => v === item.value);
 
-        return (
-          <InputLabel
-            key={key}
-            core={{
-              className: labelClassName,
-            }}
-          >
-            <input
-              className={checkBoxClassName}
-              type="checkbox"
-              name={omitOnSubmit ? undefined : name}
-              disabled={state.current !== "enabled"}
-              aria-disabled={state.current === "disabled"}
-              aria-readonly={state.current === "readonly"}
-              required={required}
-              value={key}
-              defaultChecked={isChecked}
-              onChange={e => handleChange(e, item.value)}
-              aria-label={`${label ? `${label} - ` : ""}${item.text}`}
-              aria-invalid={invalid}
-              aria-errormessage={errormessage}
-              autoFocus={autoFocus ? index === 0 : undefined}
-            />
-            <InputLabelText
-              className={labelTextClassName}
+          return (
+            <InputLabel
+              key={key}
+              core={{
+                className: labelClassName,
+              }}
             >
-              {item.node || item.text}
-            </InputLabelText>
-            {
-              state.current === "readonly" &&
-              <>
-                <input
-                  type="hidden"
-                  name={omitOnSubmit ? undefined : name}
-                  value={isChecked ? key : ""}
-                />
-                <InputDummyFocus
-                  ref={index === 0 ? dummyRef : undefined}
-                />
-              </>
-            }
-          </InputLabel>
-        );
-      })}
-    </InputGroup>
+              <input
+                className={checkBoxClassName}
+                type="checkbox"
+                name={omitOnSubmit ? undefined : name}
+                disabled={state.current !== "enabled"}
+                aria-disabled={state.current === "disabled"}
+                aria-readonly={state.current === "readonly"}
+                required={required}
+                value={key}
+                defaultChecked={isChecked}
+                onChange={e => handleChange(e, item.value)}
+                aria-label={`${label ? `${label} - ` : ""}${item.text}`}
+                aria-invalid={invalid}
+                aria-errormessage={errormessage}
+                autoFocus={autoFocus ? index === 0 : undefined}
+              />
+              <InputLabelText
+                className={labelTextClassName}
+              >
+                {item.node || item.text}
+              </InputLabelText>
+              {
+                state.current === "readonly" &&
+                <>
+                  <input
+                    type="hidden"
+                    name={omitOnSubmit ? undefined : name}
+                    value={isChecked ? key : ""}
+                  />
+                  <InputDummyFocus
+                    ref={index === 0 ? dummyRef : undefined}
+                  />
+                </>
+              }
+            </InputLabel>
+          );
+        })}
+      </InputGroup>
+    </WithMessage>
   );
 };

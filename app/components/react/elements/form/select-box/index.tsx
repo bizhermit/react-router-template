@@ -25,14 +25,14 @@ export function SelectBox$({
 }: SelectBox$Props) {
   const validScripts = use(ValidScriptsContext).valid;
 
-  const dummyRef = useRef<HTMLDivElement | null>(null);
   const wref = useRef<HTMLDivElement>(null!);
   const sref = useRef<HTMLSelectElement>(null!);
+  const dref = useRef<HTMLDivElement | null>(null);
 
   useImperativeHandle(ref, () => ({
     element: wref.current,
     selectElement: sref.current,
-    focus: () => (dummyRef.current ?? sref.current)?.focus(),
+    focus: () => (dref.current ?? sref.current)?.focus(),
   } as const satisfies SelectBox$Ref));
 
   return (
@@ -67,14 +67,15 @@ export function SelectBox$({
       </div>
       {
         state.current === "readonly" &&
+        selectProps?.name &&
         <>
           <input
             type="hidden"
-            name={selectProps?.name}
-            value={selectProps?.value as string || undefined}
+            name={selectProps.name}
+            value={selectProps.value as string || undefined}
           />
           <InputDummyFocus
-            ref={dummyRef}
+            ref={dref}
           />
         </>
       }

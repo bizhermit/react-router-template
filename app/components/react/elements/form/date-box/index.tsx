@@ -29,7 +29,7 @@ export function DateBox$({
 
   const wref = useRef<HTMLDivElement>(null!);
   const iref = useRef<HTMLInputElement>(null!);
-  const dummyRef = useRef<HTMLDivElement | null>(null);
+  const dref = useRef<HTMLDivElement | null>(null);
 
   function applyInputedValue() {
     iref.current.value = iref.current.value || ""; // NOTE: 日付が揃っていない場合はクリア
@@ -50,7 +50,7 @@ export function DateBox$({
   useImperativeHandle(ref, () => ({
     element: wref.current,
     inputElement: iref.current,
-    focus: () => (dummyRef.current ?? iref.current).focus(),
+    focus: () => (dref.current ?? iref.current).focus(),
   } as const satisfies DateBox$Ref));
 
   return (
@@ -89,7 +89,7 @@ export function DateBox$({
             value={inputProps?.value as string || undefined}
           />
           <InputDummyFocus
-            ref={dummyRef}
+            ref={dref}
           />
         </>
       }

@@ -1,7 +1,7 @@
 import { useRef, type ChangeEvent, type MouseEvent } from "react";
 import { useSchemaItem } from "~/components/react/hooks/schema";
 import { clsx, getColorClassName } from "../utilities";
-import { InputDummyFocus, InputGroup, InputLabel, InputLabelText, type InputWrapProps } from "./common";
+import { InputDummyFocus, InputGroup, InputLabel, InputLabelText, WithMessage, type InputWrapProps } from "./common";
 import type { FormItemHookProps } from "./hooks";
 import { useSource } from "./utilities";
 
@@ -42,6 +42,7 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
     env,
     getCommonParams,
     omitOnSubmit,
+    hideMessage,
     props,
   } = useSchemaItem<Schema.DataItem<RadioButtonsSchemaProps>>($props, {
     effect: function ({ value }) {
@@ -101,65 +102,68 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
   const labelTextClassName = appearance === "button" ? "px-0" : undefined;
 
   return (
-    <InputGroup
-      {...props}
-      ref={ref}
-      core={{
-        state,
-        result,
-      }}
+    <WithMessage
+      hide={hideMessage}
+      state={state.current}
+      result={result}
     >
-      {source?.map((item, index) => {
-        const key = String(item.value);
-        const isSelected = item.value === value;
+      <InputGroup
+        {...props}
+        ref={ref}
+        state={state}
+      >
+        {source?.map((item, index) => {
+          const key = String(item.value);
+          const isSelected = item.value === value;
 
-        return (
-          <InputLabel
-            key={key}
-            core={{
-              className: labelClassName,
-            }}
-          >
-            <input
-              className={radioClassName}
-              type="radio"
-              name={name}
-              disabled={state.current !== "enabled"}
-              aria-disabled={state.current === "disabled"}
-              aria-readonly={state.current === "readonly"}
-              required={required}
-              value={key}
-              defaultChecked={isSelected}
-              onChange={handleChange}
-              onClick={handleClick}
-              aria-label={`${label ? `${label} - ` : ""}${item.text}`}
-              aria-invalid={invalid}
-              aria-errormessage={errormessage}
-              autoFocus={autoFocus ? (hasValue ? isSelected : index === 0) : undefined}
-            />
-            <InputLabelText
-              className={labelTextClassName}
+          return (
+            <InputLabel
+              key={key}
+              core={{
+                className: labelClassName,
+              }}
             >
-              {item.node || item.text}
-            </InputLabelText>
-            {
-              state.current === "readonly" &&
-              ((value == null && index === 0) || isSelected) &&
-              <InputDummyFocus
-                ref={dummyRef}
+              <input
+                className={radioClassName}
+                type="radio"
+                name={name}
+                disabled={state.current !== "enabled"}
+                aria-disabled={state.current === "disabled"}
+                aria-readonly={state.current === "readonly"}
+                required={required}
+                value={key}
+                defaultChecked={isSelected}
+                onChange={handleChange}
+                onClick={handleClick}
+                aria-label={`${label ? `${label} - ` : ""}${item.text}`}
+                aria-invalid={invalid}
+                aria-errormessage={errormessage}
+                autoFocus={autoFocus ? (hasValue ? isSelected : index === 0) : undefined}
               />
-            }
-          </InputLabel>
-        );
-      })}
-      {
-        state.current === "readonly" &&
-        <input
-          type="hidden"
-          name={omitOnSubmit ? undefined : name}
-          value={value as string || undefined}
-        />
-      }
-    </InputGroup>
+              <InputLabelText
+                className={labelTextClassName}
+              >
+                {item.node || item.text}
+              </InputLabelText>
+              {
+                state.current === "readonly" &&
+                ((value == null && index === 0) || isSelected) &&
+                <InputDummyFocus
+                  ref={dummyRef}
+                />
+              }
+            </InputLabel>
+          );
+        })}
+        {
+          state.current === "readonly" &&
+          <input
+            type="hidden"
+            name={omitOnSubmit ? undefined : name}
+            value={value as string || undefined}
+          />
+        }
+      </InputGroup>
+    </WithMessage>
   );
 };
