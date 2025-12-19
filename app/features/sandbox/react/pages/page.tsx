@@ -31,7 +31,8 @@ import { SelectBox$, SelectBoxEmptyOption } from "~/components/react/elements/fo
 import { SelectBox } from "~/components/react/elements/form/select-box/select-box";
 import { Slider } from "~/components/react/elements/form/slider";
 import { SwitchBox } from "~/components/react/elements/form/switch-box";
-import { TextArea } from "~/components/react/elements/form/text-area";
+import { TextArea$ } from "~/components/react/elements/form/text-area";
+import { TextArea } from "~/components/react/elements/form/text-area/text-area";
 import { TextBox$ } from "~/components/react/elements/form/text-box";
 import { TextBox } from "~/components/react/elements/form/text-box/text-box";
 import { Text } from "~/components/react/elements/i18n-text";
@@ -688,9 +689,11 @@ function Component2() {
         />
       </FormItem>
       <FormItem>
+        <TextArea$ textAreaProps={{ rows: "fit" }} />
         <TextArea
           $={dataItems.customMessageText}
           rows="fit"
+          minRows={3}
           maxRows={5}
         />
       </FormItem>
