@@ -110,7 +110,6 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
               state={state}
               color={color}
               appearance={appearance}
-              omitDummy={index !== 0}
               inputProps={{
                 name,
                 required,
