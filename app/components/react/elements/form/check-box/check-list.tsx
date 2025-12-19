@@ -24,7 +24,7 @@ export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemS
   ...$props
 }: CheckListProps<D>) {
   const wref = useRef<HTMLDivElement>(null!);
-  const checkedRef = useRef<CheckBox$Ref>(null!);
+  const firstRef = useRef<CheckBox$Ref | null>(null);
 
   const {
     name,
@@ -80,15 +80,7 @@ export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemS
 
   useImperativeHandle($props.ref, () => ({
     element: wref.current,
-    focus: () => {
-      if (checkedRef.current) {
-        checkedRef.current.focus();
-        return;
-      }
-      const checkedElem = wref.current.querySelector(`input[type="checkbox"]:checked`)
-        ?? wref.current.querySelector(`input[type="checkbox"]`);
-      (checkedElem as HTMLInputElement | null)?.focus();
-    },
+    focus: () => firstRef.current?.focus(),
   } as const satisfies CheckListRef));
 
   return (
@@ -108,7 +100,7 @@ export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemS
           return (
             <CheckBox$
               key={key}
-              ref={isChecked ? checkedRef : undefined}
+              ref={index === 0 ? firstRef : undefined}
               appearance={appearance}
               state={state}
               color={color}

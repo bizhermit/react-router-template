@@ -28,7 +28,7 @@ import { NumberBox$ } from "~/components/react/elements/form/number-box";
 import { NumberBox } from "~/components/react/elements/form/number-box/number-box";
 import { PasswordBox$ } from "~/components/react/elements/form/password-box";
 import { PasswordBox } from "~/components/react/elements/form/password-box/password-box";
-import { RadioButtons } from "~/components/react/elements/form/radio-buttons";
+import { RadioButtons } from "~/components/react/elements/form/radio-button/radio-buttons";
 import { SelectBox$, SelectBoxEmptyOption } from "~/components/react/elements/form/select-box";
 import { SelectBox } from "~/components/react/elements/form/select-box/select-box";
 import { Slider$ } from "~/components/react/elements/form/slider";
@@ -129,7 +129,7 @@ const schema = $schema({
   //   required: [() => true, () => "入力しなくても命だけは獲らないでいてやる。"],
   // }),
   sourceText: $str({
-    required: true,
+    // required: true,
     source: [
       { value: "helloworld", text: "halloWorld" },
       { value: "hoge", text: "HOGE" },

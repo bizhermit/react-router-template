@@ -2,37 +2,37 @@ import { useImperativeHandle, useRef, type InputHTMLAttributes, type RefObject }
 import { clsx, getColorClassName } from "../../utilities";
 import { InputDummyFocus, InputLabel, InputLabelText, type InputLabelProps, type InputRef } from "../common";
 
-export interface CheckBox$Ref extends InputRef {
+export interface RadioButton$Ref extends InputRef {
   inputElement: HTMLInputElement;
 };
 
-export type CheckBoxAppearance =
-  | "checkbox"
+export type RadioButtonAppearance =
+  | "radio"
   | "button"
   ;
 
-export type CheckBox$Props = Overwrite<InputLabelProps, {
+export type RadioButton$Props = Overwrite<InputLabelProps, {
   ref?: RefObject<InputRef | null>;
   inputProps?: InputHTMLAttributes<HTMLInputElement>;
-  appearance?: CheckBoxAppearance;
+  appearance?: RadioButtonAppearance;
   color?: StyleColor;
   omitDummy?: boolean;
 }>;
 
-export function CheckBox$({
+export function RadioButton$({
   ref,
   inputProps,
   state = { current: "enabled" },
   className,
   children,
-  appearance = "checkbox",
+  appearance,
   color,
   omitDummy,
   ...props
-}: CheckBox$Props) {
+}: RadioButton$Props) {
   const wref = useRef<HTMLLabelElement>(null!);
   const iref = useRef<HTMLInputElement>(null!);
-  const dref = useRef<HTMLDivElement | null>(null);
+  const dref = useRef<HTMLInputElement | null>(null);
 
   const colorClassName = getColorClassName(color);
 
@@ -40,19 +40,17 @@ export function CheckBox$({
     element: wref.current,
     inputElement: iref.current,
     focus: () => (dref.current ?? iref.current).focus(),
-  } as const satisfies CheckBox$Ref));
+  } as const satisfies RadioButton$Ref));
 
   return (
     <InputLabel
       {...props}
-      ref={wref}
-      state={state}
       className={
         appearance === "button" ?
           clsx(
             "_ipt-label-button",
             colorClassName,
-            className
+            className,
           ) :
           className
       }
@@ -63,9 +61,9 @@ export function CheckBox$({
         aria-readonly={state.current === "readonly"}
         {...inputProps}
         className={
-          appearance === "checkbox" ?
+          appearance === "radio" ?
             clsx(
-              "_ipt-point _ipt-check",
+              "_ipt-point _ipt-radio",
               colorClassName,
               inputProps?.className,
             ) :
@@ -74,8 +72,7 @@ export function CheckBox$({
               inputProps?.className,
             )
         }
-        ref={iref}
-        type="checkbox"
+        type="radio"
       />
       <InputLabelText
         className={
@@ -88,22 +85,10 @@ export function CheckBox$({
       </InputLabelText>
       {
         state.current === "readonly" &&
-        <>
-          {
-            inputProps?.name &&
-            <input
-              type="hidden"
-              name={inputProps.name}
-              value={inputProps.value as string || undefined}
-            />
-          }
-          {
-            !omitDummy &&
-            <InputDummyFocus
-              ref={dref}
-            />
-          }
-        </>
+        !omitDummy &&
+        <InputDummyFocus
+          ref={dref}
+        />
       }
     </InputLabel>
   );
