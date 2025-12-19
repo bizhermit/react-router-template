@@ -14,6 +14,7 @@ import { LinkButton } from "~/components/react/elements/button/link-button";
 import { Carousel, useCarousel, type CarouselOptions } from "~/components/react/elements/carousel";
 import { Details } from "~/components/react/elements/details";
 import { useDialog } from "~/components/react/elements/dialog";
+import { CheckBox$ } from "~/components/react/elements/form/check-box";
 import { CheckBox } from "~/components/react/elements/form/check-box/check-box";
 import { CheckList } from "~/components/react/elements/form/check-box/check-list";
 import { FormItem } from "~/components/react/elements/form/common";
@@ -32,7 +33,8 @@ import { SelectBox$, SelectBoxEmptyOption } from "~/components/react/elements/fo
 import { SelectBox } from "~/components/react/elements/form/select-box/select-box";
 import { Slider$ } from "~/components/react/elements/form/slider";
 import { Slider } from "~/components/react/elements/form/slider/slider";
-import { SwitchBox } from "~/components/react/elements/form/switch-box";
+import { SwitchBox$ } from "~/components/react/elements/form/switch-box";
+import { SwitchBox } from "~/components/react/elements/form/switch-box/switch-box";
 import { TextArea$ } from "~/components/react/elements/form/text-area";
 import { TextArea } from "~/components/react/elements/form/text-area/text-area";
 import { TextBox$ } from "~/components/react/elements/form/text-box";
@@ -642,6 +644,9 @@ function Component2() {
       </FormItem>
       <DynamicSelectBoxComponent />
       <FormItem>
+        <CheckBox$>
+          CheckBox
+        </CheckBox$>
         <CheckBox
           $={dataItems.check}
         // appearance="button"
@@ -651,6 +656,9 @@ function Component2() {
         </CheckBox>
       </FormItem>
       <FormItem>
+        <SwitchBox$>
+          SwitchBox
+        </SwitchBox$>
         <SwitchBox
           $={dataItems.numFlag}
         >

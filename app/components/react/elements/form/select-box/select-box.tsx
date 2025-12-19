@@ -27,7 +27,7 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
   autoFocus,
   ...$props
 }: SelectBoxProps<D>) {
-  const ref = useRef<SelectBoxRef>(null!);
+  const ref = useRef<SelectBox$Ref>(null!);
 
   const {
     name,

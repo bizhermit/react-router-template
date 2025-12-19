@@ -22,7 +22,7 @@ export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
   source: propsSource,
   ...$props
 }: DateBoxProps<P>) {
-  const ref = useRef<DateBoxRef>(null!);
+  const ref = useRef<DateBox$Ref>(null!);
 
   const {
     name,
