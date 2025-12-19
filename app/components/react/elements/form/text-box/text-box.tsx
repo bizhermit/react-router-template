@@ -133,6 +133,7 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
         style={style}
         ref={ref}
         state={state}
+        invalid={invalid}
         inputProps={{
           type: patternProps.type || "text",
           name: omitOnSubmit ? undefined : name,
@@ -142,7 +143,6 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
           placeholder,
           inputMode: patternProps.inputMode,
           "aria-label": label,
-          "aria-invalid": invalid,
           "aria-errormessage": errormessage,
           list: dataListId,
           autoFocus,

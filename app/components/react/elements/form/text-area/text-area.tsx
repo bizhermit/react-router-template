@@ -100,6 +100,7 @@ export function TextArea<D extends Schema.DataItem<Schema.$String>>({
         className={className}
         style={style}
         ref={ref}
+        invalid={invalid}
         state={state}
         resize={resize}
         minRows={minRows}
@@ -115,7 +116,6 @@ export function TextArea<D extends Schema.DataItem<Schema.$String>>({
           rows,
           cols,
           "aria-label": label,
-          "aria-invalid": invalid,
           "aria-errormessage": errormessage,
           autoFocus,
         }}

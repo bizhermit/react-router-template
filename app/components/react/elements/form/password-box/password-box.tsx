@@ -87,6 +87,7 @@ export function PasswordBox<D extends Schema.DataItem<Schema.$String>>({
         className={className}
         style={style}
         ref={ref}
+        invalid={invalid}
         state={state}
         inputProps={{
           name: omitOnSubmit ? undefined : name,
@@ -96,7 +97,6 @@ export function PasswordBox<D extends Schema.DataItem<Schema.$String>>({
           placeholder,
           inputMode: "url",
           "aria-label": label,
-          "aria-invalid": invalid,
           "aria-errormessage": errormessage,
           autoFocus,
           autoComplete,

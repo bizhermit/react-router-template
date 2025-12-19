@@ -63,6 +63,7 @@ export function SwitchBox<D extends Schema.DataItem<Schema.$Boolean>>({
         className={className}
         style={style}
         ref={ref}
+        invalid={invalid}
         state={state}
         color={color}
         inputProps={{
@@ -72,7 +73,6 @@ export function SwitchBox<D extends Schema.DataItem<Schema.$Boolean>>({
           defaultChecked: value === dataItem._.trueValue,
           onChange: handleChange,
           "aria-label": label,
-          "aria-invalid": invalid,
           "aria-errormessage": errormessage,
           autoFocus,
         }}

@@ -1,6 +1,6 @@
-import { useImperativeHandle, useRef, type InputHTMLAttributes, type ReactNode, type RefObject } from "react";
+import { useImperativeHandle, useRef, type InputHTMLAttributes, type ReactNode } from "react";
 import { clsx } from "../../utilities";
-import { InputFieldWrapper, type InputFieldWrapperProps } from "../wrapper/input-field";
+import { InputFieldWrapper, type InputFieldProps, type InputFieldWrapperProps } from "../wrapper/input-field";
 
 export interface TextBox$Ref extends InputRef {
   inputElement: HTMLInputElement;
@@ -8,15 +8,15 @@ export interface TextBox$Ref extends InputRef {
 
 export type TextBox$Props = Overwrite<
   InputFieldWrapperProps,
-  {
-    ref?: RefObject<InputRef | null>;
+  InputFieldProps<{
     inputProps?: InputHTMLAttributes<HTMLInputElement>;
     children?: ReactNode;
-  }
+  }>
 >;
 
 export function TextBox$({
   ref,
+  invalid,
   inputProps,
   state = { current: "enabled" },
   className,
@@ -46,6 +46,7 @@ export function TextBox$({
         type="text"
         disabled={state.current === "disabled"}
         readOnly={state.current === "readonly"}
+        aria-invalid={invalid}
         {...inputProps}
         className={clsx(
           "_ipt-box",

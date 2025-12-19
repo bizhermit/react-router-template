@@ -1271,6 +1271,7 @@ function SplittedSelect({
   return (
     <SelectBox$
       ref={ref}
+      invalid={isInvalid}
       state={state}
       placeholder={placeholder}
       selectProps={{
@@ -1278,7 +1279,6 @@ function SplittedSelect({
         required,
         defaultValue: value ?? "",
         "aria-label": $?.label,
-        "aria-invalid": isInvalid,
         "aria-errormessage": result?.type === "e" ? result.message : undefined,
         onChange: handleChange,
       }}

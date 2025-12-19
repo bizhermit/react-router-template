@@ -1,8 +1,8 @@
-import { useImperativeHandle, useRef, type InputHTMLAttributes, type RefObject } from "react";
+import { useImperativeHandle, useRef, type InputHTMLAttributes } from "react";
 import { clsx, getColorClassName } from "../../utilities";
 import { InputDummyFocus } from "../dummy-focus";
 import { InputLabelText } from "../input-label-text";
-import { InputLabelWrapper, type InputLabelWrapperProps } from "../wrapper/input-label";
+import { InputLabelWrapper, type InputLabelProps, type InputLabelWrapperProps } from "../wrapper/input-label";
 
 export interface SwitchBox$Ref extends InputRef {
   inputElement: HTMLInputElement;
@@ -10,15 +10,15 @@ export interface SwitchBox$Ref extends InputRef {
 
 export type SwitchBox$Props = Overwrite<
   InputLabelWrapperProps,
-  {
-    ref?: RefObject<InputRef | null>;
+  InputLabelProps<{
     inputProps?: InputHTMLAttributes<HTMLInputElement>;
     color?: StyleColor;
-  }
+  }>
 >;
 
 export function SwitchBox$({
   ref,
+  invalid,
   inputProps,
   state = { current: "enabled" },
   children,
@@ -45,6 +45,7 @@ export function SwitchBox$({
         disabled={state.current !== "enabled"}
         aria-disabled={state.current === "disabled"}
         aria-readonly={state.current === "readonly"}
+        aria-invalid={invalid}
         {...inputProps}
         className={clsx(
           "_ipt-switch",

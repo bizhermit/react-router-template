@@ -87,12 +87,12 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
         style={style}
         state={state}
         ref={ref}
+        invalid={invalid}
         placeholder={placeholder}
         selectProps={{
           name: omitOnSubmit ? undefined : name,
           required,
           "aria-label": label,
-          "aria-invalid": invalid,
           "aria-errormessage": errormessage,
           autoFocus,
           defaultValue: value as string || undefined,

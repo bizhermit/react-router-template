@@ -41,3 +41,8 @@ export function InputFieldWrapper({
     </div>
   );
 };
+
+export type InputFieldProps<T = {}> = Overwrite<
+  InputFieldWrapperProps,
+  Overwrite<InputProps, T>
+>;

@@ -97,6 +97,7 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
         className={className}
         style={style}
         ref={ref}
+        invalid={invalid}
         state={state}
         color={color}
         showValueText
@@ -113,7 +114,6 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
           value,
           onChange: handleChange,
           "aria-label": label,
-          "aria-invalid": invalid,
           "aria-errormessage": errormessage,
           title: value == null ? undefined : String(value),
           autoFocus,

@@ -3,6 +3,11 @@ interface InputRef {
   focus: () => void;
 };
 
+interface InputProps {
+  ref?: React.RefObject<InputRef | null>;
+  invalid?: boolean | undefined;
+};
+
 interface InputPropsWithDataItem<D extends Schema.DataItem> {
   className?: string;
   style?: React.CSSProperties;

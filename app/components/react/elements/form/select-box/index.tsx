@@ -1,10 +1,10 @@
-import { use, useImperativeHandle, useRef, type ReactNode, type RefObject, type SelectHTMLAttributes } from "react";
+import { use, useImperativeHandle, useRef, type ReactNode, type SelectHTMLAttributes } from "react";
 import { ValidScriptsContext } from "~/components/react/providers/valid-scripts";
 import { DownIcon } from "../../icon";
 import { clsx, ZERO_WIDTH_SPACE } from "../../utilities";
 import { InputDummyFocus } from "../dummy-focus";
 import { Placeholder } from "../placeholder";
-import { InputFieldWrapper, type InputFieldWrapperProps } from "../wrapper/input-field";
+import { InputFieldWrapper, type InputFieldProps, type InputFieldWrapperProps } from "../wrapper/input-field";
 
 export interface SelectBox$Ref extends InputRef {
   selectElement: HTMLSelectElement;
@@ -12,16 +12,16 @@ export interface SelectBox$Ref extends InputRef {
 
 export type SelectBox$Props = Overwrite<
   InputFieldWrapperProps,
-  {
-    ref?: RefObject<InputRef | null>;
+  InputFieldProps<{
     selectProps?: SelectHTMLAttributes<HTMLSelectElement>;
     children?: ReactNode;
     placeholder?: ReactNode;
-  }
+  }>
 >;
 
 export function SelectBox$({
   ref,
+  invalid,
   selectProps,
   state = { current: "enabled" },
   children,
@@ -47,12 +47,16 @@ export function SelectBox$({
       state={state}
     >
       <select
-        {...selectProps}
-        className="_ipt-box _ipt-select"
-        ref={sref}
         disabled={state.current !== "enabled"}
         aria-disabled={state.current === "disabled"}
         aria-readonly={state.current === "readonly"}
+        aria-invalid={invalid}
+        {...selectProps}
+        className={clsx(
+          "_ipt-box _ipt-select",
+          selectProps?.className,
+        )}
+        ref={sref}
       >
         {children}
       </select>

@@ -1,9 +1,9 @@
-import { use, useImperativeHandle, useMemo, useRef, type ChangeEvent, type CompositionEvent, type FocusEvent, type InputHTMLAttributes, type KeyboardEvent, type ReactNode, type RefObject } from "react";
+import { use, useImperativeHandle, useMemo, useRef, type ChangeEvent, type CompositionEvent, type FocusEvent, type InputHTMLAttributes, type KeyboardEvent, type ReactNode } from "react";
 import { parseNumber } from "~/components/objects/numeric";
 import { ValidScriptsContext } from "~/components/react/providers/valid-scripts";
 import { DownIcon, UpIcon } from "../../icon";
 import { clsx } from "../../utilities";
-import { InputFieldWrapper, type InputFieldWrapperProps } from "../wrapper/input-field";
+import { InputFieldWrapper, type InputFieldProps, type InputFieldWrapperProps } from "../wrapper/input-field";
 
 export interface NumberBox$Ref extends InputRef {
   inputElement: HTMLInputElement;
@@ -14,8 +14,7 @@ export interface NumberBox$Ref extends InputRef {
 
 export type NumberBox$Props = Overwrite<
   InputFieldWrapperProps,
-  {
-    ref?: RefObject<InputRef | null>;
+  InputFieldProps<{
     inputProps?: Overwrite<
       InputHTMLAttributes<HTMLInputElement>,
       {
@@ -29,7 +28,7 @@ export type NumberBox$Props = Overwrite<
     >;
     children?: ReactNode;
     bindMode?: "state" | "dom";
-  }
+  }>
 >;
 
 const UP_DOWN_ROOP_WAIT = 500;
@@ -37,6 +36,7 @@ const UP_DOWN_INTERVAL = 50;
 
 export function NumberBox$({
   ref,
+  invalid,
   inputProps,
   state = { current: "enabled" },
   className,
@@ -251,6 +251,7 @@ export function NumberBox$({
         type={validScripts ? "text" : "number"}
         disabled={state.current === "disabled"}
         readOnly={state.current === "readonly"}
+        aria-invalid={invalid}
         {...inputProps}
         className={clsx(
           "_ipt-box text-right z-0",

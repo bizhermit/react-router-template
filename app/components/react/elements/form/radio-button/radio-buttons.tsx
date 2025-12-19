@@ -113,6 +113,7 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
             <RadioButton$
               key={key}
               ref={index === 0 ? firstRef : undefined}
+              invalid={invalid}
               state={state}
               color={color}
               appearance={appearance}
@@ -124,7 +125,6 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
                 onChange: handleChange,
                 onClick: handleClick,
                 "aria-label": `${label ? `${label} - ` : ""}${item.text}`,
-                "aria-invalid": invalid,
                 "aria-errormessage": errormessage,
                 autoFocus: autoFocus ? (hasValue ? isSelected : index === 0) : undefined,
               }}

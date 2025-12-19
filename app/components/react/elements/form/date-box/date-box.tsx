@@ -125,6 +125,7 @@ export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
         className={className}
         style={style}
         ref={ref}
+        invalid={invalid}
         state={state}
         bindMode="dom"
         inputProps={{
@@ -137,7 +138,6 @@ export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
           defaultValue,
           step: type === "datetime" ? (dataItem._.time === "hm" ? 60 : undefined) : undefined,
           "aria-label": label,
-          "aria-invalid": invalid,
           "aria-errormessage": errormessage,
           value: value === undefined ? undefined : (value || ""),
           list: dataListId,

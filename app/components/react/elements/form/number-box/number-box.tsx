@@ -124,6 +124,7 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
         style={style}
         state={state}
         ref={ref}
+        invalid={invalid}
         bindMode="dom"
         inputProps={{
           name: omitOnSubmit ? undefined : name,
@@ -134,7 +135,6 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
           step,
           placeholder,
           "aria-label": label,
-          "aria-invalid": invalid,
           "aria-errormessage": errormessage,
           list: dataListId,
           autoFocus,

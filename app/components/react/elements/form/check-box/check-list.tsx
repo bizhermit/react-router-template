@@ -110,6 +110,7 @@ export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemS
             <CheckBox$
               key={key}
               ref={index === 0 ? firstRef : undefined}
+              invalid={invalid}
               appearance={appearance}
               state={state}
               color={color}
@@ -120,7 +121,6 @@ export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemS
                 defaultChecked: isChecked,
                 onChange: e => handleChange(e, item.value),
                 "aria-label": `${label ? `${label} - ` : ""}${item.text}`,
-                "aria-invalid": invalid,
                 "aria-errormessage": errormessage,
                 autoFocus: autoFocus ? index === 0 : undefined,
               }}

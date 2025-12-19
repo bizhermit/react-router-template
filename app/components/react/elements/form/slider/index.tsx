@@ -1,8 +1,8 @@
-import { use, useImperativeHandle, useRef, type CSSProperties, type HTMLAttributes, type InputHTMLAttributes, type RefObject } from "react";
+import { use, useImperativeHandle, useRef, type CSSProperties, type HTMLAttributes, type InputHTMLAttributes } from "react";
 import { ValidScriptsContext } from "~/components/react/providers/valid-scripts";
 import { clsx, getColorClassName } from "../../utilities";
 import { InputDummyFocus } from "../dummy-focus";
-import { InputLabelWrapper, type InputLabelWrapperProps } from "../wrapper/input-label";
+import { InputLabelWrapper, type InputLabelProps, type InputLabelWrapperProps } from "../wrapper/input-label";
 
 export interface Slider$Ref extends InputRef {
   inputElement: HTMLInputElement;
@@ -10,8 +10,7 @@ export interface Slider$Ref extends InputRef {
 
 export type Slider$Props = Overwrite<
   InputLabelWrapperProps,
-  {
-    ref?: RefObject<InputRef | null>;
+  InputLabelProps<{
     inputProps?: Overwrite<
       InputHTMLAttributes<HTMLInputElement>,
       {
@@ -30,7 +29,7 @@ export type Slider$Props = Overwrite<
       source: Schema.Source<number | null | undefined>;
       hideScales?: boolean;
     };
-  }
+  }>
 >;
 
 const DEFAULT_MIN = 0;
@@ -38,6 +37,7 @@ const DEFAULT_MAX = 100;
 
 export function Slider$({
   ref,
+  invalid,
   inputProps,
   labelProps,
   state = { current: "enabled" },
@@ -101,6 +101,7 @@ export function Slider$({
         disabled={state.current !== "enabled"}
         aria-disabled={state.current === "disabled"}
         aria-readonly={state.current === "readonly"}
+        aria-invalid={invalid}
         list={dataList?.id}
         {...inputProps}
         className={clsx(

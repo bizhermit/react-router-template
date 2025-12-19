@@ -1,8 +1,8 @@
-import { useImperativeHandle, useRef, type InputHTMLAttributes, type RefObject } from "react";
+import { useImperativeHandle, useRef, type InputHTMLAttributes } from "react";
 import { clsx, getColorClassName } from "../../utilities";
 import { InputDummyFocus } from "../dummy-focus";
 import { InputLabelText } from "../input-label-text";
-import { InputLabelWrapper, type InputLabelWrapperProps } from "../wrapper/input-label";
+import { InputLabelWrapper, type InputLabelProps, type InputLabelWrapperProps } from "../wrapper/input-label";
 
 export interface RadioButton$Ref extends InputRef {
   inputElement: HTMLInputElement;
@@ -15,24 +15,22 @@ export type RadioButtonAppearance =
 
 export type RadioButton$Props = Overwrite<
   InputLabelWrapperProps,
-  {
-    ref?: RefObject<InputRef | null>;
+  InputLabelProps<{
     inputProps?: InputHTMLAttributes<HTMLInputElement>;
     appearance?: RadioButtonAppearance;
     color?: StyleColor;
-    omitDummy?: boolean;
-  }
+  }>
 >;
 
 export function RadioButton$({
   ref,
+  invalid,
   inputProps,
   state = { current: "enabled" },
   className,
   children,
   appearance,
   color,
-  omitDummy,
   ...props
 }: RadioButton$Props) {
   const wref = useRef<HTMLLabelElement>(null!);
@@ -64,6 +62,7 @@ export function RadioButton$({
         disabled={state.current !== "enabled"}
         aria-disabled={state.current === "disabled"}
         aria-readonly={state.current === "readonly"}
+        aria-invalid={invalid}
         {...inputProps}
         className={
           appearance === "radio" ?
@@ -90,7 +89,6 @@ export function RadioButton$({
       </InputLabelText>
       {
         state.current === "readonly" &&
-        !omitDummy &&
         <InputDummyFocus
           ref={dref}
         />

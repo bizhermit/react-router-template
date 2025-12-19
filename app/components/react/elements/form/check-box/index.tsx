@@ -1,8 +1,8 @@
-import { useImperativeHandle, useRef, type InputHTMLAttributes, type RefObject } from "react";
+import { useImperativeHandle, useRef, type InputHTMLAttributes } from "react";
 import { clsx, getColorClassName } from "../../utilities";
 import { InputDummyFocus } from "../dummy-focus";
 import { InputLabelText } from "../input-label-text";
-import { InputLabelWrapper, type InputLabelWrapperProps } from "../wrapper/input-label";
+import { InputLabelWrapper, type InputLabelProps, type InputLabelWrapperProps } from "../wrapper/input-label";
 
 export interface CheckBox$Ref extends InputRef {
   inputElement: HTMLInputElement;
@@ -15,13 +15,11 @@ export type CheckBoxAppearance =
 
 export type CheckBox$Props = Overwrite<
   InputLabelWrapperProps,
-  {
+  InputLabelProps<{
     inputProps?: InputHTMLAttributes<HTMLInputElement>;
-    ref?: RefObject<InputRef | null>;
     appearance?: CheckBoxAppearance;
     color?: StyleColor;
-    omitDummy?: boolean;
-  }
+  }>
 >;
 
 export function CheckBox$({
@@ -29,10 +27,10 @@ export function CheckBox$({
   children,
   inputProps,
   ref,
+  invalid,
   state = { current: "enabled" },
   appearance = "checkbox",
   color,
-  omitDummy,
   ...props
 }: CheckBox$Props) {
   const wref = useRef<HTMLLabelElement>(null!);
@@ -66,6 +64,7 @@ export function CheckBox$({
         disabled={state.current !== "enabled"}
         aria-disabled={state.current === "disabled"}
         aria-readonly={state.current === "readonly"}
+        aria-invalid={invalid}
         {...inputProps}
         className={
           appearance === "checkbox" ?
@@ -102,12 +101,9 @@ export function CheckBox$({
               value={inputProps.value as string || undefined}
             />
           }
-          {
-            !omitDummy &&
-            <InputDummyFocus
-              ref={dref}
-            />
-          }
+          <InputDummyFocus
+            ref={dref}
+          />
         </>
       }
     </InputLabelWrapper>

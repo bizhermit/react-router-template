@@ -1,8 +1,8 @@
-import { use, useImperativeHandle, useRef, useState, type InputHTMLAttributes, type RefObject } from "react";
+import { use, useImperativeHandle, useRef, useState, type InputHTMLAttributes } from "react";
 import { ValidScriptsContext } from "~/components/react/providers/valid-scripts";
 import { CircleFillIcon, CircleIcon } from "../../icon";
 import { clsx } from "../../utilities";
-import { InputFieldWrapper, type InputFieldWrapperProps } from "../wrapper/input-field";
+import { InputFieldWrapper, type InputFieldProps, type InputFieldWrapperProps } from "../wrapper/input-field";
 
 export interface PasswordBox$Ref extends InputRef {
   inputElement: HTMLInputElement;
@@ -10,14 +10,14 @@ export interface PasswordBox$Ref extends InputRef {
 
 export type PasswordBox$Props = Overwrite<
   InputFieldWrapperProps,
-  {
-    ref?: RefObject<InputRef | null>;
+  InputFieldProps<{
     inputProps?: InputHTMLAttributes<HTMLInputElement>;
-  }
+  }>
 >;
 
 export function PasswordBox$({
   ref,
+  invalid,
   inputProps,
   state = { current: "enabled" },
   className,
@@ -54,6 +54,7 @@ export function PasswordBox$({
       <input
         disabled={state.current === "disabled"}
         readOnly={state.current === "readonly"}
+        aria-invalid={invalid}
         {...inputProps}
         type={type}
         className={clsx(

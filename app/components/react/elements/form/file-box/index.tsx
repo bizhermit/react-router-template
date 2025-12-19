@@ -1,8 +1,8 @@
-import { use, useImperativeHandle, useRef, type DragEvent, type InputHTMLAttributes, type KeyboardEvent, type MouseEvent, type ReactNode, type RefObject } from "react";
+import { use, useImperativeHandle, useRef, type DragEvent, type InputHTMLAttributes, type KeyboardEvent, type MouseEvent, type ReactNode } from "react";
 import { ValidScriptsContext } from "~/components/react/providers/valid-scripts";
 import { clsx } from "../../utilities";
 import { Placeholder } from "../placeholder";
-import { InputFieldWrapper, type InputFieldWrapperProps } from "../wrapper/input-field";
+import { InputFieldWrapper, type InputFieldProps, type InputFieldWrapperProps } from "../wrapper/input-field";
 
 export interface FileBox$Ref extends InputRef {
   inputElement: HTMLInputElement;
@@ -10,8 +10,7 @@ export interface FileBox$Ref extends InputRef {
 
 export type FileBox$Props = Overwrite<
   InputFieldWrapperProps,
-  {
-    ref?: RefObject<InputRef | null>;
+  InputFieldProps<{
     inputProps?: Overwrite<
       InputHTMLAttributes<HTMLInputElement>,
       {
@@ -19,13 +18,14 @@ export type FileBox$Props = Overwrite<
       }
     >;
     children?: ReactNode;
-  }
+  }>
 >;
 
 const DRAGGING_CLASSNAME = ["bg-sky-500", "dark:bg-sky-900"];
 
 export function FileBox$({
   ref,
+  invalid,
   inputProps,
   state = { current: "enabled" },
   children,
@@ -87,6 +87,7 @@ export function FileBox$({
         disabled={state.current === "disabled"}
         aria-disabled={state.current === "disabled"}
         aria-readonly={state.current === "readonly"}
+        aria-invalid={invalid}
         {...inputProps}
         className={clsx(
           "_ipt-file",

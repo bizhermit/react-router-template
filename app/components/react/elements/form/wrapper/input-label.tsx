@@ -27,3 +27,8 @@ export function InputLabelWrapper({
     />
   );
 };
+
+export type InputLabelProps<T = {}> = Overwrite<
+  InputLabelWrapperProps,
+  Overwrite<InputProps, T>
+>;

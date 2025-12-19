@@ -100,6 +100,7 @@ export function FileBox<D extends Schema.DataItem<Schema.$File>>({
           className={className}
           style={style}
           ref={ref}
+          invalid={invalid}
           state={state}
           inputProps={{
             name: omitOnSubmit ? undefined : name,
@@ -114,7 +115,6 @@ export function FileBox<D extends Schema.DataItem<Schema.$File>>({
             accept,
             max: maxSize,
             "aria-label": label,
-            "aria-invalid": invalid,
             "aria-errormessage": errormessage,
             autoFocus,
             onChange: handleChange,

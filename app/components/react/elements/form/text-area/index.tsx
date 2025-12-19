@@ -1,6 +1,6 @@
-import { useEffect, useImperativeHandle, useRef, type ChangeEvent, type RefObject, type TextareaHTMLAttributes } from "react";
+import { useEffect, useImperativeHandle, useRef, type ChangeEvent, type TextareaHTMLAttributes } from "react";
 import { clsx } from "../../utilities";
-import { InputFieldWrapper, type InputFieldWrapperProps } from "../wrapper/input-field";
+import { InputFieldWrapper, type InputFieldProps, type InputFieldWrapperProps } from "../wrapper/input-field";
 
 export interface TextArea$Ref extends InputRef {
   textAreaElement: HTMLTextAreaElement;
@@ -16,8 +16,7 @@ export type Resize =
 
 export type TextArea$Props = Overwrite<
   InputFieldWrapperProps,
-  {
-    ref?: RefObject<InputRef | null>;
+  InputFieldProps<{
     textAreaProps?: Overwrite<
       TextareaHTMLAttributes<HTMLTextAreaElement>,
       {
@@ -27,7 +26,7 @@ export type TextArea$Props = Overwrite<
     minRows?: number;
     maxRows?: number;
     resize?: Resize;
-  }
+  }>
 >;
 
 const DEFAULT_ROWS = 3;
@@ -43,6 +42,7 @@ function getResizeClassName(resize: Resize | undefined) {
 
 export function TextArea$({
   ref,
+  invalid,
   textAreaProps,
   state = { current: "enabled" },
   minRows,
@@ -125,6 +125,7 @@ export function TextArea$({
       <textarea
         disabled={state.current === "disabled"}
         readOnly={state.current === "readonly"}
+        aria-invalid={invalid}
         {...textAreaProps}
         className={clsx(
           `_ipt-box py-input-pad-y min-h-input min-w-input ${getResizeClassName(resize)}`,

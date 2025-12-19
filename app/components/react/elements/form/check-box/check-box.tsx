@@ -63,6 +63,7 @@ export function CheckBox<D extends Schema.DataItem<Schema.$Boolean>>({
     >
       <CheckBox$
         ref={ref}
+        invalid={invalid}
         className={className}
         style={style}
         color={color}
@@ -75,7 +76,6 @@ export function CheckBox<D extends Schema.DataItem<Schema.$Boolean>>({
           defaultChecked: value === dataItem._.trueValue,
           onChange: handleChange,
           "aria-label": label,
-          "aria-invalid": invalid,
           "aria-errormessage": errormessage,
           autoFocus,
         }}
