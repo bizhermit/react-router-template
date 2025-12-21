@@ -19,15 +19,13 @@ export function useButtonClickHandler(props: ButtonActionProps): {
   processing: boolean;
   processingRef: RefObject<boolean>;
 } {
-  const disabledRef = useRef(false);
-  disabledRef.current = props.disabled ?? false;
   const [processing, setProcessing] = useState(false);
   const processingRef = useRef(processing);
   const revRef = useRef(0);
 
   function handleClick(event: MouseEvent<HTMLButtonElement>) {
     if (
-      disabledRef.current ||
+      props.disabled ||
       processingRef.current ||
       event.currentTarget.matches(":disabled")
     ) {
@@ -46,7 +44,7 @@ export function useButtonClickHandler(props: ButtonActionProps): {
 
   return {
     handleClick,
-    disabled: disabledRef.current,
+    disabled: props.disabled ?? false,
     processing,
     processingRef,
   } as const;
