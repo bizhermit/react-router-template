@@ -1,4 +1,4 @@
-import { useRef, useState, type MouseEvent, type MouseEventHandler, type RefObject } from "react";
+import { useRef, useState, type MouseEvent } from "react";
 import { Button$, type Button$Props } from ".";
 
 export interface ButtonClickParams {
@@ -13,12 +13,7 @@ export interface ButtonActionProps {
   onClick?: ButtonClickEventHandler;
 };
 
-export function useButtonClickHandler(props: ButtonActionProps): {
-  handleClick: MouseEventHandler;
-  disabled: boolean;
-  processing: boolean;
-  processingRef: RefObject<boolean>;
-} {
+export function useButtonClickHandler(props: ButtonActionProps) {
   const [processing, setProcessing] = useState(false);
   const processingRef = useRef(processing);
   const revRef = useRef(0);
