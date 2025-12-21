@@ -22,6 +22,8 @@ const clientOnlyFiles = [
 const serverOnlyFiles = [
   `**/server/**/*.${extensions}`,
   `**/*.server.${extensions}`,
+  "scripts/**",
+  "*.config.*",
 ];
 
 const extendsRules = [
