@@ -14,6 +14,9 @@ export default function Page() {
         <li>
           <Link to="/home">home</Link>
         </li>
+        <li>
+          <Link to="/settings">settings</Link>
+        </li>
       </ul>
     </div>
   );

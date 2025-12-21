@@ -66,13 +66,13 @@ npm run migrate
 ### 言語ファイルからTypeScriptの型情報を生成
 
 ```bash
-npm run generate-i18n-types
+npm run generate:i18n-types
 ```
 
 ### OpenAPIからTypeScriptの型情報を作成
 
 ```bash
-npm run generate-openapi-types
+npm run generate:openapi-types
 ```
 
 ### TypeScript型チェック

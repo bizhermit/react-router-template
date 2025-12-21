@@ -534,7 +534,6 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
     validation,
     reset,
     getFormProps,
-    CsrfTokenHidden: auth.CsrfTokenHidden,
   } as const;
 };
 
