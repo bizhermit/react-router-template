@@ -1,5 +1,4 @@
 import { redirect, useFetcher } from "react-router";
-import { useAuthContext } from "~/auth/client/context";
 import { SIGN_IN_PATHNAME } from "~/auth/consts";
 import { auth } from "~/auth/server/auth";
 import { Button$ } from "~/components/react/elements/button";
@@ -33,7 +32,6 @@ export async function action({ request }: Route.ActionArgs) {
 
 export default function Page() {
   const fetcher = useFetcher();
-  const auth = useAuthContext();
 
   return (
     <fetcher.Form

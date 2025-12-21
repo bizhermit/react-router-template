@@ -5,6 +5,7 @@ import type { InternalApiPaths } from "~/features/common/api/internal";
 type Get = Api.SuccessResponse<InternalApiPaths, "/health", "get">["data"];
 
 export async function loader() {
+  // eslint-disable-next-line no-console
   console.log("healthcheck:", process.version);
   return data({
     now: DateTime.now("UTC").toString(),

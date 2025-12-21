@@ -1,7 +1,6 @@
 import { APIError } from "better-auth";
 import { useEffect } from "react";
 import { data, redirect, useFetcher } from "react-router";
-import { useAuthContext } from "~/auth/client/context";
 import { authSchema } from "~/auth/schema";
 import { auth } from "~/auth/server/auth";
 import { getSignedInUrl } from "~/auth/signed-in-url";
@@ -63,8 +62,6 @@ export default function Page({ actionData }: Route.ComponentProps) {
   });
 
   const userId = useFormItem();
-
-  const auth = useAuthContext();
 
   useEffect(() => {
     if (fetcher.state === "idle") {
