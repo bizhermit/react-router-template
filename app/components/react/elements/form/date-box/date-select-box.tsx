@@ -1,6 +1,6 @@
 import { use, useId, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState, type ChangeEvent, type Dispatch, type ReactNode, type RefObject, type SetStateAction } from "react";
 import { formatDate, parseDate } from "~/components/objects/date";
-import { getSchemaItemMode, getSchemaItemRequired, getSchemaItemResult, optimizeRefs, schemaItemEffect, schemaItemValidation, useFieldSet, useSchemaEffect, type SchemaEffectParams_Result, type SchemaEffectParams_ValueResult } from "~/components/react/hooks/schema";
+import { getSchemaItemMode, getSchemaItemRequired, getSchemaItemResult, optimizeRefs, SchemaContext, schemaItemEffect, schemaItemValidation, useFieldSet, type SchemaEffectParams_Result, type SchemaEffectParams_ValueResult } from "~/components/react/hooks/schema";
 import { parseTimeNums, parseTypedDate } from "~/components/schema/date";
 import { getValidationValue } from "~/components/schema/utilities";
 import { I18nContext } from "../../../hooks/i18n";
@@ -116,218 +116,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
   const type = $date._.type as (Schema.$Date["type"] | Schema.$Month["type"] | Schema.$DateTime["type"]);
   const time = $date._.time;
 
-  const schema = useSchemaEffect((params) => {
-    switch (params.type) {
-      case "refresh": {
-        isEffected.current = false;
-        if ($date.name) {
-          setValue(params.data.get<Schema.DateValueString>($date.name));
-          setResult(params.results[$date.name]);
-        }
-        if ($year?.name) {
-          resetSelectValue(params.data.get<number>($year.name), setYearValue, yearSelectRef);
-          setYearResult(params.results[$year.name]);
-        }
-        if ($month?.name) {
-          resetSelectValue(params.data.get<number>($month.name), setMonthValue, monthSelectRef);
-          setMonthResult(params.results[$month.name]);
-        }
-        if ($day?.name) {
-          resetSelectValue(params.data.get<number>($day.name), setDayValue, daySelectRef);
-          setDayResult(params.results[$day.name]);
-        }
-        if ($hour?.name) {
-          resetSelectValue(params.data.get<number>($hour.name), setHourValue, hourSelectRef);
-          setHourResult(params.results[$hour.name]);
-        }
-        if ($minute?.name) {
-          resetSelectValue(params.data.get<number>($minute.name), setMinuteValue, minuteSelectRef);
-          setMinuteResult(params.results[$minute.name]);
-        }
-        if ($second?.name) {
-          resetSelectValue(params.data.get<number>($second.name), setSecondValue, secondSelectRef);
-          setSecondResult(params.results[$second.name]);
-        }
-      }
-      // eslint-disable-next-line no-fallthrough
-      case "dep":
-        setMode(getMode);
-        setYearMode(getYearMode);
-        setMonthMode(getMonthMode);
-        setDayMode(getDayMode);
-        setHourMode(getHourMode);
-        setMinuteMode(getMinuteMode);
-        setSecondMode(getSecondMode);
-        setRequired(getRequired);
-        setYearRequired(getYearRequired);
-        setMonthRequired(getMonthRequired);
-        setDayRequired(getDayRequired);
-        setHourRequired(getHourRequired);
-        setMinuteRequired(getMinuteRequired);
-        setSecondRequired(getSecondRequired);
-        setMin(getMin);
-        setMax(getMax);
-        setMinTime(getMinTime);
-        setMaxTime(getMaxTime);
-        setPair(getPair);
-        setMinYear(getMinYear);
-        setMaxYear(getMaxYear);
-        setMinMonth(getMinMonth);
-        setMaxMonth(getMaxMonth);
-        setMinDay(getMinDay);
-        setMaxDay(getMaxDay);
-        setMinHour(getMinHour);
-        setMaxHour(getMaxHour);
-        setMinMinute(getMinMinute);
-        setMaxMinute(getMaxMinute);
-        setMinSecond(getMinSecond);
-        setMaxSecond(getMaxSecond);
-        break;
-      case "value-result":
-      case "value": {
-        function update(
-          $: Schema.DataItem | undefined,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          valueSetter: Dispatch<SetStateAction<any>>,
-          resultSetter: Dispatch<SetStateAction<Schema.Result | null | undefined>>,
-          selectRef?: RefObject<SelectBox$Ref | null>
-        ) {
-          if (!$?.name) return false;
-          const item = (params as SchemaEffectParams_ValueResult)
-            .items.find(item => item.name === $.name);
-          if (!item) return false;
-          if (params.type === "value-result") {
-            resetSelectValue(item.value, valueSetter, selectRef);
-            if (schema.validationTrigger === "change") {
-              resultSetter(item.result);
-            }
-          } else {
-            const submission = schemaItemEffect($, schema, item.value);
-            resetSelectValue(submission.value, valueSetter, selectRef);
-            if (schema.validationTrigger === "change") {
-              resultSetter(submission.result);
-            }
-          }
-          isEffected.current = true;
-          return true;
-        }
-        update($date, setValue, setResult);
-        update($year, setYearValue, setYearResult, yearSelectRef);
-        update($month, setMonthValue, setMonthResult, monthSelectRef);
-        update($day, setDayValue, setDayResult, daySelectRef);
-        update($hour, setHourValue, setHourResult, hourSelectRef);
-        update($minute, setMinuteValue, setMinuteResult, minuteSelectRef);
-        update($second, setSecondValue, setSecondResult, secondSelectRef);
-
-        const results: Array<{ name: string; result: Schema.Result | null | undefined; }> = [];
-        function updateWithRefs(
-          $: Schema.DataItem | undefined,
-          refs: Array<RefObject<Array<string>>>,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          valueGetter: () => any,
-          callback: () => void,
-        ) {
-          if (!$) return false;
-          // eslint-disable-next-line @stylistic/max-len
-          if (refs.some(r => r.current.some(ref => (params as SchemaEffectParams_ValueResult).items.some(item => item.name === ref)))) {
-            callback();
-            const result = schemaItemValidation($, schema, valueGetter());
-            if ($.name) results.push({ name: $.name, result });
-            else setResult(result);
-            return true;
-          }
-          return false;
-        }
-        updateWithRefs($date, [dateRefs, customRefs], getValue, () => {
-          setMode(getMode);
-          setRequired(getRequired);
-          setMin(getMin);
-          setMax(getMax);
-          setMinTime(getMinTime);
-          setMaxTime(getMaxTime);
-          setPair(getPair);
-        });
-        updateWithRefs($year, [yearRefs], getYearValue, () => {
-          setYearMode(getYearMode);
-          setYearRequired(getYearRequired);
-          setMinYear(getMinYear);
-          setMaxYear(getMaxYear);
-        });
-        updateWithRefs($month, [monthRefs], getMonthValue, () => {
-          setMonthMode(getMonthMode);
-          setMonthRequired(getMonthRequired);
-          setMinMonth(getMinMonth);
-          setMaxMonth(getMaxMonth);
-        });
-        updateWithRefs($day, [dayRefs], getDayValue, () => {
-          setDayMode(getDayMode);
-          setDayRequired(getDayRequired);
-          setMinDay(getMinDay);
-          setMaxDay(getMaxDay);
-        });
-        updateWithRefs($hour, [hourRefs], getHourValue, () => {
-          setHourMode(getHourMode);
-          setHourRequired(getHourRequired);
-          setMinHour(getMinHour);
-          setMaxHour(getMaxHour);
-        });
-        updateWithRefs($minute, [minuteRefs], getMinuteValue, () => {
-          setMinuteMode(getMinuteMode);
-          setMinuteRequired(getMinuteRequired);
-          setMinMinute(getMinMinute);
-          setMaxMinute(getMaxMinute);
-        });
-        updateWithRefs($second, [secondRefs], getSecondValue, () => {
-          setSecondMode(getSecondMode);
-          setSecondRequired(getSecondRequired);
-          setMinSecond(getMinSecond);
-          setMaxSecond(getMaxSecond);
-        });
-        if (schema.setResults(results)) {
-          isEffected.current = true;
-        }
-        break;
-      }
-      case "result": {
-        function update(
-          $: Schema.DataItem | undefined,
-          resultSetter: Dispatch<SetStateAction<Schema.Result | null | undefined>>,
-        ) {
-          if (!$?.name) return false;
-          const item = (params as SchemaEffectParams_Result)
-            .items.find(item => item.name === $.name);
-          if (!item) return false;
-          resultSetter(item.result);
-          isEffected.current = true;
-          return true;
-        }
-        update($date, setResult);
-        update($year, setYearResult);
-        update($month, setMonthResult);
-        update($day, setDayResult);
-        update($hour, setHourResult);
-        update($minute, setMinuteResult);
-        update($second, setSecondResult);
-        break;
-      }
-      case "validation":
-        if ($date.name) setResult(params.results[$date.name]);
-        if ($year?.name) setYearResult(params.results[$year.name]);
-        if ($month?.name) setMonthResult(params.results[$month.name]);
-        if ($day?.name) setDayResult(params.results[$day.name]);
-        if ($hour?.name) setHourResult(params.results[$hour.name]);
-        if ($minute?.name) setMinuteResult(params.results[$minute.name]);
-        if ($second?.name) setSecondResult(params.results[$second.name]);
-        break;
-      default:
-        break;
-    }
-  }, () => {
-    return {
-      id,
-      name: id,
-    };
-  });
+  const schema = use(SchemaContext);
 
   const isValidScripts = schema.isValidScripts.current;
 
@@ -405,6 +194,8 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
     ) as Schema.DateValueString | null | undefined;
   };
 
+  const [value, setValue] = useState(getValue);
+
   function getValue() {
     return parseTypedValue({
       Y: getYearValue(),
@@ -415,8 +206,6 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
       s: getSecondValue(),
     });
   };
-
-  const [value, setValue] = useState(getValue);
 
   function getYearValue() {
     if (!$year) return undefined;
@@ -603,13 +392,13 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
 
   const [maxTime, setMaxTime] = useState(getMaxTime);
 
+  const [_pair, setPair] = useState(getPair);
+
   function getPair() {
     const pair = getValidationValue(getCommonParams($date), $date._.pair);
     customRefs.current = optimizeRefs($date, pair?.name ? [pair.name] : []);
     return pair;
   };
-
-  const [_pair, setPair] = useState(getPair);
 
   function getMinYear() {
     return getValidationValue(getCommonParams($year), $year?._.min);
@@ -926,6 +715,217 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
   ]);
 
   useLayoutEffect(() => {
+    const unmount = schema.addSubscribe((params) => {
+      switch (params.type) {
+        case "refresh": {
+          isEffected.current = false;
+          if ($date.name) {
+            setValue(params.data.get<Schema.DateValueString>($date.name));
+            setResult(params.results[$date.name]);
+          }
+          if ($year?.name) {
+            resetSelectValue(params.data.get<number>($year.name), setYearValue, yearSelectRef);
+            setYearResult(params.results[$year.name]);
+          }
+          if ($month?.name) {
+            resetSelectValue(params.data.get<number>($month.name), setMonthValue, monthSelectRef);
+            setMonthResult(params.results[$month.name]);
+          }
+          if ($day?.name) {
+            resetSelectValue(params.data.get<number>($day.name), setDayValue, daySelectRef);
+            setDayResult(params.results[$day.name]);
+          }
+          if ($hour?.name) {
+            resetSelectValue(params.data.get<number>($hour.name), setHourValue, hourSelectRef);
+            setHourResult(params.results[$hour.name]);
+          }
+          if ($minute?.name) {
+            resetSelectValue(params.data.get<number>($minute.name), setMinuteValue, minuteSelectRef);
+            setMinuteResult(params.results[$minute.name]);
+          }
+          if ($second?.name) {
+            resetSelectValue(params.data.get<number>($second.name), setSecondValue, secondSelectRef);
+            setSecondResult(params.results[$second.name]);
+          }
+        }
+        // eslint-disable-next-line no-fallthrough
+        case "dep":
+          setMode(getMode);
+          setYearMode(getYearMode);
+          setMonthMode(getMonthMode);
+          setDayMode(getDayMode);
+          setHourMode(getHourMode);
+          setMinuteMode(getMinuteMode);
+          setSecondMode(getSecondMode);
+          setRequired(getRequired);
+          setYearRequired(getYearRequired);
+          setMonthRequired(getMonthRequired);
+          setDayRequired(getDayRequired);
+          setHourRequired(getHourRequired);
+          setMinuteRequired(getMinuteRequired);
+          setSecondRequired(getSecondRequired);
+          setMin(getMin);
+          setMax(getMax);
+          setMinTime(getMinTime);
+          setMaxTime(getMaxTime);
+          setPair(getPair);
+          setMinYear(getMinYear);
+          setMaxYear(getMaxYear);
+          setMinMonth(getMinMonth);
+          setMaxMonth(getMaxMonth);
+          setMinDay(getMinDay);
+          setMaxDay(getMaxDay);
+          setMinHour(getMinHour);
+          setMaxHour(getMaxHour);
+          setMinMinute(getMinMinute);
+          setMaxMinute(getMaxMinute);
+          setMinSecond(getMinSecond);
+          setMaxSecond(getMaxSecond);
+          break;
+        case "value-result":
+        case "value": {
+          function update(
+            $: Schema.DataItem | undefined,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            valueSetter: Dispatch<SetStateAction<any>>,
+            resultSetter: Dispatch<SetStateAction<Schema.Result | null | undefined>>,
+            selectRef?: RefObject<SelectBox$Ref | null>
+          ) {
+            if (!$?.name) return false;
+            const item = (params as SchemaEffectParams_ValueResult)
+              .items.find(item => item.name === $.name);
+            if (!item) return false;
+            if (params.type === "value-result") {
+              resetSelectValue(item.value, valueSetter, selectRef);
+              if (schema.validationTrigger === "change") {
+                resultSetter(item.result);
+              }
+            } else {
+              const submission = schemaItemEffect($, schema, item.value);
+              resetSelectValue(submission.value, valueSetter, selectRef);
+              if (schema.validationTrigger === "change") {
+                resultSetter(submission.result);
+              }
+            }
+            isEffected.current = true;
+            return true;
+          }
+          update($date, setValue, setResult);
+          update($year, setYearValue, setYearResult, yearSelectRef);
+          update($month, setMonthValue, setMonthResult, monthSelectRef);
+          update($day, setDayValue, setDayResult, daySelectRef);
+          update($hour, setHourValue, setHourResult, hourSelectRef);
+          update($minute, setMinuteValue, setMinuteResult, minuteSelectRef);
+          update($second, setSecondValue, setSecondResult, secondSelectRef);
+
+          const results: Array<{ name: string; result: Schema.Result | null | undefined; }> = [];
+          function updateWithRefs(
+            $: Schema.DataItem | undefined,
+            refs: Array<RefObject<Array<string>>>,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            valueGetter: () => any,
+            callback: () => void,
+          ) {
+            if (!$) return false;
+            // eslint-disable-next-line @stylistic/max-len
+            if (refs.some(r => r.current.some(ref => (params as SchemaEffectParams_ValueResult).items.some(item => item.name === ref)))) {
+              callback();
+              const result = schemaItemValidation($, schema, valueGetter());
+              if ($.name) results.push({ name: $.name, result });
+              else setResult(result);
+              return true;
+            }
+            return false;
+          }
+          updateWithRefs($date, [dateRefs, customRefs], getValue, () => {
+            setMode(getMode);
+            setRequired(getRequired);
+            setMin(getMin);
+            setMax(getMax);
+            setMinTime(getMinTime);
+            setMaxTime(getMaxTime);
+            setPair(getPair);
+          });
+          updateWithRefs($year, [yearRefs], getYearValue, () => {
+            setYearMode(getYearMode);
+            setYearRequired(getYearRequired);
+            setMinYear(getMinYear);
+            setMaxYear(getMaxYear);
+          });
+          updateWithRefs($month, [monthRefs], getMonthValue, () => {
+            setMonthMode(getMonthMode);
+            setMonthRequired(getMonthRequired);
+            setMinMonth(getMinMonth);
+            setMaxMonth(getMaxMonth);
+          });
+          updateWithRefs($day, [dayRefs], getDayValue, () => {
+            setDayMode(getDayMode);
+            setDayRequired(getDayRequired);
+            setMinDay(getMinDay);
+            setMaxDay(getMaxDay);
+          });
+          updateWithRefs($hour, [hourRefs], getHourValue, () => {
+            setHourMode(getHourMode);
+            setHourRequired(getHourRequired);
+            setMinHour(getMinHour);
+            setMaxHour(getMaxHour);
+          });
+          updateWithRefs($minute, [minuteRefs], getMinuteValue, () => {
+            setMinuteMode(getMinuteMode);
+            setMinuteRequired(getMinuteRequired);
+            setMinMinute(getMinMinute);
+            setMaxMinute(getMaxMinute);
+          });
+          updateWithRefs($second, [secondRefs], getSecondValue, () => {
+            setSecondMode(getSecondMode);
+            setSecondRequired(getSecondRequired);
+            setMinSecond(getMinSecond);
+            setMaxSecond(getMaxSecond);
+          });
+          if (schema.setResults(results)) {
+            isEffected.current = true;
+          }
+          break;
+        }
+        case "result": {
+          function update(
+            $: Schema.DataItem | undefined,
+            resultSetter: Dispatch<SetStateAction<Schema.Result | null | undefined>>,
+          ) {
+            if (!$?.name) return false;
+            const item = (params as SchemaEffectParams_Result)
+              .items.find(item => item.name === $.name);
+            if (!item) return false;
+            resultSetter(item.result);
+            isEffected.current = true;
+            return true;
+          }
+          update($date, setResult);
+          update($year, setYearResult);
+          update($month, setMonthResult);
+          update($day, setDayResult);
+          update($hour, setHourResult);
+          update($minute, setMinuteResult);
+          update($second, setSecondResult);
+          break;
+        }
+        case "validation":
+          if ($date.name) setResult(params.results[$date.name]);
+          if ($year?.name) setYearResult(params.results[$year.name]);
+          if ($month?.name) setMonthResult(params.results[$month.name]);
+          if ($day?.name) setDayResult(params.results[$day.name]);
+          if ($hour?.name) setHourResult(params.results[$hour.name]);
+          if ($minute?.name) setMinuteResult(params.results[$minute.name]);
+          if ($second?.name) setSecondResult(params.results[$second.name]);
+          break;
+        default:
+          break;
+      }
+    }, {
+      id,
+      name: id,
+    });
+
     setRequired(getRequired);
     setYearRequired(getYearRequired);
     setMonthRequired(getMonthRequired);
@@ -954,6 +954,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
       schema.setResults(updateResults);
     }
     return () => {
+      unmount();
       const updateResults: Parameters<typeof schema.setResults>[0] = [];
       function clearResult($: Schema.DataItem | undefined) {
         if (!$?.name) return;

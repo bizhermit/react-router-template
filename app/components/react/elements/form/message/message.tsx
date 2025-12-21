@@ -1,5 +1,5 @@
-import { useState, type HTMLAttributes } from "react";
-import { useSchemaEffect } from "~/components/react/hooks/schema";
+import { use, useLayoutEffect, useState, type HTMLAttributes } from "react";
+import { SchemaContext } from "~/components/react/hooks/schema";
 import { InputMessageSpan } from ".";
 
 export type InputMessageProps = Overwrite<
@@ -13,27 +13,32 @@ export function InputMessage({
   $,
   ...props
 }: InputMessageProps) {
-  const schema = useSchemaEffect((params) => {
-    switch (params.type) {
-      case "refresh":
-        setResult(params.results[$.name]);
-        break;
-      case "value-result":
-      case "result": {
-        const item = params.items.find(item => item.name === $.name);
-        if (item) {
-          setResult(item.result);
-        }
-        break;
-      }
-      default:
-        break;
-    }
-  });
+  const schema = use(SchemaContext);
 
   const [result, setResult] = useState(() => {
     return schema.getResult($.name);
   });
+
+  useLayoutEffect(() => {
+    const unmount = schema.addSubscribe((params) => {
+      switch (params.type) {
+        case "refresh":
+          setResult(params.results[$.name]);
+          break;
+        case "value-result":
+        case "result": {
+          const item = params.items.find(item => item.name === $.name);
+          if (item) {
+            setResult(item.result);
+          }
+          break;
+        }
+        default:
+          break;
+      }
+    });
+    return () => unmount();
+  }, []);
 
   return (
     <InputMessageSpan
