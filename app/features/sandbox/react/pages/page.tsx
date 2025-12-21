@@ -2,7 +2,7 @@
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { data, useFetcher } from "react-router";
 import { auth } from "~/auth/server/auth";
 import getIndexedDB, { type IndexedDBController, type IndexedDBStores } from "~/components/client/indexeddb";
@@ -11,7 +11,7 @@ import { parseNumber } from "~/components/objects/numeric";
 import { Button$ } from "~/components/react/elements/button";
 import { Button } from "~/components/react/elements/button/button";
 import { LinkButton } from "~/components/react/elements/button/link-button";
-import { Carousel, useCarousel, type CarouselOptions } from "~/components/react/elements/carousel";
+import { Carousel, type CarouselOptions, type CarouselRef } from "~/components/react/elements/carousel";
 import { Details } from "~/components/react/elements/details";
 import { useDialog } from "~/components/react/elements/dialog";
 import { CheckBox$ } from "~/components/react/elements/form/check-box";
@@ -1563,7 +1563,9 @@ function CarouselComponent() {
   const [align, setAlign] = useState<CarouselOptions["align"]>();
   const [removePaddingSpace, setRemovePaddingSpace] = useState<CarouselOptions["removePadding"]>();
   const [slideWidth, setSlideWidth] = useState<string | undefined>(undefined);
-  const [carouselHook, carousel] = useCarousel();
+  const carousel = useRef<CarouselRef | null>(null);
+  const [hasScroll, setHasScroll] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   return (
     <section>
@@ -1597,10 +1599,12 @@ function CarouselComponent() {
             className="w-full bg-bg grow shrink"
             align={align}
             removePadding={removePaddingSpace}
-            hook={carouselHook}
+            ref={carousel}
             style={{
               "--slide-width": slideWidth,
             } as CSSProperties}
+            onChangeScroll={setHasScroll}
+            onChange={setCurrentIndex}
           >
             {[0, 1, 2, 3, 4, 5].map((num) => {
               return {
@@ -1613,15 +1617,15 @@ function CarouselComponent() {
               };
             })}
           </Carousel>
-          {carousel.hasScroll &&
+          {hasScroll &&
             <ol className="flex flex-row justify-center w-full gap-4 flex-none">
               {
                 [0, 1, 2, 3, 4, 5].map((num) => {
                   return (
                     <li key={num}>
                       <Button
-                        onClick={() => carouselHook.select(num)}
-                        color={carousel.currentIndex === num ? "primary" : "sub"}
+                        onClick={() => carousel.current?.select(num)}
+                        color={currentIndex === num ? "primary" : "sub"}
                       >
                         {num}
                       </Button>
