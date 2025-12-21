@@ -57,11 +57,10 @@ export function I18nUrlLocator(props: {
   const i18n = use(I18nContext);
   const location = useLocation();
   const navigate = useNavigate();
-  const [isSwitching, setSwitch] = useState(false);
 
   const isIndex = location.pathname === "/";
   const currentLocale = (location.pathname.match(/^\/([^/]+)/)?.[1]?.toLowerCase() as Locales | undefined) || DEFAULT_LOCALE;
-  const needRefresh = !isSwitching && !isIndex && i18n.locale !== currentLocale;
+  const needRefresh = !isIndex && i18n.locale !== currentLocale;
 
   async function switchLocale(locale: Locales, options?: SwitchLocaleOptions) {
     const pathname = window.location.pathname.replace(/^\/([^/]+)/, `/${locale}`);
@@ -81,14 +80,14 @@ export function I18nUrlLocator(props: {
   };
 
   useEffect(() => {
-    if (!needRefresh) return;
-    setSwitch(true);
-    i18n.switch(currentLocale).finally(() => setSwitch(false));
+    if (isIndex) return;
+    if (i18n.locale === currentLocale) return;
+    i18n.switch(currentLocale);
   }, [needRefresh]);
 
   return (
     <>
-      {(isSwitching || needRefresh) && <LoadingBar />}
+      {needRefresh && <LoadingBar />}
       <I18nLangContext
         value={{
           locale: currentLocale || i18n.locale,
