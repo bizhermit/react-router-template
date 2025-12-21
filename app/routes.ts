@@ -5,7 +5,7 @@ import { getSandboxPageFilePath } from "./features/sandbox/common";
 import { getUserLayoutFilePath, getUserPageFilePath } from "./features/user/consts";
 
 export default [
-  layout(getCommonLayoutFilePath("layout.tsx"), [
+  layout(getCommonLayoutFilePath("root.tsx"), [
     index(getCommonPageFilePath("index.tsx")),
     // ...prefix("/:lang", [
     //   index(getCommonPageFilePath("language.tsx")),
@@ -20,7 +20,6 @@ export default [
     ]),
     route("csp-report", getCommonPageFilePath("csp-report.tsx")),
     route("health", getCommonPageFilePath("health.ts")),
-    route("auth/*", "auth/page.ts"),
     ...prefix("sandbox", [
       index(getSandboxPageFilePath("page.tsx")),
       route("/hoge", getSandboxPageFilePath("hoge.tsx")),

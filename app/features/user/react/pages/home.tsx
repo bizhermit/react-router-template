@@ -1,34 +1,29 @@
-import { data, useFetcher } from "react-router";
+import { useFetcher } from "react-router";
 import { useAuthContext } from "~/auth/client/context";
-import { actionWithAuth } from "~/auth/server/action";
+import { auth } from "~/auth/server/auth";
 import { Button$ } from "~/components/react/elements/button";
 import { Link } from "~/components/react/elements/link";
 import { $schema } from "~/components/schema";
 import { getPayload } from "~/components/schema/server";
 import type { Route } from "./+types/home";
 
-// export async function action(args: Route.ActionArgs) {
-//   return withAuth(args, async function ({ request, session }) {
-//     console.log("- User Home action", session);
-//     console.log(await request.formData());
-//   });
-// };
-
 const schema = $schema({});
 
-export const action = actionWithAuth<Route.ActionArgs>(async ({ request, session }) => {
-  // console.log("- User Home action", session);
-  const submission = await getPayload({
-    request,
-    schema,
-    session,
-  });
-  // eslint-disable-next-line no-console
-  console.log(submission);
-  return data({}, {
-    // headers,
-  });
-});
+export const action = async ({ request }: Route.ActionArgs) => {
+  try {
+    const session = await auth.api.getSession({
+      headers: request.headers,
+    });
+    console.log(session);
+    const submission = await getPayload({
+      request,
+      schema,
+    });
+    console.log(submission);
+  } catch {
+    // ignore
+  }
+};
 
 export default function Page() {
   const fetcher = useFetcher();
@@ -45,7 +40,6 @@ export default function Page() {
       <fetcher.Form
         method="post"
       >
-        <auth.CsrfTokenHidden />
         <Button$
           type="submit"
         >

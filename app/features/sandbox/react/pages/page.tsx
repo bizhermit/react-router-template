@@ -4,7 +4,7 @@
 
 import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { data, useFetcher } from "react-router";
-import { getAuth } from "~/auth/server/loader";
+import { auth } from "~/auth/server/auth";
 import getIndexedDB, { type IndexedDBController, type IndexedDBStores } from "~/components/client/indexeddb";
 import { formatDate } from "~/components/objects/date";
 import { parseNumber } from "~/components/objects/numeric";
@@ -285,15 +285,24 @@ const schema = $schema({
 // console.log(submittion);
 // console.log(performance.now() - start);
 
-export async function loader({ request, context }: Route.LoaderArgs) {
-  console.log(import.meta.env.MODE);
-  const auth = getAuth({ request, context });
+export async function loader({ request }: Route.LoaderArgs) {
+  try {
+    const session = await auth.api.getSession({
+      headers: request.headers,
+    });
+    // console.log(session);
+  } catch {
+    // ignore
+  }
   return data({});
 };
 
 export async function action(args: Route.ActionArgs) {
   console.log("-----------------");
-  console.log(Array.from(args.request.headers.entries()));
+  const session = await auth.api.getSession({
+    headers: args.request.headers,
+  });
+  console.log(session);
   const start = performance.now();
   const submittion = await getPayload({
     request: args.request,
@@ -303,8 +312,7 @@ export async function action(args: Route.ActionArgs) {
   console.log(performance.now() - start);
   console.log("-----------------");
 
-  const auth = getAuth({ request: args.request, context: args.context });
-  await sleep(5000);
+  // await sleep(5000);
 
   return data({
     data: submittion.data,
@@ -380,7 +388,6 @@ function Contents(props: Route.ComponentProps) {
     handleReset,
     getFormProps,
     getData,
-    CsrfTokenHidden,
   } = useSchema({
     schema,
     state: fetcher.state,
@@ -455,7 +462,6 @@ function Contents(props: Route.ComponentProps) {
               encType: "multipart/form-data",
             })}
           >
-            <CsrfTokenHidden />
             <FieldSet
             // readOnly={formReadonly.flag}
             // disabled={formDisabled.flag}

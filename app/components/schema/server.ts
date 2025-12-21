@@ -1,6 +1,4 @@
-import { AUTH_COOKIE_NAMES } from "~/auth/consts";
 import { parseWithSchema } from ".";
-import { cookieStore } from "../cookie/server";
 
 interface Params<$Schema extends Record<string, Schema.$Any>> {
   request: Request;
@@ -8,7 +6,6 @@ interface Params<$Schema extends Record<string, Schema.$Any>> {
   data?: FormData | Record<string, unknown>;
   dep?: Record<string, unknown>;
   skipCsrfCheck?: boolean;
-  session?: import("@auth/core/types").Session | null;
 }
 
 export async function getPayload<$Schema extends Record<string, Schema.$Any>>({
@@ -16,8 +13,6 @@ export async function getPayload<$Schema extends Record<string, Schema.$Any>>({
   schema,
   data,
   dep,
-  skipCsrfCheck = false,
-  session,
 }: Params<$Schema>) {
   const formData = data ?? await request.formData();
   const submission = parseWithSchema({
@@ -29,27 +24,6 @@ export async function getPayload<$Schema extends Record<string, Schema.$Any>>({
     dep,
   });
   delete (submission as Partial<typeof submission>).dataItems;
-  if (!skipCsrfCheck) {
-    const sessionCsrfToken = session?.csrfToken;
-    const cookieCsrfToken = cookieStore(request).getCookie(AUTH_COOKIE_NAMES.csrfToken)?.split("|")?.[0];
-    const csrfToken = submission.data.csrfToken;
-
-    if (
-      (sessionCsrfToken && sessionCsrfToken !== csrfToken) ||
-      (!sessionCsrfToken && cookieCsrfToken && cookieCsrfToken !== csrfToken)
-    ) {
-      return {
-        hasError: true as const,
-        data: {},
-        results: {
-          csrfToken: {
-            type: "e",
-            message: "Invalid CSRF token",
-          } satisfies Schema.Result,
-        },
-      };
-    }
-  }
 
   return submission as ({
     hasError: true;

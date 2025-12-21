@@ -1,18 +1,19 @@
-import { type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { AuthContext } from "./context";
 
 interface Props {
-  children: ReactNode;
-  csrfToken: string | undefined;
-  session: import("@auth/core/types").Session["data"] | null;
-}
+  user: UserData | undefined;
+  children?: ReactNode;
+};
 
-export function AuthProvider({ children, csrfToken, session }: Props) {
+export function AuthProvider({
+  user,
+  children,
+}: Props) {
   return (
     <AuthContext
       value={{
-        csrfToken,
-        session,
+        user,
       }}
     >
       {children}

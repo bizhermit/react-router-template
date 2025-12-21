@@ -7,6 +7,7 @@ PASSWORD="node"
 OWNER="node:node"
 DIRS=(
   "/home/node/.ssh"
+  "/workspace/build"
   "/workspace/node_modules"
   "/workspace/.react-router"
   "/workspace/.playwright"
@@ -41,8 +42,8 @@ git config --local core.fileMode false
 # 依存関係インストール #
 npm install
 
-# DB最新化 #
+# DB最新化
 npm run migrate
 
-# 型情報他生成 #
-npm run prebuild
+# DB初回データ作成
+npx tsx app/database/server/seed.ts

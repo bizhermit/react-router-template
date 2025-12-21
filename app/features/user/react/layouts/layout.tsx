@@ -2,21 +2,24 @@ import { useState } from "react";
 import { data, Outlet, redirect } from "react-router";
 import { useAuthContext } from "~/auth/client/context";
 import { SIGN_IN_PATHNAME, SIGN_OUT_PATHNAME } from "~/auth/consts";
-import { getAuthSession } from "~/auth/server/loader";
+import { auth } from "~/auth/server/auth";
 import { Button$ } from "~/components/react/elements/button";
 import { Details } from "~/components/react/elements/details";
 import type { Route } from "./+types/layout";
 
-export async function loader({ request, context }: Route.LoaderArgs) {
-  const session = await getAuthSession({ request, context });
-  // console.log("user/layout session:", session);
-
-  if (session == null) {
-    const url = new URL(request.url);
-    return redirect(`${SIGN_IN_PATHNAME}?to=${encodeURIComponent(url.pathname + url.search)}`);
+export async function loader({ request }: Route.LoaderArgs) {
+  try {
+    const response = await auth.api.getSession({
+      headers: request.headers,
+    });
+    if (response?.user != null) {
+      return data({});
+    }
+  } catch {
+    // fallback
   }
-
-  return data({});
+  const url = new URL(request.url);
+  return redirect(`${SIGN_IN_PATHNAME}?to=${encodeURIComponent(url.pathname + url.search)}`);
 };
 
 export default function Layout() {
@@ -34,11 +37,6 @@ export default function Layout() {
         method="post"
         action={SIGN_OUT_PATHNAME}
       >
-        <input
-          type="hidden"
-          name="csrfToken"
-          value={auth.csrfToken}
-        />
         <Button$
           type="submit"
           color="sub"
