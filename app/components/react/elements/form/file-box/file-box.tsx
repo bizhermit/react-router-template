@@ -87,7 +87,11 @@ export function FileBox<D extends Schema.DataItem<Schema.$File>>({
     setValue(e.target.files?.[0]);
   };
 
-  const valueType = typeof value === "string" ? "url" : value == null ? undefined : "file";
+  const valueType = typeof value === "string"
+    ? "url"
+    : value == null
+      ? undefined
+      : "file";
 
   return (
     <>
