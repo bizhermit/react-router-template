@@ -38,15 +38,7 @@ export function CheckBox<D extends Schema.DataItem<Schema.$Boolean>>({
     errormessage,
     omitOnSubmit,
     hideMessage,
-  } = useSchemaItem<Schema.DataItem<Schema.$Boolean>>($props, {
-    effect: function ({ value }) {
-      if (!ref.current) return;
-      const isCheck = value === dataItem._.trueValue;
-      if (isCheck !== ref.current.inputElement.checked) {
-        ref.current.inputElement.checked = isCheck;
-      }
-    },
-  });
+  } = useSchemaItem<Schema.DataItem<Schema.$Boolean>>($props, {});
 
   function handleChangeValue(checked: boolean) {
     setValue(checked ? dataItem._.trueValue : dataItem._.falseValue);
