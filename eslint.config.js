@@ -2,26 +2,35 @@ import pluginJs from "@eslint/js";
 import stylistic from "@stylistic/eslint-plugin";
 import pluginReact from "eslint-plugin-react";
 import pluginReactHooks from "eslint-plugin-react-hooks";
+import { defineConfig } from "eslint/config";
+import globals from "globals";
 import tseslint from "typescript-eslint";
 
-export default tseslint.config({
-  files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"],
-  ignores: [
-    "node_modules/**/*",
-    "dist/**/*",
-    "build/**/*",
-    ".react-router/**/*",
-    ".temp/**/*",
-    "**/*.min.{js,mjs,cjs,jsx}",
-  ],
+const extensions = "{js,jsx,mjs,cjs,ts,tsx}";
+
+const clientOnlyFiles = [
+  `**/client/**/*.${extensions}`,
+  `**/*.client.${extensions}`,
+];
+const serverOnlyFiles = [
+  `**/server/**/*.${extensions}`,
+  `**/*.server.${extensions}`,
+  "scripts/**",
+  "*.config.*",
+];
+
+const baseConfig = {
   extends: [
     pluginJs.configs.recommended,
     tseslint.configs.recommended,
     pluginReact.configs.flat.recommended,
-    pluginReactHooks.configs["recommended-latest"],
     stylistic.configs.recommended,
   ],
+  plugins: {
+    "react-hooks": pluginReactHooks,
+  },
   rules: {
+    ...pluginReactHooks.configs.recommended.rules,
     "@stylistic/linebreak-style": [
       "warn",
       "unix",
@@ -222,4 +231,41 @@ export default tseslint.config({
     "react/no-children-prop": "off",
     "react-hooks/exhaustive-deps": "off",
   },
-});
+};
+
+export default defineConfig([
+  {
+    ignores: [
+      "node_modules/**",
+      "dist",
+      "dist/**",
+      "build",
+      "build/**",
+      ".react-router/**",
+      ".temp/**",
+      "**/*.min.{js,mjs,cjs,jsx}",
+    ],
+  },
+  {
+    ...baseConfig,
+    files: clientOnlyFiles,
+    languageOptions: {
+      globals: globals.browser,
+    },
+  },
+  {
+    ...baseConfig,
+    files: serverOnlyFiles,
+    languageOptions: {
+      globals: globals.node,
+    },
+  },
+  {
+    ...baseConfig,
+    files: [`**/*.${extensions}`],
+    ignores: [
+      ...clientOnlyFiles,
+      ...serverOnlyFiles,
+    ],
+  },
+]);

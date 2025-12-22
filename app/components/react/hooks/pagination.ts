@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 interface PaginationProps<T> {
   value: Array<T> | null | undefined;
@@ -6,20 +6,32 @@ interface PaginationProps<T> {
   initPage?: number;
 };
 
-export const usePagination = <T>(props: PaginationProps<T>) => {
-  const maxPage = Math.max(1, Math.ceil((props.value?.length ?? 0) / props.limit));
-  const [page, setPage] = useState<number>(() => Math.min(maxPage, Math.max(1, props.initPage ?? 1)));
-  const hasValue = props.value != null;
+export function usePagination<T>(props: PaginationProps<T>) {
   const length = props.value?.length ?? 0;
+  const maxPage = Math.max(1, Math.ceil(length / props.limit));
 
-  useEffect(() => {
-    setPage(c => Math.min(maxPage, c));
-  }, [maxPage]);
+  const [rawPage, setRawPage] = useState(() => {
+    return Math.min(maxPage, Math.max(1, props.initPage ?? 1));
+  });
+
+  const page = Math.min(maxPage, rawPage);
+  const hasValue = props.value != null;
 
   const value = useMemo(() => {
     if (!hasValue) return props.value;
-    return props.value!.slice(props.limit * (page - 1), props.limit * page);
-  }, [page, props.limit, props.value]);
+    return props.value!.slice(
+      props.limit * (page - 1),
+      props.limit * page
+    );
+  }, [
+    page,
+    props.limit,
+    props.value,
+  ]);
+
+  function setPage(next: number) {
+    setRawPage(Math.max(1, next));
+  };
 
   return {
     originValue: props.value,
@@ -30,8 +42,6 @@ export const usePagination = <T>(props: PaginationProps<T>) => {
     limit: props.limit,
     hasValue,
     noData: hasValue ? length === 0 : false,
-    setPage: function (page: number) {
-      setPage(Math.max(1, Math.min(page, maxPage)));
-    },
-  };
+    setPage,
+  } as const;
 };

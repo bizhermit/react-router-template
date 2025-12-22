@@ -21,7 +21,7 @@ if (!existsSync(targetDirPath)) {
 
 // トンランスパイル対象
 const entryFiles = readdirSync(targetDirPath)
-  .map(name => {
+  .map((name) => {
     const fullName = path.join(targetDirPath, name);
     if (statSync(fullName).isDirectory()) return null;
     if (name.endsWith(".d.ts")) return null;
@@ -62,7 +62,7 @@ function loadTsConfig(configPath) {
   const parsed = ts.parseJsonConfigFileContent(
     configResult.config,
     ts.sys,
-    path.dirname(configPath)
+    path.dirname(configPath),
   );
   // 出力先などを強制
   parsed.options.outDir = tempDirPath;
@@ -149,7 +149,7 @@ function createAliasToRelativeTransformer(program, options) {
         node.importClause,
         newLiteral,
         // TS5+はattributesにリネーム。互換のため両対応。
-        node.assertClause ?? node.attributes
+        node.assertClause ?? node.attributes,
       );
     }
 
@@ -160,22 +160,22 @@ function createAliasToRelativeTransformer(program, options) {
         node.isTypeOnly ?? false,
         node.exportClause,
         newLiteral,
-        node.assertClause ?? node.attributes
+        node.assertClause ?? node.attributes,
       );
     }
 
     if (
-      ts.isCallExpression(node) &&
-      node.expression.kind === ts.SyntaxKind.ImportKeyword &&
-      node.arguments.length === 1 &&
-      ts.isStringLiteralLike(node.arguments[0])
+      ts.isCallExpression(node)
+      && node.expression.kind === ts.SyntaxKind.ImportKeyword
+      && node.arguments.length === 1
+      && ts.isStringLiteralLike(node.arguments[0])
     ) {
       const args = ts.factory.createNodeArray([newLiteral]);
       return ts.factory.updateCallExpression(
         node,
         node.expression,
         node.typeArguments,
-        args
+        args,
       );
     }
 
@@ -193,10 +193,10 @@ function createAliasToRelativeTransformer(program, options) {
         }
         // 動的 import("...")
         if (
-          ts.isCallExpression(node) &&
-          node.expression.kind === ts.SyntaxKind.ImportKeyword &&
-          node.arguments.length === 1 &&
-          ts.isStringLiteralLike(node.arguments[0])
+          ts.isCallExpression(node)
+          && node.expression.kind === ts.SyntaxKind.ImportKeyword
+          && node.arguments.length === 1
+          && ts.isStringLiteralLike(node.arguments[0])
         ) {
           return visitModuleSpecifier(sf, node, n => n.arguments[0]);
         }
@@ -212,7 +212,7 @@ function createAliasToRelativeTransformer(program, options) {
 function compile(entries, options) {
   // tsconfigで解決されたファイル一覧から`.d.ts`を追加して型だけ読み込む
   const allDts = (parsedConfig.fileNames ?? []).filter(
-    f => f.endsWith(".d.ts") && !f.includes("node_modules")
+    f => f.endsWith(".d.ts") && !f.includes("node_modules"),
   );
   const rootNames = Array.from(new Set([...entries, ...allDts]));
 
@@ -240,7 +240,7 @@ function compile(entries, options) {
     undefined,
     undefined,
     false,
-    { before: [transformer] }
+    { before: [transformer] },
   );
 
   const postDiagnostics = emitResult.diagnostics;
@@ -293,7 +293,7 @@ mkdirSync(distDirPath, { recursive: true });
 
 const transpiledTargetDirPath = path.join(tempDirPath, "app", "api-docs");
 const docFiles = readdirSync(transpiledTargetDirPath)
-  .filter(name => {
+  .filter((name) => {
     return !statSync(path.join(transpiledTargetDirPath, name)).isDirectory();
   });
 
@@ -308,12 +308,12 @@ await Promise.all(docFiles.map(async (name) => {
 
   const yamlStr = yaml.dump(openApi, {
     forceQuotes: true,
-    quotingType: "\"",
+    quotingType: '"',
   });
   writeFileSync(
     path.join(distDirPath, `${apiName}.yaml`),
     yamlStr,
-    { encoding: "utf-8" }
+    { encoding: "utf-8" },
   );
 }));
 

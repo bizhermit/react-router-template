@@ -28,7 +28,7 @@ export function CheckBox$({
   inputProps,
   ref,
   invalid,
-  state = { current: "enabled" },
+  state = "enabled",
   appearance = "checkbox",
   color,
   ...props
@@ -61,9 +61,9 @@ export function CheckBox$({
       }
     >
       <input
-        disabled={state.current !== "enabled"}
-        aria-disabled={state.current === "disabled"}
-        aria-readonly={state.current === "readonly"}
+        disabled={state !== "enabled"}
+        aria-disabled={state === "disabled"}
+        aria-readonly={state === "readonly"}
         aria-invalid={invalid}
         {...inputProps}
         className={
@@ -91,7 +91,7 @@ export function CheckBox$({
         {children}
       </InputLabelText>
       {
-        state.current === "readonly" &&
+        state === "readonly" &&
         <>
           {
             inputProps?.name &&

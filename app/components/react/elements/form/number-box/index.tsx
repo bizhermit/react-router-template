@@ -38,7 +38,7 @@ export function NumberBox$({
   ref,
   invalid,
   inputProps,
-  state = { current: "enabled" },
+  state = "enabled",
   className,
   children,
   bindMode = "state",
@@ -113,7 +113,7 @@ export function NumberBox$({
   };
 
   function handleFocus(e: FocusEvent<HTMLInputElement>) {
-    if (state.current !== "enabled") return;
+    if (state !== "enabled") return;
     const [value, isValid] = getInputValue();
     if (isValid) {
       e.currentTarget.value = value == null || isNaN(value) ? "" : String(value);
@@ -175,13 +175,13 @@ export function NumberBox$({
   function handleKeydown(e: KeyboardEvent<HTMLInputElement>) {
     switch (e.key) {
       case "ArrowUp":
-        if (state.current === "enabled") {
+        if (state === "enabled") {
           increment();
           e.preventDefault();
         }
         break;
       case "ArrowDown":
-        if (state.current === "enabled") {
+        if (state === "enabled") {
           decrement();
           e.preventDefault();
         }
@@ -197,7 +197,7 @@ export function NumberBox$({
   };
 
   function handleMousedown(mode: "up" | "down") {
-    if (state.current !== "enabled") return;
+    if (state !== "enabled") return;
     if (mode === "up") increment();
     else decrement();
     let finished = false;
@@ -249,8 +249,8 @@ export function NumberBox$({
     >
       <input
         type={validScripts ? "text" : "number"}
-        disabled={state.current === "disabled"}
-        readOnly={state.current === "readonly"}
+        disabled={state === "disabled"}
+        readOnly={state === "readonly"}
         aria-invalid={invalid}
         {...inputProps}
         className={clsx(
@@ -289,7 +289,7 @@ export function NumberBox$({
           <div
             className={clsx(
               "_ipt-outer-spin-button",
-              state.current !== "enabled" && "opacity-0"
+              state !== "enabled" && "opacity-0"
             )}
           >
             <button
@@ -298,9 +298,9 @@ export function NumberBox$({
               tabIndex={-1}
               className={clsx(
                 "_ipt-inner-spin-button items-end",
-                state.current === "enabled" && "cursor-pointer",
+                state === "enabled" && "cursor-pointer",
               )}
-              disabled={state.current !== "enabled"}
+              disabled={state !== "enabled"}
               onMouseDown={handleMousedownIncrement}
             >
               <UpIcon />
@@ -311,9 +311,9 @@ export function NumberBox$({
               tabIndex={-1}
               className={clsx(
                 "_ipt-inner-spin-button items-start",
-                state.current === "enabled" && "cursor-pointer",
+                state === "enabled" && "cursor-pointer",
               )}
-              disabled={state.current !== "enabled"}
+              disabled={state !== "enabled"}
               onMouseDown={handleMousedownDecrement}
             >
               <DownIcon />
@@ -322,7 +322,7 @@ export function NumberBox$({
           <input
             name={inputProps?.name}
             type="hidden"
-            disabled={state.current === "disabled"}
+            disabled={state === "disabled"}
             value={inputProps?.value ?? ""}
           />
         </>

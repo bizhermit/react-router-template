@@ -49,7 +49,7 @@ export function CheckBox<D extends Schema.DataItem<Schema.$Boolean>>({
   });
 
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    if (state.current !== "enabled") return;
+    if (state !== "enabled") return;
     setValue(e.target.checked ? dataItem._.trueValue : dataItem._.falseValue);
   };
 
@@ -58,7 +58,7 @@ export function CheckBox<D extends Schema.DataItem<Schema.$Boolean>>({
   return (
     <WithMessage
       hide={hideMessage}
-      state={state.current}
+      state={state}
       result={result}
     >
       <CheckBox$

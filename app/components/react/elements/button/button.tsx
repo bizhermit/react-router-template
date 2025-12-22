@@ -1,4 +1,4 @@
-import { useRef, useState, type MouseEvent, type MouseEventHandler, type RefObject } from "react";
+import { useRef, useState, type MouseEvent } from "react";
 import { Button$, type Button$Props } from ".";
 
 export interface ButtonClickParams {
@@ -13,21 +13,14 @@ export interface ButtonActionProps {
   onClick?: ButtonClickEventHandler;
 };
 
-export function useButtonClickHandler(props: ButtonActionProps): {
-  handleClick: MouseEventHandler;
-  disabled: boolean;
-  processing: boolean;
-  processingRef: RefObject<boolean>;
-} {
-  const disabledRef = useRef(false);
-  disabledRef.current = props.disabled ?? false;
+export function useButtonClickHandler(props: ButtonActionProps) {
   const [processing, setProcessing] = useState(false);
   const processingRef = useRef(processing);
   const revRef = useRef(0);
 
   function handleClick(event: MouseEvent<HTMLButtonElement>) {
     if (
-      disabledRef.current ||
+      props.disabled ||
       processingRef.current ||
       event.currentTarget.matches(":disabled")
     ) {
@@ -46,7 +39,7 @@ export function useButtonClickHandler(props: ButtonActionProps): {
 
   return {
     handleClick,
-    disabled: disabledRef.current,
+    disabled: props.disabled ?? false,
     processing,
     processingRef,
   } as const;

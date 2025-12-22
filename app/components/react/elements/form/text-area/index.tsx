@@ -44,7 +44,7 @@ export function TextArea$({
   ref,
   invalid,
   textAreaProps,
-  state = { current: "enabled" },
+  state = "enabled",
   minRows,
   maxRows,
   resize,
@@ -123,8 +123,8 @@ export function TextArea$({
       state={state}
     >
       <textarea
-        disabled={state.current === "disabled"}
-        readOnly={state.current === "readonly"}
+        disabled={state === "disabled"}
+        readOnly={state === "readonly"}
         aria-invalid={invalid}
         {...textAreaProps}
         className={clsx(

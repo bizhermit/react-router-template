@@ -81,7 +81,7 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
   });
 
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    if (state.current !== "enabled") return;
+    if (state !== "enabled") return;
     setValue(e.currentTarget.value as `${number}`);
   };
 
@@ -90,7 +90,7 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
   return (
     <WithMessage
       hide={hideMessage}
-      state={state.current}
+      state={state}
       result={result}
     >
       <Slider$

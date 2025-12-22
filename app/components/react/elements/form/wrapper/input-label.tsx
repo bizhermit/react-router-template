@@ -5,7 +5,7 @@ export type InputLabelWrapperProps = Overwrite<
   LabelHTMLAttributes<HTMLLabelElement>,
   {
     ref?: RefObject<HTMLLabelElement>;
-    state?: RefObject<Schema.Mode>;
+    state?: Schema.Mode;
   }
 >;
 
@@ -15,7 +15,7 @@ export function InputLabelWrapper({
   state,
   ...props
 }: InputLabelWrapperProps) {
-  if (state?.current === "hidden") return null;
+  if (state === "hidden") return null;
 
   return (
     <label

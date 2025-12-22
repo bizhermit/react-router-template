@@ -20,7 +20,7 @@ export function SwitchBox$({
   ref,
   invalid,
   inputProps,
-  state = { current: "enabled" },
+  state = "enabled",
   children,
   color,
   ...props
@@ -42,9 +42,9 @@ export function SwitchBox$({
       state={state}
     >
       <input
-        disabled={state.current !== "enabled"}
-        aria-disabled={state.current === "disabled"}
-        aria-readonly={state.current === "readonly"}
+        disabled={state !== "enabled"}
+        aria-disabled={state === "disabled"}
+        aria-readonly={state === "readonly"}
         aria-invalid={invalid}
         {...inputProps}
         className={clsx(
@@ -59,7 +59,7 @@ export function SwitchBox$({
         {children}
       </InputLabelText>
       {
-        state.current === "readonly" &&
+        state === "readonly" &&
         <>
           {
             inputProps?.name &&

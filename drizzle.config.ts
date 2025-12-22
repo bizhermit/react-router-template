@@ -12,4 +12,4 @@ export default {
     database: process.env.POSTGRES_DB || "template",
     ssl: false,
   },
-} satisfies Config
+} satisfies Config;

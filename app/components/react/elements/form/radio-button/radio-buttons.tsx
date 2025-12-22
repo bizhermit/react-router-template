@@ -75,12 +75,12 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
   });
 
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    if (state.current !== "enabled") return;
+    if (state !== "enabled") return;
     setValue(e.target.value);
   };
 
   function handleClick(e: MouseEvent<HTMLInputElement>) {
-    if (state.current !== "enabled") return;
+    if (state !== "enabled") return;
     if (required) return;
     e.currentTarget.checked = false;
     setValue(undefined);
@@ -96,7 +96,7 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
   return (
     <WithMessage
       hide={hideMessage}
-      state={state.current}
+      state={state}
       result={result}
     >
       <InputGroupWrapper
@@ -134,7 +134,7 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
           );
         })}
         {
-          state.current === "readonly" &&
+          state === "readonly" &&
           <input
             type="hidden"
             name={omitOnSubmit ? undefined : name}

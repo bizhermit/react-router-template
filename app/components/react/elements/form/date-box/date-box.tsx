@@ -1,4 +1,4 @@
-import { useImperativeHandle, useMemo, useRef, useState, type ChangeEvent } from "react";
+import { useImperativeHandle, useRef, useState, type ChangeEvent } from "react";
 import { useSchemaItem } from "~/components/react/hooks/schema";
 import { parseTypedDateString } from "~/components/schema/date";
 import { getValidationValue } from "~/components/schema/utilities";
@@ -91,13 +91,13 @@ export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
 
   const [_pair, setPair] = useState(getPair);
 
-  const defaultValue = useMemo(() => {
+  const [defaultValue] = useState(() => {
     return parseTypedDateString(
       value,
       type,
       time,
     );
-  }, []);
+  });
 
   const { source, resetDataItemSource } = useSource({
     dataItem,
@@ -107,7 +107,7 @@ export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
   });
 
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    if (state.current !== "enabled") return;
+    if (state !== "enabled") return;
     setValue(e.target.value);
   };
 
@@ -118,7 +118,7 @@ export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
   return (
     <WithMessage
       hide={hideMessage}
-      state={state.current}
+      state={state}
       result={result}
     >
       <DateBox$

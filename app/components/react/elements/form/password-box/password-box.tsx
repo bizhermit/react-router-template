@@ -71,7 +71,7 @@ export function PasswordBox<D extends Schema.DataItem<Schema.$String>>({
   const [maxLen, setMaxLen] = useState<number | undefined>(getMaxLen);
 
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    if (state.current !== "enabled") return;
+    if (state !== "enabled") return;
     setValue(e.target.value);
   };
 
@@ -80,7 +80,7 @@ export function PasswordBox<D extends Schema.DataItem<Schema.$String>>({
   return (
     <WithMessage
       hide={hideMessage}
-      state={state.current}
+      state={state}
       result={result}
     >
       <PasswordBox$

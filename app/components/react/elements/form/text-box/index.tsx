@@ -18,7 +18,7 @@ export function TextBox$({
   ref,
   invalid,
   inputProps,
-  state = { current: "enabled" },
+  state = "enabled",
   className,
   children,
   ...props
@@ -44,8 +44,8 @@ export function TextBox$({
     >
       <input
         type="text"
-        disabled={state.current === "disabled"}
-        readOnly={state.current === "readonly"}
+        disabled={state === "disabled"}
+        readOnly={state === "readonly"}
         aria-invalid={invalid}
         {...inputProps}
         className={clsx(

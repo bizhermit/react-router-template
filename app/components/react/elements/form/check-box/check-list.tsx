@@ -74,7 +74,7 @@ export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemS
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function handleChange(e: ChangeEvent<HTMLInputElement>, v: any) {
-    if (state.current !== "enabled") return;
+    if (state !== "enabled") return;
     const newValue = [...value ?? []];
     const index = newValue.findIndex(item => item === v);
     if (index < 0) {
@@ -93,7 +93,7 @@ export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemS
   return (
     <WithMessage
       hide={hideMessage}
-      state={state.current}
+      state={state}
       result={result}
     >
       <InputGroupWrapper

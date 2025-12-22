@@ -1,13 +1,12 @@
-import { useEffect, useRef, useState, type Key, type ReactNode } from "react";
+import { useEffect, useImperativeHandle, useRef, type Key, type ReactNode, type RefObject } from "react";
 import throttle from "~/components/utilities/throttle";
 import { clsx } from "./utilities";
 
-export interface CarouselHookProps {
+export interface CarouselRef {
+  element: HTMLDivElement;
   select: (index: number) => void;
   getCurrentIndex: () => number;
   getMaxLength: () => number;
-  _setHasScroll: (scroll: boolean) => void;
-  _setCurrentIndex: (index: number) => void;
 };
 
 export interface CarouselItemProps {
@@ -16,42 +15,28 @@ export interface CarouselItemProps {
 };
 
 export interface CarouselOptions {
+  ref?: RefObject<CarouselRef | null>;
   align?: "start" | "center" | "end";
   removePadding?: boolean;
   children: CarouselItemProps[];
-  hook?: CarouselHookProps;
   onChange?: (index: number) => void;
   onChangeScroll?: (scroll: boolean) => void;
 };
 
 type CarouselProps = Overwrite<React.HTMLAttributes<HTMLDivElement>, CarouselOptions>;
 
-export function useCarousel(syncState: boolean = true) {
-  const [hasScroll, setHasScroll] = useState(false);
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  const ref = useRef<CarouselHookProps>({
-    select: () => { },
-    getCurrentIndex: () => -1,
-    getMaxLength: () => 0,
-    _setHasScroll: syncState ? setHasScroll : () => { },
-    _setCurrentIndex: syncState ? setCurrentIndex : () => { },
-  });
-  return [ref.current, { hasScroll, currentIndex } as const] as const;
-}
-
 export function Carousel({
+  ref,
   className,
-  onWheel,
   align = "center",
   removePadding,
   children,
-  hook,
   onChange,
   onChangeScroll,
   ...props
 }: CarouselProps) {
-  const ref = useRef<HTMLOListElement>(null);
+  const wref = useRef<HTMLDivElement>(null!);
+  const lref = useRef<HTMLOListElement>(null!);
   const slidesRef = useRef<HTMLElement[]>([]);
   const currentIndex = useRef(0);
   const hasScroll = useRef(false);
@@ -66,16 +51,11 @@ export function Carousel({
   };
 
   function collectChildren() {
-    if (!ref.current) {
-      slidesRef.current = [];
-      return;
-    }
-    slidesRef.current = Array.from(ref.current.children).filter(e => e instanceof HTMLElement);
+    slidesRef.current = Array.from(lref.current.children).filter(e => e instanceof HTMLElement);
   };
 
   function calcCurrentIndex() {
-    const el = ref.current;
-    if (!el) return;
+    const el = lref.current;
     if (slidesRef.current.length === 0) collectChildren();
     if (slidesRef.current.length === 0) return;
     const scrollLeft = el.scrollLeft;
@@ -99,24 +79,14 @@ export function Carousel({
 
     currentIndex.current = bestIndex;
     onChange?.(currentIndex.current);
-    hook?._setCurrentIndex?.(currentIndex.current);
-  }
-
-  if (hook) {
-    hook.select = select;
-    hook.getCurrentIndex = () => currentIndex.current;
-    hook.getMaxLength = () => children.length;
   }
 
   useEffect(() => {
     const resizeEvent = throttle(() => {
-      if (ref.current) {
-        const before = hasScroll.current;
-        hasScroll.current = ref.current.scrollWidth - ref.current.clientWidth > 0;
-        if (before !== hasScroll.current) {
-          onChangeScroll?.(hasScroll.current);
-          hook?._setHasScroll?.(hasScroll.current);
-        }
+      const before = hasScroll.current;
+      hasScroll.current = lref.current.scrollWidth - lref.current.clientWidth > 0;
+      if (before !== hasScroll.current) {
+        onChangeScroll?.(hasScroll.current);
       }
       calcCurrentIndex();
     }, 100);
@@ -124,13 +94,13 @@ export function Carousel({
     const scrollEvent = throttle(() => {
       calcCurrentIndex();
     }, 100);
-    resizeObserver.observe(ref.current!);
-    ref.current?.addEventListener("scroll", scrollEvent, { passive: true });
+    resizeObserver.observe(lref.current);
+    lref.current.addEventListener("scroll", scrollEvent, { passive: true });
     select(currentIndex.current);
     resizeEvent();
     return () => {
       resizeObserver.disconnect();
-      ref.current?.removeEventListener("scroll", scrollEvent);
+      lref.current?.removeEventListener("scroll", scrollEvent);
     };
   }, [align]);
 
@@ -139,9 +109,19 @@ export function Carousel({
     select(Math.min(currentIndex.current, children.length - 1));
   }, [children.length]);
 
+  useImperativeHandle(ref, () => {
+    return {
+      element: wref.current,
+      select,
+      getCurrentIndex: () => currentIndex.current,
+      getMaxLength: () => children.length,
+    };
+  });
+
   return (
     <div
       {...props}
+      ref={wref}
       data-align={align}
       data-nopad={removePadding}
       className={clsx(
@@ -162,7 +142,7 @@ export function Carousel({
         }
       </div>
       <ol
-        ref={ref}
+        ref={lref}
         className="_carousel-slides"
       >
         {

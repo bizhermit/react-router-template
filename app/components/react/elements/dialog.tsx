@@ -1,7 +1,19 @@
-import { useCallback, useEffect, useRef, useState, type DialogHTMLAttributes, type KeyboardEvent, type MouseEvent, type RefObject } from "react";
+import { useEffect, useImperativeHandle, useRef, useState, type DialogHTMLAttributes, type MouseEvent, type RefObject } from "react";
 import { preventScroll } from "../../client/dom/prevent-scroll";
 import throttle from "../../utilities/throttle";
 import { clsx } from "./utilities";
+
+interface DialogRef {
+  element: HTMLDialogElement;
+  showModal: () => void;
+  show: () => void;
+  close: () => void;
+  resetPosition: () => void;
+};
+
+export function useDialog() {
+  return useRef<DialogRef | null>(null);
+};
 
 interface DialogAnchor {
   element?: RefObject<HTMLElement>;
@@ -13,26 +25,37 @@ interface DialogAnchor {
 };
 
 interface DialogOptions {
+  ref?: RefObject<DialogRef | null>;
+  defaultOpen?: "modal" | "modeless";
   anchor?: DialogAnchor;
   preventRootScroll?: boolean;
   closeWhenScrolled?: boolean;
+  preventCloseWhenClickOuter?: boolean;
   preventEscapeClose?: boolean;
 };
 
-type DialogProps = DialogHTMLAttributes<HTMLDialogElement>;
+type DialogProps = Overwrite<
+  DialogHTMLAttributes<HTMLDialogElement>,
+  DialogOptions
+>;
 
-export function useDialog(options?: DialogOptions & {
-  defaultOpen?: "modal" | "modeless";
-}) {
+export function Dialog({
+  ref,
+  defaultOpen,
+  anchor,
+  preventRootScroll,
+  closeWhenScrolled,
+  preventCloseWhenClickOuter,
+  preventEscapeClose,
+  className,
+  ...props
+}: DialogProps) {
   const dref = useRef<HTMLDialogElement>(null!);
   const [state, setState] = useState<"closed" | "modeless" | "modal">(() => {
-    return options?.defaultOpen || "closed";
+    return defaultOpen || "closed";
   });
-  const [showOptions, setShowOptions] = useState<DialogOptions | null | undefined>();
 
   function resetPosition() {
-    const anchor = showOptions?.anchor;
-
     if (anchor == null) {
       dref.current.setAttribute("data-center", "true");
       dref.current.style.removeProperty("top");
@@ -53,7 +76,8 @@ export function useDialog(options?: DialogOptions & {
 
     const parseStyleNum = (num: number) => `${num}px`;
 
-    rect = anchor.element?.current.getBoundingClientRect() ?? document.documentElement.getBoundingClientRect();
+    rect = anchor.element?.current.getBoundingClientRect()
+      ?? document.documentElement.getBoundingClientRect();
 
     switch (anchor.width) {
       case "fill":
@@ -190,53 +214,12 @@ export function useDialog(options?: DialogOptions & {
     }
   }
 
-  const Dialog = useCallback((props: DialogProps) => {
-    function handleClick(e: MouseEvent<HTMLDialogElement>) {
-      const { offsetX, offsetY } = e.nativeEvent;
-      const { offsetWidth, offsetHeight } = e.currentTarget;
-      if (offsetX < 0 || offsetY < 0 || offsetX - offsetWidth > 0 || offsetY - offsetHeight > 0) {
-        setState("closed");
-      }
-      props.onClick?.(e);
-    };
-
-    function handleKeydown(e: KeyboardEvent<HTMLDialogElement>) {
-      if (e.key === "Escape") {
-        e.preventDefault();
-        if (!showOptions?.preventEscapeClose) setState("closed");
-      }
-      props.onKeyDown?.(e);
-    };
-
-    return (
-      <dialog
-        {...props}
-        className={clsx(
-          "_dialog",
-          props.className,
-        )}
-        ref={dref}
-        onClick={handleClick}
-        onKeyDown={handleKeydown}
-        inert
-      />
-    );
-  }, []);
-
-  function showModal(showOptions?: DialogOptions) {
+  function showModal() {
     setState("modal");
-    setShowOptions({
-      ...options,
-      ...showOptions,
-    });
   };
 
-  function show(showOptions?: DialogOptions) {
+  function show() {
     setState("modeless");
-    setShowOptions({
-      ...options,
-      ...showOptions,
-    });
   };
 
   function close() {
@@ -272,8 +255,8 @@ export function useDialog(options?: DialogOptions & {
     window.addEventListener("resize", handleResize);
 
     const releaseScroll = (() => {
-      if (showOptions?.preventRootScroll) return;
-      if (showOptions?.closeWhenScrolled) {
+      if (preventRootScroll) return;
+      if (closeWhenScrolled) {
         const ev = () => {
           setState("closed");
         };
@@ -282,18 +265,57 @@ export function useDialog(options?: DialogOptions & {
       return preventScroll();
     })();
 
+    const keydownEventListener = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        if (preventEscapeClose) return;
+        setState("closed");
+      }
+    };
+    window.addEventListener("keydown", keydownEventListener);
     resetPosition();
 
     return () => {
       window.removeEventListener("resize", handleResize);
+      window.removeEventListener("keydown", keydownEventListener);
       releaseScroll?.();
     };
-  }, [state, showOptions]);
+  }, [
+    state,
+    preventRootScroll,
+    preventEscapeClose,
+    closeWhenScrolled,
+  ]);
 
-  return {
-    Dialog,
-    showModal,
-    show,
+  function handleClick(e: MouseEvent<HTMLDialogElement>) {
+    if (!preventCloseWhenClickOuter) {
+      const { offsetX, offsetY } = e.nativeEvent;
+      const { offsetWidth, offsetHeight } = e.currentTarget;
+      if (offsetX < 0 || offsetY < 0 || offsetX - offsetWidth > 0 || offsetY - offsetHeight > 0) {
+        setState("closed");
+      }
+    }
+    props.onClick?.(e);
+  };
+
+  useImperativeHandle(ref, () => ({
+    element: dref.current,
     close,
-  } as const;
+    show,
+    showModal,
+    resetPosition,
+  } as const satisfies DialogRef));
+
+  return (
+    <dialog
+      {...props}
+      className={clsx(
+        "_dialog",
+        className,
+      )}
+      ref={dref}
+      onClick={handleClick}
+      inert
+    />
+  );
 };

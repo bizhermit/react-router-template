@@ -112,7 +112,7 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
   });
 
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    if (state.current !== "enabled") return;
+    if (state !== "enabled") return;
     setValue(e.target.value);
   };
 
@@ -125,7 +125,7 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
   return (
     <WithMessage
       hide={hideMessage}
-      state={state.current}
+      state={state}
       result={result}
     >
       <TextBox$

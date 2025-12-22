@@ -1,5 +1,4 @@
 import { useFetcher } from "react-router";
-import { useAuthContext } from "~/auth/client/context";
 import { auth } from "~/auth/server/auth";
 import { Button$ } from "~/components/react/elements/button";
 import { Link } from "~/components/react/elements/link";
@@ -14,11 +13,13 @@ export const action = async ({ request }: Route.ActionArgs) => {
     const session = await auth.api.getSession({
       headers: request.headers,
     });
+    // eslint-disable-next-line no-console
     console.log(session);
     const submission = await getPayload({
       request,
       schema,
     });
+    // eslint-disable-next-line no-console
     console.log(submission);
   } catch {
     // ignore
@@ -27,7 +28,6 @@ export const action = async ({ request }: Route.ActionArgs) => {
 
 export default function Page() {
   const fetcher = useFetcher();
-  const auth = useAuthContext();
 
   return (
     <div>
