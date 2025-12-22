@@ -32,8 +32,6 @@ import { SelectBox$, SelectBoxEmptyOption } from "~/components/react/elements/fo
 import { SelectBox } from "~/components/react/elements/form/select-box/select-box";
 import { Slider$ } from "~/components/react/elements/form/slider";
 import { Slider } from "~/components/react/elements/form/slider/slider";
-import { SwitchBox$ } from "~/components/react/elements/form/switch-box";
-import { SwitchBox } from "~/components/react/elements/form/switch-box/switch-box";
 import { TextArea$ } from "~/components/react/elements/form/text-area";
 import { TextArea } from "~/components/react/elements/form/text-area/text-area";
 import { TextBox$ } from "~/components/react/elements/form/text-box";
@@ -308,7 +306,7 @@ export async function action(args: Route.ActionArgs) {
     request: args.request,
     schema,
   });
-  // console.log(submittion);
+  console.log(submittion);
   console.log(performance.now() - start);
   console.log("-----------------");
 
@@ -577,7 +575,7 @@ function Component1() {
 function FormValueSetterComponent() {
   const { dataItems } = useSchemaContext<typeof schema>();
 
-  const [value, setValue] = useSchemaValue(dataItems.text);
+  const [value, setValue] = useSchemaValue(dataItems.sourceText);
 
   return (
     <>
@@ -590,7 +588,8 @@ function FormValueSetterComponent() {
       </Button>
       <Button
         onClick={() => {
-          setValue("hoge");
+          // setValue("hoge\nfuga\npiyo\nhoge");
+          setValue("fuga");
         }}
       >
         set hoge
@@ -662,14 +661,15 @@ function Component2() {
         </CheckBox>
       </FormItem>
       <FormItem>
-        <SwitchBox$>
-          SwitchBox
-        </SwitchBox$>
-        <SwitchBox
+        <CheckBox$ appearance="togglebox">
+          CheckBox
+        </CheckBox$>
+        <CheckBox
+          appearance="togglebox"
           $={dataItems.numFlag}
         >
           Switch(Num)
-        </SwitchBox>
+        </CheckBox>
       </FormItem>
       <FormItem>
         <RadioButtons
@@ -1353,38 +1353,34 @@ function DialogComponent() {
     <section>
       <Details summary="Dialog">
         <div className="flex flex-row gap-2">
-          <SwitchBox$
-            inputProps={{
-              checked: closeWhenScrolled.flag,
-              onChange: closeWhenScrolled.toggle,
-            }}
+          <CheckBox$
+            appearance="togglebox"
+            checked={closeWhenScrolled.flag}
+            onChangeChecked={closeWhenScrolled.toggle}
           >
             closeWhenScrolled
-          </SwitchBox$>
-          <SwitchBox$
-            inputProps={{
-              checked: preventEscapeClose.flag,
-              onChange: preventEscapeClose.toggle,
-            }}
+          </CheckBox$>
+          <CheckBox$
+            appearance="togglebox"
+            checked={preventEscapeClose.flag}
+            onChangeChecked={preventEscapeClose.toggle}
           >
             preventEscapeClose
-          </SwitchBox$>
-          <SwitchBox$
-            inputProps={{
-              checked: preventCloseWhenClickOuter.flag,
-              onChange: preventCloseWhenClickOuter.toggle,
-            }}
+          </CheckBox$>
+          <CheckBox$
+            appearance="togglebox"
+            checked={preventCloseWhenClickOuter.flag}
+            onChangeChecked={preventCloseWhenClickOuter.toggle}
           >
             preventCloseWhenClickOuter
-          </SwitchBox$>
-          <SwitchBox$
-            inputProps={{
-              checked: preventRootScroll.flag,
-              onChange: preventRootScroll.toggle,
-            }}
+          </CheckBox$>
+          <CheckBox$
+            appearance="togglebox"
+            checked={preventRootScroll.flag}
+            onChangeChecked={preventRootScroll.toggle}
           >
             preventRootScroll
-          </SwitchBox$>
+          </CheckBox$>
         </div>
         <div className="flex flex-row gap-2">
           <Button
@@ -1477,12 +1473,8 @@ function DialogComponent() {
         >
           <span>{count}</span>
           <NumberBox$
-            inputProps={{
-              value: count,
-              onChange: (e) => {
-                setCount(parseNumber(e.target.value)[0] ?? 0);
-              },
-            }}
+            value={count}
+            onChangeValue={v => setCount(v ?? 0)}
           />
           <Button
             onClick={() => {

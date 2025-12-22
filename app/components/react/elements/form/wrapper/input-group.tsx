@@ -2,7 +2,7 @@ import type { HTMLAttributes, RefObject } from "react";
 import { clsx } from "../../utilities";
 
 export type InputGroupWrapperProps = Overwrite<
-  HTMLAttributes<HTMLDivElement>,
+  Omit<HTMLAttributes<HTMLDivElement>, InputOmitProps>,
   {
     ref?: RefObject<HTMLDivElement>;
     state?: Schema.Mode;

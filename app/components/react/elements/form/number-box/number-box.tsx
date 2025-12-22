@@ -1,4 +1,4 @@
-import { useImperativeHandle, useRef, useState, type ChangeEvent, type InputHTMLAttributes } from "react";
+import { useImperativeHandle, useRef, useState, type InputHTMLAttributes } from "react";
 import { useSchemaItem } from "~/components/react/hooks/schema";
 import { getValidationValue } from "~/components/schema/utilities";
 import { NumberBox$, type NumberBox$Ref } from ".";
@@ -18,13 +18,6 @@ export type NumberBoxProps<D extends Schema.DataItem<Schema.$Number>> = Overwrit
     | "enterKeyHint"
   >
 >;
-
-function preventParse(result: Schema.Result | null | undefined) {
-  return result?.type === "e" && (
-    result.code === "parse" ||
-    result.code === "float"
-  );
-};
 
 export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
   className,
@@ -55,21 +48,6 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
     omitOnSubmit,
     hideMessage,
   } = useSchemaItem<Schema.DataItem<Schema.$Number>>($props, {
-    effect: function ({ value, result }) {
-      if (!ref.current) return;
-      if (preventParse(result)) return;
-      const sv = (() => {
-        if (document.activeElement === ref.current.inputElement) {
-          const num = ref.current.parse(value);
-          if (num == null || isNaN(num)) return "";
-          return String(num);
-        }
-        return ref.current.format(value);
-      })();
-      if (!ref.current.isComposing() && ref.current.inputElement.value !== sv) {
-        ref.current.inputElement.value = sv;
-      }
-    },
     effectContext: function () {
       setMin(getMin);
       setMax(getMax);
@@ -103,12 +81,6 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
     getCommonParams,
   });
 
-  function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    if (state !== "enabled") return;
-    const rawValue = e.target.value;
-    setValue(rawValue as `${number}`);
-  };
-
   const dataListId = source == null ? undefined : `${name}_dl`;
 
   useImperativeHandle($props.ref, () => ref.current);
@@ -125,7 +97,8 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
         state={state}
         ref={ref}
         invalid={invalid}
-        bindMode="dom"
+        value={value}
+        onChangeValue={setValue}
         inputProps={{
           name: omitOnSubmit ? undefined : name,
           required,
@@ -140,8 +113,6 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
           autoFocus,
           autoComplete,
           enterKeyHint,
-          value,
-          onChange: handleChange,
         }}
       >
         {

@@ -1,7 +1,10 @@
 import type { HTMLAttributes } from "react";
 import { clsx } from "../../utilities";
 
-export type FormItemProps = HTMLAttributes<HTMLDivElement>;
+export type FormItemProps = Omit<
+  HTMLAttributes<HTMLDivElement>,
+  InputOmitProps
+>;
 
 export function FormItem({
   className,

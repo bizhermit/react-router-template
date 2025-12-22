@@ -1,4 +1,4 @@
-import { useImperativeHandle, useRef, type ChangeEvent, type ReactNode } from "react";
+import { useImperativeHandle, useRef, type ReactNode } from "react";
 import { useSchemaItem } from "~/components/react/hooks/schema";
 import { SelectBox$, SelectBoxEmptyOption, type SelectBox$Ref } from ".";
 import { useSource } from "../../../hooks/data-item-source";
@@ -50,13 +50,6 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
     omitOnSubmit,
     hideMessage,
   } = useSchemaItem<Schema.DataItem<SelectBoxSchemaProps>>($props, {
-    effect: function ({ value }) {
-      if (!ref.current) return;
-      const sv = String(value ?? "");
-      if (ref.current.selectElement.value !== sv) {
-        ref.current.selectElement.value = sv;
-      }
-    },
     effectContext: function () {
       resetDataItemSource();
     },
@@ -68,11 +61,6 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
     env,
     getCommonParams,
   });
-
-  function handleChange(e: ChangeEvent<HTMLSelectElement>) {
-    if (state !== "enabled") return;
-    setValue(e.target.value);
-  };
 
   useImperativeHandle($props.ref, () => ref.current);
 
@@ -89,14 +77,14 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
         ref={ref}
         invalid={invalid}
         placeholder={placeholder}
+        value={value}
+        onChangeValue={setValue}
         selectProps={{
           name: omitOnSubmit ? undefined : name,
           required,
           "aria-label": label,
           "aria-errormessage": errormessage,
           autoFocus,
-          defaultValue: value as string || undefined,
-          onChange: handleChange,
         }}
       >
         {

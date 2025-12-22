@@ -1,4 +1,4 @@
-import { useImperativeHandle, useRef, useState, type ChangeEvent } from "react";
+import { useImperativeHandle, useRef, useState } from "react";
 import { useSchemaItem } from "~/components/react/hooks/schema";
 import { parseTypedDateString } from "~/components/schema/date";
 import { getValidationValue } from "~/components/schema/utilities";
@@ -45,13 +45,6 @@ export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
     omitOnSubmit,
     hideMessage,
   } = useSchemaItem<Schema.DataItem<DateBoxSchemaProps>>($props, {
-    effect: function ({ value }) {
-      if (!ref.current) return;
-      const v = (value as string) || "";
-      if (ref.current.inputElement.value !== v) {
-        ref.current.inputElement.value = v;
-      }
-    },
     effectContext: function () {
       setMin(getMin);
       setMax(getMax);
@@ -91,25 +84,12 @@ export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
 
   const [_pair, setPair] = useState(getPair);
 
-  const [defaultValue] = useState(() => {
-    return parseTypedDateString(
-      value,
-      type,
-      time,
-    );
-  });
-
   const { source, resetDataItemSource } = useSource({
     dataItem,
     propsSource,
     env,
     getCommonParams,
   });
-
-  function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    if (state !== "enabled") return;
-    setValue(e.target.value);
-  };
 
   const dataListId = source == null ? undefined : `${name}_dl`;
 
@@ -127,7 +107,8 @@ export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
         ref={ref}
         invalid={invalid}
         state={state}
-        bindMode="dom"
+        value={value}
+        onChangeValue={setValue}
         inputProps={{
           type: type === "datetime" ? "datetime-local" : type,
           name: omitOnSubmit ? undefined : name,
@@ -135,14 +116,13 @@ export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
           required,
           min,
           max,
-          defaultValue,
-          step: type === "datetime" ? (dataItem._.time === "hm" ? 60 : undefined) : undefined,
+          step: type === "datetime"
+            ? (dataItem._.time === "hm" ? 60 : undefined)
+            : undefined,
           "aria-label": label,
           "aria-errormessage": errormessage,
-          value: value === undefined ? undefined : (value || ""),
           list: dataListId,
           autoFocus,
-          onChange: handleChange,
         }}
       >
         {

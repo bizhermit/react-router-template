@@ -1,4 +1,4 @@
-import { use, useImperativeHandle, useRef, type FocusEvent, type InputHTMLAttributes, type KeyboardEvent, type ReactNode } from "react";
+import { use, useImperativeHandle, useRef, type ChangeEvent, type FocusEvent, type InputHTMLAttributes, type KeyboardEvent, type ReactNode } from "react";
 import { ValidScriptsContext } from "~/components/react/providers/valid-scripts";
 import { clsx } from "../../utilities";
 import { InputDummyFocus } from "../dummy-focus";
@@ -12,14 +12,13 @@ export type DateBox$Props = Overwrite<
   InputFieldWrapperProps,
   InputFieldProps<{
     inputProps?: Overwrite<
-      InputHTMLAttributes<HTMLInputElement>,
+      Omit<InputHTMLAttributes<HTMLInputElement>, InputOmitProps>,
       {
         type: "date" | "month" | "datetime-local";
       }
     >;
     children?: ReactNode;
-    bindMode?: "state" | "dom";
-  }>
+  } & InputValueProps<string>>
 >;
 
 export function DateBox$({
@@ -28,11 +27,15 @@ export function DateBox$({
   inputProps,
   state = "enabled",
   children,
-  bindMode = "state",
+  defaultValue,
+  onChangeValue,
   ...props
 }: DateBox$Props) {
   const validScripts = use(ValidScriptsContext).valid;
   const type = inputProps?.type || "date";
+
+  const isControlled = "value" in props;
+  const { value, ...wrapperProps } = props;
 
   const wref = useRef<HTMLDivElement>(null!);
   const iref = useRef<HTMLInputElement>(null!);
@@ -54,6 +57,13 @@ export function DateBox$({
     inputProps?.onBlur?.(e);
   };
 
+  function handleChange(e: ChangeEvent<HTMLInputElement>) {
+    if (state === "enabled") {
+      onChangeValue?.(e.currentTarget.value);
+    }
+    inputProps?.onChange?.(e);
+  };
+
   useImperativeHandle(ref, () => ({
     element: wref.current,
     inputElement: iref.current,
@@ -62,7 +72,7 @@ export function DateBox$({
 
   return (
     <InputFieldWrapper
-      {...props}
+      {...wrapperProps}
       ref={wref}
       state={state}
     >
@@ -82,22 +92,24 @@ export function DateBox$({
         name={state === "readonly" ? undefined : inputProps?.name}
         onKeyDown={handleKeydown}
         onBlur={handleBlur}
-        value={bindMode === "dom" ? undefined : inputProps?.value}
-        data-hasvalue={
-          bindMode === "dom" ?
-            !!inputProps?.value :
-            (inputProps && "value" in inputProps) ? !!inputProps.value : true
+        onChange={handleChange}
+        {...isControlled
+          ? { value: value ?? "" }
+          : { defaultValue: defaultValue ?? "" }
         }
+        data-hasvalue={isControlled ? !!value : true}
+        data-controlled={isControlled}
       />
       {
         state === "readonly" &&
         <>
           {
             inputProps?.name &&
+            isControlled &&
             <input
               type="hidden"
               name={inputProps.name}
-              value={inputProps?.value as string || undefined}
+              value={value || undefined}
             />
           }
           <InputDummyFocus

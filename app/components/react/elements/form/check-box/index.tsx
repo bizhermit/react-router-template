@@ -1,4 +1,4 @@
-import { useImperativeHandle, useRef, type InputHTMLAttributes } from "react";
+import { useImperativeHandle, useRef, type ChangeEvent, type InputHTMLAttributes } from "react";
 import { clsx, getColorClassName } from "../../utilities";
 import { InputDummyFocus } from "../dummy-focus";
 import { InputLabelText } from "../input-label-text";
@@ -11,15 +11,21 @@ export interface CheckBox$Ref extends InputRef {
 export type CheckBoxAppearance =
   | "checkbox"
   | "button"
+  | "togglebox"
   ;
 
 export type CheckBox$Props = Overwrite<
   InputLabelWrapperProps,
   InputLabelProps<{
-    inputProps?: InputHTMLAttributes<HTMLInputElement>;
+    inputProps?: Omit<
+      InputHTMLAttributes<HTMLInputElement>,
+      InputOmitProps
+    >;
     appearance?: CheckBoxAppearance;
     color?: StyleColor;
-  }>
+    trueValue?: string | number | boolean | null | undefined;
+    falseValue?: string | number | boolean | null | undefined;
+  } & InputCheckedProps>
 >;
 
 export function CheckBox$({
@@ -31,13 +37,27 @@ export function CheckBox$({
   state = "enabled",
   appearance = "checkbox",
   color,
+  defaultChecked,
+  onChangeChecked,
+  trueValue,
+  falseValue,
   ...props
 }: CheckBox$Props) {
+  const isControlled = "checked" in props;
+  const { checked, ...wrapperProps } = props;
+
   const wref = useRef<HTMLLabelElement>(null!);
   const iref = useRef<HTMLInputElement>(null!);
   const dref = useRef<HTMLDivElement | null>(null);
 
   const colorClassName = getColorClassName(color);
+
+  function handleChange(e: ChangeEvent<HTMLInputElement>) {
+    if (state === "enabled") {
+      onChangeChecked?.(e.currentTarget.checked);
+    }
+    inputProps?.onChange?.(e);
+  };
 
   useImperativeHandle(ref, () => ({
     element: wref.current,
@@ -47,7 +67,7 @@ export function CheckBox$({
 
   return (
     <InputLabelWrapper
-      {...props}
+      {...wrapperProps}
       ref={wref}
       state={state}
       className={
@@ -73,13 +93,25 @@ export function CheckBox$({
               colorClassName,
               inputProps?.className,
             ) :
-            clsx(
-              "appearance-none",
-              inputProps?.className,
-            )
+            appearance === "togglebox" ?
+              clsx(
+                "_ipt-switch",
+                colorClassName,
+                inputProps?.className
+              ) :
+              clsx(
+                "appearance-none",
+                inputProps?.className,
+              )
         }
         ref={iref}
         type="checkbox"
+        onChange={handleChange}
+        {...isControlled
+          ? { checked: checked ?? false }
+          : { defaultChecked: defaultChecked ?? false }
+        }
+        value={String(trueValue)}
       />
       <InputLabelText
         className={
@@ -95,10 +127,15 @@ export function CheckBox$({
         <>
           {
             inputProps?.name &&
+            isControlled &&
             <input
               type="hidden"
               name={inputProps.name}
-              value={inputProps.value as string || undefined}
+              value={
+                checked
+                  ? String(trueValue ?? "on")
+                  : String(falseValue ?? "")
+              }
             />
           }
           <InputDummyFocus

@@ -1,4 +1,4 @@
-import { use, useImperativeHandle, useRef, type CSSProperties, type HTMLAttributes, type InputHTMLAttributes } from "react";
+import { use, useImperativeHandle, useRef, type ChangeEvent, type CSSProperties, type HTMLAttributes, type InputHTMLAttributes } from "react";
 import { ValidScriptsContext } from "~/components/react/providers/valid-scripts";
 import { clsx, getColorClassName } from "../../utilities";
 import { InputDummyFocus } from "../dummy-focus";
@@ -12,10 +12,11 @@ export type Slider$Props = Overwrite<
   InputLabelWrapperProps,
   InputLabelProps<{
     inputProps?: Overwrite<
-      InputHTMLAttributes<HTMLInputElement>,
+      Omit<
+        InputHTMLAttributes<HTMLInputElement>,
+        InputOmitProps
+      >,
       {
-        value?: number | null;
-        defaultValue?: number | null;
         min?: number;
         max?: number;
         step?: number;
@@ -29,7 +30,7 @@ export type Slider$Props = Overwrite<
       source: Schema.Source<number | null | undefined>;
       hideScales?: boolean;
     };
-  }>
+  } & InputValueProps<number, number | undefined>>
 >;
 
 const DEFAULT_MIN = 0;
@@ -46,9 +47,14 @@ export function Slider$({
   color,
   showValueText,
   dataList,
+  defaultValue,
+  onChangeValue,
   ...props
 }: Slider$Props) {
   const validScripts = use(ValidScriptsContext);
+
+  const isControlled = "value" in props;
+  const { value, ...wrapperProps } = props;
   const min = inputProps?.min ?? DEFAULT_MIN;
   const max = inputProps?.max ?? DEFAULT_MAX;
   const step = Math.abs(inputProps?.step ?? 1);
@@ -81,6 +87,17 @@ export function Slider$({
     );
   };
 
+  function handleChange(e: ChangeEvent<HTMLInputElement>) {
+    if (state === "enabled") {
+      onChangeValue?.(
+        e.currentTarget.value === ""
+          ? undefined
+          : e.currentTarget.valueAsNumber
+      );
+    }
+    inputProps?.onChange?.(e);
+  };
+
   useImperativeHandle(ref, () => ({
     element: wref.current,
     inputElement: iref.current,
@@ -89,7 +106,7 @@ export function Slider$({
 
   return (
     <InputLabelWrapper
-      {...props}
+      {...wrapperProps}
       ref={wref}
       state={state}
       className={clsx(
@@ -110,28 +127,22 @@ export function Slider$({
           inputProps?.className,
         )}
         style={validScripts ? {
-          "--rate": `${getRate(inputProps?.value)}%`,
+          "--rate": `${getRate(value)}%`,
         } as CSSProperties : undefined}
         ref={iref}
         type="range"
         min={min}
         max={max}
         step={step}
-        value={
-          inputProps?.value === undefined ?
-            undefined :
-            String(inputProps.value ?? "")
+        onChange={handleChange}
+        {...isControlled
+          ? { value: value ?? "" }
+          : { defaultValue: defaultValue ?? "" }
         }
-        defaultValue={
-          inputProps?.defaultValue === undefined ?
-            undefined :
-            String(inputProps.defaultValue ?? "")
-        }
-        title={inputProps?.value == null ? undefined : String(inputProps.value)}
       />
       {
         showValueText &&
-        inputProps?.value != null &&
+        value != null &&
         <span
           {...labelProps}
           className={clsx(
@@ -139,7 +150,7 @@ export function Slider$({
             labelProps?.className,
           )}
         >
-          {inputProps.value}
+          {value}
         </span>
       }
       {
@@ -150,7 +161,7 @@ export function Slider$({
             <input
               type="hidden"
               name={inputProps.name}
-              value={inputProps?.value == null ? "" : String(inputProps.value)}
+              value={value == null ? "" : String(value)}
             />
           }
           <InputDummyFocus

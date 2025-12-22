@@ -8,6 +8,12 @@ interface InputProps {
   invalid?: boolean | undefined;
 };
 
+type InputOmitProps =
+  | "value"
+  | "defaultValue"
+  | "checked"
+  | "defaultChecked";
+
 interface InputPropsWithDataItem<D extends Schema.DataItem> {
   className?: string;
   style?: React.CSSProperties;
@@ -17,3 +23,29 @@ interface InputPropsWithDataItem<D extends Schema.DataItem> {
   hideMessage?: boolean;
   omitOnSubmit?: boolean;
 };
+
+type InputValueProps<T, U = T> = {
+  onChangeValue?: (v: U) => void;
+} & (
+    | {
+      value: T | null | undefined;
+      defaultValue?: never;
+    }
+    | {
+      value?: never;
+      defaultValue?: T | null | undefined;
+    }
+  );
+
+type InputCheckedProps = {
+  onChangeChecked?: (v: boolean) => void;
+} & (
+    | {
+      checked: boolean | null | undefined;
+      defaultChecked?: never;
+    }
+    | {
+      checked?: never;
+      defaultChecked?: boolean | null | undefined;
+    }
+  );

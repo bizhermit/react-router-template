@@ -1,4 +1,4 @@
-import { use, useImperativeHandle, useRef, type ReactNode, type SelectHTMLAttributes } from "react";
+import { use, useImperativeHandle, useRef, type ChangeEvent, type ReactNode, type SelectHTMLAttributes } from "react";
 import { ValidScriptsContext } from "~/components/react/providers/valid-scripts";
 import { DownIcon } from "../../icon";
 import { clsx, ZERO_WIDTH_SPACE } from "../../utilities";
@@ -13,10 +13,13 @@ export interface SelectBox$Ref extends InputRef {
 export type SelectBox$Props = Overwrite<
   InputFieldWrapperProps,
   InputFieldProps<{
-    selectProps?: SelectHTMLAttributes<HTMLSelectElement>;
+    selectProps?: Omit<
+      SelectHTMLAttributes<HTMLSelectElement>,
+      InputOmitProps
+    >;
     children?: ReactNode;
     placeholder?: ReactNode;
-  }>
+  } & InputValueProps<string | number | boolean, string>>
 >;
 
 export function SelectBox$({
@@ -26,13 +29,25 @@ export function SelectBox$({
   state = "enabled",
   children,
   placeholder,
+  defaultValue,
+  onChangeValue,
   ...props
 }: SelectBox$Props) {
   const validScripts = use(ValidScriptsContext).valid;
 
+  const isControlled = "value" in props;
+  const { value, ...wrapperProps } = props;
+
   const wref = useRef<HTMLDivElement>(null!);
   const sref = useRef<HTMLSelectElement>(null!);
   const dref = useRef<HTMLDivElement | null>(null);
+
+  function handleChange(e: ChangeEvent<HTMLSelectElement>) {
+    if (state === "enabled") {
+      onChangeValue?.(e.currentTarget.value);
+    }
+    selectProps?.onChange?.(e);
+  };
 
   useImperativeHandle(ref, () => ({
     element: wref.current,
@@ -42,7 +57,7 @@ export function SelectBox$({
 
   return (
     <InputFieldWrapper
-      {...props}
+      {...wrapperProps}
       ref={wref}
       state={state}
     >
@@ -57,6 +72,11 @@ export function SelectBox$({
           selectProps?.className,
         )}
         ref={sref}
+        onChange={handleChange}
+        {...isControlled
+          ? { value: String(value ?? "") }
+          : { defaultValue: String(defaultValue ?? "") }
+        }
       >
         {children}
       </select>
@@ -80,10 +100,11 @@ export function SelectBox$({
         <>
           {
             selectProps?.name &&
+            isControlled &&
             <input
               type="hidden"
               name={selectProps.name}
-              value={selectProps.value as string || undefined}
+              value={value as string ?? undefined}
             />
           }
           <InputDummyFocus
