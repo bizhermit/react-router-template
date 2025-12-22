@@ -50,23 +50,13 @@ export function Carousel({
     if (!el || !target) return;
 
     const viewportWidth = el.clientWidth;
-    const slideLeft = target.offsetLeft;
     const slideWidth = target.offsetWidth;
 
-    let left: number;
+    let left = target.offsetLeft;
     if (align === "center") {
-      left = slideLeft - (viewportWidth - slideWidth) / 2;
+      left -= (viewportWidth - slideWidth) / 2;
     } else if (align === "end") {
-      left = slideLeft - (viewportWidth - slideWidth);
-    } else {
-      left = slideLeft;
-    }
-
-    const maxScrollLeft = el.scrollWidth - viewportWidth;
-    if (maxScrollLeft > 0) {
-      left = Math.min(Math.max(left, 0), maxScrollLeft);
-    } else {
-      left = 0;
+      left -= (viewportWidth - slideWidth);
     }
 
     el.scrollTo({
@@ -82,8 +72,12 @@ export function Carousel({
   function getIndex(scrollLeft: number) {
     const viewportWidth = lref.current.clientWidth;
 
-    // alignに応じて基準となる位置(scroll内の参照点)を決定
-    const targetPos = scrollLeft + (align === "center" ? viewportWidth / 2 : align === "end" ? viewportWidth : 0);
+    let targetPos = scrollLeft;
+    if (align === "center") {
+      targetPos += viewportWidth / 2;
+    } else if (align === "end") {
+      targetPos += viewportWidth;
+    }
 
     let bestIndex = 0;
     let bestDistance = Number.POSITIVE_INFINITY;
@@ -108,6 +102,7 @@ export function Carousel({
   };
 
   useEffect(() => {
+    // ウィンドウリサイズ追従
     const resizeEvent = throttle(() => {
       const before = hasScroll.current;
       hasScroll.current = lref.current.scrollWidth - lref.current.clientWidth > 0;
@@ -117,27 +112,17 @@ export function Carousel({
       calcCurrentIndex();
     }, 100);
     const resizeObserver = new ResizeObserver(() => resizeEvent());
+    resizeObserver.observe(lref.current);
+
+    // スクロール座標監視
     const scrollEvent = throttle(() => {
       calcCurrentIndex();
     }, 100);
-    resizeObserver.observe(lref.current);
     lref.current.addEventListener("scroll", scrollEvent, { passive: true });
     select(currentIndex.current);
     resizeEvent();
-    return () => {
-      resizeObserver.disconnect();
-      lref.current?.removeEventListener("scroll", scrollEvent);
-    };
-  }, [align]);
 
-  useEffect(() => {
-    collectChildren();
-    select(Math.min(currentIndex.current, children.length - 1));
-  }, [children.length]);
-
-  useEffect(() => {
-    if (!lref.current) return;
-    const el = lref.current;
+    // ドラッグスクロール制御
     let dragging = false;
     let startX = 0;
     let startScrollLeft = 0;
@@ -149,17 +134,25 @@ export function Carousel({
     function pointerend() {
       if (!dragging) return;
       dragging = false;
-      el.removeEventListener("pointermove", pointermove);
-      el.removeEventListener("pointerup", pointerend);
-      el.removeEventListener("pointercancel", pointerend);
+      lref.current.removeEventListener("pointermove", pointermove);
+      lref.current.removeEventListener("pointerup", pointerend);
+      lref.current.removeEventListener("pointercancel", pointerend);
       function removeAttr() {
-        el.removeAttribute("data-dragging");
+        lref.current.removeAttribute("data-dragging");
       };
-      const childNodes = Array.from(el.childNodes);
+      const childNodes = Array.from(lref.current.childNodes);
       const firstChild = childNodes[0] as HTMLElement | undefined;
       const lastChild = childNodes[childNodes.length - 1] as HTMLElement | undefined;
-      const leftMin = firstChild ? parseFloat(getComputedStyle(firstChild).marginLeft?.replace("px", "") ?? 0) : 0;
-      const rightMax = (lastChild?.offsetLeft ?? 0);
+      const viewportWidth = lref.current.clientWidth;
+      const slideWidth = firstChild?.offsetWidth ?? 0;
+      let leftMargin = 0;
+      if (align === "center") {
+        leftMargin += (viewportWidth - slideWidth) / 2;
+      } else if (align === "end") {
+        leftMargin += (viewportWidth - slideWidth);
+      }
+      const leftMin = (firstChild?.offsetLeft ?? 0) - leftMargin;
+      const rightMax = (lastChild?.offsetLeft ?? 0) - leftMargin;
 
       // 慣性スクロール
       let momentum = velocity * MOMENTUM_DIAMETER; // 速度倍率
@@ -172,19 +165,21 @@ export function Carousel({
           return;
         }
         if (m < 0.5) {
-          select(currentIndex.current);
+          const remaining = momentum / (1 - decay);
+          const predictedScrollLeft = Math.min(Math.max(lref.current.scrollLeft - remaining, leftMin), rightMax);
+          select(getIndex(predictedScrollLeft));
         } else {
-          el.scrollLeft -= momentum;
+          lref.current.scrollLeft -= momentum;
         }
         momentum *= decay;
 
-        if (el.scrollLeft < leftMin) {
-          el.scrollLeft = leftMin;
+        if (lref.current.scrollLeft < leftMin) {
+          lref.current.scrollLeft = leftMin;
           removeAttr();
           return;
         }
-        if (el.scrollLeft > rightMax) {
-          el.scrollLeft = rightMax;
+        if (lref.current.scrollLeft > rightMax) {
+          lref.current.scrollLeft = rightMax;
           removeAttr();
           return;
         }
@@ -198,7 +193,7 @@ export function Carousel({
       if (!dragging) return;
       const now = performance.now();
       const dx = e.clientX - startX;
-      el.scrollLeft = startScrollLeft - dx;
+      lref.current.scrollLeft = startScrollLeft - dx;
 
       const dt = now - lastTime;
       if (dt > 0) {
@@ -213,26 +208,34 @@ export function Carousel({
       if (e.button !== 0) return;
       dragging = true;
       startX = e.clientX;
-      startScrollLeft = el.scrollLeft;
+      startScrollLeft = lref.current.scrollLeft;
       lastX = e.clientX;
       lastTime = performance.now();
       velocity = 0;
-      el.setPointerCapture(e.pointerId);
-      el.addEventListener("pointermove", pointermove);
-      el.addEventListener("pointerup", pointerend);
-      el.addEventListener("pointercancel", pointerend);
+      lref.current.setPointerCapture(e.pointerId);
+      lref.current.addEventListener("pointermove", pointermove);
+      lref.current.addEventListener("pointerup", pointerend);
+      lref.current.addEventListener("pointercancel", pointerend);
       if (momentumId) cancelAnimationFrame(momentumId);
-      el.setAttribute("data-dragging", "");
+      lref.current.setAttribute("data-dragging", "");
     };
 
-    el.addEventListener("pointerdown", pointerdown);
+    lref.current.addEventListener("pointerdown", pointerdown);
+
     return () => {
-      el.removeEventListener("pointerdown", pointerdown);
-      el.removeEventListener("pointermove", pointermove);
-      el.removeEventListener("pointerup", pointerend);
-      el.removeEventListener("pointercancel", pointerend);
+      resizeObserver.disconnect();
+      lref.current.removeEventListener("scroll", scrollEvent);
+      lref.current.removeEventListener("pointerdown", pointerdown);
+      lref.current.removeEventListener("pointermove", pointermove);
+      lref.current.removeEventListener("pointerup", pointerend);
+      lref.current.removeEventListener("pointercancel", pointerend);
     };
-  }, []);
+  }, [align]);
+
+  useEffect(() => {
+    collectChildren();
+    select(Math.min(currentIndex.current, children.length - 1));
+  }, [children.length]);
 
   useImperativeHandle(ref, () => {
     return {
