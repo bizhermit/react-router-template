@@ -306,7 +306,7 @@ export async function action(args: Route.ActionArgs) {
     request: args.request,
     schema,
   });
-  // console.log(submittion);
+  console.log(submittion);
   console.log(performance.now() - start);
   console.log("-----------------");
 
