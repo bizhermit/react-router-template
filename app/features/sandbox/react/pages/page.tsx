@@ -1670,6 +1670,7 @@ function CarouselComponent() {
                   return (
                     <li key={num}>
                       <Button
+                        appearance="fill"
                         onClick={() => carousel.current?.select(num)}
                         color={currentIndex === num ? "primary" : "sub"}
                       >

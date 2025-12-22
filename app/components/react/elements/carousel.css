@@ -102,6 +102,18 @@
     scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
     justify-content: var(--carousel-slide-align-flag, var(--slide-align));
+    cursor: grab;
+    touch-action: pan-x;
+
+    &[data-dragging] {
+      scroll-snap-type: none;
+      scroll-behavior: auto;
+      cursor: grabbing;
+
+      >._carousel-slide {
+        scroll-snap-align: unset;
+      }
+    }
   }
 
   ._carousel-dummy-slide,
@@ -114,6 +126,8 @@
 
   ._carousel-slide {
     scroll-snap-align: center;
+    -webkit-user-drag: none;
+    user-select: none;
 
     &:first-child {
       margin-left: calc(50% * var(--carousel-overflow));

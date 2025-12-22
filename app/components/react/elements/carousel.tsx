@@ -25,6 +25,9 @@ export interface CarouselOptions {
 
 type CarouselProps = Overwrite<React.HTMLAttributes<HTMLDivElement>, CarouselOptions>;
 
+const MOMENTUM_DIAMETER = 50; // 慣性速度倍率
+const ATTENUATION_COEFFICIENT = 0.90; // 慣性減速係数
+
 export function Carousel({
   ref,
   className,
@@ -42,10 +45,22 @@ export function Carousel({
   const hasScroll = useRef(false);
 
   function select(index: number) {
+    const el = lref.current;
     const target = slidesRef.current[index];
-    if (!target) return;
-    target.scrollIntoView({
-      inline: align,
+    if (!el || !target) return;
+
+    const viewportWidth = el.clientWidth;
+    const slideWidth = target.offsetWidth;
+
+    let left = target.offsetLeft;
+    if (align === "center") {
+      left -= (viewportWidth - slideWidth) / 2;
+    } else if (align === "end") {
+      left -= (viewportWidth - slideWidth);
+    }
+
+    el.scrollTo({
+      left,
       behavior: "smooth",
     });
   };
@@ -54,15 +69,15 @@ export function Carousel({
     slidesRef.current = Array.from(lref.current.children).filter(e => e instanceof HTMLElement);
   };
 
-  function calcCurrentIndex() {
-    const el = lref.current;
-    if (slidesRef.current.length === 0) collectChildren();
-    if (slidesRef.current.length === 0) return;
-    const scrollLeft = el.scrollLeft;
-    const viewportWidth = el.clientWidth;
+  function getIndex(scrollLeft: number) {
+    const viewportWidth = lref.current.clientWidth;
 
-    // alignに応じて基準となる位置(scroll内の参照点)を決定
-    const targetPos = scrollLeft + (align === "center" ? viewportWidth / 2 : align === "end" ? viewportWidth : 0);
+    let targetPos = scrollLeft;
+    if (align === "center") {
+      targetPos += viewportWidth / 2;
+    } else if (align === "end") {
+      targetPos += viewportWidth;
+    }
 
     let bestIndex = 0;
     let bestDistance = Number.POSITIVE_INFINITY;
@@ -76,12 +91,18 @@ export function Carousel({
         bestIndex = index;
       }
     });
+    return bestIndex;
+  };
 
-    currentIndex.current = bestIndex;
+  function calcCurrentIndex() {
+    const el = lref.current;
+    const scrollLeft = el.scrollLeft;
+    currentIndex.current = getIndex(scrollLeft);
     onChange?.(currentIndex.current);
-  }
+  };
 
   useEffect(() => {
+    // ウィンドウリサイズ追従
     const resizeEvent = throttle(() => {
       const before = hasScroll.current;
       hasScroll.current = lref.current.scrollWidth - lref.current.clientWidth > 0;
@@ -91,16 +112,123 @@ export function Carousel({
       calcCurrentIndex();
     }, 100);
     const resizeObserver = new ResizeObserver(() => resizeEvent());
+    resizeObserver.observe(lref.current);
+
+    // スクロール座標監視
     const scrollEvent = throttle(() => {
       calcCurrentIndex();
     }, 100);
-    resizeObserver.observe(lref.current);
     lref.current.addEventListener("scroll", scrollEvent, { passive: true });
     select(currentIndex.current);
     resizeEvent();
+
+    // ドラッグスクロール制御
+    let dragging = false;
+    let startX = 0;
+    let startScrollLeft = 0;
+    let lastX = 0;
+    let lastTime = 0;
+    let velocity = 0;
+    let momentumId: number | null = null;
+
+    function pointerend() {
+      if (!dragging) return;
+      dragging = false;
+      lref.current.removeEventListener("pointermove", pointermove);
+      lref.current.removeEventListener("pointerup", pointerend);
+      lref.current.removeEventListener("pointercancel", pointerend);
+      function removeAttr() {
+        lref.current.removeAttribute("data-dragging");
+      };
+      const childNodes = Array.from(lref.current.childNodes);
+      const firstChild = childNodes[0] as HTMLElement | undefined;
+      const lastChild = childNodes[childNodes.length - 1] as HTMLElement | undefined;
+      const viewportWidth = lref.current.clientWidth;
+      const slideWidth = firstChild?.offsetWidth ?? 0;
+      let leftMargin = 0;
+      if (align === "center") {
+        leftMargin += (viewportWidth - slideWidth) / 2;
+      } else if (align === "end") {
+        leftMargin += (viewportWidth - slideWidth);
+      }
+      const leftMin = (firstChild?.offsetLeft ?? 0) - leftMargin;
+      const rightMax = (lastChild?.offsetLeft ?? 0) - leftMargin;
+
+      // 慣性スクロール
+      let momentum = velocity * MOMENTUM_DIAMETER; // 速度倍率
+      const decay = ATTENUATION_COEFFICIENT; // 減速係数
+
+      function step() {
+        const m = Math.abs(momentum);
+        if (m < 0.1) {
+          removeAttr();
+          return;
+        }
+        if (m < 0.5) {
+          const remaining = momentum / (1 - decay);
+          const predictedScrollLeft = Math.min(Math.max(lref.current.scrollLeft - remaining, leftMin), rightMax);
+          select(getIndex(predictedScrollLeft));
+        } else {
+          lref.current.scrollLeft -= momentum;
+        }
+        momentum *= decay;
+
+        if (lref.current.scrollLeft < leftMin) {
+          lref.current.scrollLeft = leftMin;
+          removeAttr();
+          return;
+        }
+        if (lref.current.scrollLeft > rightMax) {
+          lref.current.scrollLeft = rightMax;
+          removeAttr();
+          return;
+        }
+
+        momentumId = requestAnimationFrame(step);
+      };
+      momentumId = requestAnimationFrame(step);
+    }
+
+    const pointermove = throttle((e: PointerEvent) => {
+      if (!dragging) return;
+      const now = performance.now();
+      const dx = e.clientX - startX;
+      lref.current.scrollLeft = startScrollLeft - dx;
+
+      const dt = now - lastTime;
+      if (dt > 0) {
+        velocity = (e.clientX - lastX) / dt;
+        lastX = e.clientX;
+        lastTime = now;
+      }
+    }, 20);
+
+    function pointerdown(e: PointerEvent) {
+      if (dragging) return;
+      if (e.button !== 0) return;
+      dragging = true;
+      startX = e.clientX;
+      startScrollLeft = lref.current.scrollLeft;
+      lastX = e.clientX;
+      lastTime = performance.now();
+      velocity = 0;
+      lref.current.setPointerCapture(e.pointerId);
+      lref.current.addEventListener("pointermove", pointermove);
+      lref.current.addEventListener("pointerup", pointerend);
+      lref.current.addEventListener("pointercancel", pointerend);
+      if (momentumId) cancelAnimationFrame(momentumId);
+      lref.current.setAttribute("data-dragging", "");
+    };
+
+    lref.current.addEventListener("pointerdown", pointerdown);
+
     return () => {
       resizeObserver.disconnect();
-      lref.current?.removeEventListener("scroll", scrollEvent);
+      lref.current.removeEventListener("scroll", scrollEvent);
+      lref.current.removeEventListener("pointerdown", pointerdown);
+      lref.current.removeEventListener("pointermove", pointermove);
+      lref.current.removeEventListener("pointerup", pointerend);
+      lref.current.removeEventListener("pointercancel", pointerend);
     };
   }, [align]);
 
