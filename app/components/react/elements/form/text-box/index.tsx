@@ -1,6 +1,6 @@
 import { useImperativeHandle, useRef, useState, type ChangeEvent, type CompositionEvent, type InputHTMLAttributes, type ReactNode } from "react";
 import { clsx } from "../../utilities";
-import { InputFieldWrapper, type InputFieldProps, type InputFieldWrapperProps } from "../wrapper/input-field";
+import { InputFieldWrapper, type InputFieldOmitProps, type InputFieldProps, type InputFieldWrapperProps } from "../wrapper/input-field";
 
 export interface TextBox$Ref extends InputRef {
   inputElement: HTMLInputElement;
@@ -9,11 +9,9 @@ export interface TextBox$Ref extends InputRef {
 export type TextBox$Props = Overwrite<
   InputFieldWrapperProps,
   InputFieldProps<{
-    inputProps?: Omit<InputHTMLAttributes<HTMLInputElement>,
-      | "value"
-      | "defaultValue"
-      | "checked"
-      | "defaultChecked"
+    inputProps?: Omit<
+      InputHTMLAttributes<HTMLInputElement>,
+      InputFieldOmitProps
     >;
     children?: ReactNode;
     onChangeValue?: (v: string) => void;
@@ -26,7 +24,8 @@ export type TextBox$Props = Overwrite<
         value?: never;
         defaultValue?: string | null | undefined;
       }
-    )>
+    )
+  >
 >;
 
 export function TextBox$({

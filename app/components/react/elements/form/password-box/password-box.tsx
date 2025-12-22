@@ -1,4 +1,4 @@
-import { useImperativeHandle, useRef, useState, type ChangeEvent, type InputHTMLAttributes } from "react";
+import { useState, type InputHTMLAttributes } from "react";
 import { getValidationValue } from "~/components/schema/utilities";
 import { PasswordBox$, type PasswordBox$Ref } from ".";
 import { useSchemaItem } from "../../../hooks/schema";
@@ -23,10 +23,9 @@ export function PasswordBox<D extends Schema.DataItem<Schema.$String>>({
   autoFocus,
   autoComplete = "off",
   autoCapitalize,
+  ref,
   ...$props
 }: PasswordBoxProps<D>) {
-  const ref = useRef<PasswordBox$Ref>(null!);
-
   const {
     name,
     dataItem,
@@ -42,13 +41,6 @@ export function PasswordBox<D extends Schema.DataItem<Schema.$String>>({
     omitOnSubmit,
     hideMessage,
   } = useSchemaItem<Schema.DataItem<Schema.$String>>($props, {
-    effect: function ({ value }) {
-      if (!ref.current) return;
-      const sv = String(value || "");
-      if (ref.current.inputElement.value !== sv) {
-        ref.current.inputElement.value = sv;
-      }
-    },
     effectContext: function () {
       setMinLen(getMinLen);
       setMaxLen(getMaxLen);
@@ -70,13 +62,6 @@ export function PasswordBox<D extends Schema.DataItem<Schema.$String>>({
 
   const [maxLen, setMaxLen] = useState<number | undefined>(getMaxLen);
 
-  function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    if (state !== "enabled") return;
-    setValue(e.target.value);
-  };
-
-  useImperativeHandle($props.ref, () => ref.current);
-
   return (
     <WithMessage
       hide={hideMessage}
@@ -89,6 +74,8 @@ export function PasswordBox<D extends Schema.DataItem<Schema.$String>>({
         ref={ref}
         invalid={invalid}
         state={state}
+        value={value}
+        onChangeValue={setValue}
         inputProps={{
           name: omitOnSubmit ? undefined : name,
           required,
@@ -101,8 +88,6 @@ export function PasswordBox<D extends Schema.DataItem<Schema.$String>>({
           autoFocus,
           autoComplete,
           autoCapitalize,
-          defaultValue: value || "",
-          onChange: handleChange,
         }}
       />
     </WithMessage>
