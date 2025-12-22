@@ -1,4 +1,4 @@
-import { useImperativeHandle, useRef, type ChangeEvent, type MouseEvent } from "react";
+import { useImperativeHandle, useRef, type MouseEvent } from "react";
 import { useSchemaItem } from "~/components/react/hooks/schema";
 import { RadioButton$, type RadioButton$Ref, type RadioButtonAppearance } from ".";
 import { useSource } from "../../../hooks/data-item-source";
@@ -74,11 +74,6 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
     getCommonParams,
   });
 
-  function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    if (state !== "enabled") return;
-    setValue(e.target.value);
-  };
-
   function handleClick(e: MouseEvent<HTMLInputElement>) {
     if (state !== "enabled") return;
     if (required) return;
@@ -117,16 +112,18 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
               state={state}
               color={color}
               appearance={appearance}
+              checked={isSelected}
+              value={key}
+              onChangeChecked={() => setValue(key)}
               inputProps={{
                 name,
                 required,
-                value: key,
-                defaultChecked: isSelected,
-                onChange: handleChange,
                 onClick: handleClick,
                 "aria-label": `${label ? `${label} - ` : ""}${item.text}`,
                 "aria-errormessage": errormessage,
-                autoFocus: autoFocus ? (hasValue ? isSelected : index === 0) : undefined,
+                autoFocus: autoFocus
+                  ? (hasValue ? isSelected : index === 0)
+                  : undefined,
               }}
             >
               {item.node ?? item.text}
@@ -138,7 +135,7 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
           <input
             type="hidden"
             name={omitOnSubmit ? undefined : name}
-            value={value as string || undefined}
+            value={value as string ?? undefined}
           />
         }
       </InputGroupWrapper>

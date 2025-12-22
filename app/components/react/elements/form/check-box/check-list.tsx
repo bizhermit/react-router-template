@@ -115,8 +115,8 @@ export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemS
               state={state}
               color={color}
               checked={isChecked}
-              onChangeValue={() => handleChange(item.value)}
-              value={key}
+              onChangeChecked={() => handleChange(item.value)}
+              trueValue={key}
               inputProps={{
                 name: omitOnSubmit ? undefined : name,
                 required,

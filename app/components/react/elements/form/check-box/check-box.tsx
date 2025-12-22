@@ -61,8 +61,9 @@ export function CheckBox<D extends Schema.DataItem<Schema.$Boolean>>({
         appearance={appearance}
         state={state}
         checked={dataItem._.trueValue === value}
-        onChangeValue={handleChangeValue}
-        value={dataItem._.trueValue}
+        onChangeChecked={handleChangeValue}
+        trueValue={dataItem._.trueValue}
+        falseValue={dataItem._.falseValue}
         inputProps={{
           name: omitOnSubmit ? undefined : name,
           required,

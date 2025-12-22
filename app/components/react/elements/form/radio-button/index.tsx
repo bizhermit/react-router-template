@@ -1,4 +1,4 @@
-import { useImperativeHandle, useRef, type InputHTMLAttributes } from "react";
+import { useImperativeHandle, useRef, type ChangeEvent, type InputHTMLAttributes } from "react";
 import { clsx, getColorClassName } from "../../utilities";
 import { InputDummyFocus } from "../dummy-focus";
 import { InputLabelText } from "../input-label-text";
@@ -16,10 +16,14 @@ export type RadioButtonAppearance =
 export type RadioButton$Props = Overwrite<
   InputLabelWrapperProps,
   InputLabelProps<{
-    inputProps?: InputHTMLAttributes<HTMLInputElement>;
+    inputProps?: Omit<
+      InputHTMLAttributes<HTMLInputElement>,
+      InputOmitProps
+    >;
     appearance?: RadioButtonAppearance;
     color?: StyleColor;
-  }>
+    value?: string | number | boolean;
+  } & InputCheckedProps>
 >;
 
 export function RadioButton$({
@@ -31,13 +35,26 @@ export function RadioButton$({
   children,
   appearance,
   color,
+  defaultChecked,
+  onChangeChecked,
+  value,
   ...props
 }: RadioButton$Props) {
+  const isControlled = "checked" in props;
+  const { checked, ...wrapperProps } = props;
+
   const wref = useRef<HTMLLabelElement>(null!);
   const iref = useRef<HTMLInputElement>(null!);
   const dref = useRef<HTMLInputElement | null>(null);
 
   const colorClassName = getColorClassName(color);
+
+  function handleChange(e: ChangeEvent<HTMLInputElement>) {
+    if (state === "enabled") {
+      onChangeChecked?.(e.currentTarget.checked);
+    }
+    inputProps?.onChange?.(e);
+  };
 
   useImperativeHandle(ref, () => ({
     element: wref.current,
@@ -47,7 +64,7 @@ export function RadioButton$({
 
   return (
     <InputLabelWrapper
-      {...props}
+      {...wrapperProps}
       className={
         appearance === "button" ?
           clsx(
@@ -77,6 +94,12 @@ export function RadioButton$({
             )
         }
         type="radio"
+        onChange={handleChange}
+        {...isControlled
+          ? { checked: checked ?? false }
+          : { defaultChecked: defaultChecked ?? false }
+        }
+        value={String(value)}
       />
       <InputLabelText
         className={

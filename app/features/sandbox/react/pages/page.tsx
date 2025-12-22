@@ -1356,28 +1356,28 @@ function DialogComponent() {
           <CheckBox$
             appearance="togglebox"
             checked={closeWhenScrolled.flag}
-            onChangeValue={closeWhenScrolled.toggle}
+            onChangeChecked={closeWhenScrolled.toggle}
           >
             closeWhenScrolled
           </CheckBox$>
           <CheckBox$
             appearance="togglebox"
             checked={preventEscapeClose.flag}
-            onChangeValue={preventEscapeClose.toggle}
+            onChangeChecked={preventEscapeClose.toggle}
           >
             preventEscapeClose
           </CheckBox$>
           <CheckBox$
             appearance="togglebox"
             checked={preventCloseWhenClickOuter.flag}
-            onChangeValue={preventCloseWhenClickOuter.toggle}
+            onChangeChecked={preventCloseWhenClickOuter.toggle}
           >
             preventCloseWhenClickOuter
           </CheckBox$>
           <CheckBox$
             appearance="togglebox"
             checked={preventRootScroll.flag}
-            onChangeValue={preventRootScroll.toggle}
+            onChangeChecked={preventRootScroll.toggle}
           >
             preventRootScroll
           </CheckBox$>

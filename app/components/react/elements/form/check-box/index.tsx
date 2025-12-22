@@ -23,7 +23,8 @@ export type CheckBox$Props = Overwrite<
     >;
     appearance?: CheckBoxAppearance;
     color?: StyleColor;
-    value?: string | number | boolean;
+    trueValue?: string | number | boolean | null | undefined;
+    falseValue?: string | number | boolean | null | undefined;
   } & InputCheckedProps>
 >;
 
@@ -37,8 +38,9 @@ export function CheckBox$({
   appearance = "checkbox",
   color,
   defaultChecked,
-  onChangeValue,
-  value,
+  onChangeChecked,
+  trueValue,
+  falseValue,
   ...props
 }: CheckBox$Props) {
   const isControlled = "checked" in props;
@@ -52,7 +54,7 @@ export function CheckBox$({
 
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
     if (state === "enabled") {
-      onChangeValue?.(e.currentTarget.checked);
+      onChangeChecked?.(e.currentTarget.checked);
     }
     inputProps?.onChange?.(e);
   };
@@ -109,7 +111,7 @@ export function CheckBox$({
           ? { checked: checked ?? false }
           : { defaultChecked: defaultChecked ?? false }
         }
-        value={String(value)}
+        value={String(trueValue)}
       />
       <InputLabelText
         className={
@@ -125,10 +127,15 @@ export function CheckBox$({
         <>
           {
             inputProps?.name &&
+            isControlled &&
             <input
               type="hidden"
               name={inputProps.name}
-              value={checked ? String(value ?? "on") : ""}
+              value={
+                checked
+                  ? String(trueValue ?? "on")
+                  : String(falseValue ?? "")
+              }
             />
           }
           <InputDummyFocus

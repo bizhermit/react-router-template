@@ -38,7 +38,7 @@ type InputValueProps<T, U = T> = {
   );
 
 type InputCheckedProps = {
-  onChangeValue?: (v: boolean) => void;
+  onChangeChecked?: (v: boolean) => void;
 } & (
     | {
       checked: boolean | null | undefined;
