@@ -55,21 +55,6 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
     omitOnSubmit,
     hideMessage,
   } = useSchemaItem<Schema.DataItem<Schema.$Number>>($props, {
-    effect: function ({ value, result }) {
-      if (!ref.current) return;
-      if (preventParse(result)) return;
-      const sv = (() => {
-        if (document.activeElement === ref.current.inputElement) {
-          const num = ref.current.parse(value);
-          if (num == null || isNaN(num)) return "";
-          return String(num);
-        }
-        return ref.current.format(value);
-      })();
-      if (!ref.current.isComposing() && ref.current.inputElement.value !== sv) {
-        ref.current.inputElement.value = sv;
-      }
-    },
     effectContext: function () {
       setMin(getMin);
       setMax(getMax);

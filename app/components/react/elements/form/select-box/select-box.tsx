@@ -50,13 +50,6 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
     omitOnSubmit,
     hideMessage,
   } = useSchemaItem<Schema.DataItem<SelectBoxSchemaProps>>($props, {
-    effect: function ({ value }) {
-      if (!ref.current) return;
-      const sv = String(value ?? "");
-      if (ref.current.selectElement.value !== sv) {
-        ref.current.selectElement.value = sv;
-      }
-    },
     effectContext: function () {
       resetDataItemSource();
     },

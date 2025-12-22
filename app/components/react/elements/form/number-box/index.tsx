@@ -269,6 +269,7 @@ export function NumberBox$({
     if (e.pointerType === "mouse" && e.button !== 0) return;
     e.preventDefault();
     e.currentTarget.setPointerCapture(e.pointerId);
+    iref.current.focus({ preventScroll: true });
     startSpin(mode);
   }
 
