@@ -1,4 +1,4 @@
-import { useImperativeHandle, useRef, useState, type ChangeEvent } from "react";
+import { useState } from "react";
 import { useSchemaItem } from "~/components/react/hooks/schema";
 import { getValidationValue } from "~/components/schema/utilities";
 import { Slider$, type Slider$Ref } from ".";
@@ -27,10 +27,9 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
   showValueText,
   hideScales,
   autoFocus,
+  ref,
   ...$props
 }: SliderProps<D>) {
-  const ref = useRef<Slider$Ref>(null!);
-
   const {
     name,
     dataItem,
@@ -47,13 +46,6 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
     omitOnSubmit,
     hideMessage,
   } = useSchemaItem<Schema.DataItem<Schema.$Number>>($props, {
-    effect: function ({ value }) {
-      if (!ref.current) return;
-      const v = value == null ? "" : String(value);
-      if (ref.current.inputElement.value !== v) {
-        ref.current.inputElement.value = v;
-      }
-    },
     effectContext: function () {
       setMin(getMin);
       setMax(getMax);
@@ -80,13 +72,6 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
     getCommonParams,
   });
 
-  function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    if (state !== "enabled") return;
-    setValue(e.currentTarget.value as `${number}`);
-  };
-
-  useImperativeHandle($props.ref, () => ref.current);
-
   return (
     <WithMessage
       hide={hideMessage}
@@ -105,14 +90,14 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
           id: `${name}_dl`,
           source,
         } : undefined}
+        value={value}
+        onChangeValue={setValue}
         inputProps={{
           name: omitOnSubmit ? undefined : name,
           required,
           min,
           max,
           step,
-          value,
-          onChange: handleChange,
           "aria-label": label,
           "aria-errormessage": errormessage,
           title: value == null ? undefined : String(value),
