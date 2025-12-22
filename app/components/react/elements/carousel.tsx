@@ -45,10 +45,32 @@ export function Carousel({
   const hasScroll = useRef(false);
 
   function select(index: number) {
+    const el = lref.current;
     const target = slidesRef.current[index];
-    if (!target) return;
-    target.scrollIntoView({
-      inline: align,
+    if (!el || !target) return;
+
+    const viewportWidth = el.clientWidth;
+    const slideLeft = target.offsetLeft;
+    const slideWidth = target.offsetWidth;
+
+    let left: number;
+    if (align === "center") {
+      left = slideLeft - (viewportWidth - slideWidth) / 2;
+    } else if (align === "end") {
+      left = slideLeft - (viewportWidth - slideWidth);
+    } else {
+      left = slideLeft;
+    }
+
+    const maxScrollLeft = el.scrollWidth - viewportWidth;
+    if (maxScrollLeft > 0) {
+      left = Math.min(Math.max(left, 0), maxScrollLeft);
+    } else {
+      left = 0;
+    }
+
+    el.scrollTo({
+      left,
       behavior: "smooth",
     });
   };
@@ -57,13 +79,8 @@ export function Carousel({
     slidesRef.current = Array.from(lref.current.children).filter(e => e instanceof HTMLElement);
   };
 
-  function calcCurrentIndex() {
-    const el = lref.current;
-    if (slidesRef.current.length === 0) {
-      collectChildren();
-    }
-    const scrollLeft = el.scrollLeft;
-    const viewportWidth = el.clientWidth;
+  function getIndex(scrollLeft: number) {
+    const viewportWidth = lref.current.clientWidth;
 
     // alignに応じて基準となる位置(scroll内の参照点)を決定
     const targetPos = scrollLeft + (align === "center" ? viewportWidth / 2 : align === "end" ? viewportWidth : 0);
@@ -80,8 +97,13 @@ export function Carousel({
         bestIndex = index;
       }
     });
+    return bestIndex;
+  };
 
-    currentIndex.current = bestIndex;
+  function calcCurrentIndex() {
+    const el = lref.current;
+    const scrollLeft = el.scrollLeft;
+    currentIndex.current = getIndex(scrollLeft);
     onChange?.(currentIndex.current);
   };
 
