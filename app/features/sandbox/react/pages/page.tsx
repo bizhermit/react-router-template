@@ -13,7 +13,7 @@ import { Button } from "~/components/react/elements/button/button";
 import { LinkButton } from "~/components/react/elements/button/link-button";
 import { Carousel, type CarouselOptions, type CarouselRef } from "~/components/react/elements/carousel";
 import { Details } from "~/components/react/elements/details";
-import { useDialog } from "~/components/react/elements/dialog";
+import { Dialog, useDialog } from "~/components/react/elements/dialog";
 import { CheckBox$ } from "~/components/react/elements/form/check-box";
 import { CheckBox } from "~/components/react/elements/form/check-box/check-box";
 import { CheckList } from "~/components/react/elements/form/check-box/check-list";
@@ -739,7 +739,7 @@ function Component2() {
       </FormItem>
       <FormItem>
         <NumberBox
-          className="w-[10rem]"
+          className="w-40"
           $={dataItems.range}
         />
       </FormItem>
@@ -1129,7 +1129,7 @@ function StreamCompoment() {
           </Button>
           <span>{abortController.state}</span>
         </div>
-        <div className="break-words">
+        <div className="wrap-break-word">
           {output}
         </div>
       </Details>
@@ -1314,7 +1314,7 @@ function IconsComponent() {
                 <h3 className="flex flex-row gap-2">
                   {index + 1}. {Icon.name} <Icon />
                 </h3>
-                <div className="flex gap-2 w-[300px]">
+                <div className="flex gap-2 w-75">
                   <Button>
                     <Icon />
                   </Button>
@@ -1344,27 +1344,66 @@ function DialogComponent() {
   const [count, setCount] = useState(0);
   const t = useText();
 
+  const closeWhenScrolled = useToggle();
+  const preventEscapeClose = useToggle();
+  const preventCloseWhenClickOuter = useToggle();
+  const preventRootScroll = useToggle();
+
   return (
     <section>
       <Details summary="Dialog">
         <div className="flex flex-row gap-2">
+          <SwitchBox$
+            inputProps={{
+              checked: closeWhenScrolled.flag,
+              onChange: closeWhenScrolled.toggle,
+            }}
+          >
+            closeWhenScrolled
+          </SwitchBox$>
+          <SwitchBox$
+            inputProps={{
+              checked: preventEscapeClose.flag,
+              onChange: preventEscapeClose.toggle,
+            }}
+          >
+            preventEscapeClose
+          </SwitchBox$>
+          <SwitchBox$
+            inputProps={{
+              checked: preventCloseWhenClickOuter.flag,
+              onChange: preventCloseWhenClickOuter.toggle,
+            }}
+          >
+            preventCloseWhenClickOuter
+          </SwitchBox$>
+          <SwitchBox$
+            inputProps={{
+              checked: preventRootScroll.flag,
+              onChange: preventRootScroll.toggle,
+            }}
+          >
+            preventRootScroll
+          </SwitchBox$>
+        </div>
+        <div className="flex flex-row gap-2">
           <Button
             onClick={() => {
-              dialog.showModal();
+              dialog.current?.showModal();
             }}
           >
             showModal
           </Button>
           <Button
             onClick={() => {
-              dialog.show({ closeWhenScrolled: true });
+              dialog.current?.show();
             }}
           >
             show
           </Button>
           <Button
             onClick={() => {
-              dialog.close();
+              dialog.current?.close();
             }}
           >
             close
@@ -1428,16 +1467,31 @@ function DialogComponent() {
             toast
           </Button>
         </div>
-        <dialog.Dialog className="p-4 grid items-center gap-4">
+        <Dialog
+          className="p-4 grid items-center gap-4"
+          ref={dialog}
+          closeWhenScrolled={closeWhenScrolled.flag}
+          preventEscapeClose={preventEscapeClose.flag}
+          preventCloseWhenClickOuter={preventCloseWhenClickOuter.flag}
+          preventRootScroll={preventRootScroll.flag}
+        >
           <span>{count}</span>
+          <NumberBox$
+            inputProps={{
+              value: count,
+              onChange: (e) => {
+                setCount(parseNumber(e.target.value)[0] ?? 0);
+              },
+            }}
+          />
           <Button
             onClick={() => {
-              dialog.close();
+              dialog.current?.close();
             }}
           >
             close
           </Button>
-        </dialog.Dialog>
+        </Dialog>
       </Details>
     </section>
   );
