@@ -25,7 +25,7 @@ interface InputPropsWithDataItem<D extends Schema.DataItem> {
 };
 
 type InputValueProps<T, U = T> = {
-  onChangeValue?: (v: U | undefined) => void;
+  onChangeValue?: (v: U) => void;
 } & (
     | {
       value: T | null | undefined;

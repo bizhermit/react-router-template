@@ -1,4 +1,4 @@
-import { use, useId, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState, type ChangeEvent, type Dispatch, type ReactNode, type RefObject, type SetStateAction } from "react";
+import { use, useId, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState, type Dispatch, type ReactNode, type RefObject, type SetStateAction } from "react";
 import { formatDate, parseDate } from "~/components/objects/date";
 import { getSchemaItemMode, getSchemaItemRequired, getSchemaItemResult, optimizeRefs, SchemaContext, schemaItemEffect, schemaItemValidation, useFieldSet, type SchemaEffectParams_Result, type SchemaEffectParams_ValueResult } from "~/components/react/hooks/schema";
 import { parseTimeNums, parseTypedDate } from "~/components/schema/date";
@@ -1039,28 +1039,28 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
     }
   };
 
-  function handleYearChange(e: ChangeEvent<HTMLSelectElement>) {
-    handleChangeImpl($year, e.target.value, yearResult);
+  function handleYearChange(v: string) {
+    handleChangeImpl($year, v, yearResult);
   };
 
-  function handleMonthChange(e: ChangeEvent<HTMLSelectElement>) {
-    handleChangeImpl($month, e.target.value, monthResult);
+  function handleMonthChange(v: string) {
+    handleChangeImpl($month, v, monthResult);
   };
 
-  function handleDayChange(e: ChangeEvent<HTMLSelectElement>) {
-    handleChangeImpl($day, e.target.value, dayResult);
+  function handleDayChange(v: string) {
+    handleChangeImpl($day, v, dayResult);
   };
 
-  function handleHourChange(e: ChangeEvent<HTMLSelectElement>) {
-    handleChangeImpl($hour, e.target.value, hourResult);
+  function handleHourChange(v: string) {
+    handleChangeImpl($hour, v, hourResult);
   };
 
-  function handleMinuteChange(e: ChangeEvent<HTMLSelectElement>) {
-    handleChangeImpl($minute, e.target.value, minuteResult);
+  function handleMinuteChange(v: string) {
+    handleChangeImpl($minute, v, minuteResult);
   };
 
-  function handleSecondChange(e: ChangeEvent<HTMLSelectElement>) {
-    handleChangeImpl($second, e.target.value, secondResult);
+  function handleSecondChange(v: string) {
+    handleChangeImpl($second, v, secondResult);
   };
 
   const dispayResult = selectBoxDisplayResult(
@@ -1230,7 +1230,7 @@ interface SplittedSelectProps {
   mode: Schema.Mode;
   required: boolean;
   value: number | null | undefined;
-  onChange: (e: ChangeEvent<HTMLSelectElement>) => void;
+  onChange: (v: string) => void;
   result: Schema.Result | null | undefined;
   placeholder: string | undefined;
   omitOnSubmit: boolean | undefined;
@@ -1263,9 +1263,9 @@ function SplittedSelect({
     mode,
   ]);
 
-  function handleChange(e: ChangeEvent<HTMLSelectElement>) {
+  function handleChange(v: string) {
     if (state !== "enabled" || !$) return;
-    onChange(e);
+    onChange(v);
   };
 
   const invalid = result?.type === "e" || coreResult?.type === "e";
@@ -1276,13 +1276,13 @@ function SplittedSelect({
       invalid={invalid}
       state={state}
       placeholder={placeholder}
+      value={value}
+      onChangeValue={handleChange}
       selectProps={{
         name: omitOnSubmit ? undefined : $?.name,
         required,
-        defaultValue: value ?? "",
         "aria-label": $?.label,
         "aria-errormessage": result?.type === "e" ? result.message : undefined,
-        onChange: handleChange,
       }}
     >
       <SelectBoxEmptyOption />

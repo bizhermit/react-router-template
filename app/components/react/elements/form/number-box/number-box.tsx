@@ -19,13 +19,6 @@ export type NumberBoxProps<D extends Schema.DataItem<Schema.$Number>> = Overwrit
   >
 >;
 
-function preventParse(result: Schema.Result | null | undefined) {
-  return result?.type === "e" && (
-    result.code === "parse" ||
-    result.code === "float"
-  );
-};
-
 export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
   className,
   style,

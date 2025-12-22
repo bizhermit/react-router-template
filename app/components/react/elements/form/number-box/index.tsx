@@ -28,7 +28,7 @@ export type NumberBox$Props = Overwrite<
       }
     >;
     children?: ReactNode;
-  } & InputValueProps<number>>
+  } & InputValueProps<number, number | undefined>>
 >;
 
 const UP_DOWN_ROOP_WAIT = 500;

@@ -19,7 +19,7 @@ export type SelectBox$Props = Overwrite<
     >;
     children?: ReactNode;
     placeholder?: ReactNode;
-  } & InputValueProps<string | number | boolean>>
+  } & InputValueProps<string | number | boolean, string>>
 >;
 
 export function SelectBox$({

@@ -30,7 +30,7 @@ export type Slider$Props = Overwrite<
       source: Schema.Source<number | null | undefined>;
       hideScales?: boolean;
     };
-  } & InputValueProps<number>>
+  } & InputValueProps<number, number | undefined>>
 >;
 
 const DEFAULT_MIN = 0;
