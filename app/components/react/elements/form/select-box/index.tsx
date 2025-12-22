@@ -23,7 +23,7 @@ export function SelectBox$({
   ref,
   invalid,
   selectProps,
-  state = { current: "enabled" },
+  state = "enabled",
   children,
   placeholder,
   ...props
@@ -47,9 +47,9 @@ export function SelectBox$({
       state={state}
     >
       <select
-        disabled={state.current !== "enabled"}
-        aria-disabled={state.current === "disabled"}
-        aria-readonly={state.current === "readonly"}
+        disabled={state !== "enabled"}
+        aria-disabled={state === "disabled"}
+        aria-readonly={state === "readonly"}
         aria-invalid={invalid}
         {...selectProps}
         className={clsx(
@@ -62,7 +62,7 @@ export function SelectBox$({
       </select>
       {
         validScripts &&
-        state.current !== "disabled" &&
+        state !== "disabled" &&
         <Placeholder>
           {placeholder}
         </Placeholder>
@@ -70,13 +70,13 @@ export function SelectBox$({
       <div
         className={clsx(
           "_ipt-btn",
-          state.current !== "enabled" && "opacity-0"
+          state !== "enabled" && "opacity-0"
         )}
       >
         <DownIcon />
       </div>
       {
-        state.current === "readonly" &&
+        state === "readonly" &&
         <>
           {
             selectProps?.name &&

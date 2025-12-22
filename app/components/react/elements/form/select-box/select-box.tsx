@@ -70,7 +70,7 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
   });
 
   function handleChange(e: ChangeEvent<HTMLSelectElement>) {
-    if (state.current !== "enabled") return;
+    if (state !== "enabled") return;
     setValue(e.target.value);
   };
 
@@ -79,7 +79,7 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
   return (
     <WithMessage
       hide={hideMessage}
-      state={state.current}
+      state={state}
       result={result}
     >
       <SelectBox$

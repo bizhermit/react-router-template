@@ -111,7 +111,6 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
   const hourRefs = useRef($hour ? optimizeRefs($hour, $hour._.refs) : []);
   const minuteRefs = useRef($minute ? optimizeRefs($minute, $minute._.refs) : []);
   const secondRefs = useRef($second ? optimizeRefs($second, $second._.refs) : []);
-  const customRefs = useRef<Array<string>>([]);
 
   const type = $date._.type as (Schema.$Date["type"] | Schema.$Month["type"] | Schema.$DateTime["type"]);
   const time = $date._.time;
@@ -344,17 +343,16 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
 
   const [secondRequired, setSecondRequired] = useState(getSecondRequired);
 
-  function getCommonParams(
-    $: Schema.DataItem | undefined
-  ): Schema.DynamicValidationValueParams {
-    return {
+  const [getCommonParams] = useState(() => {
+    return ($: Schema.DataItem | undefined
+    ) => ({
       name: $?.name || "",
       label: $?.label || "",
       data: schema.data.current,
       dep: schema.dep.current,
       env: schema.env,
-    };
-  };
+    } as const satisfies Schema.DynamicValidationValueParams);
+  });
 
   function getMin() {
     return parseTypedDate(
@@ -392,13 +390,20 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
 
   const [maxTime, setMaxTime] = useState(getMaxTime);
 
-  const [_pair, setPair] = useState(getPair);
-
   function getPair() {
-    const pair = getValidationValue(getCommonParams($date), $date._.pair);
-    customRefs.current = optimizeRefs($date, pair?.name ? [pair.name] : []);
-    return pair;
+    return getValidationValue(getCommonParams($date), $date._.pair);
   };
+
+  const [pair, setPair] = useState(getPair);
+
+  const customRefs = useRef<Array<string>>([]);
+  useLayoutEffect(() => {
+    customRefs.current = optimizeRefs($date, pair?.name ? [pair.name] : []);
+  }, [
+    pair?.name,
+    pair?.position,
+    pair?.same,
+  ]);
 
   function getMinYear() {
     return getValidationValue(getCommonParams($year), $year?._.min);
@@ -650,6 +655,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
     }
     return options;
   }, [
+    type,
     optionMinDay,
     optionMaxDay,
   ]);
@@ -670,15 +676,17 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
     }
     return options;
   }, [
+    type,
+    $hour?._.step,
     optionMinHour,
     optionMaxHour,
   ]);
 
+  const minuteStep = $minute?._.step ?? 1;
   const minuteOptions = useMemo(() => {
     const options: Array<ReactNode> = [];
     if (type !== "datetime") return options;
-    const step = $minute?._.step ?? 1;
-    for (let i = optionMinMinute; i <= optionMaxMinute; i += step) {
+    for (let i = optionMinMinute; i <= optionMaxMinute; i += minuteStep) {
       options.push(
         <option
           key={i}
@@ -690,6 +698,8 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
     }
     return options;
   }, [
+    type,
+    minuteStep,
     optionMinMinute,
     optionMaxMinute,
   ]);
@@ -710,6 +720,9 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
     }
     return options;
   }, [
+    type,
+    time,
+    $second?._.step,
     optionMinSecond,
     optionMaxSecond,
   ]);
@@ -926,13 +939,6 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
       name: id,
     });
 
-    setRequired(getRequired);
-    setYearRequired(getYearRequired);
-    setMonthRequired(getMonthRequired);
-    setDayRequired(getDayRequired);
-    setHourRequired(getHourRequired);
-    setMinuteRequired(getMinuteRequired);
-    setSecondRequired(getSecondRequired);
     if (!schema.isInitialize.current) {
       const updateResults: Parameters<typeof schema.setResults>[0] = [];
       function resetResult(
@@ -971,31 +977,22 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
     };
   }, []);
 
-  const state = useRef<Schema.Mode>("enabled");
-  if (mode === "hidden") {
-    state.current = "hidden";
-  } else if (fs.disabled || mode === "disabled") {
-    state.current = "disabled";
-  } else if (fs.readOnly || mode === "readonly" || schema.state === "loading" || schema.state === "submitting") {
-    state.current = "readonly";
-  } else {
-    state.current = "enabled";
-  }
-
-  function mergeState(
-    targetState: RefObject<Schema.Mode>,
-    targetMode: Schema.Mode
-  ) {
-    if (state.current === "hidden" || targetMode === "hidden") {
-      targetState.current = "hidden";
-    } else if (state.current === "disabled" || targetMode === "disabled") {
-      targetState.current = "disabled";
-    } else if (state.current === "readonly" || targetMode === "readonly") {
-      targetState.current = "readonly";
-    } else {
-      targetState.current = "enabled";
+  const state = useMemo(() => {
+    if (mode === "hidden") return "hidden";
+    if (fs.disabled || mode === "disabled") return "disabled";
+    if (fs.readOnly
+      || mode === "readonly"
+      || schema.state === "loading"
+      || schema.state === "submitting"
+    ) {
+      return "readonly";
     }
-  };
+    return "enabled";
+  }, [
+    mode,
+    fs.disabled,
+    fs.readOnly,
+  ]);
 
   function handleChangeImpl(
     $: Schema.DataItem<Schema.$SplitDate> | undefined,
@@ -1087,7 +1084,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
   return (
     <WithMessage
       hide={props.hideMessage}
-      state={state.current}
+      state={state}
       result={dispayResult}
     >
       <InputGroupWrapper
@@ -1105,7 +1102,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
         }
         <SplittedSelect
           ref={yearSelectRef}
-          mergeState={mergeState}
+          state={state}
           coreResult={result}
           $={$year}
           mode={yearMode}
@@ -1123,7 +1120,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
         <SepSpan>/</SepSpan>
         <SplittedSelect
           ref={monthSelectRef}
-          mergeState={mergeState}
+          state={state}
           coreResult={result}
           $={$month}
           mode={monthMode}
@@ -1143,7 +1140,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
             <SepSpan>/</SepSpan>
             <SplittedSelect
               ref={daySelectRef}
-              mergeState={mergeState}
+              state={state}
               coreResult={result}
               $={$day}
               mode={dayMode}
@@ -1165,7 +1162,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
             <SepSpan>&nbsp;</SepSpan>
             <SplittedSelect
               ref={hourSelectRef}
-              mergeState={mergeState}
+              state={state}
               coreResult={result}
               $={$hour}
               mode={hourMode}
@@ -1182,7 +1179,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
             <SepSpan>:</SepSpan>
             <SplittedSelect
               ref={minuteSelectRef}
-              mergeState={mergeState}
+              state={state}
               coreResult={result}
               $={$minute}
               mode={minuteMode}
@@ -1202,7 +1199,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
                 <SepSpan>:</SepSpan>
                 <SplittedSelect
                   ref={secondSelectRef}
-                  mergeState={mergeState}
+                  state={state}
                   coreResult={result}
                   $={$second}
                   mode={secondMode}
@@ -1227,10 +1224,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
 
 interface SplittedSelectProps {
   ref: RefObject<SelectBox$Ref | null>;
-  mergeState: (
-    targetState: RefObject<Schema.Mode>,
-    targetMode: Schema.Mode
-  ) => void;
+  state: Schema.Mode;
   coreResult: Schema.Result | null | undefined;
   $: Schema.DataItem<Schema.$SplitDate> | undefined;
   mode: Schema.Mode;
@@ -1247,9 +1241,9 @@ interface SplittedSelectProps {
 
 function SplittedSelect({
   ref,
-  mergeState,
   coreResult,
   $,
+  state: coreState,
   mode,
   required,
   value,
@@ -1259,20 +1253,27 @@ function SplittedSelect({
   omitOnSubmit,
   children,
 }: SplittedSelectProps) {
-  const state = useRef<Schema.Mode>("enabled");
-  mergeState(state, mode);
+  const state = useMemo<Schema.Mode>(() => {
+    if (coreState === "hidden" || mode === "hidden") return "hidden";
+    if (coreState === "disabled" || mode === "disabled") return "disabled";
+    if (coreState === "readonly" || mode === "readonly") return "readonly";
+    return "enabled";
+  }, [
+    coreState,
+    mode,
+  ]);
 
   function handleChange(e: ChangeEvent<HTMLSelectElement>) {
-    if (state.current !== "enabled" || !$) return;
+    if (state !== "enabled" || !$) return;
     onChange(e);
   };
 
-  const isInvalid = result?.type === "e" || coreResult?.type === "e";
+  const invalid = result?.type === "e" || coreResult?.type === "e";
 
   return (
     <SelectBox$
       ref={ref}
-      invalid={isInvalid}
+      invalid={invalid}
       state={state}
       placeholder={placeholder}
       selectProps={{

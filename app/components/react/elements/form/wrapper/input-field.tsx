@@ -6,7 +6,7 @@ export type InputFieldWrapperProps = Overwrite<
   {
     ref?: RefObject<HTMLDivElement>;
     label?: ReactNode;
-    state?: RefObject<Schema.Mode>;
+    state?: Schema.Mode;
   }
 >;
 
@@ -18,7 +18,7 @@ export function InputFieldWrapper({
   state,
   ...props
 }: InputFieldWrapperProps) {
-  if (state?.current === "hidden") return null;
+  if (state === "hidden") return null;
 
   return (
     <div
@@ -31,7 +31,7 @@ export function InputFieldWrapper({
     >
       <fieldset
         aria-hidden
-        className={`_ipt-field-appearance _ipt-field-${state?.current || "enabled"}`}
+        className={`_ipt-field-appearance _ipt-field-${state || "enabled"}`}
       >
         <legend>
           {label ?? ZERO_WIDTH_SPACE}

@@ -26,7 +26,7 @@ export function DateBox$({
   ref,
   invalid,
   inputProps,
-  state = { current: "enabled" },
+  state = "enabled",
   children,
   bindMode = "state",
   ...props
@@ -43,7 +43,7 @@ export function DateBox$({
   };
 
   function handleKeydown(e: KeyboardEvent<HTMLInputElement>) {
-    if (state.current === "enabled") {
+    if (state === "enabled") {
       if (e.key === "Enter") applyInputedValue();
     }
     inputProps?.onKeyDown?.(e);
@@ -67,9 +67,9 @@ export function DateBox$({
       state={state}
     >
       <input
-        disabled={state.current !== "enabled"}
-        aria-disabled={state.current === "disabled"}
-        aria-readonly={state.current === "readonly"}
+        disabled={state !== "enabled"}
+        aria-disabled={state === "disabled"}
+        aria-readonly={state === "readonly"}
         aria-invalid={invalid}
         {...inputProps}
         className={clsx(
@@ -79,7 +79,7 @@ export function DateBox$({
         )}
         ref={iref}
         type={type}
-        name={state.current === "readonly" ? undefined : inputProps?.name}
+        name={state === "readonly" ? undefined : inputProps?.name}
         onKeyDown={handleKeydown}
         onBlur={handleBlur}
         value={bindMode === "dom" ? undefined : inputProps?.value}
@@ -90,7 +90,7 @@ export function DateBox$({
         }
       />
       {
-        state.current === "readonly" &&
+        state === "readonly" &&
         <>
           {
             inputProps?.name &&

@@ -84,7 +84,7 @@ export function TextArea<D extends Schema.DataItem<Schema.$String>>({
   const [maxLen, setMaxLen] = useState<number | undefined>(getMaxLen);
 
   function handleChange(e: ChangeEvent<HTMLTextAreaElement>) {
-    if (state.current !== "enabled") return;
+    if (state !== "enabled") return;
     setValue(e.target.value);
   };
 
@@ -93,7 +93,7 @@ export function TextArea<D extends Schema.DataItem<Schema.$String>>({
   return (
     <WithMessage
       hide={hideMessage}
-      state={state.current}
+      state={state}
       result={result}
     >
       <TextArea$

@@ -26,7 +26,7 @@ export function RadioButton$({
   ref,
   invalid,
   inputProps,
-  state = { current: "enabled" },
+  state = "enabled",
   className,
   children,
   appearance,
@@ -59,9 +59,9 @@ export function RadioButton$({
       }
     >
       <input
-        disabled={state.current !== "enabled"}
-        aria-disabled={state.current === "disabled"}
-        aria-readonly={state.current === "readonly"}
+        disabled={state !== "enabled"}
+        aria-disabled={state === "disabled"}
+        aria-readonly={state === "readonly"}
         aria-invalid={invalid}
         {...inputProps}
         className={
@@ -88,7 +88,7 @@ export function RadioButton$({
         {children}
       </InputLabelText>
       {
-        state.current === "readonly" &&
+        state === "readonly" &&
         <InputDummyFocus
           ref={dref}
         />

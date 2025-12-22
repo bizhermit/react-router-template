@@ -13,11 +13,13 @@ export const action = async ({ request }: Route.ActionArgs) => {
     const session = await auth.api.getSession({
       headers: request.headers,
     });
+    // eslint-disable-next-line no-console
     console.log(session);
     const submission = await getPayload({
       request,
       schema,
     });
+    // eslint-disable-next-line no-console
     console.log(submission);
   } catch {
     // ignore

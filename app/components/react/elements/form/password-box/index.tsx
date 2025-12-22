@@ -19,7 +19,7 @@ export function PasswordBox$({
   ref,
   invalid,
   inputProps,
-  state = { current: "enabled" },
+  state = "enabled",
   className,
   ...props
 }: PasswordBox$Props) {
@@ -31,7 +31,7 @@ export function PasswordBox$({
   const [type, setType] = useState<"password" | "text">("password");
 
   function handleClickToggleButton() {
-    if (state.current !== "enabled") return;
+    if (state !== "enabled") return;
     setType(type => type === "password" ? "text" : "password");
   };
 
@@ -52,8 +52,8 @@ export function PasswordBox$({
       state={state}
     >
       <input
-        disabled={state.current === "disabled"}
-        readOnly={state.current === "readonly"}
+        disabled={state === "disabled"}
+        readOnly={state === "readonly"}
         aria-invalid={invalid}
         {...inputProps}
         type={type}
@@ -66,12 +66,12 @@ export function PasswordBox$({
       />
       {
         validScripts &&
-        state.current === "enabled" &&
+        state === "enabled" &&
         <button
           type="button"
           className={clsx(
             "_ipt-btn",
-            state.current === "enabled" && "cursor-pointer",
+            state === "enabled" && "cursor-pointer",
           )}
           aria-label="toggle masked"
           tabIndex={-1}

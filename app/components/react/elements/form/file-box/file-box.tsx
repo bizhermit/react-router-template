@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ChangeEvent, type MouseEvent, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ChangeEvent, type MouseEvent, type ReactNode } from "react";
 import { convertBase64ToFile } from "~/components/objects/file";
 import { useSchemaItem } from "~/components/react/hooks/schema";
 import { getValidationValue } from "~/components/schema/utilities";
@@ -83,7 +83,7 @@ export function FileBox<D extends Schema.DataItem<Schema.$File>>({
   const [maxSize, setMaxSize] = useState(getMaxSize);
 
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    if (state.current !== "enabled") return;
+    if (state !== "enabled") return;
     setValue(e.target.files?.[0]);
   };
 
@@ -93,7 +93,7 @@ export function FileBox<D extends Schema.DataItem<Schema.$File>>({
     <>
       <WithMessage
         hide={hideMessage}
-        state={state.current}
+        state={state}
         result={result}
       >
         <FileBox$
@@ -202,19 +202,20 @@ function parseToLinkContext(value: unknown, fileName: string): LinkContext {
 export function FileBoxLinkView({ value, fileName, onClick }: ViewerProps & {
   onClick?: (context: LinkContext, e: MouseEvent<HTMLAnchorElement>) => void;
 }) {
-  const [ctx, setCtx] = useState<LinkContext | undefined>();
+  const ctx = useMemo(() => {
+    return parseToLinkContext(value, fileName);
+  }, [
+    value,
+    fileName,
+  ]);
 
   function handleClick(e: MouseEvent<HTMLAnchorElement>) {
     onClick?.(ctx!, e);
   };
 
   useEffect(() => {
-    const context = parseToLinkContext(value, fileName);
-    setCtx(context);
-    return () => {
-      context.revoke?.();
-    };
-  }, [value, fileName]);
+    return () => ctx.revoke?.();
+  }, [ctx]);
 
   if (!ctx || !ctx.href || ctx.children == null) return null;
   return (

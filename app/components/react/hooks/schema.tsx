@@ -866,17 +866,15 @@ export function useSchemaItem<D extends Schema.DataItem>(
     customRefs.current = optimizeRefs($, refs);
   };
 
-  const getCommonParams = useCallback(() => {
-    return {
+  const [getCommonParams] = useState(() => {
+    return () => ({
       name: $.name,
       label: $.label,
       data: schema.data.current,
       dep: schema.dep.current,
       env: schema.env,
-    } as const satisfies Schema.DynamicValidationValueParams;
-  }, [
-    $,
-  ]);
+    } as const satisfies Schema.DynamicValidationValueParams);
+  });
 
   useLayoutEffect(() => {
     const unmount = schema.addSubscribe((params) => {
@@ -968,7 +966,6 @@ export function useSchemaItem<D extends Schema.DataItem>(
       id,
       name: $.name,
     });
-    setRequired(getRequired);
     if (!schema.isInitialize.current && result !== schema.getResult($.name)) {
       schema.setResult($.name, result);
     }
@@ -978,16 +975,23 @@ export function useSchemaItem<D extends Schema.DataItem>(
     };
   }, []);
 
-  const stateRef = useRef<Schema.Mode>("enabled");
-  if (mode === "hidden") {
-    stateRef.current = "hidden";
-  } else if (fs.disabled || mode === "disabled") {
-    stateRef.current = "disabled";
-  } else if (fs.readOnly || mode === "readonly" || schema.state === "loading" || schema.state === "submitting") {
-    stateRef.current = "readonly";
-  } else {
-    stateRef.current = "enabled";
-  }
+  const state = useMemo(() => {
+    if (mode === "hidden") return "hidden";
+    if (fs.disabled || mode === "disabled") return "disabled";
+    if (fs.readOnly
+      || mode === "readonly"
+      || schema.state === "loading"
+      || schema.state === "submitting"
+    ) {
+      return "readonly";
+    }
+    return "enabled";
+  }, []);
+
+  const stateRef = useRef<Schema.Mode>(state);
+  useLayoutEffect(() => {
+    stateRef.current = state;
+  }, [state]);
 
   function set(value: Schema.ValueType<D["_"], false> | null | undefined) {
     const submission = effect(value);
@@ -1015,7 +1019,8 @@ export function useSchemaItem<D extends Schema.DataItem>(
     dataItem: $,
     mode,
     required,
-    state: stateRef,
+    state,
+    stateRef,
     getValue,
     setValue: set,
     parse,
@@ -1055,9 +1060,9 @@ export function useSchemaArray<D extends Schema.DataItem<Schema.$Array>>(dataIte
 
   function allowState(arg?: Schema.Mode[]) {
     if (arg) {
-      return arg.includes(schemaItem.state.current);
+      return arg.includes(schemaItem.stateRef.current);
     }
-    return schemaItem.state.current === "enabled";
+    return schemaItem.stateRef.current === "enabled";
   }
 
   function push(

@@ -40,7 +40,7 @@ export function Slider$({
   invalid,
   inputProps,
   labelProps,
-  state = { current: "enabled" },
+  state = "enabled",
   className,
   children,
   color,
@@ -68,7 +68,7 @@ export function Slider$({
   };
 
   function handleClickOption(v: number | null | undefined) {
-    if (state.current !== "enabled") return;
+    if (state !== "enabled") return;
     if (setterRef.current == null) {
       setterRef.current = createSetter();
     }
@@ -98,9 +98,9 @@ export function Slider$({
       )}
     >
       <input
-        disabled={state.current !== "enabled"}
-        aria-disabled={state.current === "disabled"}
-        aria-readonly={state.current === "readonly"}
+        disabled={state !== "enabled"}
+        aria-disabled={state === "disabled"}
+        aria-readonly={state === "readonly"}
         aria-invalid={invalid}
         list={dataList?.id}
         {...inputProps}
@@ -143,7 +143,7 @@ export function Slider$({
         </span>
       }
       {
-        state.current === "readonly" &&
+        state === "readonly" &&
         <>
           {
             inputProps?.name &&

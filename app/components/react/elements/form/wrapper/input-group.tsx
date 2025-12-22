@@ -5,7 +5,7 @@ export type InputGroupWrapperProps = Overwrite<
   HTMLAttributes<HTMLDivElement>,
   {
     ref?: RefObject<HTMLDivElement>;
-    state?: RefObject<Schema.Mode>;
+    state?: Schema.Mode;
   }
 >;
 
@@ -15,7 +15,7 @@ export function InputGroupWrapper({
   state,
   ...props
 }: InputGroupWrapperProps) {
-  if (state?.current === "hidden") return null;
+  if (state === "hidden") return null;
 
   return (
     <div

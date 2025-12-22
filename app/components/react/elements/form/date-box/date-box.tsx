@@ -107,7 +107,7 @@ export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
   });
 
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    if (state.current !== "enabled") return;
+    if (state !== "enabled") return;
     setValue(e.target.value);
   };
 
@@ -118,7 +118,7 @@ export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
   return (
     <WithMessage
       hide={hideMessage}
-      state={state.current}
+      state={state}
       result={result}
     >
       <DateBox$

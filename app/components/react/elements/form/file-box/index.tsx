@@ -27,7 +27,7 @@ export function FileBox$({
   ref,
   invalid,
   inputProps,
-  state = { current: "enabled" },
+  state = "enabled",
   children,
   ...props
 }: FileBox$Props) {
@@ -37,21 +37,21 @@ export function FileBox$({
   const iref = useRef<HTMLInputElement>(null!);
 
   function handleDragEnter(e: DragEvent<HTMLInputElement>) {
-    if (state.current === "enabled") {
+    if (state === "enabled") {
       e.currentTarget.parentElement?.classList.add(...DRAGGING_CLASSNAME);
     }
     inputProps?.onDragEnter?.(e);
   };
 
   function handleDragLeave(e: DragEvent<HTMLInputElement>) {
-    if (state.current === "enabled") {
+    if (state === "enabled") {
       e.currentTarget.parentElement?.classList.remove(...DRAGGING_CLASSNAME);
     }
     inputProps?.onDragLeave?.(e);
   };
 
   function handleDrop(e: DragEvent<HTMLInputElement>) {
-    if (state.current === "enabled") {
+    if (state === "enabled") {
       e.currentTarget.parentElement?.classList.remove(...DRAGGING_CLASSNAME);
     } else {
       e.preventDefault();
@@ -60,12 +60,12 @@ export function FileBox$({
   };
 
   function handleClick(e: MouseEvent<HTMLInputElement>) {
-    if (state.current !== "enabled") e.preventDefault();
+    if (state !== "enabled") e.preventDefault();
     inputProps?.onClick?.(e);
   };
 
   function handleKeydown(e: KeyboardEvent<HTMLInputElement>) {
-    if (state.current !== "enabled") {
+    if (state !== "enabled") {
       if (e.key === "Enter" || e.key === " ") e.preventDefault();
     }
     inputProps?.onKeyDown?.(e);
@@ -84,14 +84,14 @@ export function FileBox$({
       state={state}
     >
       <input
-        disabled={state.current === "disabled"}
-        aria-disabled={state.current === "disabled"}
-        aria-readonly={state.current === "readonly"}
+        disabled={state === "disabled"}
+        aria-disabled={state === "disabled"}
+        aria-readonly={state === "readonly"}
         aria-invalid={invalid}
         {...inputProps}
         className={clsx(
           "_ipt-file",
-          state.current === "enabled" && "cursor-pointer",
+          state === "enabled" && "cursor-pointer",
           validScripts && inputProps?.placeholder && "absolute opacity-0",
           inputProps?.className
         )}
@@ -106,7 +106,7 @@ export function FileBox$({
       />
       {
         validScripts &&
-        state.current !== "disabled" &&
+        state !== "disabled" &&
         <Placeholder
           className="relative pr-input-pad-x"
         >

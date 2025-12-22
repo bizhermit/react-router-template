@@ -104,7 +104,7 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
   });
 
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    if (state.current !== "enabled") return;
+    if (state !== "enabled") return;
     const rawValue = e.target.value;
     setValue(rawValue as `${number}`);
   };
@@ -116,7 +116,7 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
   return (
     <WithMessage
       hide={hideMessage}
-      state={state.current}
+      state={state}
       result={result}
     >
       <NumberBox$
