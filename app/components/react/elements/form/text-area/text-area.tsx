@@ -1,4 +1,4 @@
-import { useImperativeHandle, useRef, useState, type ChangeEvent } from "react";
+import { useState } from "react";
 import { useSchemaItem } from "~/components/react/hooks/schema";
 import { getValidationValue } from "~/components/schema/utilities";
 import { TextArea$, type TextArea$Ref } from ".";
@@ -35,10 +35,9 @@ export function TextArea<D extends Schema.DataItem<Schema.$String>>({
   cols,
   resize,
   autoFocus,
+  ref,
   ...$props
 }: TextAreaProps<D>) {
-  const ref = useRef<TextArea$Ref>(null!);
-
   const {
     name,
     dataItem,
@@ -54,14 +53,6 @@ export function TextArea<D extends Schema.DataItem<Schema.$String>>({
     omitOnSubmit,
     hideMessage,
   } = useSchemaItem<Schema.DataItem<Schema.$String>>($props, {
-    effect: function ({ value }) {
-      if (!ref.current) return;
-      const sv = String(value || "");
-      if (ref.current.textAreaElement.value !== sv) {
-        ref.current.textAreaElement.value = sv;
-      }
-      ref.current.calcFitContentHeight();
-    },
     effectContext: function () {
       setMinLen(getMinLen);
       setMaxLen(getMaxLen);
@@ -83,13 +74,6 @@ export function TextArea<D extends Schema.DataItem<Schema.$String>>({
 
   const [maxLen, setMaxLen] = useState<number | undefined>(getMaxLen);
 
-  function handleChange(e: ChangeEvent<HTMLTextAreaElement>) {
-    if (state !== "enabled") return;
-    setValue(e.target.value);
-  };
-
-  useImperativeHandle($props.ref, () => ref.current);
-
   return (
     <WithMessage
       hide={hideMessage}
@@ -105,13 +89,13 @@ export function TextArea<D extends Schema.DataItem<Schema.$String>>({
         resize={resize}
         minRows={minRows}
         maxRows={maxRows}
+        value={value}
+        onChangeValue={setValue}
         textAreaProps={{
           name: omitOnSubmit ? undefined : name,
           required,
           minLength: minLen,
           maxLength: maxLen,
-          defaultValue: value || undefined,
-          onChange: handleChange,
           placeholder,
           rows,
           cols,

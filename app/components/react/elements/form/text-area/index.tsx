@@ -1,4 +1,4 @@
-import { useEffect, useImperativeHandle, useRef, type ChangeEvent, type TextareaHTMLAttributes } from "react";
+import { useEffect, useImperativeHandle, useRef, useState, type ChangeEvent, type CompositionEvent, type TextareaHTMLAttributes } from "react";
 import { clsx } from "../../utilities";
 import { InputFieldWrapper, type InputFieldProps, type InputFieldWrapperProps } from "../wrapper/input-field";
 
@@ -18,7 +18,10 @@ export type TextArea$Props = Overwrite<
   InputFieldWrapperProps,
   InputFieldProps<{
     textAreaProps?: Overwrite<
-      TextareaHTMLAttributes<HTMLTextAreaElement>,
+      Omit<
+        TextareaHTMLAttributes<HTMLTextAreaElement>,
+        InputOmitProps
+      >,
       {
         rows?: number | "fit";
       }
@@ -26,7 +29,7 @@ export type TextArea$Props = Overwrite<
     minRows?: number;
     maxRows?: number;
     resize?: Resize;
-  }>
+  } & InputValueProps<string>>
 >;
 
 const DEFAULT_ROWS = 3;
@@ -49,10 +52,16 @@ export function TextArea$({
   maxRows,
   resize,
   children,
+  defaultValue,
+  onChangeValue,
   ...props
 }: TextArea$Props) {
+  const isControlled = "value" in props;
+  const { value, ...wrapperProps } = props;
+
   const wref = useRef<HTMLDivElement>(null!);
   const iref = useRef<HTMLTextAreaElement>(null!);
+  const [isComposing, setIsComposing] = useState(false);
 
   function calcFitContentHeight() {
     if (textAreaProps?.rows !== "fit" || !iref.current) return;
@@ -91,8 +100,22 @@ export function TextArea$({
     iref.current.style.overflowY = "hidden";
   };
 
+  function handleCompositionStart(e: CompositionEvent<HTMLTextAreaElement>) {
+    setIsComposing(true);
+    textAreaProps?.onCompositionStart?.(e);
+  };
+
+  function handleCompositionEnd(e: CompositionEvent<HTMLTextAreaElement>) {
+    setIsComposing(false);
+    onChangeValue?.(e.currentTarget.value);
+    textAreaProps?.onCompositionEnd?.(e);
+  };
+
   function handleChange(e: ChangeEvent<HTMLTextAreaElement>) {
-    calcFitContentHeight();
+    if (state === "enabled" && !isComposing) {
+      onChangeValue?.(e.currentTarget.value);
+    }
+    if (!isControlled) calcFitContentHeight();
     textAreaProps?.onChange?.(e);
   };
 
@@ -107,7 +130,7 @@ export function TextArea$({
 
   useEffect(() => {
     calcFitContentHeight();
-  }, []);
+  }, [isControlled ? value : undefined]);
 
   useImperativeHandle(ref, () => ({
     element: wref.current,
@@ -118,7 +141,7 @@ export function TextArea$({
 
   return (
     <InputFieldWrapper
-      {...props}
+      {...wrapperProps}
       ref={wref}
       state={state}
     >
@@ -132,8 +155,14 @@ export function TextArea$({
           textAreaProps?.className,
         )}
         ref={iref}
-        onChange={handleChange}
         rows={rows}
+        onCompositionStart={handleCompositionStart}
+        onCompositionEnd={handleCompositionEnd}
+        onChange={handleChange}
+        {...isControlled
+          ? { value: value ?? "" }
+          : { defaultValue: defaultValue ?? "" }
+        }
       />
     </InputFieldWrapper>
   );
