@@ -42,7 +42,9 @@ export function TextBox$({
 
   function handleCompositionEnd(e: CompositionEvent<HTMLInputElement>) {
     setIsComposing(false);
-    onChangeValue?.(e.currentTarget.value);
+    if (state === "enabled") {
+      onChangeValue?.(e.currentTarget.value);
+    }
     inputProps?.onCompositionEnd?.(e);
   };
 

@@ -1,4 +1,4 @@
-import { useImperativeHandle, useRef, useState, type ChangeEvent, type InputHTMLAttributes } from "react";
+import { useImperativeHandle, useRef, useState, type InputHTMLAttributes } from "react";
 import { useSchemaItem } from "~/components/react/hooks/schema";
 import { getValidationValue } from "~/components/schema/utilities";
 import { NumberBox$, type NumberBox$Ref } from ".";
@@ -103,12 +103,6 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
     getCommonParams,
   });
 
-  function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    if (state !== "enabled") return;
-    const rawValue = e.target.value;
-    setValue(rawValue as `${number}`);
-  };
-
   const dataListId = source == null ? undefined : `${name}_dl`;
 
   useImperativeHandle($props.ref, () => ref.current);
@@ -125,7 +119,8 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
         state={state}
         ref={ref}
         invalid={invalid}
-        bindMode="dom"
+        value={value}
+        onChangeValue={setValue}
         inputProps={{
           name: omitOnSubmit ? undefined : name,
           required,
@@ -140,8 +135,6 @@ export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
           autoFocus,
           autoComplete,
           enterKeyHint,
-          value,
-          onChange: handleChange,
         }}
       >
         {

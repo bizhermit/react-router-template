@@ -986,7 +986,11 @@ export function useSchemaItem<D extends Schema.DataItem>(
       return "readonly";
     }
     return "enabled";
-  }, []);
+  }, [
+    mode,
+    fs.disabled,
+    fs.readOnly,
+  ]);
 
   const stateRef = useRef<Schema.Mode>(state);
   useLayoutEffect(() => {

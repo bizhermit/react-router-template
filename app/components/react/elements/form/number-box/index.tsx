@@ -1,4 +1,4 @@
-import { use, useImperativeHandle, useMemo, useRef, type ChangeEvent, type CompositionEvent, type FocusEvent, type InputHTMLAttributes, type KeyboardEvent, type ReactNode } from "react";
+import { use, useImperativeHandle, useMemo, useRef, useState, type ChangeEvent, type CompositionEvent, type FocusEvent, type InputHTMLAttributes, type KeyboardEvent, type PointerEvent, type ReactNode } from "react";
 import { parseNumber } from "~/components/objects/numeric";
 import { ValidScriptsContext } from "~/components/react/providers/valid-scripts";
 import { DownIcon, UpIcon } from "../../icon";
@@ -16,10 +16,11 @@ export type NumberBox$Props = Overwrite<
   InputFieldWrapperProps,
   InputFieldProps<{
     inputProps?: Overwrite<
-      InputHTMLAttributes<HTMLInputElement>,
+      Omit<
+        InputHTMLAttributes<HTMLInputElement>,
+        InputOmitProps
+      >,
       {
-        defaultValue?: number | null;
-        value?: number | null;
         min?: number;
         max?: number;
         step?: number;
@@ -27,8 +28,7 @@ export type NumberBox$Props = Overwrite<
       }
     >;
     children?: ReactNode;
-    bindMode?: "state" | "dom";
-  }>
+  } & InputValueProps<number>>
 >;
 
 const UP_DOWN_ROOP_WAIT = 500;
@@ -41,15 +41,20 @@ export function NumberBox$({
   state = "enabled",
   className,
   children,
-  bindMode = "state",
+  defaultValue,
+  onChangeValue,
   ...props
 }: NumberBox$Props) {
   const validScripts = use(ValidScriptsContext).valid;
 
+  const isControlled = "value" in props;
+  const { value, ...wrapperProps } = props;
+
   const wref = useRef<HTMLDivElement>(null!);
   const iref = useRef<HTMLInputElement>(null!);
-  const isComposing = useRef(false);
-  const safeValueRef = useRef("");
+  const [isComposing, setIsComposing] = useState(false);
+  const [hasFocus, setHasFocus] = useState(false);
+  const safeValue = useRef(isControlled ? value : defaultValue);
 
   function createSetter() {
     return Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set;
@@ -67,32 +72,53 @@ export function NumberBox$({
     } as const;
   }, [inputProps?.float]);
 
-  function format(value: unknown) {
-    if (value == null || value === "") return "";
-    const num = Number(value);
+  function format(v: unknown) {
+    if (v == null || v === "") return "";
+    const num = Number(v);
     if (isNaN(num)) return "";
     return formatter.format(num);
   };
 
-  function parse(value: number | string | null | undefined) {
-    if (value == null || value === "") return undefined;
-    return Number(value);
+  function parse(v: number | string | null | undefined) {
+    if (v == null || v === "") return undefined;
+    return Number(v);
   };
 
-  function getInputValue() {
+  function getInputValueAsNumber() {
     return parseNumber(iref.current.value);
   };
 
-  function executeChangeEvent(value: number | null | undefined) {
+  function setInputValue(v: number | null | undefined) {
+    iref.current.value = document.activeElement === iref.current
+      ? String(value ?? "")
+      : format(v);
+  };
+
+  function change(inputValue: string) {
+    const [v, isValid] = parseNumber(inputValue);
+    if (isValid) {
+      safeValue.current = v;
+      onChangeValue?.(v);
+      return true;
+    }
+    if (isControlled) {
+      setInputValue(value);
+    } else {
+      setInputValue(safeValue.current);
+    }
+    return false;
+  };
+
+  function executeChangeEvent(v: number | null | undefined) {
     if (setterRef.current == null) {
       setterRef.current = createSetter();
     }
     setterRef.current?.call(
       iref.current,
-      value == null ? "" : (
+      v == null ? "" : (
         document.activeElement === iref.current ?
-          String(value) :
-          format(value)
+          String(v) :
+          format(v)
       )
     );
     iref.current.dispatchEvent(
@@ -100,44 +126,48 @@ export function NumberBox$({
     );
   }
 
-  function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    const [value, isValid] = parseNumber(e.target.value);
-    if (!isValid) {
-      iref.current.value = safeValueRef.current ?? "";
-      return;
+  function handleCompositionStart(e: CompositionEvent<HTMLInputElement>) {
+    setIsComposing(true);
+    inputProps?.onCompositionStart?.(e);
+  };
+
+  function handleCompositionEnd(e: CompositionEvent<HTMLInputElement>) {
+    setIsComposing(false);
+    if (state === "enabled") {
+      change(e.currentTarget.value);
     }
-    safeValueRef.current = document.activeElement === iref.current ?
-      String(value ?? "") :
-      format(value);
+    inputProps?.onCompositionEnd?.(e);
+  };
+
+  function handleChange(e: ChangeEvent<HTMLInputElement>) {
+    if (state === "enabled" && !isComposing) {
+      change(e.currentTarget.value);
+    }
     inputProps?.onChange?.(e);
   };
 
   function handleFocus(e: FocusEvent<HTMLInputElement>) {
-    if (state !== "enabled") return;
-    const [value, isValid] = getInputValue();
-    if (isValid) {
-      e.currentTarget.value = value == null || isNaN(value) ? "" : String(value);
+    setHasFocus(true);
+    if (state === "enabled") {
+      if (!isControlled) {
+        const [v, isValid] = getInputValueAsNumber();
+        if (isValid) {
+          e.currentTarget.value = v == null || isNaN(v) ? "" : String(v);
+        }
+      }
     }
     inputProps?.onFocus?.(e);
   };
 
   function handleBlur(e: FocusEvent<HTMLInputElement>) {
-    const [value, isValid] = getInputValue();
-    if (isValid) {
-      const text = format(value);
-      e.currentTarget.value = text || "";
+    setHasFocus(false);
+    if (!isControlled) {
+      const [v, isValid] = getInputValueAsNumber();
+      if (isValid) {
+        e.currentTarget.value = format(v) || "";
+      }
     }
     inputProps?.onBlur?.(e);
-  };
-
-  function handleCompositionStart(e: CompositionEvent<HTMLInputElement>) {
-    isComposing.current = true;
-    inputProps?.onCompositionStart?.(e);
-  };
-
-  function handleCompositionEnd(e: CompositionEvent<HTMLInputElement>) {
-    isComposing.current = false;
-    inputProps?.onCompositionEnd?.(e);
   };
 
   function minmax(num: number | null | undefined) {
@@ -153,7 +183,7 @@ export function NumberBox$({
   };
 
   function increment() {
-    const [value, isValid] = getInputValue();
+    const [value, isValid] = getInputValueAsNumber();
     if (!isValid) return;
     executeChangeEvent(
       value == null ?
@@ -163,7 +193,7 @@ export function NumberBox$({
   };
 
   function decrement() {
-    const [value, isValid] = getInputValue();
+    const [value, isValid] = getInputValueAsNumber();
     if (!isValid) return;
     executeChangeEvent(
       value == null ?
@@ -187,8 +217,10 @@ export function NumberBox$({
         }
         break;
       case "Enter":
-        if (!isComposing.current) {
-          executeChangeEvent(inputProps?.value);
+        if (!isComposing) {
+          if (isControlled) {
+            executeChangeEvent(value);
+          }
         }
         break;
       default: break;
@@ -196,18 +228,28 @@ export function NumberBox$({
     inputProps?.onKeyDown?.(e);
   };
 
-  function handleMousedown(mode: "up" | "down") {
-    if (state !== "enabled") return;
+  const spinning = useRef(false);
+
+  function startSpin(mode: "up" | "down") {
+    if (spinning.current) return;
+    spinning.current = true;
     if (mode === "up") increment();
     else decrement();
-    let finished = false;
-    window.addEventListener("mouseup", () => {
-      finished = true;
-    }, { once: true });
 
-    let lastTime = performance.now();
+    const end = () => {
+      spinning.current = false;
+      window.removeEventListener("pointerup", end);
+      window.removeEventListener("pointercancel", end);
+    };
+    window.addEventListener("pointerup", end, { once: true });
+    window.addEventListener("pointercancel", end, { once: true });
+
+    let lastTime = 0;
     function loop(time: number) {
-      if (finished) return;
+      if (!spinning.current) return;
+      if (lastTime === 0) {
+        lastTime = time;
+      }
       if (time - lastTime >= UP_DOWN_INTERVAL) {
         if (mode === "up") increment();
         else decrement();
@@ -216,17 +258,19 @@ export function NumberBox$({
       requestAnimationFrame(loop);
     };
     setTimeout(() => {
-      requestAnimationFrame(loop);
+      if (spinning.current) {
+        requestAnimationFrame(loop);
+      }
     }, UP_DOWN_ROOP_WAIT);
   };
 
-  function handleMousedownIncrement() {
-    handleMousedown("up");
-  };
-
-  function handleMousedownDecrement() {
-    handleMousedown("down");
-  };
+  function handlePointerdown(e: PointerEvent<HTMLButtonElement>, mode: "up" | "down") {
+    if (state !== "enabled") return;
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    e.preventDefault();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    startSpin(mode);
+  }
 
   useImperativeHandle(ref, () => ({
     element: wref.current,
@@ -234,12 +278,12 @@ export function NumberBox$({
     focus: () => iref.current.focus(),
     format,
     parse,
-    isComposing: () => isComposing.current,
+    isComposing: () => isComposing,
   } as const satisfies NumberBox$Ref));
 
   return (
     <InputFieldWrapper
-      {...props}
+      {...wrapperProps}
       className={clsx(
         "_ipt-default-width",
         className,
@@ -260,28 +304,21 @@ export function NumberBox$({
         )}
         ref={iref}
         name={validScripts ? undefined : inputProps?.name}
-        defaultValue={(() => {
-          const v = bindMode === "state" ?
-            inputProps?.defaultValue :
-            inputProps?.value;
-          if (v === undefined) return v;
-          if (validScripts) return format(v);
-          return v ?? "";
-        })()}
-        value={
-          bindMode === "dom" ? undefined : (
-            inputProps?.value === undefined ?
-              undefined :
-              inputProps?.value ?? ""
-          )
-        }
         inputMode={inputMode}
-        onChange={handleChange}
         onFocus={handleFocus}
         onBlur={handleBlur}
         onCompositionStart={handleCompositionStart}
         onCompositionEnd={handleCompositionEnd}
         onKeyDown={handleKeydown}
+        onChange={handleChange}
+        {...isControlled
+          ? {
+            value: (state === "enabled" && hasFocus)
+              ? (value ?? "")
+              : format(value),
+          }
+          : { defaultValue: defaultValue ?? "" }
+        }
       />
       {
         validScripts &&
@@ -301,7 +338,8 @@ export function NumberBox$({
                 state === "enabled" && "cursor-pointer",
               )}
               disabled={state !== "enabled"}
-              onMouseDown={handleMousedownIncrement}
+              onPointerDown={(e) => handlePointerdown(e, "up")}
+              onContextMenu={(e) => e.preventDefault()}
             >
               <UpIcon />
             </button>
@@ -314,17 +352,21 @@ export function NumberBox$({
                 state === "enabled" && "cursor-pointer",
               )}
               disabled={state !== "enabled"}
-              onMouseDown={handleMousedownDecrement}
+              onPointerDown={(e) => handlePointerdown(e, "down")}
+              onContextMenu={(e) => e.preventDefault()}
             >
               <DownIcon />
             </button>
           </div>
-          <input
-            name={inputProps?.name}
-            type="hidden"
-            disabled={state === "disabled"}
-            value={inputProps?.value ?? ""}
-          />
+          {
+            isControlled &&
+            <input
+              name={inputProps?.name}
+              type="hidden"
+              disabled={state === "disabled"}
+              value={value ?? ""}
+            />
+          }
         </>
       }
       {children}

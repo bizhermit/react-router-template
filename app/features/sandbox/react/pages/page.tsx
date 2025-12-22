@@ -575,7 +575,7 @@ function Component1() {
 function FormValueSetterComponent() {
   const { dataItems } = useSchemaContext<typeof schema>();
 
-  const [value, setValue] = useSchemaValue(dataItems.customMessageText);
+  const [value, setValue] = useSchemaValue(dataItems.count);
 
   return (
     <>
@@ -588,7 +588,8 @@ function FormValueSetterComponent() {
       </Button>
       <Button
         onClick={() => {
-          setValue("hoge\nfuga\npiyo\nhoge");
+          // setValue("hoge\nfuga\npiyo\nhoge");
+          setValue(100000);
         }}
       >
         set hoge
@@ -1472,12 +1473,8 @@ function DialogComponent() {
         >
           <span>{count}</span>
           <NumberBox$
-            inputProps={{
-              value: count,
-              onChange: (e) => {
-                setCount(parseNumber(e.target.value)[0] ?? 0);
-              },
-            }}
+            value={count}
+            onChangeValue={v => setCount(v ?? 0)}
           />
           <Button
             onClick={() => {

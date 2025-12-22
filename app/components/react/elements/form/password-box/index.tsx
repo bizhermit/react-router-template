@@ -29,9 +29,10 @@ export function PasswordBox$({
   onChangeValue,
   ...props
 }: PasswordBox$Props) {
+  const validScripts = use(ValidScriptsContext).valid;
+
   const isControlled = "value" in props;
   const { value, ...wrapperProps } = props;
-  const validScripts = use(ValidScriptsContext).valid;
 
   const wref = useRef<HTMLDivElement>(null!);
   const iref = useRef<HTMLInputElement>(null!);
@@ -94,7 +95,7 @@ export function PasswordBox$({
           type="button"
           className={clsx(
             "_ipt-btn",
-            state === "enabled" && "cursor-pointer",
+            state === "enabled" ? "cursor-pointer" : "opacity-0",
           )}
           aria-label="toggle masked"
           tabIndex={-1}
