@@ -1,4 +1,4 @@
-import { type ReactNode, type RefObject } from "react";
+import { type HTMLAttributes, type ReactNode, type RefObject } from "react";
 import { createRoot } from "react-dom/client";
 import { parseToReactNode } from "~/components/react/elements/i18n-text";
 import { preventScroll } from "../../client/dom/prevent-scroll";
@@ -7,7 +7,7 @@ import { FocusTrap } from "./focus-trap";
 import { CrossIcon } from "./icon";
 import { clsx, getColorClassName } from "./utilities";
 
-interface MessageBoxProps {
+interface MessageBoxOptions {
   ref?: RefObject<HTMLDivElement>;
   header?: ReactNode;
   headerId?: string;
@@ -17,45 +17,62 @@ interface MessageBoxProps {
   color?: StyleColor;
 };
 
+type MessageBoxProps = Overwrite<
+  Omit<HTMLAttributes<HTMLDivElement>, "children">,
+  MessageBoxOptions
+>;
+
 function optimizeEndOfLines(content: ReactNode) {
   if (typeof content !== "string") return content;
   return parseToReactNode(content);
 };
 
-function MessageBox(props: MessageBoxProps) {
+function MessageBox({
+  ref,
+  header,
+  headerId,
+  body,
+  bodyId,
+  footer,
+  color,
+  className,
+  ...props
+}: MessageBoxProps) {
   return (
     <FocusTrap>
       <div
+        {...props}
         className={clsx(
           "_msgbox",
-          getColorClassName(props.color),
+          getColorClassName(color),
+          className,
         )}
-        ref={props.ref}
+        ref={ref}
       >
         {
-          props.header &&
+          header &&
           <div
             className="_msgbox-header"
-            id={props.headerId}
+            id={headerId}
           >
-            {optimizeEndOfLines(props.header)}
+            {optimizeEndOfLines(header)}
           </div>
         }
         {
-          props.body &&
+          body &&
           <div
             className="_msgbox-body"
-            id={props.bodyId}
+            id={bodyId}
           >
-            {optimizeEndOfLines(props.body)}
+            {optimizeEndOfLines(body)}
           </div>
         }
         {
-          props.footer &&
+          footer &&
           <div
             className="_msgbox-footer"
           >
-            {props.footer}
+            {footer}
           </div>
         }
       </div>
