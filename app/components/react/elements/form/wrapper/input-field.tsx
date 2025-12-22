@@ -2,7 +2,12 @@ import type { HTMLAttributes, ReactNode, RefObject } from "react";
 import { clsx, ZERO_WIDTH_SPACE } from "../../utilities";
 
 export type InputFieldWrapperProps = Overwrite<
-  HTMLAttributes<HTMLDivElement>,
+  Omit<HTMLAttributes<HTMLDivElement>,
+    | "value"
+    | "defaultValue"
+    | "checked"
+    | "defaultChecked"
+  >,
   {
     ref?: RefObject<HTMLDivElement>;
     label?: ReactNode;
@@ -43,6 +48,11 @@ export function InputFieldWrapper({
 };
 
 export type InputFieldProps<T = {}> = Overwrite<
-  InputFieldWrapperProps,
+  Omit<InputFieldWrapperProps,
+    | "value"
+    | "defaultValue"
+    | "checked"
+    | "defaultChecked"
+  >,
   Overwrite<InputProps, T>
 >;

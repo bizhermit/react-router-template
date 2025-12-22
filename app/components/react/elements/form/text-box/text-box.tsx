@@ -1,4 +1,4 @@
-import { useImperativeHandle, useRef, useState, type ChangeEvent, type HTMLAttributes, type HTMLInputTypeAttribute, type InputHTMLAttributes } from "react";
+import { useState, type HTMLAttributes, type HTMLInputTypeAttribute, type InputHTMLAttributes } from "react";
 import { useSchemaItem } from "~/components/react/hooks/schema";
 import { getValidationValue } from "~/components/schema/utilities";
 import { TextBox$, type TextBox$Ref } from ".";
@@ -55,10 +55,9 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
   autoComplete = "off",
   autoCapitalize,
   enterKeyHint,
+  ref,
   ...$props
 }: TextBoxProps<D>) {
-  const ref = useRef<TextBox$Ref>(null!);
-
   const {
     name,
     dataItem,
@@ -75,13 +74,6 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
     omitOnSubmit,
     hideMessage,
   } = useSchemaItem<Schema.DataItem<Schema.$String>>($props, {
-    effect: function ({ value }) {
-      if (!ref.current) return;
-      const sv = String(value || "");
-      if (ref.current.inputElement.value !== sv) {
-        ref.current.inputElement.value = sv;
-      }
-    },
     effectContext: function () {
       setMinLen(getMinLen);
       setMaxLen(getMaxLen);
@@ -111,16 +103,9 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
     getCommonParams,
   });
 
-  function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    if (state !== "enabled") return;
-    setValue(e.target.value);
-  };
-
   const patternProps = getPatternInputProps(dataItem._.pattern);
 
   const dataListId = source == null ? undefined : `${name}_dl`;
-
-  useImperativeHandle($props.ref, () => ref.current);
 
   return (
     <WithMessage
@@ -134,6 +119,8 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
         ref={ref}
         state={state}
         invalid={invalid}
+        value={value}
+        onChangeValue={setValue}
         inputProps={{
           type: patternProps.type || "text",
           name: omitOnSubmit ? undefined : name,
@@ -149,8 +136,6 @@ export function TextBox<D extends Schema.DataItem<Schema.$String>>({
           autoComplete,
           autoCapitalize,
           enterKeyHint,
-          defaultValue: value || "",
-          onChange: handleChange,
         }}
       >
         {
