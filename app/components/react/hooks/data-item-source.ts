@@ -1,4 +1,4 @@
-import { use, useLayoutEffect, useState } from "react";
+import { use, useMemo, useState } from "react";
 import { getValidationValue } from "~/components/schema/utilities";
 import { I18nContext } from "./i18n";
 
@@ -32,49 +32,42 @@ export function useSource<D extends Schema.DataItem>({
 }) {
   type T = Schema.Source<Schema.ValueType<D["_"], true, false>>;
   const { t, locale } = use(I18nContext);
+  const [revision, setRevision] = useState(0);
 
-  function getSource() {
+  const source = useMemo<null | T>(() => {
     if (propsSource) return propsSource;
+
     if ("source" in dataItem._) {
-      return getParsedDataItemSource();
+      return (getValidationValue(getCommonParams(), dataItem._.source) as T)?.map(item => ({
+        value: item.value,
+        text: t(item.text as I18nTextKey) || "",
+        node: item.node,
+      }));
     }
+
     if (dataItem._.type === "bool") {
       return getBooleanSource({
         dataItem: dataItem as Schema.DataItem<Schema.$Boolean>,
-        t: t,
+        t,
       }) as T;
     }
-    return null;
-  }
 
-  const [source, setSource] = useState<null | T>(() => {
-    return getSource();
-  });
-
-  function getParsedDataItemSource() {
-    if ("source" in dataItem._) {
-      return (getValidationValue(getCommonParams(), dataItem._.source) as T)?.map(item => {
-        return {
-          value: item.value,
-          text: t(item.text as I18nTextKey) || "",
-          node: item.node,
-        };
-      });
-    }
     return null;
-  }
+  }, [
+    propsSource,
+    dataItem,
+    getCommonParams,
+    t,
+    locale,
+    revision,
+  ]);
 
   function resetDataItemSource() {
-    setSource(getSource());
+    setRevision(c => c + 1);
   };
-
-  useLayoutEffect(() => {
-    resetDataItemSource();
-  }, [propsSource, locale]);
 
   return {
     source,
-    setSource,
     resetDataItemSource,
   } as const;
 };

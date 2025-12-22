@@ -866,15 +866,17 @@ export function useSchemaItem<D extends Schema.DataItem>(
     customRefs.current = optimizeRefs($, refs);
   };
 
-  function getCommonParams(): Schema.DynamicValidationValueParams {
+  const getCommonParams = useCallback(() => {
     return {
       name: $.name,
       label: $.label,
       data: schema.data.current,
       dep: schema.dep.current,
       env: schema.env,
-    };
-  };
+    } as const satisfies Schema.DynamicValidationValueParams;
+  }, [
+    $,
+  ]);
 
   useLayoutEffect(() => {
     const unmount = schema.addSubscribe((params) => {
