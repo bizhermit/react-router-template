@@ -50,18 +50,6 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
     omitOnSubmit,
     hideMessage,
   } = useSchemaItem<Schema.DataItem<RadioButtonsSchemaProps>>($props, {
-    effect: function ({ value }) {
-      if (!wref.current) return;
-      const sv = String(value ?? "");
-      const target = wref.current.querySelector(`input[type="radio"][value="${sv}"]`) as HTMLInputElement;
-      if (target) {
-        target.checked = true;
-      } else {
-        wref.current.querySelectorAll(`input[type="radio"]:checked`).forEach(elem => {
-          (elem as HTMLInputElement).checked = false;
-        });
-      }
-    },
     effectContext: function () {
       resetDataItemSource();
     },

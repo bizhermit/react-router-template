@@ -46,7 +46,7 @@
   }
 
   ._ipt-date {
-    &:not([value]) {
+    &[data-controlled="true"] {
       &[data-hasvalue="false"]:not(:focus) {
         color: var(--color-placeholder);
       }

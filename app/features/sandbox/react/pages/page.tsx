@@ -575,7 +575,7 @@ function Component1() {
 function FormValueSetterComponent() {
   const { dataItems } = useSchemaContext<typeof schema>();
 
-  const [value, setValue] = useSchemaValue(dataItems.count);
+  const [value, setValue] = useSchemaValue(dataItems.sourceText);
 
   return (
     <>
@@ -589,7 +589,7 @@ function FormValueSetterComponent() {
       <Button
         onClick={() => {
           // setValue("hoge\nfuga\npiyo\nhoge");
-          setValue(100000);
+          setValue("fuga");
         }}
       >
         set hoge
