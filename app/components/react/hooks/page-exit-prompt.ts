@@ -10,6 +10,7 @@ export function usePageExitPropmt(options?: Options) {
   const enabledRef = useRef(false);
   const t = useText();
 
+  // eslint-disable-next-line react-hooks/refs
   unstable_usePrompt({
     when: () => {
       return enabledRef.current;
