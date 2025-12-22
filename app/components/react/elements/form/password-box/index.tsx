@@ -2,7 +2,7 @@ import { use, useImperativeHandle, useRef, useState, type ChangeEvent, type Inpu
 import { ValidScriptsContext } from "~/components/react/providers/valid-scripts";
 import { CircleFillIcon, CircleIcon } from "../../icon";
 import { clsx } from "../../utilities";
-import { InputFieldWrapper, type InputFieldOmitProps, type InputFieldProps, type InputFieldWrapperProps } from "../wrapper/input-field";
+import { InputFieldWrapper, type InputFieldProps, type InputFieldWrapperProps } from "../wrapper/input-field";
 
 export interface PasswordBox$Ref extends InputRef {
   inputElement: HTMLInputElement;
@@ -14,19 +14,9 @@ export type PasswordBox$Props = Overwrite<
   InputFieldProps<{
     inputProps?: Omit<
       InputHTMLAttributes<HTMLInputElement>,
-      InputFieldOmitProps
+      InputOmitProps
     >;
-    onChangeValue?: (v: string) => void;
-  } & (
-      | {
-        value: string | null | undefined;
-        defaultValue?: never;
-      }
-      | {
-        value?: never;
-        defaultValue?: string | null | undefined;
-      }
-    )>
+  } & InputValueProps<string>>
 >;
 
 export function PasswordBox$({
@@ -60,7 +50,7 @@ export function PasswordBox$({
     if (state === "enabled") {
       onChangeValue?.(e.currentTarget.value);
     }
-    props.onChange?.(e);
+    inputProps?.onChange?.(e);
   };
 
   useImperativeHandle(ref, () => ({

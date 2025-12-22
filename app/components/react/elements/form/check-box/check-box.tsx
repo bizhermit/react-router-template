@@ -1,4 +1,4 @@
-import { useImperativeHandle, useRef, type ChangeEvent, type ReactNode } from "react";
+import { useImperativeHandle, useRef, type ReactNode } from "react";
 import { useSchemaItem } from "~/components/react/hooks/schema";
 import { CheckBox$, type CheckBox$Ref, type CheckBoxAppearance } from ".";
 import { WithMessage } from "../message";
@@ -48,9 +48,8 @@ export function CheckBox<D extends Schema.DataItem<Schema.$Boolean>>({
     },
   });
 
-  function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    if (state !== "enabled") return;
-    setValue(e.target.checked ? dataItem._.trueValue : dataItem._.falseValue);
+  function handleChangeValue(checked: boolean) {
+    setValue(checked ? dataItem._.trueValue : dataItem._.falseValue);
   };
 
   useImperativeHandle($props.ref, () => ref.current);
@@ -69,12 +68,12 @@ export function CheckBox<D extends Schema.DataItem<Schema.$Boolean>>({
         color={color}
         appearance={appearance}
         state={state}
+        checked={dataItem._.trueValue === value}
+        onChangeValue={handleChangeValue}
+        value={dataItem._.trueValue}
         inputProps={{
           name: omitOnSubmit ? undefined : name,
           required,
-          value: String(dataItem._.trueValue),
-          defaultChecked: value === dataItem._.trueValue,
-          onChange: handleChange,
           "aria-label": label,
           "aria-errormessage": errormessage,
           autoFocus,

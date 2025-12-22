@@ -2,7 +2,7 @@ import type { LabelHTMLAttributes, RefObject } from "react";
 import { clsx } from "../../utilities";
 
 export type InputLabelWrapperProps = Overwrite<
-  LabelHTMLAttributes<HTMLLabelElement>,
+  Omit<LabelHTMLAttributes<HTMLLabelElement>, InputOmitProps>,
   {
     ref?: RefObject<HTMLLabelElement>;
     state?: Schema.Mode;

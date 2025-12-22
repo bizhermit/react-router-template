@@ -1,6 +1,6 @@
 import { useImperativeHandle, useRef, useState, type ChangeEvent, type CompositionEvent, type InputHTMLAttributes, type ReactNode } from "react";
 import { clsx } from "../../utilities";
-import { InputFieldWrapper, type InputFieldOmitProps, type InputFieldProps, type InputFieldWrapperProps } from "../wrapper/input-field";
+import { InputFieldWrapper, type InputFieldProps, type InputFieldWrapperProps } from "../wrapper/input-field";
 
 export interface TextBox$Ref extends InputRef {
   inputElement: HTMLInputElement;
@@ -11,21 +11,10 @@ export type TextBox$Props = Overwrite<
   InputFieldProps<{
     inputProps?: Omit<
       InputHTMLAttributes<HTMLInputElement>,
-      InputFieldOmitProps
+      InputOmitProps
     >;
     children?: ReactNode;
-    onChangeValue?: (v: string) => void;
-  } & (
-      | {
-        value: string | null | undefined;
-        defaultValue?: never;
-      }
-      | {
-        value?: never;
-        defaultValue?: string | null | undefined;
-      }
-    )
-  >
+  } & InputValueProps<string>>
 >;
 
 export function TextBox$({
@@ -61,7 +50,7 @@ export function TextBox$({
     if (state === "enabled" && !isComposing) {
       onChangeValue?.(e.currentTarget.value);
     }
-    props.onChange?.(e);
+    inputProps?.onChange?.(e);
   };
 
   useImperativeHandle(ref, () => ({

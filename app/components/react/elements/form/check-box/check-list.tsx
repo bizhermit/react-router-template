@@ -1,4 +1,4 @@
-import { useImperativeHandle, useRef, type ChangeEvent } from "react";
+import { useImperativeHandle, useRef } from "react";
 import { useSchemaItem } from "~/components/react/hooks/schema";
 import { CheckBox$, type CheckBox$Ref, type CheckBoxAppearance } from ".";
 import { useSource } from "../../../hooks/data-item-source";
@@ -73,7 +73,7 @@ export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemS
   });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  function handleChange(e: ChangeEvent<HTMLInputElement>, v: any) {
+  function handleChange(v: any) {
     if (state !== "enabled") return;
     const newValue = [...value ?? []];
     const index = newValue.findIndex(item => item === v);
@@ -114,12 +114,12 @@ export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemS
               appearance={appearance}
               state={state}
               color={color}
+              checked={isChecked}
+              onChangeValue={() => handleChange(item.value)}
+              value={key}
               inputProps={{
                 name: omitOnSubmit ? undefined : name,
                 required,
-                value: key,
-                defaultChecked: isChecked,
-                onChange: e => handleChange(e, item.value),
                 "aria-label": `${label ? `${label} - ` : ""}${item.text}`,
                 "aria-errormessage": errormessage,
                 autoFocus: autoFocus ? index === 0 : undefined,

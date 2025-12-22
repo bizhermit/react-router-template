@@ -32,8 +32,6 @@ import { SelectBox$, SelectBoxEmptyOption } from "~/components/react/elements/fo
 import { SelectBox } from "~/components/react/elements/form/select-box/select-box";
 import { Slider$ } from "~/components/react/elements/form/slider";
 import { Slider } from "~/components/react/elements/form/slider/slider";
-import { SwitchBox$ } from "~/components/react/elements/form/switch-box";
-import { SwitchBox } from "~/components/react/elements/form/switch-box/switch-box";
 import { TextArea$ } from "~/components/react/elements/form/text-area";
 import { TextArea } from "~/components/react/elements/form/text-area/text-area";
 import { TextBox$ } from "~/components/react/elements/form/text-box";
@@ -662,14 +660,15 @@ function Component2() {
         </CheckBox>
       </FormItem>
       <FormItem>
-        <SwitchBox$>
-          SwitchBox
-        </SwitchBox$>
-        <SwitchBox
+        <CheckBox$ appearance="togglebox">
+          CheckBox
+        </CheckBox$>
+        <CheckBox
+          appearance="togglebox"
           $={dataItems.numFlag}
         >
           Switch(Num)
-        </SwitchBox>
+        </CheckBox>
       </FormItem>
       <FormItem>
         <RadioButtons
@@ -1353,38 +1352,34 @@ function DialogComponent() {
     <section>
       <Details summary="Dialog">
         <div className="flex flex-row gap-2">
-          <SwitchBox$
-            inputProps={{
-              checked: closeWhenScrolled.flag,
-              onChange: closeWhenScrolled.toggle,
-            }}
+          <CheckBox$
+            appearance="togglebox"
+            checked={closeWhenScrolled.flag}
+            onChangeValue={closeWhenScrolled.toggle}
           >
             closeWhenScrolled
-          </SwitchBox$>
-          <SwitchBox$
-            inputProps={{
-              checked: preventEscapeClose.flag,
-              onChange: preventEscapeClose.toggle,
-            }}
+          </CheckBox$>
+          <CheckBox$
+            appearance="togglebox"
+            checked={preventEscapeClose.flag}
+            onChangeValue={preventEscapeClose.toggle}
           >
             preventEscapeClose
-          </SwitchBox$>
-          <SwitchBox$
-            inputProps={{
-              checked: preventCloseWhenClickOuter.flag,
-              onChange: preventCloseWhenClickOuter.toggle,
-            }}
+          </CheckBox$>
+          <CheckBox$
+            appearance="togglebox"
+            checked={preventCloseWhenClickOuter.flag}
+            onChangeValue={preventCloseWhenClickOuter.toggle}
           >
             preventCloseWhenClickOuter
-          </SwitchBox$>
-          <SwitchBox$
-            inputProps={{
-              checked: preventRootScroll.flag,
-              onChange: preventRootScroll.toggle,
-            }}
+          </CheckBox$>
+          <CheckBox$
+            appearance="togglebox"
+            checked={preventRootScroll.flag}
+            onChangeValue={preventRootScroll.toggle}
           >
             preventRootScroll
-          </SwitchBox$>
+          </CheckBox$>
         </div>
         <div className="flex flex-row gap-2">
           <Button
