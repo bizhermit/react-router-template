@@ -1,10 +1,9 @@
 import { useState } from "react";
 
-const useRender = () => {
-  const [revision, setRevision] = useState(0);
-  const render = () => setRevision(c => c + 1);
-  render.revision = revision;
+export function useRender() {
+  const [_, setRevision] = useState(0);
+  function render() {
+    setRevision(c => c + 1);
+  };
   return render;
 };
-
-export default useRender;
