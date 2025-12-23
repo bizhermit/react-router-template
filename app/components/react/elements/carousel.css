@@ -103,7 +103,6 @@
     scroll-behavior: smooth;
     justify-content: var(--carousel-slide-align-flag, var(--slide-align));
     cursor: grab;
-    touch-action: pan-x;
 
     &[data-dragging] {
       scroll-snap-type: none;

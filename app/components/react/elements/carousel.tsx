@@ -137,8 +137,12 @@ export function Carousel({
       dragging = false;
       window.removeEventListener("mousemove", mousemove);
       window.removeEventListener("mouseup", mouseup);
-      function removeAttr() {
+      window.removeEventListener("mouseleave", mouseup);
+      window.removeEventListener("blur", mouseup);
+      window.getSelection()?.removeAllRanges();
+      function end() {
         lref.current.removeAttribute("data-dragging");
+        momentumId = null;
       };
       const firstChild = slidesRef.current[0];
       const lastChild = slidesRef.current[slidesRef.current.length - 1] as HTMLElement | undefined;
@@ -160,7 +164,7 @@ export function Carousel({
       function step() {
         const m = Math.abs(momentum);
         if (m < 0.1) {
-          removeAttr();
+          end();
           return;
         }
         if (m < 0.2) {
@@ -174,13 +178,13 @@ export function Carousel({
 
         if (lref.current.scrollLeft < leftMin) {
           lref.current.scrollLeft = leftMin;
-          removeAttr();
+          end();
           select(0);
           return;
         }
         if (lref.current.scrollLeft > rightMax) {
           lref.current.scrollLeft = rightMax;
-          removeAttr();
+          end();
           select(slidesRef.current.length - 1);
           return;
         }
@@ -206,7 +210,6 @@ export function Carousel({
 
     function mousedown(e: MouseEvent) {
       if (dragging) return;
-      if (e.button !== 0) return;
       dragging = true;
       startX = e.clientX;
       startScrollLeft = lref.current.scrollLeft;
@@ -215,7 +218,10 @@ export function Carousel({
       velocity = 0;
       window.addEventListener("mousemove", mousemove);
       window.addEventListener("mouseup", mouseup);
-      if (momentumId) cancelAnimationFrame(momentumId);
+      if (momentumId) {
+        cancelAnimationFrame(momentumId);
+        momentumId = null;
+      }
       lref.current.setAttribute("data-dragging", "");
     };
 
@@ -227,6 +233,12 @@ export function Carousel({
       lref.current?.removeEventListener("mousedown", mousedown);
       window.removeEventListener("mousemove", mousemove);
       window.removeEventListener("mouseup", mouseup);
+      window.removeEventListener("mouseleave", mouseup);
+      window.removeEventListener("blur", mouseup);
+      if (momentumId) {
+        cancelAnimationFrame(momentumId);
+        momentumId = null;
+      }
     };
   }, [align]);
 
