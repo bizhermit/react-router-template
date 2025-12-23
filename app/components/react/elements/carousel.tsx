@@ -140,9 +140,8 @@ export function Carousel({
       function removeAttr() {
         lref.current.removeAttribute("data-dragging");
       };
-      const childNodes = Array.from(lref.current.childNodes);
-      const firstChild = childNodes[0] as HTMLElement | undefined;
-      const lastChild = childNodes[childNodes.length - 1] as HTMLElement | undefined;
+      const firstChild = slidesRef.current[0];
+      const lastChild = slidesRef.current[slidesRef.current.length - 1] as HTMLElement | undefined;
       const viewportWidth = lref.current.clientWidth;
       const slideWidth = firstChild?.offsetWidth ?? 0;
       let leftMargin = 0;
