@@ -95,8 +95,8 @@ export function Carousel({
   };
 
   function calcCurrentIndex() {
-    const el = lref.current;
-    const scrollLeft = el.scrollLeft;
+    if (!lref.current) return;
+    const scrollLeft = lref.current.scrollLeft;
     currentIndex.current = getIndex(scrollLeft);
     onChange?.(currentIndex.current);
   };
@@ -104,6 +104,7 @@ export function Carousel({
   useEffect(() => {
     // ウィンドウリサイズ追従
     const resizeEvent = throttle(() => {
+      if (!lref.current) return;
       const before = hasScroll.current;
       hasScroll.current = lref.current.scrollWidth - lref.current.clientWidth > 0;
       if (before !== hasScroll.current) {
