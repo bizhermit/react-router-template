@@ -29,6 +29,11 @@ const baseConfig = {
   plugins: {
     "react-hooks": pluginReactHooks,
   },
+  settings: {
+    react: {
+      version: "detect",
+    },
+  },
   rules: {
     ...pluginReactHooks.configs.recommended.rules,
     "@stylistic/linebreak-style": [
