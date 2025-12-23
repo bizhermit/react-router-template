@@ -56,7 +56,7 @@ const baseConfig = {
       "double",
       {
         avoidEscape: true,
-        allowTemplateLiterals: true,
+        allowTemplateLiterals: "always",
       },
     ],
     "@stylistic/semi": [
