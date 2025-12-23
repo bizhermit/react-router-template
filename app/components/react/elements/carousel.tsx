@@ -132,14 +132,12 @@ export function Carousel({
     let velocity = 0;
     let momentumId: number | null = null;
 
-    function mouseup() {
+    function pointerup() {
       if (!dragging) return;
       dragging = false;
-      window.removeEventListener("mousemove", mousemove);
-      window.removeEventListener("mouseup", mouseup);
-      window.removeEventListener("mouseleave", mouseup);
-      window.removeEventListener("blur", mouseup);
-      window.getSelection()?.removeAllRanges();
+      lref.current.removeEventListener("pointermove", pointermove);
+      lref.current.removeEventListener("pointerup", pointerup);
+      lref.current.removeEventListener("pointercancel", pointerup);
       function end() {
         lref.current.removeAttribute("data-dragging");
         momentumId = null;
@@ -194,7 +192,7 @@ export function Carousel({
       momentumId = requestAnimationFrame(step);
     }
 
-    const mousemove = throttle((e: MouseEvent) => {
+    const pointermove = throttle((e: PointerEvent) => {
       if (!dragging) return;
       const now = performance.now();
       const dx = e.clientX - startX;
@@ -208,16 +206,20 @@ export function Carousel({
       }
     }, 20);
 
-    function mousedown(e: MouseEvent) {
+    function pointerdown(e: PointerEvent) {
       if (dragging) return;
+      if (e.pointerType !== "mouse") return;
+      if (e.button !== 0) return;
+      lref.current.releasePointerCapture(e.pointerId);
       dragging = true;
       startX = e.clientX;
       startScrollLeft = lref.current.scrollLeft;
       lastX = e.clientX;
       lastTime = performance.now();
       velocity = 0;
-      window.addEventListener("mousemove", mousemove);
-      window.addEventListener("mouseup", mouseup);
+      lref.current.addEventListener("pointermove", pointermove);
+      lref.current.addEventListener("pointerup", pointerup);
+      lref.current.addEventListener("pointercancel", pointerup);
       if (momentumId) {
         cancelAnimationFrame(momentumId);
         momentumId = null;
@@ -225,16 +227,16 @@ export function Carousel({
       lref.current.setAttribute("data-dragging", "");
     };
 
-    lref.current.addEventListener("mousedown", mousedown);
+    lref.current.addEventListener("pointerdown", pointerdown);
 
     return () => {
       resizeObserver.disconnect();
       lref.current?.removeEventListener("scroll", scrollEvent);
-      lref.current?.removeEventListener("mousedown", mousedown);
-      window.removeEventListener("mousemove", mousemove);
-      window.removeEventListener("mouseup", mouseup);
-      window.removeEventListener("mouseleave", mouseup);
-      window.removeEventListener("blur", mouseup);
+      dragging = false;
+      lref.current?.removeEventListener("pointerdown", pointerdown);
+      lref.current?.removeEventListener("pointermove", pointermove);
+      lref.current?.removeEventListener("pointerup", pointerup);
+      lref.current?.removeEventListener("pointercancel", pointerup);
       if (momentumId) {
         cancelAnimationFrame(momentumId);
         momentumId = null;
