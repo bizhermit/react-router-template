@@ -132,8 +132,9 @@ export function Carousel({
     let velocity = 0;
     let momentumId: number | null = null;
 
-    function pointerup() {
+    function pointerup(e: PointerEvent) {
       if (!dragging) return;
+      lref.current.releasePointerCapture(e.pointerId);
       dragging = false;
       lref.current.removeEventListener("pointermove", pointermove);
       lref.current.removeEventListener("pointerup", pointerup);
@@ -210,7 +211,8 @@ export function Carousel({
       if (dragging) return;
       if (e.pointerType !== "mouse") return;
       if (e.button !== 0) return;
-      lref.current.releasePointerCapture(e.pointerId);
+      e.preventDefault();
+      lref.current.setPointerCapture(e.pointerId);
       dragging = true;
       startX = e.clientX;
       startScrollLeft = lref.current.scrollLeft;

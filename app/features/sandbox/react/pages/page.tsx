@@ -1314,7 +1314,7 @@ function IconsComponent() {
                 <h3 className="flex flex-row gap-2">
                   {index + 1}. {Icon.name} <Icon />
                 </h3>
-                <div className="flex gap-2 w-75">
+                <div className="flex gap-2 w-75 overflow-hidden">
                   <Button>
                     <Icon />
                   </Button>
