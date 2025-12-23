@@ -122,7 +122,7 @@ export function Carousel({
     select(currentIndex.current);
     resizeEvent();
 
-    // ドラッグスクロール制御
+    // PCドラッグスクロール制御
     let dragging = false;
     let startX = 0;
     let startScrollLeft = 0;
@@ -131,12 +131,11 @@ export function Carousel({
     let velocity = 0;
     let momentumId: number | null = null;
 
-    function pointerend() {
+    function mouseup() {
       if (!dragging) return;
       dragging = false;
-      lref.current.removeEventListener("pointermove", pointermove);
-      lref.current.removeEventListener("pointerup", pointerend);
-      lref.current.removeEventListener("pointercancel", pointerend);
+      window.removeEventListener("mousemove", mousemove);
+      window.removeEventListener("mouseup", mouseup);
       function removeAttr() {
         lref.current.removeAttribute("data-dragging");
       };
@@ -164,7 +163,7 @@ export function Carousel({
           removeAttr();
           return;
         }
-        if (m < 0.5) {
+        if (m < 0.2) {
           const remaining = momentum / (1 - decay);
           const predictedScrollLeft = Math.min(Math.max(lref.current.scrollLeft - remaining, leftMin), rightMax);
           select(getIndex(predictedScrollLeft));
@@ -176,11 +175,13 @@ export function Carousel({
         if (lref.current.scrollLeft < leftMin) {
           lref.current.scrollLeft = leftMin;
           removeAttr();
+          select(0);
           return;
         }
         if (lref.current.scrollLeft > rightMax) {
           lref.current.scrollLeft = rightMax;
           removeAttr();
+          select(slidesRef.current.length - 1);
           return;
         }
 
@@ -189,7 +190,7 @@ export function Carousel({
       momentumId = requestAnimationFrame(step);
     }
 
-    const pointermove = throttle((e: PointerEvent) => {
+    const mousemove = throttle((e: MouseEvent) => {
       if (!dragging) return;
       const now = performance.now();
       const dx = e.clientX - startX;
@@ -203,7 +204,7 @@ export function Carousel({
       }
     }, 20);
 
-    function pointerdown(e: PointerEvent) {
+    function mousedown(e: MouseEvent) {
       if (dragging) return;
       if (e.button !== 0) return;
       dragging = true;
@@ -212,23 +213,20 @@ export function Carousel({
       lastX = e.clientX;
       lastTime = performance.now();
       velocity = 0;
-      lref.current.setPointerCapture(e.pointerId);
-      lref.current.addEventListener("pointermove", pointermove);
-      lref.current.addEventListener("pointerup", pointerend);
-      lref.current.addEventListener("pointercancel", pointerend);
+      window.addEventListener("mousemove", mousemove);
+      window.addEventListener("mouseup", mouseup);
       if (momentumId) cancelAnimationFrame(momentumId);
       lref.current.setAttribute("data-dragging", "");
     };
 
-    lref.current.addEventListener("pointerdown", pointerdown);
+    lref.current.addEventListener("mousedown", mousedown);
 
     return () => {
       resizeObserver.disconnect();
-      lref.current.removeEventListener("scroll", scrollEvent);
-      lref.current.removeEventListener("pointerdown", pointerdown);
-      lref.current.removeEventListener("pointermove", pointermove);
-      lref.current.removeEventListener("pointerup", pointerend);
-      lref.current.removeEventListener("pointercancel", pointerend);
+      lref.current?.removeEventListener("scroll", scrollEvent);
+      lref.current?.removeEventListener("mousedown", mousedown);
+      window.removeEventListener("mousemove", mousemove);
+      window.removeEventListener("mouseup", mouseup);
     };
   }, [align]);
 
