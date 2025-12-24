@@ -12,7 +12,7 @@ export const auth = betterAuth({
     additionalFields: {
       role: {
         type: "string",
-        input: false,
+        input: true,
         defaultValue: "user",
       },
     },
@@ -20,6 +20,15 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     autoSignIn: false,
+  },
+  session: {
+    expiresIn: 60 * 60, // 1hour
+    freshAge: 60 * 10, // 10min
+    cookieCache: {
+      enabled: true,
+      maxAge: 60 * 5, // 5min
+      strategy: "compact",
+    },
   },
 });
 
