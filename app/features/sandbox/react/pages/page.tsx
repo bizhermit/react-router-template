@@ -606,27 +606,31 @@ function Component2() {
     <div className="flex flex-row flex-wrap gap-2">
       <FormValueSetterComponent />
       <FormItem>
-        <TextBox$ inputProps={{ placeholder: "テキスト" }} />
         <TextBox
           $={dataItems.text}
           placeholder="テキスト"
         />
+        <TextBox$ inputProps={{ placeholder: "テキスト" }} />
       </FormItem>
       <FormItem>
-        <PasswordBox$ inputProps={{ placeholder: "パスワード" }} />
         <PasswordBox
           $={dataItems.password}
           placeholder="パスワード"
         />
+        <PasswordBox$ inputProps={{ placeholder: "パスワード" }} />
       </FormItem>
       <FormItem>
-        <NumberBox$ inputProps={{ placeholder: "数値", min: 0 }} />
         <NumberBox
           $={dataItems.count}
           placeholder="数値"
         />
+        <NumberBox$ inputProps={{ placeholder: "数値", min: 0 }} />
       </FormItem>
       <FormItem>
+        <SelectBox
+          $={dataItems.generation}
+          placeholder="世代"
+        />
         <SelectBox$ placeholder="世代">
           <SelectBoxEmptyOption>
             {/* (世代) */}
@@ -642,16 +646,9 @@ function Component2() {
             );
           })}
         </SelectBox$>
-        <SelectBox
-          $={dataItems.generation}
-          placeholder="世代"
-        />
       </FormItem>
       <DynamicSelectBoxComponent />
       <FormItem>
-        <CheckBox$>
-          CheckBox
-        </CheckBox$>
         <CheckBox
           $={dataItems.check}
         // appearance="button"
@@ -659,17 +656,20 @@ function Component2() {
         >
           <HeartFillIcon className="text-pink-400 dark:text-pink-400" />
         </CheckBox>
-      </FormItem>
-      <FormItem>
-        <CheckBox$ appearance="togglebox">
+        <CheckBox$>
           CheckBox
         </CheckBox$>
+      </FormItem>
+      <FormItem>
         <CheckBox
           appearance="togglebox"
           $={dataItems.numFlag}
         >
           Switch(Num)
         </CheckBox>
+        <CheckBox$ appearance="togglebox">
+          CheckBox
+        </CheckBox$>
       </FormItem>
       <FormItem>
         <RadioButtons

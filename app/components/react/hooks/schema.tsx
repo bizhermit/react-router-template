@@ -127,6 +127,9 @@ interface Props<S extends Record<string, Schema.$Any>> {
   dep?: Record<string, any>;
   validationTrigger?: SchemaValidationTrigger;
   onChangeEffected?: (effected: boolean) => void;
+  onSubmitValidationError?: () => (void | {
+    preventFocus?: boolean;
+  });
 };
 
 export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>) {
@@ -377,24 +380,27 @@ export function useSchema<S extends Record<string, Schema.$Any>>(props: Props<S>
     const submission = validation();
     if (submission.hasError) {
       e.preventDefault();
-      setTimeout(() => {
-        const topElem = Array.from((e.target as HTMLFormElement).querySelectorAll(`[aria-invalid="true"]`))
-          .map(elem => {
-            const wrapElem = elem.parentElement!;
-            return {
-              elem: wrapElem,
-              top: wrapElem.getBoundingClientRect().top,
-            };
-          })
-          .sort((elem1, elem2) => elem1.top - elem2.top)[0]?.elem;
-        if (topElem) {
-          topElem.scrollIntoView({
-            behavior: "smooth",
-            block: "nearest",
-          });
-          getFocusableElement(topElem)?.focus();
-        }
-      }, 100);
+      const ret = props.onSubmitValidationError?.();
+      if (!ret?.preventFocus) {
+        setTimeout(() => {
+          const topElem = Array.from((e.target as HTMLFormElement).querySelectorAll(`[aria-invalid="true"]`))
+            .map(elem => {
+              const wrapElem = elem.parentElement!;
+              return {
+                elem: wrapElem,
+                top: wrapElem.getBoundingClientRect().top,
+              };
+            })
+            .sort((elem1, elem2) => elem1.top - elem2.top)[0]?.elem;
+          if (topElem) {
+            topElem.scrollIntoView({
+              behavior: "smooth",
+              block: "nearest",
+            });
+            getFocusableElement(topElem)?.focus();
+          }
+        }, 100);
+      }
     }
     return submission;
   };
