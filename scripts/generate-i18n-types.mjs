@@ -2,7 +2,7 @@ import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
 const localesDirPath = path.join(process.cwd(), "public", "locales");
-const outputFilePath = path.join(process.cwd(), "app", "i18n", "types+.d.ts");
+const outputFilePath = path.join(process.cwd(), "src", "lib", "shared", "i18n", "types+.d.ts");
 
 if (!existsSync(localesDirPath)) {
   process.stderr.write(`Error: The locales directory does not exist at ${localesDirPath}\n`);

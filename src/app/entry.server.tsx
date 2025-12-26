@@ -1,14 +1,14 @@
+import { cookieStore } from "$/server/cookie";
+import { getI18nPayload } from "$/server/i18n/loader";
+import { I18nProvider } from "$/shared/providers/i18n";
+import { ThemeProvider } from "$/shared/providers/theme";
+import { ValidScriptsProvider } from "$/shared/providers/valid-scripts";
+import { setPageResponseHeaders } from "@/server/http/page-headers";
 import { createReadableStreamFromReadable } from "@react-router/node";
 import { isbot } from "isbot";
 import { renderToPipeableStream } from "react-dom/server";
 import { ServerRouter, type AppLoadContext, type EntryContext } from "react-router";
 import { PassThrough } from "stream";
-import { cookieStore } from "./components/cookie/server";
-import { ThemeProvider } from "./components/react/providers/theme";
-import { ValidScriptsProvider } from "./components/react/providers/valid-scripts";
-import { setPageResponseHeaders } from "./features/common/middleware/page-headers";
-import { I18nProvider } from "./i18n/client/provider";
-import { getI18nPayload } from "./i18n/server/loader";
 
 const isDev = process.env.NODE_ENV === "development";
 const isTest = process.env.NODE_ENV === "test";
@@ -49,7 +49,9 @@ export default async function handleRequest(
         locale={i18n.locale}
         resource={i18n.resource}
       >
-        <ThemeProvider defaultTheme={theme}>
+        <ThemeProvider
+          defaultTheme={theme}
+        >
           <ValidScriptsProvider
             initValid={isValidScripts}
           >

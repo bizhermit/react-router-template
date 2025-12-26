@@ -46,4 +46,4 @@ npm install
 npm run migrate
 
 # DB初回データ作成
-npx tsx src/app/database/server/seed.ts
+npx tsx scripts/seed.ts

@@ -1,11 +1,11 @@
+import { getCookie } from "$/client/cookie";
+import { loadI18nAsClient } from "$/client/i18n/loader";
+import { I18nProvider } from "$/shared/providers/i18n";
+import { ThemeProvider } from "$/shared/providers/theme";
+import { ValidScriptsProvider } from "$/shared/providers/valid-scripts";
 import { startTransition, StrictMode } from "react";
 import { hydrateRoot } from "react-dom/client";
 import { HydratedRouter } from "react-router/dom";
-import { getCookie } from "./components/cookie/client";
-import { ThemeProvider } from "./components/react/providers/theme";
-import { ValidScriptsProvider } from "./components/react/providers/valid-scripts";
-import { loadI18nAsClient } from "./i18n/client/loader";
-import { I18nProvider } from "./i18n/client/provider";
 
 async function hydrate() {
   const isValidScripts = document.cookie.includes("js=t");
@@ -19,7 +19,9 @@ async function hydrate() {
         locale={i18n.locale}
         resource={i18n.resource}
       >
-        <ThemeProvider defaultTheme={theme}>
+        <ThemeProvider
+          defaultTheme={theme}
+        >
           <ValidScriptsProvider
             initValid={isValidScripts}
           >

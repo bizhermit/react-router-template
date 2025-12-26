@@ -1,0 +1,269 @@
+import { createContext, use, useId, useRef, type FocusEvent, type HTMLAttributes, type KeyboardEvent, type ReactNode } from "react";
+import { containElement } from "../../lib/client/dom/contain";
+import { getNextFocusableElement, getPrevFocusableElement } from "../../lib/client/dom/focus";
+import { FocusTrap } from "./focus-trap";
+import { CrossIcon, MenuIcon, MenuLeftIcon, MenuRightIcon } from "./icon";
+import { clsx } from "./utilities";
+
+interface NavContextProps {
+  id: string;
+  toggleId: string;
+  scalingId: string;
+  toggleMenu: (open: boolean) => void;
+  scalingNav: (narrow: boolean) => void;
+};
+
+const NavLayoutContext = createContext<NavContextProps | undefined>(undefined);
+
+export function useNavLayout() {
+  return use(NavLayoutContext);
+};
+
+interface NavLayoutProps {
+  id?: string;
+  className?: string;
+  header?: ReactNode;
+  headerProps?: Omit<HTMLAttributes<HTMLDivElement>, "children">;
+  footer?: ReactNode;
+  footerProps?: Omit<HTMLAttributes<HTMLElement>, "children">;
+  content?: ReactNode;
+  contentTag?: "main" | "div";
+  contentProps?: Omit<HTMLAttributes<HTMLElement>, "children">;
+  navigationProps?: Omit<HTMLAttributes<HTMLElement>, "children">;
+  children?: ReactNode;
+};
+
+export function NavLayout(props: NavLayoutProps) {
+  const Tag = props.contentTag || "main";
+  const id = useId();
+  const toggleId = `${props.id || "nav"}_toggle`;
+  const scalingId = `${props.id || "nav"}_scaling`;
+
+  const toggleRef = useRef<HTMLInputElement>(null!);
+  const scalingRef = useRef<HTMLInputElement>(null!);
+  const headerRef = useRef<HTMLElement>(null!);
+  const navRef = useRef<HTMLElement>(null!);
+  const bodyRef = useRef<HTMLDivElement>(null!);
+  const footerRef = useRef<HTMLDivElement>(null!);
+
+  function toggleMenu(open: boolean) {
+    toggleRef.current.checked = open;
+  };
+
+  function scalingNav(narrow: boolean) {
+    scalingRef.current.checked = narrow;
+  };
+
+  function handleKeydown(e: KeyboardEvent<HTMLDivElement>) {
+    if (e.key === "Escape") toggleRef.current.checked = false;
+  };
+
+  function getCurrentMode() {
+    const width = window.innerWidth;
+    return width < 800 ? "s" : "m";
+  };
+
+  function handleFocusNavHead(e: FocusEvent<HTMLDivElement>) {
+    const mode = getCurrentMode();
+    if (mode !== "s") {
+      if (containElement(navRef.current, e.relatedTarget)) {
+        getPrevFocusableElement(e.target, [
+          bodyRef.current,
+          footerRef.current,
+          headerRef.current,
+        ])?.focus();
+      } else {
+        getNextFocusableElement(e.target, navRef.current)?.focus();
+      }
+      return;
+    }
+    if (toggleRef.current.checked) {
+      if (containElement(navRef.current, e.relatedTarget)) {
+        getPrevFocusableElement(e.target, headerRef.current)?.focus();
+      } else {
+        getNextFocusableElement(e.target, navRef.current)?.focus();
+      }
+    } else {
+      getNextFocusableElement(null, bodyRef.current)?.focus();
+    }
+  };
+
+  function handleFocusNavLast(e: FocusEvent<HTMLDivElement>) {
+    const mode = getCurrentMode();
+    if (mode !== "s") {
+      if (containElement(navRef.current, e.relatedTarget)) {
+        getNextFocusableElement(e.target, bodyRef.current)?.focus();
+      } else {
+        getPrevFocusableElement(e.target, navRef.current)?.focus();
+      }
+      return;
+    }
+    if (toggleRef.current.checked) {
+      if (containElement(navRef.current, e.relatedTarget)) {
+        getNextFocusableElement(e.target, headerRef.current)?.focus();
+      } else {
+        getPrevFocusableElement(e.target, navRef.current)?.focus();
+      }
+    } else {
+      getNextFocusableElement(null, headerRef.current)?.focus();
+    }
+  };
+
+  function handleFocusLast(e: FocusEvent<HTMLDivElement>) {
+    const mode = getCurrentMode();
+    if (mode !== "s") {
+      if (e.relatedTarget == null) {
+        getPrevFocusableElement(e.target, bodyRef.current)?.focus();
+      } else {
+        getNextFocusableElement(null, [headerRef.current, navRef.current])?.focus();
+      }
+      return;
+    }
+    if (toggleRef.current.checked) {
+      getPrevFocusableElement(e.target, navRef.current)?.focus();
+    } else {
+      getNextFocusableElement(null, headerRef.current)?.focus();
+    }
+  };
+
+  function handleKeydownLabelButton(e: KeyboardEvent<HTMLLabelElement>) {
+    if (e.key === " " || e.key === "Spacebar") {
+      e.preventDefault();
+      const id = e.currentTarget.getAttribute("for");
+      if (!id) return;
+      const elem = document.getElementById(id);
+      if (!elem) return;
+      (elem as HTMLInputElement).checked = !(elem as HTMLInputElement).checked;
+    }
+  };
+
+  return (
+    <NavLayoutContext
+      value={{
+        id,
+        toggleId,
+        scalingId,
+        toggleMenu,
+        scalingNav,
+      }}
+    >
+      <FocusTrap
+        onFocusHead={false}
+        onFocusLast={handleFocusLast}
+      >
+        <div
+          className={clsx(
+            "_nav-wrap",
+            props.className
+          )}
+          onKeyDown={handleKeydown}
+          tabIndex={-1}
+        >
+          <input
+            className="_nav-toggle"
+            type="checkbox"
+            id={toggleId}
+            ref={toggleRef}
+            tabIndex={-1}
+            aria-hidden
+          />
+          <input
+            className="_nav-scaling"
+            type="checkbox"
+            id={scalingId}
+            ref={scalingRef}
+            tabIndex={-1}
+            aria-hidden
+          />
+          <label
+            className="_nav-mask"
+            htmlFor={toggleId}
+            aria-hidden
+          />
+          <header
+            className="_nav-header"
+            ref={headerRef}
+          >
+            <label
+              className="_nav-btn _nav-btn-toggle"
+              htmlFor={toggleId}
+              tabIndex={0}
+              onKeyDown={handleKeydownLabelButton}
+            >
+              <MenuIcon className="_nav-menu" />
+              <CrossIcon className="_nav-menu-cross" />
+            </label>
+            <div
+              {...props.headerProps}
+              className={clsx(
+                "_nav-header-main",
+                props.headerProps?.className
+              )}
+            >
+              {props.header}
+            </div>
+          </header>
+          <nav
+            className="_nav-nav"
+            ref={navRef}
+          >
+            <FocusTrap
+              onFocusHead={handleFocusNavHead}
+              onFocusLast={handleFocusNavLast}
+            >
+              <div
+                className="_nav-btns-scaling"
+              >
+                <label
+                  className="_nav-btn _nav-btn-scaling"
+                  htmlFor={scalingId}
+                  tabIndex={0}
+                  onKeyDown={handleKeydownLabelButton}
+                >
+                  <MenuLeftIcon
+                    className="_nav-narrow"
+                  />
+                  <MenuRightIcon
+                    className="_nav-widen"
+                  />
+                </label>
+              </div>
+              <div
+                {...props.navigationProps}
+                className={clsx(
+                  "_nav-nav-main",
+                  props.navigationProps?.className
+                )}
+              >
+                {props.children}
+              </div>
+            </FocusTrap>
+          </nav>
+          <Tag
+            {...props.contentProps}
+            ref={bodyRef}
+            className={clsx(
+              "_nav-content",
+              props.contentProps?.className
+            )}
+          >
+            {props.content}
+          </Tag>
+          {
+            props.footer &&
+            <footer
+              {...props.footerProps}
+              ref={footerRef}
+              className={clsx(
+                "_nav-footer",
+                props.footerProps?.className
+              )}
+            >
+              {props.footer}
+            </footer>
+          }
+        </div>
+      </FocusTrap>
+    </NavLayoutContext>
+  );
+};

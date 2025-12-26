@@ -1,18 +1,22 @@
 import {
+  data,
   isRouteErrorResponse,
   Links,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
+  useRouteLoaderData,
 } from "react-router";
 
+import { auth } from "$/server/auth/auth";
+import { useLocale } from "$/shared/hooks/i18n";
+import { AuthProvider } from "$/shared/providers/auth";
+import { I18nCookieLocator } from "$/shared/providers/i18n";
+import { useTheme } from "$/shared/providers/theme";
 import type { ReactNode } from "react";
+import "~/global.css";
 import type { Route } from "./+types/root";
-import { useLocale } from "./components/react/hooks/i18n";
-import { useTheme } from "./components/react/providers/theme";
-import "./global.css";
-import { I18nCookieLocator } from "./i18n/client/provider";
 
 export const links: Route.LinksFunction = () => [
   // { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -27,28 +31,55 @@ export const links: Route.LinksFunction = () => [
   // },
 ];
 
+export async function loader({ request }: Route.LoaderArgs) {
+  try {
+    console.log("loader");
+    const { headers, response } = await auth.api.getSession({
+      headers: request.headers,
+      returnHeaders: true,
+    });
+
+    if (response) {
+      return data({
+        user: response?.user,
+      }, { headers });
+    }
+  } catch {
+    // fallback
+  }
+  return data({
+    user: undefined,
+  });
+};
+
 export function Layout({ children }: { children: ReactNode; }) {
+  const data = useRouteLoaderData<Route.ComponentProps["loaderData"]>("root");
+
   const { lang } = useLocale();
   const { theme } = useTheme();
 
   return (
     <I18nCookieLocator>
-      <html
-        lang={lang}
-        data-theme={theme}
+      <AuthProvider
+        user={data?.user}
       >
-        <head>
-          <meta charSet="utf-8" />
-          <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content" />
-          <Meta />
-          <Links />
-        </head>
-        <body>
-          {children}
-          <ScrollRestoration />
-          <Scripts />
-        </body>
-      </html>
+        <html
+          lang={lang}
+          data-theme={theme}
+        >
+          <head>
+            <meta charSet="utf-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content" />
+            <Meta />
+            <Links />
+          </head>
+          <body>
+            {children}
+            <ScrollRestoration />
+            <Scripts />
+          </body>
+        </html>
+      </AuthProvider>
     </I18nCookieLocator>
   );
 }
