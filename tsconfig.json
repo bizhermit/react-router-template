@@ -28,7 +28,7 @@
     ],
     "paths": {
       "~/*": [
-        "./app/*"
+        "./src/app/*"
       ]
     },
     "esModuleInterop": true,

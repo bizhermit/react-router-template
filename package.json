@@ -14,12 +14,12 @@
     "generate:i18n-types": "node ./scripts/generate-i18n-types.mjs",
     "generate:openapi-types": "npm run parse-openapi-docs && bash ./scripts/generate-openapi-types.sh",
     "parse-openapi-docs": "node ./scripts/parse-openapi-docs.mjs",
-    "generate:auth-schema": "npx @better-auth/cli generate --config app/auth/server/auth.ts --output app/auth/server/schema.ts --yes",
+    "generate:auth-schema": "npx @better-auth/cli generate --config src/app/auth/server/auth.ts --output src/app/auth/server/schema.ts --yes",
     "generate:migration": "npx drizzle-kit generate",
     "migrate": "npx drizzle-kit migrate",
     "format": "npx eslint --fix",
     "playwright": "npx playwright test",
-    "test": "npx vitest run app"
+    "test": "npx vitest run src"
   },
   "dependencies": {
     "@react-router/node": "^7.11.0",
