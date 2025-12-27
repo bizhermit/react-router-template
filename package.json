@@ -18,9 +18,9 @@
     "generate:migration": "npx drizzle-kit generate",
     "migrate": "npx drizzle-kit migrate",
     "format": "npx eslint --fix",
-    "dev:postgres:up": "docker compose -f ./.devcontainer/docker-compose.yml --project-directory . up postgres",
+    "dev:postgres": "docker compose -f ./.devcontainer/docker-compose.yml --project-directory . up postgres",
     "dev:postgres:down": "docker compose -f ./.devcontainer/docker-compose.yml down",
-    "dev:postgres:seed": "npx tsx scripts/seed.ts",
+    "postgres:seed": "npx tsx scripts/seed.ts",
     "playwright": "npx playwright test",
     "test": "npx vitest run src"
   },
