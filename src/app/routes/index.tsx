@@ -6,7 +6,9 @@ export default function Page() {
     <main>
       <ul className="ml-10 list-disc">
         <li>
-          <Link to="/sandbox">sandbox</Link>
+          <Link to="/sandbox">
+            sandbox
+          </Link>
         </li>
         <li>
           <Link to={SIGN_IN_PATHNAME}>sign-in</Link>

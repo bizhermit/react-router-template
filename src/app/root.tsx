@@ -9,13 +9,13 @@ import {
   useRouteLoaderData,
 } from "react-router";
 
+import "$/components/global.css";
 import { auth } from "$/server/auth/auth";
 import { useLocale } from "$/shared/hooks/i18n";
 import { AuthProvider } from "$/shared/providers/auth";
 import { I18nCookieLocator } from "$/shared/providers/i18n";
 import { useTheme } from "$/shared/providers/theme";
 import type { ReactNode } from "react";
-import "~/global.css";
 import type { Route } from "./+types/root";
 
 export const links: Route.LinksFunction = () => [
