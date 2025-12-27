@@ -5,13 +5,10 @@
 ```
 src/
 ├── app/              # ReactRouterアプリケーション
-│   ├── api-docs/       # APIDoc
-│   ├── auth/           # 認証
-│   ├── components/     # 共通
-│   ├── features/       # 機能
-│   └── i18n/           # 国際化対応
-├── playwright/       # Playwright
-├── prisma/           # Prisma
+│   ├── layouts/        # レイアウトファイル
+│   └── routes/         # ルートファイル
+├── features/         # 機能
+├── lib/              # 基盤
 └── public/           # 静的リソース
 ```
 
@@ -24,28 +21,17 @@ ReactRouterはディレクトリ名またはファイル名に`client`または`
 
 ## ディレクトリ詳細
 
-### src/app/components
+### src/lib
 
-機能を含んでいない共通部品（他プロジェクトへの流用が可能かどうかが目安）
+機能を含んでいない基盤部品（他プロジェクトへの流用が可能かどうかが目安）
 
 ```
-src/app/components/
+src/lib/
 ├── assets/           # アセット
-│   └── images/         # 画像ファイル
-├── client/           # クライアントサイド専用
-│   └── dom/            # DOM操作
-├── cookie/           # Cookie
-├── fetch/            # fetch
-├── objects/          # オブジェクト
-├── react/            # React
-│   ├── elements/       # 要素
-│   ├── layouts/        # レイアウト
-│   ├── hooks/          # Hook
-│   └── providers/      # Provider
-├── schema/           # スキーマ
-├── security/         # セキュリティ
-├── server/           # サーバーサイド専用
-└── utilities/        # ユーティリティー
+├── client/           # クライアントサイド用
+├── components/       # UIコンポーネント
+├── server/           # サーバーサイド用
+└── shared/           # クライアントサイド／サーバーサイド両対応
 ```
 
 ### src/app/features
@@ -53,32 +39,12 @@ src/app/components/
 機能部品
 
 ```
-src/app/features/
-├── common/               # 共通 
-│   ├── assets/             # アセット
-│   │   └── images/           # 画像ファイル
-│   ├── react/              # React
-│   │   ├── elements/         # 要素
-│   │   ├── layouts/          # レイアウト
-│   │   ├── modules/          # モジュール
-│   │   ├── pages/            # ページ
-│   │   ├── hooks/            # Hook
-│   │   └── providers/        # Provider
-│   ├── schemas/            # スキーマ
-│   └── services/           # ロジック
-├── user/                 # ユーザー機能
-│   ├── assets/             # アセット
-│   │   └── images/           # 画像ファイル
-│   ├── react/              # React
-│   │   ├── elements/         # 要素
-│   │   ├── layouts/          # レイアウト
-│   │   ├── modules/          # モジュール
-│   │   ├── pages/            # ページ
-│   │   ├── hooks/            # Hook
-│   │   └── providers/        # Provider
-│   ├── schemas/            # スキーマ
-│   └── services/           # ロジック
-...
+src/features/
+├── assets/           # アセット
+├── client/           # クライアントサイド用
+├── components/       # UIコンポーネント
+├── server/           # サーバーサイド用
+└── shared/           # クライアントサイド／サーバーサイド両対応
 ```
 
 ### public
@@ -88,7 +54,7 @@ src/app/features/
 ```
 public/
 ├── images/      # 画像ファイル
-├── js/          # JavaScriptファイル
+├── js/          # 外部JavaScriptファイル
 └── locales/     # 言語ファイル
 ```
 
@@ -97,15 +63,14 @@ public/
 単体／結合テストファイル（`*.spec.ts`/`*.test.ts`）はテスト対象が所属するディレクトリ内に`test/`ディレクトリに作成する。
 
 ```
-src/app/features/
-├── common/
-│   ├── react/
-│   │   ├── elements/
-│   │   │   ├── button.tsx
-│   │   │   ├── head-line.tsx
-│   │   │   ├── section.tsx
-│   │   │   └── test/
-│   │   │       ├── button.spec.ts
-│   │   │       └── head-line.spec.tsx
+src/lib/
+├── components/
+│   ├── elements/
+│   │   ├── button.tsx
+│   │   ├── head-line.tsx
+│   │   ├── section.tsx
+│   │   └── test/
+│   │       ├── button.spec.ts
+│   │       └── head-line.spec.tsx
 ...
 ```
