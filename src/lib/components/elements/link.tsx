@@ -1,9 +1,9 @@
 // eslint-disable-next-line no-restricted-imports
-import { Link as $Link, generatePath, type LinkProps as $LinkProps } from "react-router";
+import { Link as $Link, generatePath, type LinkProps as $LinkProps, type Register } from "react-router";
 import { clsx } from "./utilities";
 
 type DynamicPath = `${string}/${"*" | ":"}${string}`;
-type Pages = import("react-router").Register["pages"];
+type Pages = Register["pages"];
 type PagePath = keyof Pages;
 type PageToUnion = {
   [K in PagePath]: {
