@@ -20,7 +20,6 @@
     "bradlc.vscode-tailwindcss",
     "ms-playwright.playwright",
     "42Crunch.vscode-openapi",
-    "Prisma.prisma",
     "ritwickdey.LiveServer"
   ]
 }

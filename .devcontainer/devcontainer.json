@@ -29,7 +29,6 @@
         "bradlc.vscode-tailwindcss",
         "ms-playwright.playwright",
         "42Crunch.vscode-openapi",
-        "Prisma.prisma",
         "ritwickdey.LiveServer"
       ],
       "settings": {
@@ -41,9 +40,6 @@
         "editor.codeActionsOnSave": {
           "source.fixAll.eslint": "explicit",
           "source.organizeImports": "explicit"
-        },
-        "[prisma]": {
-          "editor.defaultFormatter": "Prisma.prisma"
         },
         "liveServer.settings.root": "/build/client"
       }

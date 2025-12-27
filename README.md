@@ -8,7 +8,6 @@
 - ReactRouter v7
 - TailwindCSS v4
 - PostgreSQL v17
-- Prisma v6
 
 ## 開発環境構築手順
 
@@ -51,10 +50,10 @@ npm run build
 npm run start
 ```
 
-### Prisma Studio（データベース参照ツール）起動
+### マイグレーションファイル作成
 
 ```bash
-npm run prisma
+npm run generate:migration
 ```
 
 ### データベースマイグレーション（最新化）
