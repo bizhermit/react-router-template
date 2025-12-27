@@ -1,5 +1,5 @@
-import { deleteCookie, setCookie } from "$/client/cookie";
 import { createContext, use, useReducer, type Dispatch, type ReactNode } from "react";
+import { deleteCookie, setCookie } from "../../client/cookie";
 
 type Theme = "auto" | "light" | "dark";
 

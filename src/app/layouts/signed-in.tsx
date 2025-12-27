@@ -1,10 +1,10 @@
+import { Button$ } from "$/components/elements/button";
+import { Details } from "$/components/elements/details";
 import { auth } from "$/server/auth/auth";
 import { SIGN_IN_PATHNAME, SIGN_OUT_PATHNAME } from "$/shared/auth/consts";
 import { useAuthContext } from "$/shared/providers/auth";
 import { useState } from "react";
 import { data, Outlet, redirect } from "react-router";
-import { Button$ } from "~/elements/button";
-import { Details } from "~/elements/details";
 import type { Route } from "./+types/signed-in";
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -30,7 +30,9 @@ export default function Layout() {
   return (
     <div>
       <h1>User Layout</h1>
-      <Details summary="auth context">
+      <Details
+        summary="auth context"
+      >
         <pre>{JSON.stringify(auth, null, 2)}</pre>
       </Details>
       <form

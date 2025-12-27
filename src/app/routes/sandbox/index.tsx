@@ -3,6 +3,42 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import getIndexedDB, { type IndexedDBController, type IndexedDBStores } from "$/client/indexeddb";
+import { Button$ } from "$/components/elements/button";
+import { Button } from "$/components/elements/button/button";
+import { LinkButton } from "$/components/elements/button/link-button";
+import { Carousel, type CarouselOptions, type CarouselRef } from "$/components/elements/carousel";
+import { Details } from "$/components/elements/details";
+import { Dialog, useDialog } from "$/components/elements/dialog";
+import { CheckBox$ } from "$/components/elements/form/check-box";
+import { CheckBox } from "$/components/elements/form/check-box/check-box";
+import { CheckList } from "$/components/elements/form/check-box/check-list";
+import { DateBox$ } from "$/components/elements/form/date-box";
+import { DateBox } from "$/components/elements/form/date-box/date-box";
+import { DateSelectBox } from "$/components/elements/form/date-box/date-select-box";
+import { FieldSet } from "$/components/elements/form/fieldset";
+import { FileBox$ } from "$/components/elements/form/file-box";
+import { FileBox } from "$/components/elements/form/file-box/file-box";
+import { NumberBox$ } from "$/components/elements/form/number-box";
+import { NumberBox } from "$/components/elements/form/number-box/number-box";
+import { PasswordBox$ } from "$/components/elements/form/password-box";
+import { PasswordBox } from "$/components/elements/form/password-box/password-box";
+import { RadioButtons } from "$/components/elements/form/radio-button/radio-buttons";
+import { SelectBox$, SelectBoxEmptyOption } from "$/components/elements/form/select-box";
+import { SelectBox } from "$/components/elements/form/select-box/select-box";
+import { Slider$ } from "$/components/elements/form/slider";
+import { Slider } from "$/components/elements/form/slider/slider";
+import { TextArea$ } from "$/components/elements/form/text-area";
+import { TextArea } from "$/components/elements/form/text-area/text-area";
+import { TextBox$ } from "$/components/elements/form/text-box";
+import { TextBox } from "$/components/elements/form/text-box/text-box";
+import { FormItem } from "$/components/elements/form/wrapper/form-item";
+import { Text } from "$/components/elements/i18n-text";
+import { ArrowDownIcon, ArrowLeftIcon, ArrowRightIcon, ArrowUpIcon, BadgeIcon, BookmarkFillIcon, BookmarkIcon, ButtonIcon, CalendarFillIcon, CalendarIcon, CameraFillIcon, CameraIcon, CardIcon, CheckCircleFillIcon, CheckCircleIcon, CheckIcon, ChocolateMenuFillIcon, ChocolateMenuIcon, CircleFillIcon, CircleIcon, ClearAllIcon, ClockFillIcon, ClockIcon, CloudDownloadIcon, CloudFillIcon, CloudIcon, CloudUploadIcon, ContainerIcon, CrossCircleFillIcon, CrossCircleIcon, CrossIcon, DeleteBackFillIcon, DeleteBackIcon, DeleteFillIcon, DeleteIcon, DocumentFillIcon, DocumentIcon, DoubleDownFillIcon, DoubleDownIcon, DoubleLeftFillIcon, DoubleLeftIcon, DoubleRightFillIcon, DoubleRightIcon, DoubleUpFillIcon, DoubleUpIcon, DownFillIcon, DownIcon, DownloadIcon, ElementIcon, ExclamationCircleFillIcon, ExclamationCircleIcon, ExclamationDiamondFillIcon, ExclamationDiamondIcon, ExclamationIcon, ExclamationTriangleFillIcon, ExclamationTriangleIcon, ExLinkIcon, FileAddFillIcon, FileAddIcon, FileDeleteFillIcon, FileDeleteIcon, FileFillIcon, FileIcon, FilterFillIcon, FilterIcon, FolderAddFillIcon, FolderAddIcon, FolderDeleteFillIcon, FolderDeleteIcon, FolderFillIcon, FolderIcon, FormIcon, FormItemIcon, GearFillIcon, GearIcon, GridFillIcon, GridIcon, HeartFillIcon, HeartHalfFillIcon, HeartIcon, HomeFillIcon, HomeIcon, HorizontalDividerIcon, KebabMenuIcon, LabelFillIcon, LabelIcon, LeftFillIcon, LeftIcon, LeftRightIcon, LinkIcon, ListFilterIcon, ListIcon, LoadingIcon, LocationFillIcon, LocationIcon, MagnifyingGlassIcon, MagnifyingGlassMinusFillIcon, MagnifyingGlassMinusIcon, MagnifyingGlassPlusFillIcon, MagnifyingGlassPlusIcon, MailFillIcon, MailIcon, MeatballsMenuIcon, MenuIcon, MenuLeftIcon, MenuLeftRightIcon, MenuRightIcon, MinusCircleFillIcon, MinusCircleIcon, MinusIcon, NavContainerIcon, OrderListIcon, PinFillIcon, PinIcon, PlusCircleFillIcon, PlusCircleIcon, PlusIcon, PopupIcon, PowerIcon, QuestionCircleFillIcon, QuestionCircleIcon, QuestionIcon, RedoIcon, ReloadIcon, RightFillIcon, RightIcon, SaveFillIcon, SaveIcon, ShareFillIcon, ShareIcon, SignInIcon, SignOutIcon, SlideContainerIcon, SmileFillIcon, SmileIcon, SplitContainerIcon, StarFillIcon, StarHalfFillIcon, StarIcon, StepperIcon, SyncIcon, TabContainerIcon, TextBoxIcon, TodayFillIcon, TodayIcon, TooltipIcon, TrashCanFillIcon, TrashCanIcon, UndoIcon, UnloadIcon, UpDownIcon, UpFillIcon, UpIcon, UploadIcon, UserAddIcon, UserFillIcon, UserIcon, UserMinusIcon, UsersFillIcon, UsersIcon, VerticalDividerIcon } from "$/components/elements/icon";
+import { Link } from "$/components/elements/link";
+import { LoadingBar } from "$/components/elements/loading";
+import { $alert, $confirm, $toast } from "$/components/elements/message-box";
+import { NavLayout, useNavLayout } from "$/components/elements/nav-layout";
+import { clsx } from "$/components/elements/utilities";
 import { auth } from "$/server/auth/auth";
 import { useAbortController } from "$/shared/hooks/abort-controller";
 import { useLocale, useText } from "$/shared/hooks/i18n";
@@ -22,45 +58,9 @@ import { getPayload } from "$/shared/schema/server";
 import { $str } from "$/shared/schema/string";
 import { $struct } from "$/shared/schema/struct";
 import sleep from "$/shared/timing/sleep";
-import { internalApi } from "@/shared/api/internal";
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { data, useFetcher } from "react-router";
-import { Button$ } from "~/elements/button";
-import { Button } from "~/elements/button/button";
-import { LinkButton } from "~/elements/button/link-button";
-import { Carousel, type CarouselOptions, type CarouselRef } from "~/elements/carousel";
-import { Details } from "~/elements/details";
-import { Dialog, useDialog } from "~/elements/dialog";
-import { CheckBox$ } from "~/elements/form/check-box";
-import { CheckBox } from "~/elements/form/check-box/check-box";
-import { CheckList } from "~/elements/form/check-box/check-list";
-import { DateBox$ } from "~/elements/form/date-box";
-import { DateBox } from "~/elements/form/date-box/date-box";
-import { DateSelectBox } from "~/elements/form/date-box/date-select-box";
-import { FieldSet } from "~/elements/form/fieldset";
-import { FileBox$ } from "~/elements/form/file-box";
-import { FileBox } from "~/elements/form/file-box/file-box";
-import { NumberBox$ } from "~/elements/form/number-box";
-import { NumberBox } from "~/elements/form/number-box/number-box";
-import { PasswordBox$ } from "~/elements/form/password-box";
-import { PasswordBox } from "~/elements/form/password-box/password-box";
-import { RadioButtons } from "~/elements/form/radio-button/radio-buttons";
-import { SelectBox$, SelectBoxEmptyOption } from "~/elements/form/select-box";
-import { SelectBox } from "~/elements/form/select-box/select-box";
-import { Slider$ } from "~/elements/form/slider";
-import { Slider } from "~/elements/form/slider/slider";
-import { TextArea$ } from "~/elements/form/text-area";
-import { TextArea } from "~/elements/form/text-area/text-area";
-import { TextBox$ } from "~/elements/form/text-box";
-import { TextBox } from "~/elements/form/text-box/text-box";
-import { FormItem } from "~/elements/form/wrapper/form-item";
-import { Text } from "~/elements/i18n-text";
-import { ArrowDownIcon, ArrowLeftIcon, ArrowRightIcon, ArrowUpIcon, BadgeIcon, BookmarkFillIcon, BookmarkIcon, ButtonIcon, CalendarFillIcon, CalendarIcon, CameraFillIcon, CameraIcon, CardIcon, CheckCircleFillIcon, CheckCircleIcon, CheckIcon, ChocolateMenuFillIcon, ChocolateMenuIcon, CircleFillIcon, CircleIcon, ClearAllIcon, ClockFillIcon, ClockIcon, CloudDownloadIcon, CloudFillIcon, CloudIcon, CloudUploadIcon, ContainerIcon, CrossCircleFillIcon, CrossCircleIcon, CrossIcon, DeleteBackFillIcon, DeleteBackIcon, DeleteFillIcon, DeleteIcon, DocumentFillIcon, DocumentIcon, DoubleDownFillIcon, DoubleDownIcon, DoubleLeftFillIcon, DoubleLeftIcon, DoubleRightFillIcon, DoubleRightIcon, DoubleUpFillIcon, DoubleUpIcon, DownFillIcon, DownIcon, DownloadIcon, ElementIcon, ExclamationCircleFillIcon, ExclamationCircleIcon, ExclamationDiamondFillIcon, ExclamationDiamondIcon, ExclamationIcon, ExclamationTriangleFillIcon, ExclamationTriangleIcon, ExLinkIcon, FileAddFillIcon, FileAddIcon, FileDeleteFillIcon, FileDeleteIcon, FileFillIcon, FileIcon, FilterFillIcon, FilterIcon, FolderAddFillIcon, FolderAddIcon, FolderDeleteFillIcon, FolderDeleteIcon, FolderFillIcon, FolderIcon, FormIcon, FormItemIcon, GearFillIcon, GearIcon, GridFillIcon, GridIcon, HeartFillIcon, HeartHalfFillIcon, HeartIcon, HomeFillIcon, HomeIcon, HorizontalDividerIcon, KebabMenuIcon, LabelFillIcon, LabelIcon, LeftFillIcon, LeftIcon, LeftRightIcon, LinkIcon, ListFilterIcon, ListIcon, LoadingIcon, LocationFillIcon, LocationIcon, MagnifyingGlassIcon, MagnifyingGlassMinusFillIcon, MagnifyingGlassMinusIcon, MagnifyingGlassPlusFillIcon, MagnifyingGlassPlusIcon, MailFillIcon, MailIcon, MeatballsMenuIcon, MenuIcon, MenuLeftIcon, MenuLeftRightIcon, MenuRightIcon, MinusCircleFillIcon, MinusCircleIcon, MinusIcon, NavContainerIcon, OrderListIcon, PinFillIcon, PinIcon, PlusCircleFillIcon, PlusCircleIcon, PlusIcon, PopupIcon, PowerIcon, QuestionCircleFillIcon, QuestionCircleIcon, QuestionIcon, RedoIcon, ReloadIcon, RightFillIcon, RightIcon, SaveFillIcon, SaveIcon, ShareFillIcon, ShareIcon, SignInIcon, SignOutIcon, SlideContainerIcon, SmileFillIcon, SmileIcon, SplitContainerIcon, StarFillIcon, StarHalfFillIcon, StarIcon, StepperIcon, SyncIcon, TabContainerIcon, TextBoxIcon, TodayFillIcon, TodayIcon, TooltipIcon, TrashCanFillIcon, TrashCanIcon, UndoIcon, UnloadIcon, UpDownIcon, UpFillIcon, UpIcon, UploadIcon, UserAddIcon, UserFillIcon, UserIcon, UserMinusIcon, UsersFillIcon, UsersIcon, VerticalDividerIcon } from "~/elements/icon";
-import { Link } from "~/elements/link";
-import { LoadingBar } from "~/elements/loading";
-import { $alert, $confirm, $toast } from "~/elements/message-box";
-import { NavLayout, useNavLayout } from "~/elements/nav-layout";
-import { clsx } from "~/elements/utilities";
+import { api } from "~/shared/api/internal";
 import type { Route } from "./+types";
 
 const text = $str(
@@ -1497,7 +1497,7 @@ function FetchComponent() {
           <Button
             onClick={async ({ unlock }) => {
               try {
-                const res = await internalApi.get("/health");
+                const res = await api.get("/health");
                 if (!res.ok) {
                   return;
                 }
@@ -1514,7 +1514,7 @@ function FetchComponent() {
           <Button
             onClick={async ({ unlock }) => {
               try {
-                const res = await internalApi.get("/sandbox/api/{id}", {
+                const res = await api.get("/sandbox/api/{id}", {
                   path: {
                     id: "1",
                   },
@@ -1541,7 +1541,7 @@ function FetchComponent() {
           <Button
             onClick={async ({ unlock }) => {
               try {
-                const res = await internalApi.post("/sandbox/api", {
+                const res = await api.post("/sandbox/api", {
                   body: {
                     title: "sample title",
                     body: "sample body",
@@ -1561,7 +1561,7 @@ function FetchComponent() {
           <Button
             onClick={async ({ unlock }) => {
               try {
-                const res = await internalApi.put("/sandbox/api/{id}", {
+                const res = await api.put("/sandbox/api/{id}", {
                   path: {
                     id: "1",
                   },
@@ -1584,7 +1584,7 @@ function FetchComponent() {
           <Button
             onClick={async ({ unlock }) => {
               try {
-                const res = await internalApi.delete("/sandbox/api/{id}", {
+                const res = await api.delete("/sandbox/api/{id}", {
                   path: {
                     id: "1",
                   },

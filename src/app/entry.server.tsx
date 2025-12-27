@@ -3,12 +3,12 @@ import { getI18nPayload } from "$/server/i18n/loader";
 import { I18nProvider } from "$/shared/providers/i18n";
 import { ThemeProvider } from "$/shared/providers/theme";
 import { ValidScriptsProvider } from "$/shared/providers/valid-scripts";
-import { setPageResponseHeaders } from "@/server/http/page-headers";
 import { createReadableStreamFromReadable } from "@react-router/node";
 import { isbot } from "isbot";
 import { renderToPipeableStream } from "react-dom/server";
 import { ServerRouter, type AppLoadContext, type EntryContext } from "react-router";
 import { PassThrough } from "stream";
+import { setPageResponseHeaders } from "~/server/http/page-headers";
 
 const isDev = process.env.NODE_ENV === "development";
 const isTest = process.env.NODE_ENV === "test";

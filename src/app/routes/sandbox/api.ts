@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
-import type { InternalApiPaths } from "@/shared/api/internal";
 import { data } from "react-router";
+import type { InternalApiPaths } from "~/shared/api/internal";
 import type { Route } from "./+types/api";
 
 type Get = Api.SuccessResponse<InternalApiPaths, "/sandbox/api", "get">["data"];

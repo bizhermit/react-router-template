@@ -1,9 +1,9 @@
+import { Button$ } from "$/components/elements/button";
+import { Link } from "$/components/elements/link";
 import { auth } from "$/server/auth/auth";
 import { $schema } from "$/shared/schema";
 import { getPayload } from "$/shared/schema/server";
 import { useFetcher } from "react-router";
-import { Button$ } from "~/elements/button";
-import { Link } from "~/elements/link";
 import type { Route } from "./+types/home";
 
 const schema = $schema({});

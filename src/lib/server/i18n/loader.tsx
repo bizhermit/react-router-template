@@ -1,7 +1,7 @@
-import { DEFAULT_LOCALE, I18N_PROP_NAME, LOCALE_KEY, SUPPORTED_LOCALES } from "$/shared/i18n/consts";
 import serialize from "serialize-javascript";
 import en from "../../../../public/locales/en.json";
 import ja from "../../../../public/locales/ja.json";
+import { DEFAULT_LOCALE, I18N_PROP_NAME, LOCALE_KEY, SUPPORTED_LOCALES } from "../../shared/i18n/consts";
 
 const i18nResources = {
   [DEFAULT_LOCALE]: ja,

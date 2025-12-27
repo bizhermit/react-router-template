@@ -1,5 +1,5 @@
-import { Button } from "~/elements/button/button";
-import { Link } from "~/elements/link";
+import { Button } from "$/components/elements/button/button";
+import { Link } from "$/components/elements/link";
 
 export default function Page() {
   return (

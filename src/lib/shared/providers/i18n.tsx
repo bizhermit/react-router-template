@@ -1,6 +1,6 @@
 import { use, useEffect, useRef, useState, type ReactNode } from "react";
 import { useLocation, useNavigate, useRevalidator } from "react-router";
-import { LoadingBar } from "~/elements/loading";
+import { LoadingBar } from "../../components/elements/loading";
 import { I18nContext, I18nLangContext, type SwitchLocaleOptions } from "../hooks/i18n";
 import { DEFAULT_LOCALE, LOCALE_KEY } from "../i18n/consts";
 

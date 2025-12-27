@@ -1,4 +1,4 @@
-import { Link } from "~/elements/link";
+import { Link } from "$/components/elements/link";
 
 export default function Page() {
   return (

@@ -33,7 +33,6 @@ export const links: Route.LinksFunction = () => [
 
 export async function loader({ request }: Route.LoaderArgs) {
   try {
-    console.log("loader");
     const { headers, response } = await auth.api.getSession({
       headers: request.headers,
       returnHeaders: true,

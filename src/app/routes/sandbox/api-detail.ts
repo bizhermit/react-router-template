@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-console */
-import type { InternalApiPaths } from "@/shared/api/internal";
 import { data } from "react-router";
+import type { InternalApiPaths } from "~/shared/api/internal";
 import type { Route } from "./+types/api-detail";
 
 type Get = Api.SuccessResponse<InternalApiPaths, "/sandbox/api/{id}", "get">["data"];
