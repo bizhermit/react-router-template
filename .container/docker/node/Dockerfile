@@ -27,7 +27,7 @@ RUN apt-get update -y \
   && apt-get -y clean \
   && rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /app/.container/wait-for-it.sh ./wait-for-it.sh
+COPY --from=builder /app/wait-for-it.sh ./wait-for-it.sh
 COPY --from=builder /app/.container/start.sh ./start.sh
 COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
 COPY --from=builder /app/drizzle ./drizzle
