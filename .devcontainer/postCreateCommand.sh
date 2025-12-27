@@ -7,7 +7,6 @@ PASSWORD="node"
 OWNER="node:node"
 DIRS=(
   "/home/node/.ssh"
-  "/workspace/build"
   "/workspace/node_modules"
   "/workspace/.react-router"
   "/workspace/.playwright"
@@ -42,7 +41,8 @@ git config --local core.fileMode false
 # 依存関係インストール #
 npm install
 
-./wait-for-it.sh $DATABASE_HOST:$POSTGRES_PORT -t 60
+chmod +x ./wait-for-it.sh
+./wait-for-it.sh "$DATABASE_HOST:$POSTGRES_PORT" -t 60
 
 # DB最新化
 npm run migrate

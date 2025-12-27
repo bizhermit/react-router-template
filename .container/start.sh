@@ -2,7 +2,7 @@
 
 set -e
 
-./wait-for-it.sh $WAITFOR -t 60
+./wait-for-it.sh "$WAITFOR" -t 60
 
 echo "Running migrations..."
 npm run migrate
