@@ -6,7 +6,7 @@ services:
     build:
       context: "../"
       dockerfile: ".devcontainer/docker/node/Dockerfile"
-    image: "node22-dev"
+    image: "node24-dev"
     tty: true
     user: "${UID:-1000}:${GID:-1000}"
     working_dir: "/workspace"
@@ -38,7 +38,7 @@ services:
       - "postgres"
   postgres:
     container_name: "template-dev-postgres"
-    image: postgres:17-bookworm
+    image: postgres:18-bookworm
     restart: always
     volumes:
       - "template-dev_postgres:/var/lib/postgresql/data"

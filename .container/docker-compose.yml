@@ -21,7 +21,7 @@ services:
       - "POSTGRES_USER=${POSTGRES_USER:-postgres}"
       - "POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password}"
       - "POSTGRES_DB=${POSTGRES_DB:-template}"
-      - "WAITFOR=postgres:5432"
+      - "WAITFOR=postgres:${POSTGRES_PORT:-5432}"
     ports:
       - "${PORT:-3000}:${PORT:-3000}"
     networks:
@@ -30,7 +30,7 @@ services:
       - "postgres"
   postgres:
     container_name: "template-postgres"
-    image: "postgres:17-bookworm"
+    image: "postgres:18-bookworm"
     restart: "always"
     user: "postgres"
     volumes:
