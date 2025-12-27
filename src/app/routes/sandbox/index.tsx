@@ -60,7 +60,7 @@ import { $struct } from "$/shared/schema/struct";
 import sleep from "$/shared/timing/sleep";
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { data, useFetcher } from "react-router";
-import { api } from "~/shared/api/internal";
+import { api } from "~/api/shared/internal";
 import type { Route } from "./+types";
 
 const text = $str(

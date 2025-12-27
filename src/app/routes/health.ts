@@ -1,6 +1,6 @@
 import { DateTime } from "$/shared/objects/date";
 import { data } from "react-router";
-import type { InternalApiPaths } from "~/shared/api/internal";
+import type { InternalApiPaths } from "~/api/shared/internal";
 
 type Get = Api.SuccessResponse<InternalApiPaths, "/health", "get">["data"];
 

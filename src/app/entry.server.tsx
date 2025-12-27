@@ -8,7 +8,7 @@ import { isbot } from "isbot";
 import { renderToPipeableStream } from "react-dom/server";
 import { ServerRouter, type AppLoadContext, type EntryContext } from "react-router";
 import { PassThrough } from "stream";
-import { setPageResponseHeaders } from "~/server/http/page-headers";
+import { setPageResponseHeaders } from "~/auth/server/http/page-headers";
 
 const isDev = process.env.NODE_ENV === "development";
 const isTest = process.env.NODE_ENV === "test";

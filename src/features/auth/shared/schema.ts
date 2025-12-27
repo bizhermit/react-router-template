@@ -1,9 +1,9 @@
-import { $schema } from "../schema";
-import { $str } from "../schema/string";
+import { $schema } from "$/shared/schema";
+import { $str } from "$/shared/schema/string";
 
 export const authSchema = $schema({
-  userId: $str({
-    label: "User ID",
+  email: $str({
+    label: "MailAddress",
     required: true,
   }),
   password: $str({
