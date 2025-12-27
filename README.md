@@ -135,6 +135,20 @@ cd ./.container
 docker compose up
 ```
 
+### 開発コンテナを使用せずにデータベースを使用する
+
+#### データベース起動（コンテナ）
+
+```bash
+npm run dev:postgres
+```
+
+#### 初回データ投入
+
+```bash
+npm run postgres:seed
+```
+
 ## ドキュメント
 
 - [ブランチ運用](./docs/git-branch/index.md)
