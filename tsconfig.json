@@ -27,8 +27,11 @@
       "./.react-router/types"
     ],
     "paths": {
+      "$/*": [
+        "./src/lib/*"
+      ],
       "~/*": [
-        "./app/*"
+        "./src/features/*"
       ]
     },
     "esModuleInterop": true,

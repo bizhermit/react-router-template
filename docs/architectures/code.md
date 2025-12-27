@@ -38,12 +38,14 @@
 
 #### Pages
 
-- [ルーティング](../../app/routes.ts)に設定するコンポーネント
+- [ルーティング](../../src/app/routes.ts)に設定するコンポーネント
+- `src/app/routes/`フォルダ内に作成する
 - エンドポイントに表示される画面単位
 - 画面上で保持するデータの管理をする
 - 必要であればModulesやElementsにコンポーネントを切り出す
   - 1ファイルあたりの記述量が増えた場合（500行／3コンポーネント超えあたりが目安）
-  - 他コンポーネントでも使用する場合
+  - 他コンポーネントでも使いまわす場合
+  - 再レンダリング制御が必要な場合
 
 ### 基本ルール
 
@@ -68,11 +70,11 @@ export interface HogeFugaProps {
 
 - コンポーネント名はパスカルケース
 - `function`を使用する
-- `default export`はしない（`Pages`を除く）
+- `default export`はしない（`Pages`はReactRouterの仕様のため例外）
 - コンポーネント内でのみ使用する子コンポーネントは同じファイル内に定義する
 
 ```tsx
-export function HogeFuga(props: HogeFuga) {
+export function HogeFuga(props: HogeFugaProps) {
   return (
     <section class="bg-white border rounded-md p-4">
       <Divider />
@@ -134,7 +136,7 @@ export function HogeFuga(props: HogeFuga) {
 
 - [TailwindCSS](https://tailwindcss.com/)を使用する
 - 使用頻度が高いコンポーネント（ボタン等）や、TailwindCSSでは実装が難しい場合はクラスの定義を検討する
-  - 使用頻度が高い共通部品はcssファイルを作成し、`app/global.css`に記述またはインポートする（グローバルスタイル化）
+  - 使用頻度が高い共通部品はcssファイルを作成し、`src/app/lib(features)/global.css`に記述またはインポートする（グローバルスタイル化）
   - エッジケースは[CSS Modules](https://github.com/css-modules/css-modules?tab=readme-ov-file)を使用する
   
 ### CSSファイル命名規則

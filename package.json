@@ -11,15 +11,15 @@
     "start": "npx react-router-serve ./build/server/index.js",
     "typecheck": "npx tsc && npx eslint",
     "typecheck:rebuild": "npm run prebuild && npx react-router typegen && npm run typecheck",
-    "generate:i18n-types": "node ./scripts/generate-i18n-types.mjs",
-    "generate:openapi-types": "npm run parse-openapi-docs && bash ./scripts/generate-openapi-types.sh",
-    "parse-openapi-docs": "node ./scripts/parse-openapi-docs.mjs",
-    "generate:auth-schema": "npx @better-auth/cli generate --config app/auth/server/auth.ts --output app/auth/server/schema.ts --yes",
+    "generate:i18n-types": "npx tsx ./scripts/generate-i18n-types.ts",
+    "generate:openapi": "npx tsx ./scripts/parse-openapi-docs.ts",
+    "generate:openapi-types": "npm run generate:openapi && bash ./scripts/generate-openapi-types.sh",
+    "generate:auth-schema": "npx @better-auth/cli generate --config src/lib/server/auth/auth.ts --output src/lib/server/auth/schema.ts --yes",
     "generate:migration": "npx drizzle-kit generate",
     "migrate": "npx drizzle-kit migrate",
     "format": "npx eslint --fix",
     "playwright": "npx playwright test",
-    "test": "npx vitest run app"
+    "test": "npx vitest run src"
   },
   "dependencies": {
     "@react-router/node": "^7.11.0",
@@ -42,6 +42,7 @@
     "@react-router/dev": "^7.11.0",
     "@stylistic/eslint-plugin": "^5.6.1",
     "@tailwindcss/vite": "^4.1.18",
+    "@types/js-yaml": "^4.0.9",
     "@types/node": "^25.0.3",
     "@types/pg": "^8.16.0",
     "@types/react": "^19.2.7",
