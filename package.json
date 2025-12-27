@@ -11,7 +11,7 @@
     "start": "npx react-router-serve ./build/server/index.js",
     "typecheck": "npx tsc && npx eslint",
     "typecheck:rebuild": "npm run prebuild && npx react-router typegen && npm run typecheck",
-    "generate:i18n-types": "node ./scripts/generate-i18n-types.mjs",
+    "generate:i18n-types": "npx tsx ./scripts/generate-i18n-types.ts",
     "generate:openapi": "npx tsx ./scripts/parse-openapi-docs.ts",
     "generate:openapi-types": "npm run generate:openapi && bash ./scripts/generate-openapi-types.sh",
     "generate:auth-schema": "npx @better-auth/cli generate --config src/lib/server/auth/auth.ts --output src/lib/server/auth/schema.ts --yes",

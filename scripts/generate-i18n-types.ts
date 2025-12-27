@@ -16,7 +16,7 @@ if (files.length === 0) {
   process.exit(0);
 }
 
-const map = {};
+const map: { [v: string]: string[]; } = {};
 
 files.forEach(file => {
   if (!file.endsWith(".json")) {
