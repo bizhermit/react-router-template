@@ -5,13 +5,13 @@
       "label": "[git] cleanup branch",
       "group": "none",
       "type": "shell",
-      "command": "node scripts/git-cleanup-branch.mjs"
+      "command": "bash scripts/git-cleanup-branch.sh"
     },
     {
       "label": "[git] merge default branch",
       "group": "none",
       "type": "shell",
-      "command": "bash scripts/git-merge-default-branch.mjs"
+      "command": "bash scripts/git-merge-default-branch.sh"
     },
     {
       "label": "[devcontainer] remove container&volumes",
