@@ -2,6 +2,7 @@ import pluginJs from "@eslint/js";
 import stylistic from "@stylistic/eslint-plugin";
 import pluginReact from "eslint-plugin-react";
 import pluginReactHooks from "eslint-plugin-react-hooks";
+import storybook from "eslint-plugin-storybook";
 import { defineConfig } from "eslint/config";
 import globals from "globals";
 import tseslint from "typescript-eslint";
@@ -224,6 +225,17 @@ const importErrorPaths = [
   },
 ];
 
+const storybookFileMatchers = [
+  `src/**/*.stories.${extensions}`,
+  ".storybook/**",
+];
+
+const storybookImportPatterns = [
+  `*.stories`,
+  `*.stories.*`,
+  "**/storybook/**",
+];
+
 export default defineConfig([
   {
     ignores: [
@@ -236,6 +248,17 @@ export default defineConfig([
       ".temp/**",
       "**/*.min.{js,mjs,cjs,jsx}",
     ],
+  },
+  { // storybook
+    files: storybookFileMatchers,
+    ...baseConfig,
+    extends: [
+      ...baseConfig.extends,
+      storybook.configs["flat/recommended"],
+    ],
+    rules: {
+      ...baseRules,
+    },
   },
   { // lib/client
     files: [
@@ -258,6 +281,7 @@ export default defineConfig([
             "src/features/**",
             "~/features/**",
             "src/app/**",
+            ...storybookImportPatterns,
           ],
         },
       ],
@@ -267,6 +291,9 @@ export default defineConfig([
     files: [
       `src/lib/**/server/**/*.${extensions}`,
       `src/lib/**/*.server.${extensions}`,
+    ],
+    ignores: [
+      ...storybookFileMatchers,
     ],
     ...baseConfig,
     languageOptions: {
@@ -284,6 +311,7 @@ export default defineConfig([
             "src/features/**",
             "~/features/**",
             "src/app/**",
+            ...storybookImportPatterns,
           ],
         },
       ],
@@ -296,6 +324,7 @@ export default defineConfig([
       `src/lib/**/*.client.${extensions}`,
       `src/lib/**/server/**/*.${extensions}`,
       `src/lib/**/*.server.${extensions}`,
+      ...storybookFileMatchers,
     ],
     ...baseConfig,
     rules: {
@@ -308,6 +337,7 @@ export default defineConfig([
             "src/features/**",
             "~/features/**",
             "src/app/**",
+            ...storybookImportPatterns,
           ],
         },
       ],
@@ -318,6 +348,7 @@ export default defineConfig([
       `src/features/**/client/**/*.${extensions}`,
       `src/features/**/*.client.${extensions}`,
     ],
+    ignores: storybookFileMatchers,
     ...baseConfig,
     languageOptions: {
       globals: globals.browser,
@@ -332,6 +363,7 @@ export default defineConfig([
             "**/server/**",
             "*.server.*",
             "src/app/**",
+            ...storybookImportPatterns,
           ],
         },
       ],
@@ -342,6 +374,7 @@ export default defineConfig([
       `src/features/**/server/**/*.${extensions}`,
       `src/features/**/*.server.${extensions}`,
     ],
+    ignores: storybookFileMatchers,
     ...baseConfig,
     languageOptions: {
       globals: globals.node,
@@ -356,6 +389,7 @@ export default defineConfig([
             "**/client/**",
             "*.client.*",
             "src/app/**",
+            ...storybookImportPatterns,
           ],
         },
       ],
@@ -368,6 +402,7 @@ export default defineConfig([
       `src/features/**/*.client.${extensions}`,
       `src/features/**/server/**/*.${extensions}`,
       `src/features/**/*.server.${extensions}`,
+      ...storybookFileMatchers,
     ],
     ...baseConfig,
     rules: {
@@ -378,6 +413,7 @@ export default defineConfig([
           paths: importErrorPaths,
           patterns: [
             "src/app/**",
+            ...storybookImportPatterns,
           ],
         },
       ],
@@ -390,6 +426,7 @@ export default defineConfig([
     ],
     ignores: [
       "src/**",
+      ".storybook/**",
     ],
     ...baseConfig,
     languageOptions: {
@@ -403,6 +440,7 @@ export default defineConfig([
           paths: importErrorPaths,
           patterns: [
             "src/app/**",
+            ...storybookImportPatterns,
           ],
         },
       ],
@@ -415,6 +453,7 @@ export default defineConfig([
       "src/features/**",
       "scripts/**",
       "*.config.*",
+      ...storybookFileMatchers,
     ],
     ...baseConfig,
     rules: {
@@ -423,6 +462,7 @@ export default defineConfig([
         "error",
         {
           paths: importErrorPaths,
+          patterns: storybookImportPatterns,
         },
       ],
     },

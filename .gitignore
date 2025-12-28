@@ -12,3 +12,6 @@
 /.drizzle
 /.playwright
 /playwright-report
+
+*storybook.log
+storybook-static
