@@ -106,7 +106,7 @@ public/
 
 ## テストディレクトリ
 
-単体／結合テストファイル（`*.spec.ts`/`*.test.ts`）はテスト対象が所属するディレクトリ内に`test/`ディレクトリに作成する。
+単体／結合テストファイル（`*.spec.ts`/`*.test.ts`）はテスト対象が所属するディレクトリ内に`_test/`ディレクトリに作成する。
 
 ```
 src/lib/
@@ -115,7 +115,7 @@ src/lib/
 │   │   ├── button.tsx
 │   │   ├── head-line.tsx
 │   │   ├── section.tsx
-│   │   └── test/
+│   │   └── _test/
 │   │       ├── button.spec.ts
 │   │       └── head-line.spec.tsx
 ...

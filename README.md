@@ -2,7 +2,7 @@
 
 ## 環境
 
-- Node.js v22
+- Node.js v24
 - TypeScript v5
 - React v19
 - ReactRouter v7
