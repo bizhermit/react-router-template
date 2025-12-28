@@ -1,0 +1,114 @@
+@layer components {
+
+  ._btn {
+    ---color: var(--color-fg);
+    ---color-fg: var(--color-bg);
+
+    position: relative;
+    vertical-align: top;
+    display: inline-flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    align-items: center;
+    gap: 0.8rem;
+    height: var(--spacing-button);
+    min-width: 0;
+    padding: 0 calc(var(--spacing-button) / 2);
+    border-radius: 2px;
+    white-space: nowrap;
+    text-decoration: none;
+    user-select: none;
+
+    &[data-round="true"] {
+      border-radius: 9999px;
+
+      &::before {
+        border-radius: 9999px;
+      }
+    }
+
+    &[data-appearance="outline"] {
+      transition: background-color 0.2s, color 0.2s, opacity 0.2s;
+      background-color: transparent;
+      border: 1px solid var(---color);
+      padding-inline: calc(var(--spacing-button) / 2 - 1px);
+      color: var(---color);
+
+      &::before {
+        position: absolute;
+        inset: 0;
+        content: "";
+        background-color: var(---color);
+        opacity: 0.1;
+        transition: opacity 0.2s;
+      }
+    }
+
+    &[data-appearance="fill"] {
+      transition: opacity 0.2s;
+      background-color: var(---color);
+      color: var(---color-fg);
+    }
+
+    &[data-appearance="text"] {
+      transition: opacity 0.2s;
+      background-color: transparent;
+      color: var(---color);
+
+      &::before {
+        position: absolute;
+        inset: 0;
+        content: "";
+        background-color: var(---color);
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+    }
+
+    &:not(:is(:disabled, [aria-disabled="true"])) {
+      cursor: pointer;
+
+      @media (any-hover: hover) {
+        &:hover {
+          opacity: 0.75;
+
+          &:active {
+            opacity: 1;
+          }
+
+          &[data-appearance="outline"] {
+            &::before {
+              opacity: 0.2;
+            }
+          }
+
+          &[data-appearance="text"] {
+            &::before {
+              opacity: 0.1;
+            }
+          }
+        }
+      }
+    }
+
+    &:is(:disabled, [aria-disabled="true"]) {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    &[data-processing="true"] {
+      cursor: wait;
+    }
+
+    >._icon {
+      min-width: calc(var(--spacing-button) * 0.5);
+      max-width: calc(var(--spacing-button) * 0.5);
+      overflow: hidden;
+
+      &:only-child {
+        position: absolute;
+      }
+    }
+  }
+
+}

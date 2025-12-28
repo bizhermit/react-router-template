@@ -1,0 +1,190 @@
+@layer components {
+
+  ._form-item {
+    position: relative;
+    vertical-align: top;
+    display: inline-flex;
+    flex-flow: column nowrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 0;
+
+    &:empty {
+      display: none;
+    }
+  }
+
+  ._ipt {
+    position: relative;
+    vertical-align: top;
+    display: inline-flex;
+    flex-direction: row;
+    min-width: var(--spacing-input);
+    max-width: 100%;
+    min-height: var(--spacing-input);
+    color: var(--color-input);
+  }
+
+  ._ipt-field {
+    position: relative;
+    flex-wrap: nowrap;
+    justify-content: stretch;
+    align-items: stretch;
+    user-select: none;
+
+    &:focus-within {
+      >._ipt-field-appearance {
+        border-width: 2px;
+      }
+    }
+
+    &:has(:is(input[aria-invalid="true"]:not([type="hidden"]), select[aria-invalid="true"], textarea[aria-invalid="true"])) {
+      color: var(--color-input-err);
+
+      >._ipt-field-enabled {
+        background-color: var(--color-input-err-bg);
+        border-color: var(--color-input-err-bd);
+      }
+    }
+  }
+
+  ._ipt-field-appearance {
+    position: absolute;
+    inset: 0;
+    border: 1px solid var(--color-input-bd);
+    border-radius: var(--radius-input);
+    pointer-events: none;
+    z-index: -1;
+    line-height: 1.2rem;
+    margin-top: -0.6rem;
+    transition: background-color 0.2s, border-color 0.2s;
+  }
+
+  ._ipt-field-enabled {
+    background-color: var(--color-input-bg);
+  }
+
+  ._ipt-field-disabled {
+    opacity: var(--opacity-disabled);
+  }
+
+  ._ipt-group {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+  }
+
+  ._ipt-msg {
+    position: relative;
+    display: block;
+    min-width: 0;
+    max-width: 100%;
+    color: var(--color-error);
+    font-size: 1.4rem;
+  }
+
+  ._ipt-default-width {
+    width: 20rem;
+  }
+
+  ._ipt-label {
+    vertical-align: top;
+    position: relative;
+    min-width: 0;
+    max-width: 100%;
+    min-height: var(--spacing-input);
+    display: inline-flex;
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+    align-items: center;
+    border-radius: var(--radius-input);
+    user-select: none;
+
+    &:is(:focus-within, :has(input:enabled:active)) {
+      outline: 2px solid;
+    }
+
+    &:has(input[aria-disabled="true"]) {
+      opacity: var(--opacity-disabled);
+    }
+
+    &:has(input:enabled:not([type="hidden"])) {
+      cursor: pointer;
+
+      &._ipt-label-button {
+        @media (any-hover: hover) {
+          &:hover {
+            opacity: 0.75;
+
+            &:active {
+              opacity: 1;
+            }
+
+            &::before {
+              opacity: 0.2;
+            }
+          }
+        }
+      }
+    }
+
+    &:has(input[aria-invalid="true"]) {
+      outline-color: var(--color-input-err-bd);
+    }
+  }
+
+  ._ipt-label-text {
+    user-select: none;
+    padding-right: var(--spacing-input-pad-x);
+    transition: color 0.2s;
+    display: grid;
+    place-items: center;
+
+    >._icon {
+      width: calc(var(--spacing-input) * 0.5);
+      height: calc(var(--spacing-input) * 0.5);
+      overflow: hidden;
+    }
+  }
+
+  ._ipt-btn {
+    z-index: 0;
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: var(--spacing-input-btn);
+    height: 100%;
+    display: grid;
+    place-items: center;
+    user-select: none;
+    background-color: transparent;
+    transition: transform 0.2s;
+
+    >._icon {
+      width: 1.0rem;
+    }
+  }
+
+  ._ipt-placeholder {
+    z-index: 0;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+    align-items: center;
+    padding-left: var(--spacing-input-pad-x);
+    padding-right: var(--spacing-input-pad-btn);
+    color: var(--color-placeholder);
+  }
+
+  ._ipt-dummy-focus {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    user-select: none;
+    outline: none;
+  }
+
+}

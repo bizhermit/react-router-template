@@ -41,8 +41,11 @@ git config --local core.fileMode false
 # 依存関係インストール #
 npm install
 
-# DB最新化 #
+chmod +x ./wait-for-it.sh
+./wait-for-it.sh "$DATABASE_HOST:$POSTGRES_PORT" -t 60
+
+# DB最新化
 npm run migrate
 
-# 型情報他生成 #
-npm run prebuild
+# DB初回データ作成
+npm run postgres:seed

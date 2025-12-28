@@ -9,5 +9,9 @@
 /.react-router/
 /build/
 /.env*.local
+/.drizzle
 /.playwright
 /playwright-report
+
+*storybook.log
+storybook-static

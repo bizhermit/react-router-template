@@ -20,15 +20,25 @@ export default defineConfig(({ mode }) => {
     ],
     server: {
       port: devPort,
+      watch: env.polling === "true" ? {
+        usePolling: true,
+        interval: 300,
+        ignored: [
+          ".devcontainer/**",
+          ".playwright/**",
+          "**/node_modules/**",
+          "**/.git/**",
+          "**/build/**",
+          "scripts/**",
+        ],
+      } : undefined,
     },
     preview: {
       port: devPort,
     },
-    css: {
-      preprocessorOptions: {
-        scss: {
-          api: "modern-compiler",
-        },
+    build: {
+      rollupOptions: {
+        external: [/\.stories\./],
       },
     },
   };

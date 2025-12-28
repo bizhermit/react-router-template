@@ -2,84 +2,31 @@
 
 ## 環境
 
-- Node.js v22
+- Node.js v24
 - TypeScript v5
 - React v19
 - ReactRouter v7
 - TailwindCSS v4
 - PostgreSQL v17
-- Prisma v6
 
 ## 開発環境構築手順
 
 ### 前提条件
 
-- dockerがインストールされていること（[Rancher Desktop](https://rancherdesktop.io/)推奨）
+- dockerがインストールされていること（dockerおよびdocker-composeが実行可能であること）
 - [Visual Studio Code（VSCode）](https://code.visualstudio.com/download)がインストールされていること
 - VSCodeに拡張機能「[Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)」がインストールされていること
 
 ### 初回セットアップ
 
 1. 任意のフォルダに当リポジトリをクローンする
-2. dockerおよびdocker-composeを実行可能状態に（RancherDesktopを起動）する
-3. [環境変数](#環境変数)を設定する
-4. 開発コンテナ（Dev Containers）を起動する
+2. [環境変数（開発コンテナ用）](./docs/features/env.md#開発コンテナ用)を設定する
+3. 開発コンテナ（Dev Containers）を起動する
 
 ### ２回目以降
 
 1. 開発コンテナ（Dev Containers）を起動する
 
-## 環境変数
-
-### コンテナ用
-
-`./.devcontainer/.env.example`を参考に、`./.devcontainer/.env`を作成してください。
-
-#### 設定値
-
-| キー | 説明         |
-| ---- | ------------ |
-| TZ   | タイムゾーン |
-<!-- TODO -->
-
-### アプリケーション用
-
-#### 優先順位
-
-| 優先度 | ファイル名              | 説明                               |
-| :----: | ----------------------- | ---------------------------------- |
-|   1    | .env.[`NODE_ENV`].local | `NODE_ENV`に依存するローカル値     |
-|   2    | .env.local              | `NODE_NEV`に依存しないローカル値   |
-|   3    | .env.[`NODE_ENV`]       | `NODE_ENV`に依存するデフォルト値   |
-|   4    | .env                    | `NODE_ENV`に依存しないデフォルト値 |
-
-※ `NODE_ENV`は開発モードでは`development`、製品モード（ビルド含む）では`production`が設定されます。  
-
-ファイル名に`.local`が付いていないファイルがgit管理対象となります。  
-各環境で値を変更する場合は、`.env*.local`を作成してください。  
-
-#### 設定値
-
-ビルド時に静的展開（クライアントサイドで直接参照）する場合は、キーにプレフィックス（`VITE_`）を付けてください。  
-
-| キー     | 説明                                                    |
-| -------- | ------------------------------------------------------- |
-| DEV_PORT | Webアプリケーションサーバー開発モードでの起動ポート番号 |
-<!-- TODO -->
-
-### 使い方
-
-#### サーバーサイド（ランタイム参照）
-
-```ts
-const timezone = process.env.TZ;
-```
-
-#### クライアントサイドおよびサーバーサイド（ビルド時固定）
-
-```ts
-const apiUrl = import.meta.env.VITE_API_URL;
-```
 
 ## コマンド
 
@@ -103,10 +50,10 @@ npm run build
 npm run start
 ```
 
-### Prisma Studio（データベース参照ツール）起動
+### マイグレーションファイル作成
 
 ```bash
-npm run prisma
+npm run generate:migration
 ```
 
 ### データベースマイグレーション（最新化）
@@ -118,13 +65,13 @@ npm run migrate
 ### 言語ファイルからTypeScriptの型情報を生成
 
 ```bash
-npm run generate-i18n-types
+npm run generate:i18n-types
 ```
 
 ### OpenAPIからTypeScriptの型情報を作成
 
 ```bash
-npm run generate-openapi-types
+npm run generate:openapi-types
 ```
 
 ### TypeScript型チェック
@@ -133,7 +80,7 @@ npm run generate-openapi-types
 npm run typecheck
 ```
 
-### TypeScript自動フォーマット
+### TypeScript自動整形
 
 ```bash
 npm run format
@@ -188,10 +135,22 @@ cd ./.container
 docker compose up
 ```
 
-## 開発規約
+### 開発コンテナを使用せずにデータベースを使用する
 
-- [コーディング規約](./docs/codingStandards.md)
+#### データベース起動（コンテナ）
 
-## ブランチ運用
+```bash
+npm run dev:postgres
+```
 
-<!-- TODO -->
+#### 初回データ投入
+
+```bash
+npm run postgres:seed
+```
+
+## ドキュメント
+
+- [ブランチ運用](./docs/git-branch/index.md)
+- [アーキテクチャ](./docs/architectures/index.md)
+- [機能仕様](./docs/features/index.md)

@@ -1,0 +1,245 @@
+@layer components {
+
+  ._nav-wrap {
+    --nav-min-width: 3.6rem;
+    --nav-width: 26rem;
+    --header-height: var(--nav-min-width);
+    --height: 100%;
+    ---nav-width: var(--nav-width);
+
+    width: 100%;
+    min-height: var(--height);
+    padding-left: var(---nav-width);
+    transition: padding-left 0.2s;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: flex-start;
+    align-items: stretch;
+    outline: none;
+  }
+
+  body {
+    >._nav-wrap {
+      --height: 100dvh;
+    }
+  }
+
+  ._nav-toggle,
+  ._nav-scaling {
+    display: none;
+  }
+
+  ._nav-btn {
+    width: var(--nav-min-width);
+    height: var(--nav-min-width);
+    display: grid;
+    place-items: center;
+    user-select: none;
+    cursor: pointer;
+  }
+
+  ._nav-header {
+    z-index: 1;
+    position: sticky;
+    height: var(--header-height);
+    top: 0;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+    align-items: center;
+    background-color: var(--color-header-bg);
+    color: var(--color-header-fg);
+    backdrop-filter: blur(4px);
+  }
+
+  ._nav-header-main {
+    flex: 1 0 0rem;
+    height: 100%;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: flex-start;
+    align-items: center;
+  }
+
+  ._nav-menu-cross {
+    display: none;
+  }
+
+  ._nav-footer {
+    z-index: 0;
+    background-color: var(--color-footer-bg);
+    color: var(--color-footer-fg);
+  }
+
+  ._nav-content {
+    z-index: 0;
+    flex: 1 0 0rem;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+    max-width: 100%;
+    min-height: auto;
+
+    * {
+      scroll-margin-top: calc(var(--header-height) + 8px);
+    }
+  }
+
+  ._nav-nav {
+    z-index: 2;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(---nav-width);
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: contain;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: flex-start;
+    align-items: stretch;
+    pointer-events: none;
+    padding-top: var(--header-height);
+    transition: width 0.2s, padding-top 0.2s, display 0.2s allow-discrete, overlay 0.2s allow-discrete;
+
+    @starting-style {
+      display: flex;
+      width: 0;
+    }
+  }
+
+  ._nav-btns-scaling {
+    height: var(--nav-min-width);
+    transition: height 0.2s;
+    pointer-events: all;
+    background-color: var(--color-nav-bg);
+    color: var(--color-nav-fg);
+    backdrop-filter: blur(4px);
+  }
+
+  ._nav-btn-scaling {
+    margin-left: auto;
+  }
+
+  ._nav-widen {
+    display: none;
+  }
+
+  ._nav-scaling {
+    &:checked {
+      &~._nav-nav {
+        ._nav-btn-scaling {
+          >._nav-narrow {
+            display: none;
+          }
+
+          >._nav-widen {
+            display: unset;
+          }
+        }
+      }
+    }
+  }
+
+  ._nav-nav-main {
+    z-index: 1;
+    flex: 1 0 0 rem;
+    min-height: 100%;
+    width: 100%;
+    overflow: auto;
+    pointer-events: all;
+    background-color: var(--color-nav-bg);
+    color: var(--color-nav-fg);
+    backdrop-filter: blur(4px);
+  }
+
+  ._nav-mask {
+    position: fixed;
+    z-index: 2;
+    top: var(--header-height);
+    left: 0;
+    width: 100%;
+    height: calc(var(--height) - var(--header-height));
+    background-color: var(--color-mask);
+    backdrop-filter: blur(0.4px);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  /* ヘッダーメニューアイコンボタンで開閉 */
+  @media screen and (max-width: 799.98px) {
+    ._nav-wrap {
+      ---nav-width: 0;
+    }
+
+    ._nav-nav {
+      display: none;
+    }
+
+    ._nav-btns-scaling {
+      height: 0;
+    }
+
+    ._nav-btn-scaling {
+      display: none;
+    }
+
+    ._nav-toggle {
+      &:checked {
+        &~._nav-header {
+          ._nav-menu-cross {
+            display: unset;
+          }
+
+          ._nav-menu {
+            display: none;
+          }
+        }
+
+        &~._nav-mask {
+          opacity: 1;
+          pointer-events: unset;
+        }
+
+        &~._nav-nav {
+          display: flex;
+          ---nav-width: var(--nav-width);
+        }
+      }
+    }
+
+  }
+
+  /* 常時展開 */
+  @media screen and (min-width: 800px) {
+    ._nav-btn-toggle {
+      display: none;
+    }
+
+    ._nav-nav {
+      padding-top: 0;
+      width: var(--nav-width);
+    }
+
+    ._nav-wrap {
+      &:has(>._nav-header ._nav-header-main:empty) {
+        --header-height: 0;
+      }
+
+      &:has(._nav-scaling:checked) {
+        ---nav-width: var(--nav-min-width);
+
+        >._nav-nav {
+          width: var(---nav-width);
+
+          >._nav-nav-main {
+            overflow: hidden;
+          }
+        }
+      }
+    }
+  }
+
+}

@@ -1,0 +1,169 @@
+import { useEffect, useImperativeHandle, useRef, useState, type ChangeEvent, type CompositionEvent, type TextareaHTMLAttributes } from "react";
+import { clsx } from "../../utilities";
+import { InputFieldWrapper, type InputFieldProps, type InputFieldWrapperProps } from "../wrapper/input-field";
+
+export interface TextArea$Ref extends InputRef {
+  textAreaElement: HTMLTextAreaElement;
+  calcFitContentHeight: () => void;
+};
+
+export type Resize =
+  | "none"
+  | "vertical"
+  | "horizontal"
+  | "both"
+  ;
+
+export type TextArea$Props = Overwrite<
+  InputFieldWrapperProps,
+  InputFieldProps<{
+    textAreaProps?: Overwrite<
+      Omit<
+        TextareaHTMLAttributes<HTMLTextAreaElement>,
+        InputOmitProps
+      >,
+      {
+        rows?: number | "fit";
+      }
+    >;
+    minRows?: number;
+    maxRows?: number;
+    resize?: Resize;
+  } & InputValueProps<string>>
+>;
+
+const DEFAULT_ROWS = 3;
+
+function getResizeClassName(resize: Resize | undefined) {
+  switch (resize) {
+    case "none": return "resize-none";
+    case "vertical": return "resize-y";
+    case "horizontal": return "resize-x";
+    default: return "resize";
+  }
+};
+
+export function TextArea$({
+  ref,
+  invalid,
+  textAreaProps,
+  state = "enabled",
+  minRows,
+  maxRows,
+  resize,
+  children,
+  defaultValue,
+  onChangeValue,
+  ...props
+}: TextArea$Props) {
+  const isControlled = "value" in props;
+  const { value, ...wrapperProps } = props;
+
+  const wref = useRef<HTMLDivElement>(null!);
+  const iref = useRef<HTMLTextAreaElement>(null!);
+  const [isComposing, setIsComposing] = useState(false);
+
+  function calcFitContentHeight() {
+    if (textAreaProps?.rows !== "fit" || !iref.current) return;
+
+    iref.current.style.height = "0";
+    const height = iref.current.scrollHeight;
+    const marginBlock = parseFloat(getComputedStyle(iref.current).paddingTop) +
+      parseFloat(getComputedStyle(iref.current).paddingBottom);
+    const lineHeight = parseFloat(getComputedStyle(iref.current).lineHeight);
+
+    function setMinHeight() {
+      if (minRows == null) {
+        iref.current.style.height = height + "px";
+      } else {
+        iref.current.style.height = Math.max(
+          height,
+          lineHeight * minRows + marginBlock
+        ) + "px";
+      }
+    }
+
+    if (maxRows == null) {
+      iref.current.style.overflowY = "hidden";
+      setMinHeight();
+      return;
+    }
+
+    const maxHeight = lineHeight * maxRows + marginBlock;
+
+    if (height > maxHeight) {
+      iref.current.style.height = maxHeight + "px";
+      iref.current.style.overflowY = "auto";
+      return;
+    }
+    setMinHeight();
+    iref.current.style.overflowY = "hidden";
+  };
+
+  function handleCompositionStart(e: CompositionEvent<HTMLTextAreaElement>) {
+    setIsComposing(true);
+    textAreaProps?.onCompositionStart?.(e);
+  };
+
+  function handleCompositionEnd(e: CompositionEvent<HTMLTextAreaElement>) {
+    setIsComposing(false);
+    onChangeValue?.(e.currentTarget.value);
+    textAreaProps?.onCompositionEnd?.(e);
+  };
+
+  function handleChange(e: ChangeEvent<HTMLTextAreaElement>) {
+    if (state === "enabled" && !isComposing) {
+      onChangeValue?.(e.currentTarget.value);
+    }
+    if (!isControlled) calcFitContentHeight();
+    textAreaProps?.onChange?.(e);
+  };
+
+  const rows = (() => {
+    if (textAreaProps?.rows == null) return DEFAULT_ROWS;
+    if (textAreaProps?.rows === "fit") {
+      if (minRows != null) return minRows;
+      return 1;
+    }
+    return textAreaProps?.rows;
+  })();
+
+  useEffect(() => {
+    calcFitContentHeight();
+  }, [isControlled ? value : undefined]);
+
+  useImperativeHandle(ref, () => ({
+    element: wref.current,
+    textAreaElement: iref.current,
+    focus: () => iref.current.focus(),
+    calcFitContentHeight,
+  } as const satisfies TextArea$Ref));
+
+  return (
+    <InputFieldWrapper
+      {...wrapperProps}
+      ref={wref}
+      state={state}
+    >
+      <textarea
+        disabled={state === "disabled"}
+        readOnly={state === "readonly"}
+        aria-invalid={invalid}
+        {...textAreaProps}
+        className={clsx(
+          `_ipt-box py-input-pad-y min-h-input min-w-input ${getResizeClassName(resize)}`,
+          textAreaProps?.className,
+        )}
+        ref={iref}
+        rows={rows}
+        onCompositionStart={handleCompositionStart}
+        onCompositionEnd={handleCompositionEnd}
+        onChange={handleChange}
+        {...isControlled
+          ? { value: value ?? "" }
+          : { defaultValue: defaultValue ?? "" }
+        }
+      />
+    </InputFieldWrapper>
+  );
+};

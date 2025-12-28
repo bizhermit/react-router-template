@@ -38,12 +38,6 @@
       "command": "npm run migrate"
     },
     {
-      "label": "Prisma Studio",
-      "group": "none",
-      "type": "shell",
-      "command": "npm run prisma"
-    },
-    {
       "label": "typecheck",
       "group": "none",
       "type": "shell",
@@ -56,16 +50,16 @@
       "command": "npm run format"
     },
     {
-      "label": "generate i18n types",
+      "label": "generate:i18n types",
       "group": "none",
       "type": "shell",
-      "command": "npm run generate-i18n-types"
+      "command": "npm run generate:i18n-types"
     },
     {
-      "label": "generate openapi types",
+      "label": "generate:openapi types",
       "group": "none",
       "type": "shell",
-      "command": "npm run generate-openapi-types"
+      "command": "npm run generate:openapi-types"
     },
     {
       "label": "playwright",

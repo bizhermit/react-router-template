@@ -1,0 +1,108 @@
+@layer components {
+
+  ._ipt-box {
+    -webkit-appearance: none;
+    appearance: none;
+    outline: none;
+    background-color: transparent;
+    padding-inline: var(--spacing-input-pad-x);
+    width: 100%;
+
+    &:disabled {
+      &::placeholder {
+        opacity: 0;
+      }
+    }
+
+    &:not([type="date"], [type="month"], [type="time"], [type="datetime-local"]) {
+      &::-webkit-calendar-picker-indicator {
+        display: none !important;
+      }
+    }
+  }
+
+  ._ipt-outer-spin-button {
+    position: absolute;
+    right: 0;
+    z-index: 1;
+    width: var(--spacing-input-btn);
+    height: 100%;
+    display: flex;
+    flex-flow: column nowrap;
+  }
+
+  ._ipt-inner-spin-button {
+    width: 100%;
+    flex: 1 1 0rem;
+    display: grid;
+    justify-content: center;
+    touch-action: none;
+    -webkit-touch-callout: none;
+    user-select: none;
+
+    >._icon {
+      width: 1.0rem;
+    }
+  }
+
+  ._ipt-date {
+    &[data-controlled="true"] {
+      &[data-hasvalue="false"]:not(:focus) {
+        color: var(--color-placeholder);
+      }
+
+      &:disabled[aria-disabled="true"] {
+        &[data-hasvalue="false"] {
+          color: transparent;
+        }
+      }
+    }
+  }
+
+  ._ipt-select {
+    z-index: 1;
+    padding-right: var(--spacing-input-pad-btn);
+
+    &:enabled {
+      cursor: pointer;
+    }
+
+    &+._ipt-placeholder {
+      display: none;
+    }
+
+    &:has(option[value=""][data-notext="true"]:checked) {
+      &+._ipt-placeholder {
+        display: flex;
+      }
+    }
+
+    &:open {
+      &~._ipt-btn {
+        transform: rotateX(180deg);
+      }
+    }
+
+    option {
+      border-radius: none;
+      background-color: var(--color-input-bg);
+    }
+  }
+
+  ._ipt-file {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+    z-index: 1;
+    padding-inline: var(--spacing-input-pad-x);
+    line-height: calc(var(--spacing-input) - 2px);
+    background-color: transparent;
+    user-select: none;
+
+    &::file-selector-button {
+      display: none;
+    }
+  }
+
+}
