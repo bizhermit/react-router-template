@@ -13,6 +13,8 @@
 
 ### 前提条件
 
+開発コンテナを使用します。
+
 - dockerがインストールされていること（dockerおよびdocker-composeが実行可能であること）
 - [Visual Studio Code（VSCode）](https://code.visualstudio.com/download)がインストールされていること
 - VSCodeに拡張機能「[Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)」がインストールされていること
@@ -26,6 +28,24 @@
 ### ２回目以降
 
 1. 開発コンテナ（Dev Containers）を起動する
+
+### 開発コンテナを使用しない場合
+
+1. 任意のフォルダに当リポジトリをクローンする
+2. [Node.js](https://nodejs.org/ja/download)をインストールする
+3. 依存関係をインストールする
+    ```bash
+    npm install --no-package-lock
+    ```
+4. データベースを起動する
+    ```bash
+    npm run dev:postgres
+    ```
+5. 初回データを投入する
+    ```bash
+    npm run postgres:init
+    ```
+
 
 
 ## コマンド
@@ -133,20 +153,6 @@ cd ./.container
 
 # 2. 実行
 docker compose up
-```
-
-### 開発コンテナを使用せずにデータベースを使用する
-
-#### データベース起動（コンテナ）
-
-```bash
-npm run dev:postgres
-```
-
-#### 初回データ投入
-
-```bash
-npm run postgres:seed
 ```
 
 ## ドキュメント

@@ -48,4 +48,4 @@ chmod +x ./wait-for-it.sh
 npm run migrate
 
 # DB初回データ作成
-npm run postgres:seed
+npm run postgres:init
