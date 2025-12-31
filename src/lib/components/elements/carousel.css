@@ -138,4 +138,10 @@
     }
   }
 
+  @-moz-document url-prefix() {
+    ._carousel {
+      --can-scroll: ;
+    }
+  }
+
 }

@@ -157,6 +157,12 @@ export function Carousel({
       const rightMax = (lastChild?.offsetLeft ?? 0) - leftMargin;
 
       // 慣性スクロール
+      if (Math.abs(velocity) < 0.1) {
+        select(currentIndex.current);
+        end();
+        return;
+      }
+
       let momentum = velocity * MOMENTUM_DIAMETER; // 速度倍率
       const decay = ATTENUATION_COEFFICIENT; // 減速係数
 
@@ -273,6 +279,7 @@ export function Carousel({
     >
       <div
         className="_carousel-dummy-slides"
+        aria-hidden
       >
         {
           children.map((_, index) => (
