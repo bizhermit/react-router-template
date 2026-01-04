@@ -22,6 +22,7 @@ services:
       - "POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password}"
       - "POSTGRES_DB=${POSTGRES_DB:-template}"
       - "WAITFOR=${DATABASE_HOST:-postgres}:${POSTGRES_PORT:-5432}"
+      - "MIGRATE=${MIGRATE:-true}"
     ports:
       - "${PORT:-3000}:${PORT:-3000}"
     networks:
