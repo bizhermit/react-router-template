@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => {
     ],
     server: {
       port: devPort,
-      watch: env.polling === "true" ? {
+      watch: env.POLLING === "true" ? {
         usePolling: true,
         interval: 300,
         ignored: [

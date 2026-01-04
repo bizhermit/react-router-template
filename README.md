@@ -15,7 +15,7 @@
 
 開発コンテナを使用します。
 
-- dockerがインストールされていること（dockerおよびdocker-composeが実行可能であること）
+- dockerがインストールされていること（dockerおよびdocker composeが実行可能であること）
 - [Visual Studio Code（VSCode）](https://code.visualstudio.com/download)がインストールされていること
 - VSCodeに拡張機能「[Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)」がインストールされていること
 
@@ -135,8 +135,6 @@ npm run test
 ```
 
 ### 本番起動
-
-`./.container/.env.example`を参考に、`./.container/.env`を作成してください。
 
 ```bash
 bash docker-compose.sh up

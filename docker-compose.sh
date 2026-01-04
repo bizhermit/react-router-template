@@ -1,4 +1,7 @@
 #!/bin/bash
 
 # docker-compose 実行
-docker compose -f ./.container/docker-compose.yml "$@"
+docker compose \
+  -f ./docker/compose.base.yml \
+  -f ./docker/compose.prod.yml \
+  "$@"

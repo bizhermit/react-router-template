@@ -2,13 +2,7 @@
 
 ## コンテナ用
 
-### 本番コンテナ用環境変数
-
-`./.container/.env.example`を参考に、`./.container/.env`を作成してください。  
-
-### 開発コンテナ用環境変数
-
-`./.devcontainer/.env.example`を参考に、`./.devcontainer/.env`を作成してください。  
+`./docker/.env.example`を参考に、`./docker/.env`を作成してください。  
 
 ### 設定値
 
@@ -32,6 +26,7 @@
 |   o   |   o   | POSTGRES_PASSWORD  | PostgreSQLパスワード                                                   |
 |   o   |   o   | POSTGRES_DB        | PostgreSQLデータベース名                                               |
 |   o   |   o   | POSTGRES_LOG_LEVEL | PostgreSQLログレベル                                                   |
+|   o   |   -   | MIGRATE            | マイグレーション実行有無                                               |
 |   r   |   o   | BETTER_AUTH_SECRET | BetterAuth用シークレット<br>（変更すると既存セッションは無効化される） |
 <!-- TODO -->
 
@@ -59,8 +54,8 @@
 | キー              | 説明                                                                  |
 | ----------------- | --------------------------------------------------------------------- |
 | DEV_PORT          | アプリケーションサーバーdev起動ポート（コンテナ使用時はこちらが優先） |
-| SELF_ORIGIN       |                                                                       |
-| CSP_REPORT_ORIGIN |                                                                       |
+| SELF_ORIGIN       | アプリケーションサーバーオリジン                                      |
+| CSP_REPORT_ORIGIN | CSPレポート送信先オリジン                                             |
 <!-- TODO -->
 
 ## 使い方
