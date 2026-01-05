@@ -45,7 +45,7 @@ chmod +x ./wait-for-it.sh
 ./wait-for-it.sh "$DATABASE_HOST:$POSTGRES_PORT" -t 60
 
 # DB最新化
-npm run migrate
+npm run dev:migrate
 
 # DB初回データ作成
 npm run postgres:init

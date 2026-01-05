@@ -1,7 +1,7 @@
 import { Button$ } from "$/components/elements/button";
-import { auth } from "$/server/auth/auth";
-import { SIGN_IN_PATHNAME } from "$/shared/auth/consts";
 import { redirect, useFetcher } from "react-router";
+import { auth } from "~/auth/server/auth";
+import { SIGN_IN_PATHNAME } from "~/auth/shared/consts";
 import type { Route } from "./+types/sign-out";
 
 export async function loader({ request }: Route.LoaderArgs) {

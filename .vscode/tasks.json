@@ -35,7 +35,7 @@
       "label": "migrate",
       "group": "none",
       "type": "shell",
-      "command": "npm run migrate"
+      "command": "npm run dev:migrate"
     },
     {
       "label": "typecheck",

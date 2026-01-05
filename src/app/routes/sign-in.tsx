@@ -4,14 +4,14 @@ import { InputMessageSpan } from "$/components/elements/form/message";
 import { PasswordBox } from "$/components/elements/form/password-box/password-box";
 import { TextBox } from "$/components/elements/form/text-box/text-box";
 import { FormItem } from "$/components/elements/form/wrapper/form-item";
-import { auth } from "$/server/auth/auth";
-import { getSignedInUrl } from "$/shared/auth/signed-in-url";
 import { useSchema } from "$/shared/hooks/schema";
 import { getPayload } from "$/shared/schema/server";
 import { APIError } from "better-auth";
 import { useEffect } from "react";
 import { data, redirect, useFetcher } from "react-router";
+import { auth } from "~/auth/server/auth";
 import { authSchema } from "~/auth/shared/schema";
+import { getSignedInUrl } from "~/auth/shared/signed-in-url";
 import type { Route } from "./+types/sign-in";
 
 export async function action({ request }: Route.ActionArgs) {

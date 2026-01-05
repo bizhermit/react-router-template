@@ -1,10 +1,10 @@
-export const Month = {
+export const MONTH = {
   en: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"] as const,
   en_s: ["Jan.", "Feb.", "Mar.", "Apr.", "May", "Jun", "Jul.", "Aug.", "Sep.", "Oct.", "Nov.", "Dec."] as const,
   ja: ["１月", "２月", "３月", "４月", "５月", "６月", "７月", "８月", "９月", "１０月", "１１月", "１２月"] as const,
 };
 
-export const Week = {
+export const WEEK = {
   ja_s: ["日", "月", "火", "水", "木", "金", "土"] as const,
   en_s: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] as const,
 };
@@ -98,7 +98,7 @@ export function formatDate(date: string | number | Date | null | undefined, patt
     .replace(/SSS/g, `00${d.getMilliseconds()}`.slice(-3))
     .replace(/SS/g, `00${d.getMilliseconds()}`.slice(-3).slice(2))
     .replace(/S/g, String(d.getMilliseconds()))
-    .replace(/w/g, (week ?? Week.ja_s)[d.getDay()]);
+    .replace(/w/g, (week ?? WEEK.ja_s)[d.getDay()]);
 };
 
 const env_tz = typeof process === "undefined" ? undefined : process.env.TZ?.trim() as TimeZone | TimeZoneOffset | undefined;

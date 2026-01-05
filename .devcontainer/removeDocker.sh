@@ -1,25 +1,23 @@
 #!/bin/bash
 
 # .env ファイルを読み込む
-if [ -f ".devcontainer/.env" ]; then
-  source .devcontainer/.env
+if [ -f "docker/.env" ]; then
+  echo "Loading env file..."
+  source docker/.env
 fi
 
-# PROJECT_NAMEが設定されていなければディレクトリ名から設定する
-if [ -z "$PROJECT_NAME" ]; then
-  CURRENT_DIR_NAME=$(basename "$PWD")
-  PROJECT_NAME="${CURRENT_DIR_NAME}_devcontainer"
+if [ -z "$COMPOSE_PROJECT" ]; then
+  COMPOSE_PROJECT="docker"
 fi
 
-COMPOSE_FILE=".devcontainer/docker-compose.yml"
+COMPOSE_FILE=".docker/docker-compose.yml"
 
 echo "Deleting development containers and volumes..."
-echo " - Project name: $PROJECT_NAME"
-echo " - Docker Compose file: $COMPOSE_FILE"
+echo " - Container prefix: $COMPOSE_PROJECT"
 
 # -p オプションでプロジェクト名を明示的に指定する
 echo "Stopping and removing containers, networks, and volumes defined in the compose file..."
-docker-compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" down -v
+docker-compose -p "$COMPOSE_PROJECT" -f docker/compose.base.yml -f docker/compose.dev.yml down -v
 
 echo "Cleanup completed."
 

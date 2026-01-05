@@ -1,4 +1,4 @@
-import { auth } from "../src/lib/server/auth/auth";
+import { auth } from "../src/features/auth/server/auth";
 
 export async function seedAdmin() {
   // 管理ユーザー登録
