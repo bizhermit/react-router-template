@@ -6,18 +6,18 @@ if [ -f "docker/.env" ]; then
   source docker/.env
 fi
 
-if [ -z "$COMPOSE_PROJECT" ]; then
-  COMPOSE_PROJECT="docker"
+if [ -z "$COMPOSE_PROJECT_NAME" ]; then
+  COMPOSE_PROJECT_NAME="template-dev"
 fi
 
 COMPOSE_FILE=".docker/docker-compose.yml"
 
 echo "Deleting development containers and volumes..."
-echo " - Container prefix: $COMPOSE_PROJECT"
+echo " - Container prefix: $COMPOSE_PROJECT_NAME"
 
 # -p オプションでプロジェクト名を明示的に指定する
 echo "Stopping and removing containers, networks, and volumes defined in the compose file..."
-docker-compose -p "$COMPOSE_PROJECT" -f docker/compose.base.yml -f docker/compose.dev.yml down -v
+docker-compose -p "$COMPOSE_PROJECT_NAME" -f docker/compose.base.yml -f docker/compose.dev.yml down -v
 
 echo "Cleanup completed."
 

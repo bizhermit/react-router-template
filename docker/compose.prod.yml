@@ -1,6 +1,5 @@
 services:
   app:
-    container_name: template-app
     image: template-app
     build:
       context: ../
@@ -13,14 +12,13 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
-      - template
+      - default
 
   postgres:
-    container_name: template-postgres
     restart: always
     user: postgres
     volumes:
-      - "template_postgres:/var/lib/postgresql/data"
+      - "postgres:/var/lib/postgresql/data"
       - "../database/postgres/init:/docker-entrypoint-initdb.d"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
@@ -45,12 +43,11 @@ services:
       -c "log_disconnections=off"
       -c "log_statement=none"
     networks:
-      - template
+      - default
 
 networks:
-  template:
-    name: template
+  default:
     driver: "bridge"
 
 volumes:
-  template_postgres:
+  postgres:

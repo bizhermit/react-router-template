@@ -1,6 +1,6 @@
+name: template-dev
 services:
   app:
-    container_name: tempate-dev-app
     image: node24-dev
     build:
       context: ../
@@ -11,22 +11,21 @@ services:
     volumes:
       - "../:/workspace"
       - "~/.ssh:/home/node/.ssh"
-      - "template-dev_node_modules:/workspace/node_modules"
-      - "template-dev_react-router:/workspace/.react-router"
-      - "template-dev_playwright:/workspace/.playwright"
+      - "node_modules:/workspace/node_modules"
+      - "react-router:/workspace/.react-router"
+      - "playwright:/workspace/.playwright"
     environment:
       LOCALHOST: "${LOCALHOST:-host.docker.internal}"
       DEV_PORT: "${DEV_PORT:-5173}"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
-      - template-dev
+      - default
 
   postgres:
-    container_name: template-dev-postgres
     restart: always
     volumes:
-      - "template-dev_postgres:/var/lib/postgresql/data"
+      - "postgres:/var/lib/postgresql/data"
       - "../database/postgres/init:/docker-entrypoint-initdb.d"
     ports:
       - "${POSTGRES_PORT:-5432}:${POSTGRES_PORT:-5432}"
@@ -39,15 +38,14 @@ services:
       -c "log_disconnections=on"
       -c "log_statement=all"
     networks:
-      - template-dev
+      - default
 
 networks:
-  template-dev:
-    name: template-dev
+  default:
     driver: "bridge"
 
 volumes:
-  template-dev_node_modules:
-  template-dev_react-router:
-  template-dev_playwright:
-  template-dev_postgres:
+  node_modules:
+  react-router:
+  playwright:
+  postgres:

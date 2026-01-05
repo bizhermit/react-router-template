@@ -14,7 +14,7 @@
 | :---: | :---: | ------------------ | ------------------------------------------------------------------------------ |
 |   -   |   o   | UID                | uid（Linux系の場合必須）                                                       |
 |   -   |   o   | GID                | gid（Linux系の場合必須）                                                       |
-|   -   |   o   | COMPOSE_PROJECT    | docker composeの`-p`に使用する値<br>（コンテナクリーンアップスクリプトで使用） |
+|   -   |   o   | COMPOSE_PROJECT_NAME    | docker composeのプロジェクト名 |
 |   o   |   o   | TZ                 | タイムゾーン                                                                   |
 |   -   |   o   | LOCALHOST          | LOCALHOST                                                                      |
 |   o   |   o   | PORT               | アプリケーションサーバー起動ポート                                             |
