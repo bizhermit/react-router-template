@@ -136,7 +136,7 @@ export function HogeFuga(props: HogeFuga) {
 
 - [TailwindCSS](https://tailwindcss.com/)を使用する
 - 使用頻度が高いコンポーネント（ボタン等）や、TailwindCSSでは実装が難しい場合はクラスの定義を検討する
-  - 使用頻度が高い共通部品はcssファイルを作成し、`src/app/lib(features)/global.css`に記述またはインポートする（グローバルスタイル化）
+  - 使用頻度が高い共通部品（＝基盤）はcssファイルを作成し、`src/app/lib(features)/global.css`に記述またはインポートする（グローバルスタイル化）
   - エッジケースは[CSS Modules](https://github.com/css-modules/css-modules?tab=readme-ov-file)を使用する
   
 ### CSSファイル命名規則
@@ -147,7 +147,7 @@ export function HogeFuga(props: HogeFuga) {
 ### 変数
 
 - TailwindCSSのユーティリティの拡張および、スタイル
-- [global.css](../../app/global.css)の`@theme`に追加する
+- [global.css](../../src/lib/components/global.css)の`@theme`に追加する
 
 ### クラス名
 
