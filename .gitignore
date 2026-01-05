@@ -6,8 +6,8 @@
 
 /.react-router/
 /build/
-/.env
-/.env*.local
+/docker/.env*
+!/docker/.env.example
 /.drizzle
 /.playwright
 /playwright-report

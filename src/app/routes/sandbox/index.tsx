@@ -39,7 +39,6 @@ import { LoadingBar } from "$/components/elements/loading";
 import { $alert, $confirm, $toast } from "$/components/elements/message-box";
 import { NavLayout, useNavLayout } from "$/components/elements/nav-layout";
 import { clsx } from "$/components/elements/utilities";
-import { auth } from "$/server/auth/auth";
 import { useAbortController } from "$/shared/hooks/abort-controller";
 import { useLocale, useText } from "$/shared/hooks/i18n";
 import { usePageExitPropmt } from "$/shared/hooks/page-exit-prompt";
@@ -61,6 +60,7 @@ import sleep from "$/shared/timing/sleep";
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { data, useFetcher } from "react-router";
 import { api } from "~/api/shared/internal";
+import { auth } from "~/auth/server/auth";
 import type { Route } from "./+types";
 
 const text = $str(

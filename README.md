@@ -37,16 +37,18 @@
     ```bash
     npm install --no-package-lock
     ```
-4. データベースを起動する
+4. データベース（コンテナ）を起動する
     ```bash
     npm run dev:postgres
     ```
-5. 初回データを投入する
+5. マイグレーションを実行する
+    ```bash
+    npm run dev:migrate
+    ```
+6. 初回データを投入する
     ```bash
     npm run postgres:init
     ```
-
-
 
 ## コマンド
 
@@ -79,7 +81,7 @@ npm run generate:migration
 ### データベースマイグレーション（最新化）
 
 ```bash
-npm run migrate
+npm run dev:migrate
 ```
 
 ### 言語ファイルからTypeScriptの型情報を生成

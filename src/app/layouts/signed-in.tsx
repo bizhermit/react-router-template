@@ -1,10 +1,10 @@
 import { Button$ } from "$/components/elements/button";
 import { Details } from "$/components/elements/details";
-import { auth } from "$/server/auth/auth";
-import { SIGN_IN_PATHNAME, SIGN_OUT_PATHNAME } from "$/shared/auth/consts";
-import { useAuthContext } from "$/shared/providers/auth";
 import { useState } from "react";
 import { data, Outlet, redirect } from "react-router";
+import { auth } from "~/auth/server/auth";
+import { SIGN_IN_PATHNAME, SIGN_OUT_PATHNAME } from "~/auth/shared/consts";
+import { useAuthContext } from "~/auth/shared/providers/auth";
 import type { Route } from "./+types/signed-in";
 
 export async function loader({ request }: Route.LoaderArgs) {

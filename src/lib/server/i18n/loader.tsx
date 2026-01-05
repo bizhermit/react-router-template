@@ -3,14 +3,14 @@ import en from "../../../../public/locales/en.json";
 import ja from "../../../../public/locales/ja.json";
 import { DEFAULT_LOCALE, I18N_PROP_NAME, LOCALE_KEY, SUPPORTED_LOCALES } from "../../shared/i18n/consts";
 
-const i18nResources = {
+const I18N_RESOURCES = {
   [DEFAULT_LOCALE]: ja,
   en,
 } satisfies Record<string, I18nResource>;
 
-const cookiePattern = `${encodeURIComponent(LOCALE_KEY)}=`;
-const isDev = process.env.NODE_ENV === "development";
-const serializedCache = new Map<string, string>();
+const COOKIE_PATTERN = `${encodeURIComponent(LOCALE_KEY)}=`;
+const IS_DEV = process.env.NODE_ENV === "development";
+const SERIALIZED_CACHE = new Map<string, string>();
 
 export function getI18nPayload(request: Request) {
   let locale: Locales = DEFAULT_LOCALE;
@@ -25,9 +25,9 @@ export function getI18nPayload(request: Request) {
   /* Cookie */
   const cookie = request.headers.get("cookie");
   if (cookie) {
-    const cookieStart = cookie.indexOf(cookiePattern);
+    const cookieStart = cookie.indexOf(COOKIE_PATTERN);
     if (cookieStart !== -1) {
-      const valueStart = cookieStart + cookiePattern.length;
+      const valueStart = cookieStart + COOKIE_PATTERN.length;
       const valueEnd = cookie.indexOf(";", valueStart);
       const cookieValue = cookie.slice(valueStart, valueEnd === -1 ? undefined : valueEnd);
       const decodedLocale = decodeURIComponent(cookieValue);
@@ -39,7 +39,7 @@ export function getI18nPayload(request: Request) {
     locale = findBrowserLocaleAsServer(request);
   }
 
-  const resource = i18nResources[locale];
+  const resource = I18N_RESOURCES[locale];
   const cacheKey = `${locale}-${Object.keys(resource).length}`;
 
   return {
@@ -48,14 +48,14 @@ export function getI18nPayload(request: Request) {
     Payload: function () {
       let serializedData: string;
 
-      if (!isDev && serializedCache.has(cacheKey)) {
-        serializedData = serializedCache.get(cacheKey)!;
+      if (!IS_DEV && SERIALIZED_CACHE.has(cacheKey)) {
+        serializedData = SERIALIZED_CACHE.get(cacheKey)!;
       } else {
         serializedData = serialize({ locale, resource }, {
           isJSON: true,
         });
-        if (!isDev) {
-          serializedCache.set(cacheKey, serializedData);
+        if (!IS_DEV) {
+          SERIALIZED_CACHE.set(cacheKey, serializedData);
         }
       }
 

@@ -16,9 +16,6 @@ services:
 
   postgres:
     image: postgres:17-bookworm
-    env_file:
-      - path: ./.env
-        required: false
     environment:
       TZ: "${TZ:-UTC}"
       POSTGRES_USER: "${POSTGRES_USER:-postgres}"

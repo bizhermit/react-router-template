@@ -9,7 +9,7 @@ fi
 
 if [ "${MIGRATE:-true}" = "true" ]; then
   echo "[init] Running migrations..."
-  npm run migrate
+  node migrate.mjs
 fi
 
 echo "[app] Starting app..."

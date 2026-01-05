@@ -1,25 +1,25 @@
 import { createContentSecurityPolicy } from "$/server/http/content-security-policy";
 import { createPermissionPolicy } from "$/server/http/permission-policy";
 
-const isDev = process.env.NODE_ENV === "development";
-const APP_MODE = process.env.VITE_APP_MODE || "prod";
+const IS_DEV = process.env.NODE_ENV === "development";
+const MODE = import.meta.env.MODE || "production";
 
-const SELF_ORIGIN = process.env.SELF_ORIGIN || `http://localhost:${isDev ? (process.env.DEV_PORT || 5173) : (process.env.PORT || 3000)}`;
+const SELF_ORIGIN = process.env.SELF_ORIGIN || `http://localhost:${IS_DEV ? (process.env.DEV_PORT || 5173) : (process.env.PORT || 3000)}`;
 
-const CSP_REPORT_ORIGIN = process.env.CSP_REPORT_ORIGIN || SELF_ORIGIN;
+const CSP_REPORT_URL = process.env.CSP_REPORT_URL || `${SELF_ORIGIN}/csp-report/`;
 const REPORT_TO_CSP_ENDPOINT = JSON.stringify({
   group: "csp-endpoint",
   max_age: 31536000,
   endpoints: [
     {
-      url: `${CSP_REPORT_ORIGIN}/csp-report`,
+      url: CSP_REPORT_URL,
       priority: 1,
       method: "POST",
     },
   ],
 });
 
-const CONTENT_SECURITY_POLICY = createContentSecurityPolicy({ isDev });
+const CONTENT_SECURITY_POLICY = createContentSecurityPolicy({ isDev: IS_DEV });
 
 const PERMISSION_POLICY = createPermissionPolicy();
 
@@ -65,8 +65,8 @@ function testHeader(headers: Headers): void {
  * 環境別ヘッダー設定
  */
 const setResponseHeadersAsMode =
-  isDev ? devHeader : (
-    APP_MODE === "test" ? testHeader : prodHeader
+  IS_DEV ? devHeader : (
+    MODE === "test" ? testHeader : prodHeader
   );
 
 /**
