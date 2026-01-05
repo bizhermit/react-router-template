@@ -1,11 +1,16 @@
 import { defineConfig, devices } from "@playwright/test";
+import path from "node:path";
 import { loadEnv } from "vite";
 
-const IS_DEV = (process.env.NODE_ENV || "").startsWith("dev");
+const MODE = process.env.NODE_ENV || "production";
 
-const ENV = loadEnv(IS_DEV ? "development" : "production", process.cwd(), "");
+const ENV = loadEnv(
+  MODE,
+  path.join(process.cwd(), "docker"),
+  ""
+);
 
-const webServerUrl = `http://localhost:${IS_DEV ?
+const webServerUrl = `http://localhost:${MODE.startsWith("dev") ?
   (ENV.DEV_PORT || process.env.DEV_PORT || 5173) :
   (ENV.PORT || process.env.PORT || 3000)}`;
 
