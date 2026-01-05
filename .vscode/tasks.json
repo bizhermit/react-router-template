@@ -20,6 +20,12 @@
       "command": "bash .devcontainer/removeDocker.sh"
     },
     {
+      "label": "[devcontainer] start postgres",
+      "group": "none",
+      "type": "shell",
+      "command": "npm run dev:postgres"
+    },
+    {
       "label": "Start WebApp(dev)",
       "group": "none",
       "type": "shell",

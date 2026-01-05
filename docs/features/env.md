@@ -10,25 +10,25 @@
 - o: 任意
 - -: 未使用
 
-| 本番  | 開発  | キー               | 説明                                                                           |
-| :---: | :---: | ------------------ | ------------------------------------------------------------------------------ |
-|   -   |   o   | UID                | uid（Linux系の場合必須）                                                       |
-|   -   |   o   | GID                | gid（Linux系の場合必須）                                                       |
-|   -   |   o   | COMPOSE_PROJECT_NAME    | docker composeのプロジェクト名 |
-|   o   |   o   | TZ                 | タイムゾーン                                                                   |
-|   -   |   o   | LOCALHOST          | LOCALHOST                                                                      |
-|   o   |   o   | PORT               | アプリケーションサーバー起動ポート                                             |
-|   -   |   o   | DEV_PORT           | アプリケーションサーバーdev起動ポート                                          |
-|   o   |   o   | SELF_ORIGIN        | アプリケーションサーバーオリジン                                               |
-|   o   |   o   | CSP_REPORT_URL     | CSPレポート送信先URL                                                           |
-|   o   |   o   | DATABASE_HOST      | データベースホスト                                                             |
-|   o   |   o   | POSTGRES_PORT      | PostgreSQLポート                                                               |
-|   o   |   o   | POSTGRES_USER      | PostgresSQLユーザー                                                            |
-|   o   |   o   | POSTGRES_PASSWORD  | PostgreSQLパスワード                                                           |
-|   o   |   o   | POSTGRES_DB        | PostgreSQLデータベース名                                                       |
-|   o   |   o   | POSTGRES_LOG_LEVEL | PostgreSQLログレベル                                                           |
-|   o   |   -   | MIGRATE            | マイグレーション実行有無                                                       |
-|   r   |   o   | BETTER_AUTH_SECRET | BetterAuth用シークレット<br>（変更すると既存セッションは無効化される）         |
+| 本番  | 開発  | キー                 | 説明                                                                   |
+| :---: | :---: | -------------------- | ---------------------------------------------------------------------- |
+|   -   |   o   | UID                  | uid（Linux系の場合必須）                                               |
+|   -   |   o   | GID                  | gid（Linux系の場合必須）                                               |
+|   -   |   o   | COMPOSE_PROJECT_NAME | docker composeのプロジェクト名                                         |
+|   o   |   o   | TZ                   | タイムゾーン                                                           |
+|   -   |   o   | LOCALHOST            | LOCALHOST                                                              |
+|   o   |   o   | PORT                 | アプリケーションサーバー起動ポート                                     |
+|   -   |   o   | DEV_PORT             | アプリケーションサーバーdev起動ポート                                  |
+|   o   |   o   | SELF_ORIGIN          | アプリケーションサーバーオリジン                                       |
+|   o   |   o   | CSP_REPORT_URL       | CSPレポート送信先URL                                                   |
+|   o   |   o   | DATABASE_HOST        | データベースホスト                                                     |
+|   o   |   o   | POSTGRES_PORT        | PostgreSQLポート                                                       |
+|   o   |   o   | POSTGRES_USER        | PostgresSQLユーザー                                                    |
+|   o   |   o   | POSTGRES_PASSWORD    | PostgreSQLパスワード                                                   |
+|   o   |   o   | POSTGRES_DB          | PostgreSQLデータベース名                                               |
+|   o   |   o   | POSTGRES_LOG_LEVEL   | PostgreSQLログレベル                                                   |
+|   o   |   -   | MIGRATE              | マイグレーション実行有無                                               |
+|   r   |   o   | BETTER_AUTH_SECRET   | BetterAuth用シークレット<br>（変更すると既存セッションは無効化される） |
 <!-- TODO -->
 
 ## 使い方
