@@ -23,6 +23,10 @@ export async function loader({ request }: Route.LoaderArgs) {
 };
 
 export default function Layout() {
+  return <Component />;
+};
+
+function Component() {
   const auth = useAuthContext();
 
   const [count, setCount] = useState(0);
