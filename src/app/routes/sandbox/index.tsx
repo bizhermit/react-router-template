@@ -136,6 +136,7 @@ const schema = $schema({
     ] as const,
   }),
   count: $num({
+    required: true,
     sourceValidation: false,
     source: [
       { value: 10, text: "10歳" },

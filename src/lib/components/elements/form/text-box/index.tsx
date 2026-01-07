@@ -1,4 +1,4 @@
-import { useImperativeHandle, useRef, useState, type ChangeEvent, type CompositionEvent, type InputHTMLAttributes, type ReactNode } from "react";
+import { useImperativeHandle, useRef, type ChangeEvent, type InputHTMLAttributes, type ReactNode } from "react";
 import { clsx } from "../../utilities";
 import { InputFieldWrapper, type InputFieldProps, type InputFieldWrapperProps } from "../wrapper/input-field";
 
@@ -33,23 +33,9 @@ export function TextBox$({
 
   const wref = useRef<HTMLDivElement>(null!);
   const iref = useRef<HTMLInputElement>(null!);
-  const [isComposing, setIsComposing] = useState(false);
-
-  function handleCompositionStart(e: CompositionEvent<HTMLInputElement>) {
-    setIsComposing(true);
-    inputProps?.onCompositionStart?.(e);
-  };
-
-  function handleCompositionEnd(e: CompositionEvent<HTMLInputElement>) {
-    setIsComposing(false);
-    if (state === "enabled") {
-      onChangeValue?.(e.currentTarget.value);
-    }
-    inputProps?.onCompositionEnd?.(e);
-  };
 
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    if (state === "enabled" && !isComposing) {
+    if (state === "enabled") {
       onChangeValue?.(e.currentTarget.value);
     }
     inputProps?.onChange?.(e);
@@ -82,8 +68,6 @@ export function TextBox$({
           inputProps?.className,
         )}
         ref={iref}
-        onCompositionStart={handleCompositionStart}
-        onCompositionEnd={handleCompositionEnd}
         onChange={handleChange}
         {...isControlled
           ? { value: value ?? "" }
