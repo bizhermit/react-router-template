@@ -113,17 +113,20 @@ export function ComboBox$({
         <DownIcon />
       </button>
       <div
+        className="_ipt-combo-dummy"
+        aria-hidden
+      >
+        {children}
+      </div>
+      <div
         className="_ipt-combo-picker"
-      // style={{
-      //   anchorName: `--${popoverId}`,
-      // }}
+        style={{
+          positionAnchor: `--${popoverId}`,
+        }}
       >
         <div
           className="_ipt-combo-list"
           tabIndex={-1}
-          style={{
-            positionAnchor: `--${popoverId}`,
-          }}
         >
           <SelectBoxContext
             value={{
@@ -523,8 +526,6 @@ export function ComboBox$Item({
 
   useImperativeHandle(ref, () => wref.current);
 
-  if (ctx == null) return null;
-
   const isHidden = !!ctx?.filterText && !text.includes(ctx.filterText);
 
   return (
@@ -535,23 +536,24 @@ export function ComboBox$Item({
         "_ipt-combo-item",
         className,
       )}
-      aria-hidden={isHidden}
+      aria-hidden={isHidden || !ctx}
     >
-      <input
-        ref={iref}
-        className="_ipt-combo-item-check"
-        name={ctx.name ?? undefined}
-        type={ctx.multiple ? "checkbox" : "radio"}
-        disabled={ctx.state !== "enabled"}
-        aria-disabled={ctx.state === "disabled"}
-        aria-readonly={ctx.state === "readonly"}
-        value={String(value ?? "")}
-        aria-label={text}
-        {...ctx.isControlled
-          ? { checked: ctx.value.some(v => v === value) }
-          : { defaultChecked: ctx.value.some(v => v === value) }
-        }
-      />
+      {ctx &&
+        <input
+          ref={iref}
+          className="_ipt-combo-item-check"
+          name={ctx.name ?? undefined}
+          type={ctx.multiple ? "checkbox" : "radio"}
+          disabled={ctx.state !== "enabled"}
+          aria-disabled={ctx.state === "disabled"}
+          aria-readonly={ctx.state === "readonly"}
+          value={String(value ?? "")}
+          aria-label={text}
+          {...ctx.isControlled
+            ? { checked: ctx.value.some(v => v === value) }
+            : { defaultChecked: ctx.value.some(v => v === value) }
+          }
+        />}
       <div className="_ipt-combo-item-label">
         {children}
       </div>

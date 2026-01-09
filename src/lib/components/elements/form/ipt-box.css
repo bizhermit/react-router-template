@@ -203,6 +203,8 @@
   */
 
   ._ipt-combox-box {
+    flex-flow: column nowrap;
+
     &:focus-within {
       >._ipt-btn {
         transform: rotateX(180deg);
@@ -210,12 +212,15 @@
 
       >._ipt-combo-picker {
         z-index: 100;
-        height: var(--spacing-input);
+        position: fixed;
+        position-area: bottom center;
+        position-try-fallbacks: top;
+        width: anchor-size(width);
+        filter: drop-shadow(0 0 3px var(--color-shadow));
 
         >._ipt-combo-list {
-          pointer-events: all;
-          top: 100%;
-          height: fit-content;
+          justify-content: flex-start;
+          max-height: calc(50dvh - var(--spacing-input));
           overflow: auto;
           background: var(--color-input-bg);
           padding-block: 0;
@@ -223,7 +228,6 @@
 
           >._ipt-combo-item {
             cursor: pointer;
-            display: flex;
             min-height: var(--spacing-input);
             height: unset;
 
@@ -235,12 +239,20 @@
             &:has(input:checked) {
               background: var(--color-active);
             }
+
+            >._ipt-combo-item-label {
+              padding-right: var(--spacing-input-pad-x);
+            }
           }
         }
       }
     }
 
     &:not(:focus-within) {
+      >._ipt-combo-dummy {
+        max-height: 0;
+      }
+
       &:has(input:checked:is([type="checkbox"], [type="radio"])) {
         >._ipt-combo-text {
           &::placeholder {
@@ -259,19 +271,26 @@
     padding-right: var(--spacing-input-pad-btn);
   }
 
+  ._ipt-combo-dummy {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+    opacity: 0;
+    visibility: hidden;
+    user-select: none;
+  }
+
   ._ipt-combo-picker {
-    pointer-events: none;
-    width: 100%;
     position: relative;
     min-height: var(--spacing-input);
-    overflow: visible;
+    overflow: hidden;
     width: fit-content;
   }
 
   ._ipt-combo-list {
     position: relative;
-    width: fit-content;
-    top: 0;
+    width: 100%;
     height: 100%;
     overflow: hidden;
     color: var(--color-input);
@@ -307,6 +326,7 @@
   ._ipt-combo-item-check {
     appearance: none;
     width: 0;
+    opacity: 0;
   }
 
   ._ipt-combo-item-label {
