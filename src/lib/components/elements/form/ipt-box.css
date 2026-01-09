@@ -89,6 +89,240 @@
     }
   }
 
+  /* ._ipt-combo-box {
+    &:has(:popover-open) {
+      >._ipt-combo-text {
+        &:focus {
+          &~._ipt-combo-display {
+            visibility: hidden;
+          }
+        }
+      }
+
+      >._ipt-btn {
+        transform: rotateX(180deg);
+      }
+    }
+  }
+
+  ._ipt-combo-text {
+    position: absolute;
+    inset: 0;
+    padding-right: var(--spacing-input-pad-btn);
+    z-index: 1;
+  }
+
+  ._ipt-combo-display {
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+    padding-inline: var(--spacing-input-pad-x) var(--spacing-input-pad-btn);
+    padding-block: var(--spacing-input-pad-y);
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0rem 1rem;
+    max-width: 100%;
+  }
+
+  ._ipt-combo-display-item {
+    position: relative;
+
+    &+._ipt-combo-display-item {
+      &::before {
+        position: absolute;
+        content: ",";
+        width: 1rem;
+        height: 100%;
+        top: 0;
+        left: -1rem;
+      }
+    }
+  }
+
+  ._ipt-combo-popover {
+    position: fixed;
+    border-radius: var(--radius-input);
+    filter: drop-shadow(0 0 3px var(--color-shadow));
+    width: anchor-size(width);
+    position-area: bottom center;
+    position-try-fallbacks: top;
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity .2s,
+      display .2s allow-discrete,
+      overlay .2s allow-discrete;
+
+    &:popover-open {
+      opacity: 1;
+
+      >._ipt-combo-list-wrapper {
+        grid-template-rows: 1fr;
+      }
+
+      @starting-style {
+        opacity: 0;
+
+        >._ipt-combo-list-wrapper {
+          grid-template-rows: 0fr;
+        }
+      }
+    }
+
+    &:not(:popover-open) {
+      &[data-js="false"] {}
+    }
+  }
+
+  ._ipt-combo-list-wrapper {
+    position: relative;
+    width: 100%;
+    height: fit-content;
+    overflow: hidden;
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows .2s;
+  }
+
+  ._ipt-combo-list {
+    position: relative;
+    width: 100%;
+    height: fit-content;
+    max-height: calc(50dvh - var(--spacing-input));
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: flex-start;
+    align-items: stretch;
+    background: var(--color-input-bg);
+    color: var(--color-input);
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+
+  */
+
+  ._ipt-combox-box {
+    &:focus-within {
+      >._ipt-btn {
+        transform: rotateX(180deg);
+      }
+
+      >._ipt-combo-picker {
+        z-index: 100;
+        height: var(--spacing-input);
+
+        >._ipt-combo-list {
+          pointer-events: all;
+          top: 100%;
+          height: fit-content;
+          overflow: auto;
+          background: var(--color-input-bg);
+          padding-block: 0;
+          filter: drop-shadow(0 0 3px var(--color-shadow));
+
+          >._ipt-combo-item {
+            cursor: pointer;
+            display: flex;
+            min-height: var(--spacing-input);
+            height: unset;
+
+            &[aria-hidden="true"] {
+              min-height: 0;
+              height: 0;
+            }
+
+            &:has(input:checked) {
+              background: var(--color-active);
+            }
+          }
+        }
+      }
+    }
+
+    &:not(:focus-within) {
+      &:has(input:checked:is([type="checkbox"], [type="radio"])) {
+        >._ipt-combo-text {
+          &::placeholder {
+            opacity: 0;
+          }
+        }
+      }
+    }
+  }
+
+  ._ipt-combo-text {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    padding-right: var(--spacing-input-pad-btn);
+  }
+
+  ._ipt-combo-picker {
+    pointer-events: none;
+    width: 100%;
+    position: relative;
+    min-height: var(--spacing-input);
+    overflow: visible;
+    width: fit-content;
+  }
+
+  ._ipt-combo-list {
+    position: relative;
+    width: fit-content;
+    top: 0;
+    height: 100%;
+    overflow: hidden;
+    color: var(--color-input);
+    background: transparent;
+    overscroll-behavior: contain;
+    border-radius: var(--radius-input);
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: stretch;
+    padding-block: var(--spacing-input-pad-y);
+  }
+
+  ._ipt-combo-item {
+    position: relative;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+    align-items: center;
+    height: 0;
+
+    &:is(:focus-within, :has(input:enabled:active)) {
+      outline: 2px solid;
+      outline-offset: -2px;
+      border-radius: var(--radius-input);
+    }
+
+    &:has(input:checked) {
+      height: unset;
+    }
+  }
+
+  ._ipt-combo-item-check {
+    appearance: none;
+    width: 0;
+  }
+
+  ._ipt-combo-item-label {
+    flex: 1 1 0;
+    min-width: 0;
+    height: 100%;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+    align-items: stretch;
+    white-space: nowrap;
+    overflow: hidden;
+    gap: 1rem;
+    padding-inline: var(--spacing-input-pad-x) var(--spacing-input-pad-btn);
+  }
+
   ._ipt-file {
     position: relative;
     width: 100%;

@@ -81,7 +81,6 @@ export function SelectBox$({
         {children}
       </select>
       {
-        validScripts &&
         state !== "disabled" &&
         <Placeholder>
           {placeholder}
