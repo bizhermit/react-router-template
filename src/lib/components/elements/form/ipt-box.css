@@ -217,6 +217,7 @@
         position-try-fallbacks: top;
         width: anchor-size(width);
         filter: drop-shadow(0 0 3px var(--color-shadow));
+        pointer-events: all;
 
         >._ipt-combo-list {
           justify-content: flex-start;
@@ -241,6 +242,7 @@
             }
 
             >._ipt-combo-item-label {
+              align-items: center;
               padding-right: var(--spacing-input-pad-x);
             }
           }
@@ -286,6 +288,7 @@
     min-height: var(--spacing-input);
     overflow: hidden;
     width: fit-content;
+    pointer-events: none;
   }
 
   ._ipt-combo-list {

@@ -631,7 +631,7 @@ function Component2() {
       <FormItem>
         <ComboBox$
           onChangeValue={console.log}
-          // multiple
+          multiple
           initValue="3"
           placeholder="ComboBox"
           style={{
