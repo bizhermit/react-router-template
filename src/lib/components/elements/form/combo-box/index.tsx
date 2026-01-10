@@ -75,9 +75,58 @@ export function ComboBox$({
 
   const [filterText, setFilterText] = useState("");
 
+  const iref = useRef<HTMLInputElement>(null!);
+  const lref = useRef<HTMLDivElement>(null!);
+
+  function scrollIntoValue(focus = false) {
+    let target = lref.current.querySelector(`label[aria-hidden="false"]:has(input:checked)`) as HTMLElement | null;
+    if (!target && initValue != null) {
+      target = lref.current.querySelector(`label[aria-hidden="false"]:has(input[value="${initValue}"])`);
+    }
+    if (!target) lref.current.querySelector(`label[aria-hidden="true"]:has(input)`);
+    if (!target) return;
+    lref.current.scrollTop = target.offsetTop - (lref.current.offsetHeight - target.offsetHeight) / 2;
+    if (focus) target.querySelector(`input`)?.focus();
+  }
+
+  function handleChange() {
+    if (state !== "enabled") return;
+    if (multiple) {
+      const elems = Array.from(lref.current.querySelectorAll(`input:checked`)) as HTMLInputElement[];
+      const vals = elems.map(elem => elem.value).filter(v => !(v == null || v === ""));
+      (onChangeValue as ((v: string[]) => void) | undefined)?.(vals);
+    } else {
+      const elem = lref.current.querySelector(`input:checked`) as HTMLInputElement | null;
+      const val = elem?.value || "";
+      (onChangeValue as ((v: string) => void) | undefined)?.(val);
+    }
+  };
+
   function handleChangeText(e: ChangeEvent<HTMLInputElement>) {
     setFilterText(e.currentTarget.value);
   };
+
+  function handleKeydownText(e: KeyboardEvent<HTMLInputElement>) {
+    switch (e.key) {
+      case "ArrowUp":
+      case "ArrowDown":
+        e.preventDefault();
+        scrollIntoValue(true);
+        break;
+      default:
+        break;
+    }
+  };
+
+  function handleKeyDownList(e: KeyboardEvent<HTMLDivElement>) {
+    switch (e.key) {
+      case "Escape":
+        iref.current.focus();
+        break;
+      default:
+        break;
+    }
+  }
 
   return (
     <InputFieldWrapper
@@ -93,12 +142,14 @@ export function ComboBox$({
       state={state}
     >
       <input
+        ref={iref}
         type="text"
         disabled={state === "disabled"}
         readOnly={state === "readonly" || !validScripts}
         aria-invalid={invalid}
         className="_ipt-box _ipt-combo-text"
         onChange={handleChangeText}
+        onKeyDown={handleKeydownText}
         placeholder={placeholder}
         data-validjs={validScripts}
       />
@@ -125,8 +176,11 @@ export function ComboBox$({
         }}
       >
         <div
+          ref={lref}
           className="_ipt-combo-list"
           tabIndex={-1}
+          onChange={handleChange}
+          onKeyDown={handleKeyDownList}
         >
           <SelectBoxContext
             value={{
@@ -146,10 +200,6 @@ export function ComboBox$({
       </div>
     </InputFieldWrapper>
   );
-
-  // const arrayValue = value
-  //   ? (Array.isArray(value) ? value : [value])
-  //   : [];
 
   // const wref = useRef<HTMLDivElement>(null!);
   // const iref = useRef<HTMLInputElement>(null!);
@@ -466,62 +516,64 @@ export function ComboBox$Item({
   const iref = useRef<HTMLInputElement>(null!);
 
   function movePrevItem() {
-    // if (onMovePrev) {
-    //   onMovePrev();
-    //   return;
-    // }
-    // let elem: HTMLElement | null = wref.current;
-    // while (elem) {
-    //   elem = (elem.previousElementSibling as HTMLElement | null);
-    //   if (!elem) return;
-    //   if (elem.getAttribute("aria-hidden") === "true") continue;
-    //   elem.focus();
-    //   break;
-    // }
+    if (onMovePrev) {
+      onMovePrev();
+      return;
+    }
+    let elem: HTMLElement | null = wref.current;
+    while (elem) {
+      elem = (elem.previousElementSibling as HTMLElement | null);
+      if (!elem) return;
+      if (elem.getAttribute("aria-hidden") === "true") continue;
+      elem.scrollIntoView();
+      elem.focus();
+      break;
+    }
   };
 
   function moveNextItem() {
-    // if (onMoveNext) {
-    //   onMoveNext();
-    //   return;
-    // }
-    // let elem: HTMLElement | null = wref.current;
-    // while (elem) {
-    //   elem = (elem.nextElementSibling as HTMLElement | null);
-    //   if (!elem) return;
-    //   if (elem.getAttribute("aria-hidden") === "true") continue;
-    //   elem.focus();
-    //   break;
-    // }
+    if (onMoveNext) {
+      onMoveNext();
+      return;
+    }
+    let elem: HTMLElement | null = wref.current;
+    while (elem) {
+      elem = (elem.nextElementSibling as HTMLElement | null);
+      if (!elem) return;
+      if (elem.getAttribute("aria-hidden") === "true") continue;
+      elem.scrollIntoView();
+      elem.focus();
+      break;
+    }
   };
 
   function handleKeydown(e: KeyboardEvent<HTMLLabelElement>) {
-    // switch (e.key) {
-    //   case " ":
-    //   case "Enter": {
-    //     e.preventDefault();
-    //     iref.current.checked = ctx?.multiple ? !iref.current.checked : true;
-    //     ctx?.change();
-    //     break;
-    //   }
-    //   case "ArrowUp":
-    //     e.preventDefault();
-    //     e.stopPropagation();
-    //     movePrevItem();
-    //     break;
-    //   case "ArrowDown":
-    //     e.preventDefault();
-    //     e.stopPropagation();
-    //     moveNextItem();
-    //     break;
-    //   case "Tab":
-    //     e.preventDefault();
-    //     if (e.shiftKey) movePrevItem();
-    //     else moveNextItem();
-    //     break;
-    //   default:
-    //     break;
-    // }
+    switch (e.key) {
+      case " ":
+      case "Enter": {
+        e.preventDefault();
+        iref.current.checked = ctx?.multiple ? !iref.current.checked : true;
+        ctx?.change();
+        break;
+      }
+      case "ArrowUp":
+        e.preventDefault();
+        e.stopPropagation();
+        movePrevItem();
+        break;
+      case "ArrowDown":
+        e.preventDefault();
+        e.stopPropagation();
+        moveNextItem();
+        break;
+      case "Tab":
+        // e.preventDefault();
+        // if (e.shiftKey) movePrevItem();
+        // else moveNextItem();
+        break;
+      default:
+        break;
+    }
   };
 
   useImperativeHandle(ref, () => wref.current);
@@ -537,6 +589,7 @@ export function ComboBox$Item({
         className,
       )}
       aria-hidden={isHidden || !ctx}
+      onKeyDown={handleKeydown}
     >
       {ctx &&
         <input

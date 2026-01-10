@@ -221,7 +221,8 @@
 
         >._ipt-combo-list {
           justify-content: flex-start;
-          max-height: calc(50dvh - var(--spacing-input));
+          /* max-height: calc(50dvh - var(--spacing-input)); */
+          max-height: 100px;
           overflow: auto;
           background: var(--color-input-bg);
           padding-block: 0;
