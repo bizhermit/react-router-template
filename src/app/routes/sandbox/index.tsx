@@ -12,6 +12,8 @@ import { Dialog, useDialog } from "$/components/elements/dialog";
 import { CheckBox$ } from "$/components/elements/form/check-box";
 import { CheckBox } from "$/components/elements/form/check-box/check-box";
 import { CheckList } from "$/components/elements/form/check-box/check-list";
+import { ComboBox$, ComboBoxItem } from "$/components/elements/form/combo-box";
+import { ComboBox } from "$/components/elements/form/combo-box/combo-box";
 import { DateBox$ } from "$/components/elements/form/date-box";
 import { DateBox } from "$/components/elements/form/date-box/date-box";
 import { DateSelectBox } from "$/components/elements/form/date-box/date-select-box";
@@ -92,6 +94,16 @@ const source = [
   { value: 6, text: "新無印" },
 ] as const satisfies Schema.Source<number>;
 
+const source2 = [
+  { value: 0, text: "無印" },
+  { value: 1, text: "AG" },
+  { value: 2, text: "DP" },
+  { value: 3, text: "BW" },
+  { value: 4, text: "XY" },
+  { value: 5, text: "SM" },
+  { value: 6, text: "新無印" },
+] as const satisfies Schema.Source<number>;
+
 const schema = $schema({
   text: $str({
     // required: true,
@@ -159,6 +171,10 @@ const schema = $schema({
   }),
   generation: $num({
     source: source,
+  }),
+  generation2: $num({
+    // required: true,
+    source: source2,
   }),
   check: $bool(),
   // agreement: $bool({
@@ -576,7 +592,7 @@ function Component1() {
 function FormValueSetterComponent() {
   const { dataItems } = useSchemaContext<typeof schema>();
 
-  const [value, setValue] = useSchemaValue(dataItems.sourceText);
+  const [value, setValue] = useSchemaValue(dataItems.generation2);
 
   return (
     <>
@@ -590,7 +606,7 @@ function FormValueSetterComponent() {
       <Button
         onClick={() => {
           // setValue("hoge\nfuga\npiyo\nhoge");
-          setValue("fuga");
+          setValue(2);
         }}
       >
         set hoge
@@ -626,6 +642,34 @@ function Component2() {
           placeholder="数値"
         />
         <NumberBox$ inputProps={{ placeholder: "数値", min: 0 }} />
+      </FormItem>
+      <FormItem>
+        <ComboBox
+          $={dataItems.generation2}
+          placeholder="世代"
+          emptyText
+        />
+        <ComboBox$
+          onChangeValue={console.log}
+          // multiple
+          initValue="3"
+          placeholder="世代"
+          style={{
+            // width: 100,
+          }}
+        >
+          {source2.map(item => {
+            return (
+              <ComboBoxItem
+                key={item.value}
+                value={item.value}
+                displayValue={item.text}
+              >
+                {item.text}
+              </ComboBoxItem>
+            );
+          })}
+        </ComboBox$>
       </FormItem>
       <FormItem>
         <SelectBox

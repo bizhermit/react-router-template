@@ -89,6 +89,154 @@
     }
   }
 
+  ._ipt-combox-box {
+    flex-flow: column nowrap;
+
+    &:focus-within {
+      &:has(._ipt-combo-text:not(:disabled, [aria-readonly="true"])) {
+        >._ipt-btn {
+          transform: rotateX(180deg);
+        }
+
+        >._ipt-combo-picker {
+          z-index: 100;
+          position: fixed;
+          position-area: bottom center;
+          position-try-fallbacks: top;
+          width: anchor-size(width);
+          filter: drop-shadow(0 0 3px var(--color-shadow));
+          pointer-events: all;
+
+          >._ipt-combo-list {
+            justify-content: flex-start;
+            max-height: calc(50dvh - var(--spacing-input));
+            overflow: auto;
+            background: var(--color-input-bg);
+            padding-block: 0;
+            filter: drop-shadow(0 0 3px var(--color-shadow));
+
+            >._ipt-combo-item {
+              cursor: pointer;
+              min-height: var(--spacing-input);
+              height: unset;
+
+              &[aria-hidden="true"] {
+                min-height: 0;
+                height: 0;
+              }
+
+              &:has(._ipt-combo-item-check:checked) {
+                background: var(--color-active);
+              }
+
+              >._ipt-combo-item-label {
+                align-items: center;
+                padding-right: var(--spacing-input-pad-x);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    &:not(:focus-within) {
+      >._ipt-combo-dummy {
+        max-height: 0;
+      }
+    }
+
+    &:has(._ipt-combo-item-check:checked) {
+      >._ipt-combo-text {
+        &::placeholder {
+          opacity: 0;
+        }
+      }
+    }
+  }
+
+  ._ipt-combo-text {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    padding-right: var(--spacing-input-pad-btn);
+  }
+
+  ._ipt-combo-dummy {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+    opacity: 0;
+    visibility: hidden;
+    user-select: none;
+  }
+
+  ._ipt-combo-picker {
+    position: relative;
+    min-height: var(--spacing-input);
+    overflow: hidden;
+    width: fit-content;
+    pointer-events: none;
+  }
+
+  ._ipt-combo-list {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    color: var(--color-input);
+    background: transparent;
+    overscroll-behavior: contain;
+    border-radius: var(--radius-input);
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: stretch;
+    padding-block: var(--spacing-input-pad-y);
+  }
+
+  ._ipt-combo-item {
+    position: relative;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+    align-items: center;
+    height: 0;
+
+    &:is(:focus-within, :has(input:enabled:active)) {
+      outline: 2px solid;
+      outline-offset: -2px;
+      border-radius: var(--radius-input);
+    }
+
+    &:has(._ipt-combo-item-check:checked) {
+      height: unset;
+    }
+  }
+
+  ._ipt-combo-item-check {
+    appearance: none;
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  ._ipt-combo-item-label {
+    flex: 1 1 0;
+    min-width: 0;
+    height: 100%;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+    align-items: stretch;
+    white-space: nowrap;
+    overflow: hidden;
+    gap: 1rem;
+    padding-inline: var(--spacing-input-pad-x) var(--spacing-input-pad-btn);
+  }
+
   ._ipt-file {
     position: relative;
     width: 100%;

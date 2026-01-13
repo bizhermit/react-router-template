@@ -1,28 +1,28 @@
+import { useSource } from "$/shared/hooks/data-item-source";
+import { useSchemaItem } from "$/shared/hooks/schema";
 import { useImperativeHandle, useRef, type ReactNode } from "react";
-import { SelectBox$, SelectBoxEmptyOption, type SelectBox$Ref } from ".";
-import { useSource } from "../../../../shared/hooks/data-item-source";
-import { useSchemaItem } from "../../../../shared/hooks/schema";
+import { ComboBox$, ComboBoxItem, type ComboBox$Ref } from ".";
 import { WithMessage } from "../message";
 
-type SelectBoxSchemaProps =
+type ComboBoxSchemaProps =
   | Schema.$String
   | Schema.$Number
   | Schema.$Boolean
   ;
 
-export interface SelectBoxRef extends SelectBox$Ref { };
+export interface ComboBoxRef extends ComboBox$Ref { };
 
-export type SelectBoxProps<D extends Schema.DataItem<SelectBoxSchemaProps>> = Overwrite<
+export type ComboBoxProps<D extends Schema.DataItem<ComboBoxSchemaProps>> = Overwrite<
   InputPropsWithDataItem<D>,
   {
     placeholder?: string;
-    emptyText?: string;
+    emptyText?: boolean | ReactNode;
     source?: Schema.Source<Schema.ValueType<D["_"]>>;
     children?: ReactNode;
   }
 >;
 
-export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
+export function ComboBox<D extends Schema.DataItem<ComboBoxSchemaProps>>({
   className,
   style,
   placeholder,
@@ -31,8 +31,8 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
   source: propsSource,
   autoFocus,
   ...$props
-}: SelectBoxProps<D>) {
-  const ref = useRef<SelectBox$Ref>(null!);
+}: ComboBoxProps<D>) {
+  const ref = useRef<ComboBox$Ref>(null!);
 
   const {
     name,
@@ -44,12 +44,12 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
     result,
     label,
     invalid,
-    errormessage,
+    // errormessage,
     env,
     getCommonParams,
     omitOnSubmit,
     hideMessage,
-  } = useSchemaItem<Schema.DataItem<SelectBoxSchemaProps>>($props, {
+  } = useSchemaItem<Schema.DataItem<ComboBoxSchemaProps>>($props, {
     effectContext: function () {
       resetDataItemSource();
     },
@@ -70,46 +70,47 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
       state={state}
       result={result}
     >
-      <SelectBox$
+      <ComboBox$
         className={className}
         style={style}
+        label={label}
         state={state}
         ref={ref}
         invalid={invalid}
         placeholder={placeholder}
         value={value}
         onChangeValue={setValue}
-        selectProps={{
-          name: omitOnSubmit ? undefined : name,
-          required,
-          "aria-label": label,
-          "aria-errormessage": errormessage,
-          autoFocus,
-        }}
+        name={omitOnSubmit ? undefined : name}
+        autoFocus={autoFocus}
       >
         {
           children ?? <>
-            <SelectBoxEmptyOption
-              required={required}
-            >
-              {emptyText}
-            </SelectBoxEmptyOption>
+            {
+              !required &&
+              <ComboBoxItem
+                value=""
+                displayValue=""
+              >
+                {emptyText}
+              </ComboBoxItem>
+            }
             {
               source?.map(item => {
                 const key = String(item.value);
                 return (
-                  <option
+                  <ComboBoxItem
                     key={key}
                     value={key}
+                    displayValue={item.text ?? ""}
                   >
                     {item.node ?? item.text}
-                  </option>
+                  </ComboBoxItem>
                 );
               })
             }
           </>
         }
-      </SelectBox$>
+      </ComboBox$>
     </WithMessage>
   );
 };
