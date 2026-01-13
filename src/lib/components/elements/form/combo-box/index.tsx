@@ -364,7 +364,10 @@ export function ComboBoxItem({
           aria-label={text}
           tabIndex={isHidden ? -1 : undefined}
           {...ctx.isControlled
-            ? { checked: ctx.value.some(v => v === valueStr) }
+            ? {
+              checked: ctx.value.some(v => v === valueStr),
+              readOnly: true,
+            }
             : { defaultChecked: ctx.value.some(v => v === valueStr) }
           }
         />}

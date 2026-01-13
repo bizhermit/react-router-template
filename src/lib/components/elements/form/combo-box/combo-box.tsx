@@ -38,7 +38,7 @@ export function ComboBox<D extends Schema.DataItem<ComboBoxSchemaProps>>({
     name,
     dataItem,
     state,
-    // required,
+    required,
     value,
     setValue,
     result,
@@ -86,7 +86,7 @@ export function ComboBox<D extends Schema.DataItem<ComboBoxSchemaProps>>({
         {
           children ?? <>
             {
-              emptyText &&
+              !required && emptyText &&
               <ComboBoxItem
                 value=""
                 displayValue=""
