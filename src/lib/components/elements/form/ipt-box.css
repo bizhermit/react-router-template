@@ -92,45 +92,47 @@
   ._ipt-combox-box {
     flex-flow: column nowrap;
 
-    &:focus-within {
-      >._ipt-btn {
-        transform: rotateX(180deg);
-      }
+    &:has(._ipt-combo-text:not(:disabled, [aria-readonly="true"])) {
+      &:focus-within {
+        >._ipt-btn {
+          transform: rotateX(180deg);
+        }
 
-      >._ipt-combo-picker {
-        z-index: 100;
-        position: fixed;
-        position-area: bottom center;
-        position-try-fallbacks: top;
-        width: anchor-size(width);
-        filter: drop-shadow(0 0 3px var(--color-shadow));
-        pointer-events: all;
-
-        >._ipt-combo-list {
-          justify-content: flex-start;
-          max-height: calc(50dvh - var(--spacing-input));
-          overflow: auto;
-          background: var(--color-input-bg);
-          padding-block: 0;
+        >._ipt-combo-picker {
+          z-index: 100;
+          position: fixed;
+          position-area: bottom center;
+          position-try-fallbacks: top;
+          width: anchor-size(width);
           filter: drop-shadow(0 0 3px var(--color-shadow));
+          pointer-events: all;
 
-          >._ipt-combo-item {
-            cursor: pointer;
-            min-height: var(--spacing-input);
-            height: unset;
+          >._ipt-combo-list {
+            justify-content: flex-start;
+            max-height: calc(50dvh - var(--spacing-input));
+            overflow: auto;
+            background: var(--color-input-bg);
+            padding-block: 0;
+            filter: drop-shadow(0 0 3px var(--color-shadow));
 
-            &[aria-hidden="true"] {
-              min-height: 0;
-              height: 0;
-            }
+            >._ipt-combo-item {
+              cursor: pointer;
+              min-height: var(--spacing-input);
+              height: unset;
 
-            &:has(input:checked) {
-              background: var(--color-active);
-            }
+              &[aria-hidden="true"] {
+                min-height: 0;
+                height: 0;
+              }
 
-            >._ipt-combo-item-label {
-              align-items: center;
-              padding-right: var(--spacing-input-pad-x);
+              &:has(input:checked) {
+                background: var(--color-active);
+              }
+
+              >._ipt-combo-item-label {
+                align-items: center;
+                padding-right: var(--spacing-input-pad-x);
+              }
             }
           }
         }

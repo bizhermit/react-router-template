@@ -120,13 +120,17 @@ export function ComboBox$({
     switch (e.key) {
       case "ArrowUp":
       case "ArrowDown":
-        e.preventDefault();
-        scrollIntoValue(true);
-        break;
-      case "Tab":
-        if (!e.shiftKey) {
+        if (state === "enabled") {
           e.preventDefault();
           scrollIntoValue(true);
+        }
+        break;
+      case "Tab":
+        if (state === "enabled") {
+          if (!e.shiftKey) {
+            e.preventDefault();
+            scrollIntoValue(true);
+          }
         }
         break;
       default:
@@ -136,7 +140,9 @@ export function ComboBox$({
   };
 
   function handleFocusText(e: FocusEvent<HTMLInputElement>) {
-    scrollIntoValue(false);
+    if (state === "enabled") {
+      scrollIntoValue(false);
+    }
     inputProps?.onFocus?.(e);
   };
 
@@ -179,6 +185,7 @@ export function ComboBox$({
         type="text"
         disabled={state === "disabled"}
         readOnly={state === "readonly" || !validScripts}
+        aria-readonly={state === "readonly"}
         aria-invalid={invalid}
         {...inputProps}
         className={clsx(
@@ -364,7 +371,7 @@ export function ComboBoxItem({
             aria-readonly={ctx.state === "readonly"}
             value={valueStr}
             aria-label={text}
-            tabIndex={isHidden ? -1 : undefined}
+            tabIndex={(isHidden || ctx.state !== "enabled") ? -1 : undefined}
             {...ctx.isControlled
               ? {
                 checked: ctx.value.some(v => v === valueStr),
