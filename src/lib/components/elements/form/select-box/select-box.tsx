@@ -102,7 +102,7 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
                     key={key}
                     value={key}
                   >
-                    {item.text}
+                    {item.node ?? item.text}
                   </option>
                 );
               })
