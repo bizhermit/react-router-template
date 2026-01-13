@@ -173,7 +173,7 @@ const schema = $schema({
     source: source,
   }),
   generation2: $num({
-    required: true,
+    // required: true,
     source: source2,
   }),
   check: $bool(),
