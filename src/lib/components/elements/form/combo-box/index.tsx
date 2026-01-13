@@ -115,12 +115,18 @@ export function ComboBox$({
         e.preventDefault();
         scrollIntoValue(true);
         break;
+      case "Tab":
+        if (!e.shiftKey) {
+          e.preventDefault();
+          scrollIntoValue(true);
+        }
+        break;
       default:
         break;
     }
   };
 
-  function handleFocusText(e: FocusEvent<HTMLInputElement>) {
+  function handleFocusText() {
     scrollIntoValue(false);
   };
 
