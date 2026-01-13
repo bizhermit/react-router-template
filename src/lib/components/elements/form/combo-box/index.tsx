@@ -380,7 +380,14 @@ export function ComboBoxItem({
               : { defaultChecked: ctx.value.some(v => v === valueStr) }
             }
           />
-
+          {
+            ctx.state !== "enabled" && ctx.name &&
+            <input
+              name={ctx.name}
+              type="hidden"
+              value={valueStr}
+            />
+          }
         </>
       }
       <div className="_ipt-combo-item-label">

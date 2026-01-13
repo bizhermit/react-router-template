@@ -94,6 +94,16 @@ const source = [
   { value: 6, text: "新無印" },
 ] as const satisfies Schema.Source<number>;
 
+const source2 = [
+  { value: 0, text: "無印" },
+  { value: 1, text: "AG" },
+  { value: 2, text: "DP" },
+  { value: 3, text: "BW" },
+  { value: 4, text: "XY" },
+  { value: 5, text: "SM" },
+  { value: 6, text: "新無印" },
+] as const satisfies Schema.Source<number>;
+
 const schema = $schema({
   text: $str({
     // required: true,
@@ -164,14 +174,7 @@ const schema = $schema({
   }),
   generation2: $num({
     required: true,
-    source: [
-      { value: 0, text: "初代" },
-      { value: 1, text: "Z" },
-      { value: 2, text: "ZZ" },
-      { value: 3, text: "逆襲のシャア" },
-      { value: 4, text: "F91" },
-      { value: 5, text: "V" },
-    ],
+    source: source2,
   }),
   check: $bool(),
   // agreement: $bool({
@@ -589,7 +592,7 @@ function Component1() {
 function FormValueSetterComponent() {
   const { dataItems } = useSchemaContext<typeof schema>();
 
-  const [value, setValue] = useSchemaValue(dataItems.sourceText);
+  const [value, setValue] = useSchemaValue(dataItems.generation2);
 
   return (
     <>
@@ -603,7 +606,7 @@ function FormValueSetterComponent() {
       <Button
         onClick={() => {
           // setValue("hoge\nfuga\npiyo\nhoge");
-          setValue("fuga");
+          setValue(2);
         }}
       >
         set hoge
@@ -650,12 +653,12 @@ function Component2() {
           onChangeValue={console.log}
           // multiple
           initValue="3"
-          placeholder="ComboBox"
+          placeholder="世代"
           style={{
             // width: 100,
           }}
         >
-          {source.map(item => {
+          {source2.map(item => {
             return (
               <ComboBoxItem
                 key={item.value}

@@ -92,8 +92,8 @@
   ._ipt-combox-box {
     flex-flow: column nowrap;
 
-    &:has(._ipt-combo-text:not(:disabled, [aria-readonly="true"])) {
-      &:focus-within {
+    &:focus-within {
+      &:has(._ipt-combo-text:not(:disabled, [aria-readonly="true"])) {
         >._ipt-btn {
           transform: rotateX(180deg);
         }
@@ -125,7 +125,7 @@
                 height: 0;
               }
 
-              &:has(input:checked) {
+              &:has(._ipt-combo-item-check:checked) {
                 background: var(--color-active);
               }
 
@@ -143,12 +143,12 @@
       >._ipt-combo-dummy {
         max-height: 0;
       }
+    }
 
-      &:has(input:checked:is([type="checkbox"], [type="radio"])) {
-        >._ipt-combo-text {
-          &::placeholder {
-            opacity: 0;
-          }
+    &:has(._ipt-combo-item-check:checked) {
+      >._ipt-combo-text {
+        &::placeholder {
+          opacity: 0;
         }
       }
     }
@@ -210,7 +210,7 @@
       border-radius: var(--radius-input);
     }
 
-    &:has(input:checked) {
+    &:has(._ipt-combo-item-check:checked) {
       height: unset;
     }
   }
