@@ -89,119 +89,6 @@
     }
   }
 
-  /* ._ipt-combo-box {
-    &:has(:popover-open) {
-      >._ipt-combo-text {
-        &:focus {
-          &~._ipt-combo-display {
-            visibility: hidden;
-          }
-        }
-      }
-
-      >._ipt-btn {
-        transform: rotateX(180deg);
-      }
-    }
-  }
-
-  ._ipt-combo-text {
-    position: absolute;
-    inset: 0;
-    padding-right: var(--spacing-input-pad-btn);
-    z-index: 1;
-  }
-
-  ._ipt-combo-display {
-    z-index: 0;
-    overflow: hidden;
-    pointer-events: none;
-    padding-inline: var(--spacing-input-pad-x) var(--spacing-input-pad-btn);
-    padding-block: var(--spacing-input-pad-y);
-    display: flex;
-    flex-flow: row wrap;
-    justify-content: flex-start;
-    align-items: center;
-    gap: 0rem 1rem;
-    max-width: 100%;
-  }
-
-  ._ipt-combo-display-item {
-    position: relative;
-
-    &+._ipt-combo-display-item {
-      &::before {
-        position: absolute;
-        content: ",";
-        width: 1rem;
-        height: 100%;
-        top: 0;
-        left: -1rem;
-      }
-    }
-  }
-
-  ._ipt-combo-popover {
-    position: fixed;
-    border-radius: var(--radius-input);
-    filter: drop-shadow(0 0 3px var(--color-shadow));
-    width: anchor-size(width);
-    position-area: bottom center;
-    position-try-fallbacks: top;
-    overflow: hidden;
-    opacity: 0;
-    transition: opacity .2s,
-      display .2s allow-discrete,
-      overlay .2s allow-discrete;
-
-    &:popover-open {
-      opacity: 1;
-
-      >._ipt-combo-list-wrapper {
-        grid-template-rows: 1fr;
-      }
-
-      @starting-style {
-        opacity: 0;
-
-        >._ipt-combo-list-wrapper {
-          grid-template-rows: 0fr;
-        }
-      }
-    }
-
-    &:not(:popover-open) {
-      &[data-js="false"] {}
-    }
-  }
-
-  ._ipt-combo-list-wrapper {
-    position: relative;
-    width: 100%;
-    height: fit-content;
-    overflow: hidden;
-    display: grid;
-    grid-template-rows: 0fr;
-    transition: grid-template-rows .2s;
-  }
-
-  ._ipt-combo-list {
-    position: relative;
-    width: 100%;
-    height: fit-content;
-    max-height: calc(50dvh - var(--spacing-input));
-    display: flex;
-    flex-flow: column nowrap;
-    justify-content: flex-start;
-    align-items: stretch;
-    background: var(--color-input-bg);
-    color: var(--color-input);
-    overflow: auto;
-    overscroll-behavior: contain;
-  }
-
-  */
-
   ._ipt-combox-box {
     flex-flow: column nowrap;
 
@@ -221,8 +108,7 @@
 
         >._ipt-combo-list {
           justify-content: flex-start;
-          /* max-height: calc(50dvh - var(--spacing-input)); */
-          max-height: 100px;
+          max-height: calc(50dvh - var(--spacing-input));
           overflow: auto;
           background: var(--color-input-bg);
           padding-block: 0;

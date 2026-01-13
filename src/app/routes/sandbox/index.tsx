@@ -13,6 +13,7 @@ import { CheckBox$ } from "$/components/elements/form/check-box";
 import { CheckBox } from "$/components/elements/form/check-box/check-box";
 import { CheckList } from "$/components/elements/form/check-box/check-list";
 import { ComboBox$, ComboBoxItem } from "$/components/elements/form/combo-box";
+import { ComboBox } from "$/components/elements/form/combo-box/combo-box";
 import { DateBox$ } from "$/components/elements/form/date-box";
 import { DateBox } from "$/components/elements/form/date-box/date-box";
 import { DateSelectBox } from "$/components/elements/form/date-box/date-select-box";
@@ -629,6 +630,11 @@ function Component2() {
         <NumberBox$ inputProps={{ placeholder: "数値", min: 0 }} />
       </FormItem>
       <FormItem>
+        <ComboBox
+          $={dataItems.generation}
+          placeholder="世代"
+          emptyText
+        />
         <ComboBox$
           onChangeValue={console.log}
           // multiple

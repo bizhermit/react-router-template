@@ -1,9 +1,9 @@
-import { createContext, use, useId, useImperativeHandle, useMemo, useRef, useState, type ChangeEvent, type FocusEvent, type HTMLAttributes, type KeyboardEvent, type ReactNode, type RefObject } from "react";
+import { createContext, use, useId, useImperativeHandle, useMemo, useRef, useState, type ChangeEvent, type FocusEvent, type HTMLAttributes, type InputHTMLAttributes, type KeyboardEvent, type ReactNode, type RefObject } from "react";
 import { containElement } from "../../../../client/dom/contain";
 import { ValidScriptsContext } from "../../../../shared/providers/valid-scripts";
 import { DownIcon } from "../../icon";
 import { clsx } from "../../utilities";
-import { InputFieldWrapper, type InputFieldWrapperProps } from "../wrapper/input-field";
+import { InputFieldWrapper, type InputFieldProps, type InputFieldWrapperProps } from "../wrapper/input-field";
 
 type AtomValueType = string | number | boolean;
 
@@ -13,20 +13,24 @@ export interface ComboBox$Ref extends InputRef {
 
 export type ComboBox$Props = Overwrite<
   InputFieldWrapperProps,
-  {
-    invalid?: boolean;
+  InputFieldProps<{
+    inputProps?: Omit<
+      InputHTMLAttributes<HTMLInputElement>,
+      InputOmitProps
+    >;
     name?: string;
     initValue?: AtomValueType | null | undefined;
     placeholder?: string;
     children?: ReactNode;
   } & (
-    | ({
-      multiple?: false;
-    } & InputValueProps<AtomValueType, string>)
-    | ({
-      multiple: true;
-    } & InputValueProps<AtomValueType[]>)
-  )
+      | ({
+        multiple?: false;
+      } & InputValueProps<AtomValueType, string>)
+      | ({
+        multiple: true;
+      } & InputValueProps<AtomValueType[]>)
+    )
+  >
 >;
 
 export interface ComboBoxContextProps {
@@ -42,11 +46,12 @@ export interface ComboBoxContextProps {
 
 const ComboBoxContext = createContext<ComboBoxContextProps | null>(null);
 
-const OPTION_SELECTOR_BASE = `label[aria-hidden="false"]`;
+const ITEM_SELECTOR_BASE = `label[aria-hidden="false"]`;
 
 export function ComboBox$({
   ref,
   invalid,
+  inputProps,
   className,
   style,
   placeholder,
@@ -54,6 +59,7 @@ export function ComboBox$({
   children,
   name,
   multiple = false,
+  autoFocus,
   defaultValue,
   initValue,
   onChangeValue,
@@ -71,8 +77,8 @@ export function ComboBox$({
 
   const arrayValue = useMemo(() => {
     if (value == null || value === "") return [];
-    if (Array.isArray(value)) return value;
-    return [value];
+    if (Array.isArray(value)) return value.map(v => String(v ?? ""));
+    return [String(value)];
   }, [value]);
 
   const [filterText, setFilterText] = useState("");
@@ -81,11 +87,11 @@ export function ComboBox$({
   const lref = useRef<HTMLDivElement>(null!);
 
   function scrollIntoValue(focus = false) {
-    let target = lref.current.querySelector(`${OPTION_SELECTOR_BASE}:has(input:checked)`) as HTMLElement | null;
+    let target = lref.current.querySelector(`${ITEM_SELECTOR_BASE}:has(input:checked)`) as HTMLElement | null;
     if (!target && initValue != null) {
-      target = lref.current.querySelector(`${OPTION_SELECTOR_BASE}:has(input[value="${initValue}"])`);
+      target = lref.current.querySelector(`${ITEM_SELECTOR_BASE}:has(input[value="${initValue}"])`);
     }
-    if (!target) target = lref.current.querySelector(OPTION_SELECTOR_BASE);
+    if (!target) target = lref.current.querySelector(ITEM_SELECTOR_BASE);
     if (!target) return;
     lref.current.scrollTop = target.offsetTop - (lref.current.offsetHeight - target.offsetHeight) / 2;
     if (focus) target.querySelector(`input`)?.focus();
@@ -106,6 +112,7 @@ export function ComboBox$({
 
   function handleChangeText(e: ChangeEvent<HTMLInputElement>) {
     setFilterText(e.currentTarget.value);
+    inputProps?.onChange?.(e);
   };
 
   function handleKeydownText(e: KeyboardEvent<HTMLInputElement>) {
@@ -124,10 +131,12 @@ export function ComboBox$({
       default:
         break;
     }
+    inputProps?.onKeyDown?.(e);
   };
 
-  function handleFocusText() {
+  function handleFocusText(e: FocusEvent<HTMLInputElement>) {
     scrollIntoValue(false);
+    inputProps?.onFocus?.(e);
   };
 
   function handleKeyDownList(e: KeyboardEvent<HTMLDivElement>) {
@@ -166,17 +175,22 @@ export function ComboBox$({
       onBlur={handleBlur}
     >
       <input
-        ref={iref}
         type="text"
         disabled={state === "disabled"}
         readOnly={state === "readonly" || !validScripts}
         aria-invalid={invalid}
-        className="_ipt-box _ipt-combo-text"
+        {...inputProps}
+        className={clsx(
+          "_ipt-box _ipt-combo-text",
+          inputProps?.className,
+        )}
+        ref={iref}
         onChange={handleChangeText}
         onKeyDown={handleKeydownText}
         onFocus={handleFocusText}
         placeholder={placeholder}
         data-validjs={validScripts}
+        autoFocus={autoFocus}
       />
       <button
         type="button"
@@ -227,7 +241,7 @@ export function ComboBox$({
   );
 };
 
-export type ComboBox$OptionProps = Overwrite<
+export type ComboBoxItemProps = Overwrite<
   HTMLAttributes<HTMLLabelElement>,
   {
     ref?: RefObject<HTMLLabelElement>;
@@ -237,11 +251,11 @@ export type ComboBox$OptionProps = Overwrite<
   } & (
     | {
       displayValue: string;
-      children: ReactNode;
+      children?: ReactNode;
     }
     | {
       displayValue?: never;
-      children: string;
+      children?: string;
     }
   )
 >;
@@ -254,8 +268,9 @@ export function ComboBoxItem({
   displayValue,
   onMovePrev,
   onMoveNext,
+  onKeyDown,
   ...props
-}: ComboBox$OptionProps) {
+}: ComboBoxItemProps) {
   const ctx = use(ComboBoxContext);
 
   const text = displayValue ?? children;
@@ -316,11 +331,14 @@ export function ComboBoxItem({
       default:
         break;
     }
+    onKeyDown?.(e);
   };
 
   useImperativeHandle(ref, () => wref.current);
 
-  const isHidden = !!ctx?.filterText && !text.includes(ctx.filterText);
+  const isHidden = !!ctx?.filterText && !text?.includes(ctx.filterText);
+
+  const valueStr = String(value ?? "");
 
   return (
     <label
@@ -342,12 +360,12 @@ export function ComboBoxItem({
           disabled={ctx.state !== "enabled"}
           aria-disabled={ctx.state === "disabled"}
           aria-readonly={ctx.state === "readonly"}
-          value={String(value ?? "")}
+          value={valueStr}
           aria-label={text}
           tabIndex={isHidden ? -1 : undefined}
           {...ctx.isControlled
-            ? { checked: ctx.value.some(v => v === value) }
-            : { defaultChecked: ctx.value.some(v => v === value) }
+            ? { checked: ctx.value.some(v => v === valueStr) }
+            : { defaultChecked: ctx.value.some(v => v === valueStr) }
           }
         />}
       <div className="_ipt-combo-item-label">
