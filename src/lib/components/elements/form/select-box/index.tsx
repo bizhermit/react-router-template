@@ -1,5 +1,4 @@
-import { use, useImperativeHandle, useRef, type ChangeEvent, type ReactNode, type SelectHTMLAttributes } from "react";
-import { ValidScriptsContext } from "../../../../shared/providers/valid-scripts";
+import { useImperativeHandle, useRef, type ChangeEvent, type ReactNode, type SelectHTMLAttributes } from "react";
 import { DownIcon } from "../../icon";
 import { clsx, ZERO_WIDTH_SPACE } from "../../utilities";
 import { InputDummyFocus } from "../dummy-focus";
@@ -33,8 +32,6 @@ export function SelectBox$({
   onChangeValue,
   ...props
 }: SelectBox$Props) {
-  const validScripts = use(ValidScriptsContext).valid;
-
   const isControlled = "value" in props;
   const { value, ...wrapperProps } = props;
 
