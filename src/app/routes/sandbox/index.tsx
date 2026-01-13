@@ -12,7 +12,7 @@ import { Dialog, useDialog } from "$/components/elements/dialog";
 import { CheckBox$ } from "$/components/elements/form/check-box";
 import { CheckBox } from "$/components/elements/form/check-box/check-box";
 import { CheckList } from "$/components/elements/form/check-box/check-list";
-import { ComboBox$, ComboBox$Item } from "$/components/elements/form/combo-box";
+import { ComboBox$, ComboBoxItem } from "$/components/elements/form/combo-box";
 import { DateBox$ } from "$/components/elements/form/date-box";
 import { DateBox } from "$/components/elements/form/date-box/date-box";
 import { DateSelectBox } from "$/components/elements/form/date-box/date-select-box";
@@ -631,7 +631,7 @@ function Component2() {
       <FormItem>
         <ComboBox$
           onChangeValue={console.log}
-          multiple
+          // multiple
           initValue="3"
           placeholder="ComboBox"
           style={{
@@ -640,13 +640,13 @@ function Component2() {
         >
           {source.map(item => {
             return (
-              <ComboBox$Item
+              <ComboBoxItem
                 key={item.value}
                 value={item.value}
                 displayValue={item.text}
               >
                 {item.text}
-              </ComboBox$Item>
+              </ComboBoxItem>
             );
           })}
         </ComboBox$>

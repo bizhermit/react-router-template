@@ -1,4 +1,5 @@
-import { createContext, use, useId, useImperativeHandle, useMemo, useRef, useState, type ChangeEvent, type HTMLAttributes, type KeyboardEvent, type ReactNode, type RefObject } from "react";
+import { createContext, use, useId, useImperativeHandle, useMemo, useRef, useState, type ChangeEvent, type FocusEvent, type HTMLAttributes, type KeyboardEvent, type ReactNode, type RefObject } from "react";
+import { containElement } from "../../../../client/dom/contain";
 import { ValidScriptsContext } from "../../../../shared/providers/valid-scripts";
 import { DownIcon } from "../../icon";
 import { clsx } from "../../utilities";
@@ -39,7 +40,9 @@ export interface ComboBoxContextProps {
   change: () => void;
 };
 
-const SelectBoxContext = createContext<ComboBoxContextProps | null>(null);
+const ComboBoxContext = createContext<ComboBoxContextProps | null>(null);
+
+const OPTION_SELECTOR_BASE = `label[aria-hidden="false"]`;
 
 export function ComboBox$({
   ref,
@@ -53,9 +56,8 @@ export function ComboBox$({
   multiple = false,
   defaultValue,
   initValue,
-  onChange,
-  onKeyDown,
   onChangeValue,
+  onBlur,
   ...props
 }: ComboBox$Props) {
   const validScripts = use(ValidScriptsContext).valid;
@@ -79,11 +81,11 @@ export function ComboBox$({
   const lref = useRef<HTMLDivElement>(null!);
 
   function scrollIntoValue(focus = false) {
-    let target = lref.current.querySelector(`label[aria-hidden="false"]:has(input:checked)`) as HTMLElement | null;
+    let target = lref.current.querySelector(`${OPTION_SELECTOR_BASE}:has(input:checked)`) as HTMLElement | null;
     if (!target && initValue != null) {
-      target = lref.current.querySelector(`label[aria-hidden="false"]:has(input[value="${initValue}"])`);
+      target = lref.current.querySelector(`${OPTION_SELECTOR_BASE}:has(input[value="${initValue}"])`);
     }
-    if (!target) lref.current.querySelector(`label[aria-hidden="true"]:has(input)`);
+    if (!target) target = lref.current.querySelector(OPTION_SELECTOR_BASE);
     if (!target) return;
     lref.current.scrollTop = target.offsetTop - (lref.current.offsetHeight - target.offsetHeight) / 2;
     if (focus) target.querySelector(`input`)?.focus();
@@ -118,6 +120,10 @@ export function ComboBox$({
     }
   };
 
+  function handleFocusText(e: FocusEvent<HTMLInputElement>) {
+    scrollIntoValue(false);
+  };
+
   function handleKeyDownList(e: KeyboardEvent<HTMLDivElement>) {
     switch (e.key) {
       case "Escape":
@@ -126,7 +132,18 @@ export function ComboBox$({
       default:
         break;
     }
-  }
+  };
+
+  function handleBlur(e: FocusEvent<HTMLDivElement>) {
+    const target = e.relatedTarget;
+    if (
+      target == null ||
+      !(target === iref.current || containElement(lref.current, target))
+    ) {
+      setFilterText(iref.current.value = "");
+    }
+    onBlur?.(e);
+  };
 
   return (
     <InputFieldWrapper
@@ -140,6 +157,7 @@ export function ComboBox$({
         anchorName: `--${popoverId}`,
       }}
       state={state}
+      onBlur={handleBlur}
     >
       <input
         ref={iref}
@@ -150,6 +168,7 @@ export function ComboBox$({
         className="_ipt-box _ipt-combo-text"
         onChange={handleChangeText}
         onKeyDown={handleKeydownText}
+        onFocus={handleFocusText}
         placeholder={placeholder}
         data-validjs={validScripts}
       />
@@ -182,7 +201,7 @@ export function ComboBox$({
           onChange={handleChange}
           onKeyDown={handleKeyDownList}
         >
-          <SelectBoxContext
+          <ComboBoxContext
             value={{
               name: $name,
               popoverId,
@@ -191,292 +210,15 @@ export function ComboBox$({
               value: arrayValue,
               isControlled,
               filterText,
-              change: () => { },
+              change: handleChange,
             }}
           >
             {children}
-          </SelectBoxContext>
+          </ComboBoxContext>
         </div>
       </div>
     </InputFieldWrapper>
   );
-
-  // const wref = useRef<HTMLDivElement>(null!);
-  // const iref = useRef<HTMLInputElement>(null!);
-  // const dref = useRef<HTMLDivElement>(null!);
-  // const lref = useRef<HTMLDivElement>(null!);
-
-  // const [filterText, setFilterText] = useState("");
-  // const [selectedItems, setSelectedItems] = useState<{ value: string; label: string; }[]>([]);
-
-  // const id = useId();
-  // const $name = name || id;
-  // const popoverId = `${$name}_picker`;
-
-  // function scrollToInitValue() {
-  //   if (initValue == null) return;
-  //   if (lref.current.querySelector(`input:checked`)) return;
-  //   const iv = String(initValue ?? "");
-  //   const target = lref.current.querySelector(`input[value="${iv}"]`) as HTMLElement | null;
-  //   if (!target) return;
-  //   lref.current.scrollTop = target.offsetTop - (lref.current.offsetHeight - target.offsetHeight) / 2;
-  // };
-
-  // function focusComboListItem() {
-  //   let target = lref.current.querySelector(`label[aria-hidden="false"]:has(input:checked)`);
-  //   if (!target && initValue != null) {
-  //     target = lref.current.querySelector(`label[aria-hidden="false"]:has(input[value="${initValue}"])`);
-  //   }
-  //   if (!target) target = lref.current.querySelector(`label[aria-hidden="false"]:has(input)`);
-  //   if (!target) return;
-  //   (target as HTMLLabelElement).focus();
-  // };
-
-  // function selectByText(text: string) {
-  //   if (state !== "enabled") return;
-  //   if (multiple) return;
-  //   if (text == null || text === "") return;
-  //   const elems = Array.from(lref.current.querySelectorAll(`label[aria-hidden="false"]`));
-  //   if (elems.length !== 1) return;
-  //   const elem = elems[0].querySelector("input") as HTMLInputElement | null;
-  //   if (!elem) return;
-  //   if (elem.getAttribute("aria-label") !== text) return;
-  //   elem.checked = true;
-  //   change(false);
-  // }
-
-  // const showPopover = useCallback(() => {
-  //   dref.current.showPopover();
-  // }, []);
-
-  // const hidePopover = useCallback(() => {
-  //   dref.current.hidePopover();
-  // }, []);
-
-  // function change(focus = true) {
-  //   if (state !== "enabled") return;
-  //   if (multiple) {
-  //     const elems = Array.from(dref.current.querySelectorAll(`input:checked`)) as HTMLInputElement[];
-  //     (onChangeValue as (v: string[]) => void | undefined)?.(
-  //       elems.map(elem => {
-  //         return (elem as HTMLInputElement).value;
-  //       })
-  //     );
-  //     setSelectedItems(
-  //       elems.map(elem => {
-  //         return {
-  //           value: elem.value || "",
-  //           label: elem.getAttribute("aria-label") || "",
-  //         };
-  //       }).filter(item => !(item.value == null || item.value === ""))
-  //     );
-  //   } else {
-  //     const checkedElem = dref.current.querySelector(`input:checked`) as (HTMLInputElement | null);
-  //     const v = checkedElem?.value || "";
-  //     const label = checkedElem?.getAttribute("aria-label") || "";
-  //     iref.current.value = label;
-  //     (onChangeValue as (v: string) => void | undefined)?.(v);
-  //     setSelectedItems((v == null || v === "") ? [] : [{ value: v, label }]);
-  //     if (focus) iref.current.focus();
-  //     hidePopover();
-  //   }
-  // };
-
-  // function handleChange(e: ChangeEvent<HTMLDivElement>) {
-  //   change();
-  //   onChange?.(e);
-  // };
-
-  // function handleKeyDown(e: KeyboardEvent<HTMLDivElement>) {
-  //   switch (e.key) {
-  //     case "Escape":
-  //       iref.current.focus();
-  //       setFilterText("");
-  //       hidePopover();
-  //       break;
-  //     default:
-  //       break;
-  //   }
-  //   onKeyDown?.(e);
-  // };
-
-  // function handleChangeText(e: ChangeEvent<HTMLInputElement>) {
-  //   e.stopPropagation();
-  //   setFilterText(e.currentTarget.value || "");
-  //   showPopover();
-  // };
-
-  // function handleFocusText() {
-  //   if (state === "enabled") {
-  //     showPopover();
-  //   }
-  // };
-
-  // function handleMouseDownText() {
-  //   if (state === "enabled") {
-  //     showPopover();
-  //   }
-  // };
-
-  // function handleKeyDownText(e: KeyboardEvent<HTMLInputElement>) {
-  //   switch (e.key) {
-  //     case "Tab":
-  //       hidePopover();
-  //       break;
-  //     case "F2":
-  //     case "ArrowUp":
-  //     case "ArrowDown":
-  //       e.preventDefault();
-  //       showPopover();
-  //       focusComboListItem();
-  //       break;
-  //     case "Enter":
-  //       selectByText(filterText);
-  //       break;
-  //     default:
-  //       break;
-  //   }
-  // };
-
-  // function handleScroll(e: UIEvent) {
-  //   e.stopPropagation();
-  // };
-
-  // const windowClickEventListener = useCallback((e: MouseEvent) => {
-  //   if (containElement(wref.current, e.target as Element)) return;
-  //   hidePopover();
-  // }, []);
-
-  // function removePopoveredEvents() {
-  //   window.removeEventListener("scroll", hidePopover);
-  //   window.removeEventListener("click", windowClickEventListener);
-  // };
-
-  // function handleToggle(e: ToggleEvent) {
-  //   if (e.newState === "open") {
-  //     iref.current.focus();
-  //     scrollToInitValue();
-  //     window.addEventListener("scroll", hidePopover, { once: true });
-  //     window.addEventListener("click", windowClickEventListener);
-  //   } else {
-  //     if (multiple) {
-  //       iref.current.value = "";
-  //     } else {
-  //       iref.current.value = selectedItems[0]?.label || "";
-  //     }
-  //     selectByText(filterText);
-  //     setFilterText("");
-  //     removePopoveredEvents();
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   return () => {
-  //     removePopoveredEvents();
-  //   };
-  // }, []);
-
-  // return (
-  //   <InputFieldWrapper
-  //     {...wrapperProps}
-  //     className={clsx(
-  //       "_ipt-combo-box",
-  //       className,
-  //     )}
-  //     style={{
-  //       ...style,
-  //       anchorName: `--${popoverId}`,
-  //     }}
-  //     ref={wref}
-  //     state={state}
-  //     onChange={handleChange}
-  //     onKeyDown={handleKeyDown}
-  //   >
-  //     <input
-  //       type="text"
-  //       disabled={state === "disabled"}
-  //       readOnly={state === "readonly" || !validScripts}
-  //       aria-invalid={invalid}
-  //       ref={iref}
-  //       className="_ipt-box _ipt-combo-text"
-  //       onChange={handleChangeText}
-  //       onFocus={handleFocusText}
-  //       onMouseDown={handleMouseDownText}
-  //       onKeyDown={handleKeyDownText}
-  //       popoverTarget={popoverId}
-  //       placeholder={selectedItems.length > 0 ? undefined : placeholder}
-  //     />
-  //     {
-  //       validScripts && multiple &&
-  //       <ol className="_ipt-combo-display">
-  //         {
-  //           selectedItems.map(item => {
-  //             return (
-  //               <div
-  //                 key={item.value}
-  //                 className="_ipt-combo-display-item"
-  //               >
-  //                 {item.label}
-  //               </div>
-  //             );
-  //           })
-  //         }
-  //       </ol>
-  //     }
-  //     <button
-  //       type="button"
-  //       className={clsx(
-  //         "_ipt-combo-btn",
-  //         state !== "enabled" && "opacity-0"
-  //       )}
-  //       disabled={state !== "enabled"}
-  //       tabIndex={validScripts ? -1 : undefined}
-  //       popoverTarget={popoverId}
-  //       data-js={validScripts}
-  //     >
-  //       <div
-  //         className="_ipt-btn"
-  //       >
-  //         <DownIcon />
-  //       </div>
-  //     </button>
-  //     <SelectBoxContext
-  //       value={{
-  //         name: $name,
-  //         popoverId,
-  //         multiple,
-  //         state,
-  //         value: arrayValue,
-  //         isControlled,
-  //         filterText,
-  //         change,
-  //       }}
-  //     >
-  //       <div
-  //         popover={validScripts ? "manual" : "auto"}
-  //         id={popoverId}
-  //         ref={dref}
-  //         className="_ipt-combo-popover"
-  //         style={{
-  //           positionAnchor: `--${popoverId}`,
-  //         }}
-  //         onToggle={handleToggle}
-  //         onClick={e => e.stopPropagation()}
-  //         data-js={validScripts}
-  //       >
-  //         <div className="_ipt-combo-list-wrapper">
-  //           <div
-  //             ref={lref}
-  //             className="_ipt-combo-list"
-  //             onScroll={handleScroll}
-  //           >
-  //             {children}
-  //           </div>
-  //         </div>
-  //       </div>
-  //     </SelectBoxContext>
-  //   </InputFieldWrapper>
-  // );
 };
 
 export type ComboBox$OptionProps = Overwrite<
@@ -498,7 +240,7 @@ export type ComboBox$OptionProps = Overwrite<
   )
 >;
 
-export function ComboBox$Item({
+export function ComboBoxItem({
   ref,
   value,
   className,
@@ -508,7 +250,7 @@ export function ComboBox$Item({
   onMoveNext,
   ...props
 }: ComboBox$OptionProps) {
-  const ctx = use(SelectBoxContext);
+  const ctx = use(ComboBoxContext);
 
   const text = displayValue ?? children;
 
@@ -549,7 +291,6 @@ export function ComboBox$Item({
 
   function handleKeydown(e: KeyboardEvent<HTMLLabelElement>) {
     switch (e.key) {
-      case " ":
       case "Enter": {
         e.preventDefault();
         iref.current.checked = ctx?.multiple ? !iref.current.checked : true;
@@ -565,11 +306,6 @@ export function ComboBox$Item({
         e.preventDefault();
         e.stopPropagation();
         moveNextItem();
-        break;
-      case "Tab":
-        // e.preventDefault();
-        // if (e.shiftKey) movePrevItem();
-        // else moveNextItem();
         break;
       default:
         break;
@@ -588,7 +324,7 @@ export function ComboBox$Item({
         "_ipt-combo-item",
         className,
       )}
-      aria-hidden={isHidden || !ctx}
+      aria-hidden={isHidden}
       onKeyDown={handleKeydown}
     >
       {ctx &&
@@ -602,6 +338,7 @@ export function ComboBox$Item({
           aria-readonly={ctx.state === "readonly"}
           value={String(value ?? "")}
           aria-label={text}
+          tabIndex={isHidden ? -1 : undefined}
           {...ctx.isControlled
             ? { checked: ctx.value.some(v => v === value) }
             : { defaultChecked: ctx.value.some(v => v === value) }
