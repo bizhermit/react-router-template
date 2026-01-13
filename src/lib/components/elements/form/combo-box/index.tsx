@@ -47,6 +47,7 @@ export interface ComboBoxContextProps {
 const ComboBoxContext = createContext<ComboBoxContextProps | null>(null);
 
 const ITEM_SELECTOR_BASE = `label[aria-hidden="false"]`;
+const CHECK_INPUT_SELECTOR_BASE = `input:is([type="checkbox"],[type="radio"])`;
 
 export function ComboBox$({
   ref,
@@ -87,24 +88,24 @@ export function ComboBox$({
   const lref = useRef<HTMLDivElement>(null!);
 
   function scrollIntoValue(focus = false) {
-    let target = lref.current.querySelector(`${ITEM_SELECTOR_BASE}:has(input:checked)`) as HTMLElement | null;
+    let target = lref.current.querySelector(`${ITEM_SELECTOR_BASE}:has(${CHECK_INPUT_SELECTOR_BASE}:checked)`) as HTMLElement | null;
     if (!target && initValue != null) {
-      target = lref.current.querySelector(`${ITEM_SELECTOR_BASE}:has(input[value="${initValue}"])`);
+      target = lref.current.querySelector(`${ITEM_SELECTOR_BASE}:has(${CHECK_INPUT_SELECTOR_BASE}[value="${initValue}"])`);
     }
     if (!target) target = lref.current.querySelector(ITEM_SELECTOR_BASE);
     if (!target) return;
     lref.current.scrollTop = target.offsetTop - (lref.current.offsetHeight - target.offsetHeight) / 2;
-    if (focus) target.querySelector(`input`)?.focus();
+    if (focus) (target.querySelector(CHECK_INPUT_SELECTOR_BASE) as HTMLInputElement | null)?.focus();
   }
 
   function handleChange() {
     if (state !== "enabled") return;
     if (multiple) {
-      const elems = Array.from(lref.current.querySelectorAll(`input:checked`)) as HTMLInputElement[];
+      const elems = Array.from(lref.current.querySelectorAll(`${CHECK_INPUT_SELECTOR_BASE}:checked`)) as HTMLInputElement[];
       const vals = elems.map(elem => elem.value).filter(v => !(v == null || v === ""));
       (onChangeValue as ((v: string[]) => void) | undefined)?.(vals);
     } else {
-      const elem = lref.current.querySelector(`input:checked`) as HTMLInputElement | null;
+      const elem = lref.current.querySelector(`${CHECK_INPUT_SELECTOR_BASE}:checked`) as HTMLInputElement | null;
       const val = elem?.value || "";
       (onChangeValue as ((v: string) => void) | undefined)?.(val);
     }
@@ -351,26 +352,30 @@ export function ComboBoxItem({
       aria-hidden={isHidden}
       onKeyDown={handleKeydown}
     >
-      {ctx &&
-        <input
-          ref={iref}
-          className="_ipt-combo-item-check"
-          name={ctx.name ?? undefined}
-          type={ctx.multiple ? "checkbox" : "radio"}
-          disabled={ctx.state !== "enabled"}
-          aria-disabled={ctx.state === "disabled"}
-          aria-readonly={ctx.state === "readonly"}
-          value={valueStr}
-          aria-label={text}
-          tabIndex={isHidden ? -1 : undefined}
-          {...ctx.isControlled
-            ? {
-              checked: ctx.value.some(v => v === valueStr),
-              readOnly: true,
+      {
+        ctx && <>
+          <input
+            ref={iref}
+            className="_ipt-combo-item-check"
+            name={ctx.name ?? undefined}
+            type={ctx.multiple ? "checkbox" : "radio"}
+            disabled={ctx.state !== "enabled"}
+            aria-disabled={ctx.state === "disabled"}
+            aria-readonly={ctx.state === "readonly"}
+            value={valueStr}
+            aria-label={text}
+            tabIndex={isHidden ? -1 : undefined}
+            {...ctx.isControlled
+              ? {
+                checked: ctx.value.some(v => v === valueStr),
+                readOnly: true,
+              }
+              : { defaultChecked: ctx.value.some(v => v === valueStr) }
             }
-            : { defaultChecked: ctx.value.some(v => v === valueStr) }
-          }
-        />}
+          />
+
+        </>
+      }
       <div className="_ipt-combo-item-label">
         {children}
       </div>

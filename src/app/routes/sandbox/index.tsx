@@ -162,6 +162,17 @@ const schema = $schema({
   generation: $num({
     source: source,
   }),
+  generation2: $num({
+    required: true,
+    source: [
+      { value: 0, text: "初代" },
+      { value: 1, text: "Z" },
+      { value: 2, text: "ZZ" },
+      { value: 3, text: "逆襲のシャア" },
+      { value: 4, text: "F91" },
+      { value: 5, text: "V" },
+    ],
+  }),
   check: $bool(),
   // agreement: $bool({
   //   required: true,
@@ -631,7 +642,7 @@ function Component2() {
       </FormItem>
       <FormItem>
         <ComboBox
-          $={dataItems.generation}
+          $={dataItems.generation2}
           placeholder="世代"
           emptyText
         />

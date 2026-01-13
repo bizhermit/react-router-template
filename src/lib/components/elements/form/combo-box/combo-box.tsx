@@ -113,4 +113,4 @@ export function ComboBox<D extends Schema.DataItem<ComboBoxSchemaProps>>({
       </ComboBox$>
     </WithMessage>
   );
-}
+};
