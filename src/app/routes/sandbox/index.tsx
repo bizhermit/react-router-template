@@ -654,8 +654,9 @@ function Component2() {
           // multiple
           initValue="3"
           placeholder="世代"
+          manualWidth
           style={{
-            // width: 100,
+            width: 100,
           }}
         >
           {source2.map(item => {

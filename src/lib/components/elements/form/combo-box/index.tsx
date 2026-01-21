@@ -20,6 +20,7 @@ export type ComboBox$Props = Overwrite<
     >;
     name?: string;
     initValue?: AtomValueType | null | undefined;
+    manualWidth?: boolean;
     placeholder?: string;
     children?: ReactNode;
   } & (
@@ -63,6 +64,7 @@ export function ComboBox$({
   autoFocus,
   defaultValue,
   initValue,
+  manualWidth,
   onChangeValue,
   onBlur,
   ...props
@@ -210,12 +212,15 @@ export function ComboBox$({
       >
         <DownIcon />
       </button>
-      <div
-        className="_ipt-combo-dummy"
-        aria-hidden
-      >
-        {children}
-      </div>
+      {
+        !manualWidth &&
+        <div
+          className="_ipt-combo-dummy"
+          aria-hidden
+        >
+          {children}
+        </div>
+      }
       <div
         className="_ipt-combo-picker"
         style={{

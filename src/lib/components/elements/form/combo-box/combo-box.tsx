@@ -16,6 +16,7 @@ export type ComboBoxProps<D extends Schema.DataItem<ComboBoxSchemaProps>> = Over
   InputPropsWithDataItem<D>,
   {
     placeholder?: string;
+    manualWidth?: boolean;
     emptyText?: boolean | ReactNode;
     source?: Schema.Source<Schema.ValueType<D["_"]>>;
     children?: ReactNode;
@@ -26,6 +27,7 @@ export function ComboBox<D extends Schema.DataItem<ComboBoxSchemaProps>>({
   className,
   style,
   placeholder,
+  manualWidth,
   emptyText,
   children,
   source: propsSource,
@@ -78,6 +80,7 @@ export function ComboBox<D extends Schema.DataItem<ComboBoxSchemaProps>>({
         ref={ref}
         invalid={invalid}
         placeholder={placeholder}
+        manualWidth={manualWidth}
         value={value}
         onChangeValue={setValue}
         name={omitOnSubmit ? undefined : name}
