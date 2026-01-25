@@ -34,7 +34,7 @@
 
 - ある程度の塊となるコンポーネント
 - 複数の機能の連携やレイアウトの調整をする
-- 例：`Section`, `Form`（スキーマあり）, `Table`（データ型あり）
+- 例：`Section`, `Table`（データ型あり）
 
 #### Pages
 
@@ -42,6 +42,10 @@
 - `src/app/routes/`フォルダ内に作成する
 - エンドポイントに表示される画面単位
 - 画面上で保持するデータの管理をする
+- ReactRouterに依存する
+  - URL（パスパラメータ、クエリパラメータ）を`props`を通さず直接参照
+  - loaderの値を`props`を通さず直接参照
+  - Formアクション
 - 必要であればModulesやElementsにコンポーネントを切り出す
   - 1ファイルあたりの記述量が増えた場合（500行／3コンポーネント超えあたりが目安）
   - 他コンポーネントでも使いまわす場合
@@ -136,7 +140,7 @@ export function HogeFuga(props: HogeFuga) {
 
 - [TailwindCSS](https://tailwindcss.com/)を使用する
 - 使用頻度が高いコンポーネント（ボタン等）や、TailwindCSSでは実装が難しい場合はクラスの定義を検討する
-  - 使用頻度が高い共通部品はcssファイルを作成し、`src/app/lib(features)/global.css`に記述またはインポートする（グローバルスタイル化）
+  - 使用頻度が高い共通部品（＝基盤）はcssファイルを作成し、`src/app/lib(features)/global.css`に記述またはインポートする（グローバルスタイル化）
   - エッジケースは[CSS Modules](https://github.com/css-modules/css-modules?tab=readme-ov-file)を使用する
   
 ### CSSファイル命名規則
@@ -147,7 +151,7 @@ export function HogeFuga(props: HogeFuga) {
 ### 変数
 
 - TailwindCSSのユーティリティの拡張および、スタイル
-- [global.css](../../app/global.css)の`@theme`に追加する
+- [global.css](../../src/lib/components/global.css)の`@theme`に追加する
 
 ### クラス名
 

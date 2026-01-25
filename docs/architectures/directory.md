@@ -52,14 +52,12 @@ src/lib/
 │   ├── modules/     # モジュール
 │   ...
 ├── server/        # サーバーサイド用
-│   ├── auth/        # 認証
 │   ├── database/    # データベース
 │   ├── http/        # http
 │   ├── i18n/        # i18n
 │   ...
 └── shared/        # クライアントサイド／サーバーサイド両対応
     ├── api-docs/    # api-doc
-    ├── auth/        # 認証
     ├── fetch/       # fetch
     ├── hooks/       # react-hook
     ├── i18n/        # i18n

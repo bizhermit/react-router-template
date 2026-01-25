@@ -1,0 +1,53 @@
+services:
+  app:
+    image: template-app
+    build:
+      context: ../
+      dockerfile: .container/docker/node/Dockerfile
+    ports:
+      - "${PORT:-3000}:${PORT:-3000}"
+    environment:
+      WAITFOR: "${DATABASE_HOST:-postgres}:${POSTGRES_PORT:-5432}"
+      MIGRATE: "${MIGRATE:-true}"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - default
+
+  postgres:
+    restart: always
+    user: postgres
+    volumes:
+      - "postgres:/var/lib/postgresql/data"
+      - "../database/postgres/init:/docker-entrypoint-initdb.d"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    security_opt:
+      - "no-new-privileges:true"
+    cap_drop: ["ALL"]
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    command: >
+      postgres
+      -c "port=${POSTGRES_PORT:-5432}"
+      -c "log_destination=stderr"
+      -c "log_min_messages=${POSTGRES_LOG_LEVEL:-FATAL}"
+      -c "log_connections=off"
+      -c "log_disconnections=off"
+      -c "log_statement=none"
+    networks:
+      - default
+
+networks:
+  default:
+    driver: "bridge"
+
+volumes:
+  postgres:

@@ -10,13 +10,13 @@ import { ServerRouter, type AppLoadContext, type EntryContext } from "react-rout
 import { PassThrough } from "stream";
 import { setPageResponseHeaders } from "~/auth/server/http/page-headers";
 
-const isDev = process.env.NODE_ENV === "development";
-const isTest = process.env.NODE_ENV === "test";
+const IS_DEV = process.env.NODE_ENV === "development";
+const IS_TEST = import.meta.env.MODE === "test";
 
 const ABORT_DELAY = 5000;
 
 const showRenderError = (error: unknown) => {
-  if (isDev || isTest) {
+  if (IS_DEV || IS_TEST) {
     console.error("Render error:", error);
   } else {
     console.error("Render error occurred");

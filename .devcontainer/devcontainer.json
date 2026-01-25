@@ -1,6 +1,9 @@
 {
   "name": "template-dev",
-  "dockerComposeFile": "docker-compose.yml",
+  "dockerComposeFile": [
+    "../docker/compose.base.yml",
+    "../docker/compose.dev.yml"
+  ],
   "service": "app",
   "workspaceFolder": "/workspace",
   "initializeCommand": "bash ./.devcontainer/initializeCommand.sh",

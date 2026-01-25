@@ -3,12 +3,11 @@
 /.temp
 
 /.vscode/settings.json
-/.container/.env
-/.devcontainer/.env
 
 /.react-router/
 /build/
-/.env*.local
+/docker/.env*
+!/docker/.env.example
 /.drizzle
 /.playwright
 /playwright-report

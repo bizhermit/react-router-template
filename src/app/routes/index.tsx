@@ -1,5 +1,5 @@
 import { Link } from "$/components/elements/link";
-import { SIGN_IN_PATHNAME } from "$/shared/auth/consts";
+import { SIGN_IN_PATHNAME } from "~/auth/shared/consts";
 
 export default function Page() {
   return (

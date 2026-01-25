@@ -12,6 +12,8 @@ import { Dialog, useDialog } from "$/components/elements/dialog";
 import { CheckBox$ } from "$/components/elements/form/check-box";
 import { CheckBox } from "$/components/elements/form/check-box/check-box";
 import { CheckList } from "$/components/elements/form/check-box/check-list";
+import { ComboBox$, ComboBoxItem } from "$/components/elements/form/combo-box";
+import { ComboBox } from "$/components/elements/form/combo-box/combo-box";
 import { DateBox$ } from "$/components/elements/form/date-box";
 import { DateBox } from "$/components/elements/form/date-box/date-box";
 import { DateSelectBox } from "$/components/elements/form/date-box/date-select-box";
@@ -39,7 +41,6 @@ import { LoadingBar } from "$/components/elements/loading";
 import { $alert, $confirm, $toast } from "$/components/elements/message-box";
 import { NavLayout, useNavLayout } from "$/components/elements/nav-layout";
 import { clsx } from "$/components/elements/utilities";
-import { auth } from "$/server/auth/auth";
 import { useAbortController } from "$/shared/hooks/abort-controller";
 import { useLocale, useText } from "$/shared/hooks/i18n";
 import { usePageExitPropmt } from "$/shared/hooks/page-exit-prompt";
@@ -61,6 +62,7 @@ import sleep from "$/shared/timing/sleep";
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { data, useFetcher } from "react-router";
 import { api } from "~/api/shared/internal";
+import { auth } from "~/auth/server/auth";
 import type { Route } from "./+types";
 
 const text = $str(
@@ -83,6 +85,16 @@ const birth = $date({
 });
 
 const source = [
+  { value: 0, text: "無印" },
+  { value: 1, text: "AG" },
+  { value: 2, text: "DP" },
+  { value: 3, text: "BW" },
+  { value: 4, text: "XY" },
+  { value: 5, text: "SM" },
+  { value: 6, text: "新無印" },
+] as const satisfies Schema.Source<number>;
+
+const source2 = [
   { value: 0, text: "無印" },
   { value: 1, text: "AG" },
   { value: 2, text: "DP" },
@@ -136,6 +148,7 @@ const schema = $schema({
     ] as const,
   }),
   count: $num({
+    required: true,
     sourceValidation: false,
     source: [
       { value: 10, text: "10歳" },
@@ -158,6 +171,10 @@ const schema = $schema({
   }),
   generation: $num({
     source: source,
+  }),
+  generation2: $num({
+    // required: true,
+    source: source2,
   }),
   check: $bool(),
   // agreement: $bool({
@@ -575,7 +592,7 @@ function Component1() {
 function FormValueSetterComponent() {
   const { dataItems } = useSchemaContext<typeof schema>();
 
-  const [value, setValue] = useSchemaValue(dataItems.sourceText);
+  const [value, setValue] = useSchemaValue(dataItems.generation2);
 
   return (
     <>
@@ -589,7 +606,7 @@ function FormValueSetterComponent() {
       <Button
         onClick={() => {
           // setValue("hoge\nfuga\npiyo\nhoge");
-          setValue("fuga");
+          setValue(2);
         }}
       >
         set hoge
@@ -625,6 +642,35 @@ function Component2() {
           placeholder="数値"
         />
         <NumberBox$ inputProps={{ placeholder: "数値", min: 0 }} />
+      </FormItem>
+      <FormItem>
+        <ComboBox
+          $={dataItems.generation2}
+          placeholder="世代"
+          emptyText
+        />
+        <ComboBox$
+          onChangeValue={console.log}
+          // multiple
+          initValue="3"
+          placeholder="世代"
+          manualWidth
+          style={{
+            width: 100,
+          }}
+        >
+          {source2.map(item => {
+            return (
+              <ComboBoxItem
+                key={item.value}
+                value={item.value}
+                displayValue={item.text}
+              >
+                {item.text}
+              </ComboBoxItem>
+            );
+          })}
+        </ComboBox$>
       </FormItem>
       <FormItem>
         <SelectBox

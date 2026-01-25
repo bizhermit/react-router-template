@@ -1,13 +1,18 @@
 import { defineConfig, devices } from "@playwright/test";
+import path from "node:path";
 import { loadEnv } from "vite";
 
-const isDev = (process.env.NODE_ENV || "").startsWith("dev");
+const MODE = process.env.NODE_ENV || "production";
 
-const env = loadEnv(isDev ? "development" : "production", process.cwd(), "");
+const ENV = loadEnv(
+  MODE,
+  path.join(process.cwd(), "docker"),
+  ""
+);
 
-const webServerUrl = `http://localhost:${isDev ?
-  (env.DEV_PORT || process.env.DEV_PORT || 5173) :
-  (env.PORT || process.env.PORT || 3000)}`;
+const webServerUrl = `http://localhost:${MODE.startsWith("dev") ?
+  (ENV.DEV_PORT || process.env.DEV_PORT || 5173) :
+  (ENV.PORT || process.env.PORT || 3000)}`;
 
 const viewports = {
   pc: {

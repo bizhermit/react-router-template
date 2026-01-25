@@ -1,4 +1,4 @@
-import { use, useImperativeHandle, useMemo, useRef, useState, type ChangeEvent, type CompositionEvent, type FocusEvent, type InputHTMLAttributes, type KeyboardEvent, type PointerEvent, type ReactNode } from "react";
+import { use, useImperativeHandle, useMemo, useRef, useState, type ChangeEvent, type FocusEvent, type InputHTMLAttributes, type KeyboardEvent, type PointerEvent, type ReactNode } from "react";
 import { parseNumber } from "../../../../shared/objects/numeric";
 import { ValidScriptsContext } from "../../../../shared/providers/valid-scripts";
 import { DownIcon, UpIcon } from "../../icon";
@@ -9,7 +9,6 @@ export interface NumberBox$Ref extends InputRef {
   inputElement: HTMLInputElement;
   format: (value: unknown) => string;
   parse: (value: number | string | null | undefined) => (number | null | undefined);
-  isComposing: () => boolean;
 };
 
 export type NumberBox$Props = Overwrite<
@@ -52,9 +51,11 @@ export function NumberBox$({
 
   const wref = useRef<HTMLDivElement>(null!);
   const iref = useRef<HTMLInputElement>(null!);
-  const [isComposing, setIsComposing] = useState(false);
   const [hasFocus, setHasFocus] = useState(false);
   const safeValue = useRef(isControlled ? value : defaultValue);
+  const [rawValue, setRawValue] = useState(() => {
+    return String((isControlled ? value : defaultValue) ?? "");
+  });
 
   function createSetter() {
     return Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set;
@@ -95,6 +96,7 @@ export function NumberBox$({
   };
 
   function change(inputValue: string) {
+    if (isControlled) setRawValue(inputValue);
     const [v, isValid] = parseNumber(inputValue);
     if (isValid) {
       safeValue.current = v;
@@ -126,21 +128,8 @@ export function NumberBox$({
     );
   }
 
-  function handleCompositionStart(e: CompositionEvent<HTMLInputElement>) {
-    setIsComposing(true);
-    inputProps?.onCompositionStart?.(e);
-  };
-
-  function handleCompositionEnd(e: CompositionEvent<HTMLInputElement>) {
-    setIsComposing(false);
-    if (state === "enabled") {
-      change(e.currentTarget.value);
-    }
-    inputProps?.onCompositionEnd?.(e);
-  };
-
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    if (state === "enabled" && !isComposing) {
+    if (state === "enabled") {
       change(e.currentTarget.value);
     }
     inputProps?.onChange?.(e);
@@ -149,10 +138,14 @@ export function NumberBox$({
   function handleFocus(e: FocusEvent<HTMLInputElement>) {
     setHasFocus(true);
     if (state === "enabled") {
-      if (!isControlled) {
+      if (isControlled) {
+        setRawValue(String(value ?? ""));
+      } else {
         const [v, isValid] = getInputValueAsNumber();
         if (isValid) {
-          e.currentTarget.value = v == null || isNaN(v) ? "" : String(v);
+          setRawValue(e.currentTarget.value = (v == null || isNaN(v)) ? "" : String(v));
+        } else {
+          setRawValue(e.currentTarget.value);
         }
       }
     }
@@ -161,6 +154,7 @@ export function NumberBox$({
 
   function handleBlur(e: FocusEvent<HTMLInputElement>) {
     setHasFocus(false);
+    if (isControlled) setRawValue("");
     if (!isControlled) {
       const [v, isValid] = getInputValueAsNumber();
       if (isValid) {
@@ -217,9 +211,16 @@ export function NumberBox$({
         }
         break;
       case "Enter":
-        if (!isComposing) {
+        if (e.nativeEvent.isComposing) {
+          e.preventDefault();
+        } else {
           if (isControlled) {
-            executeChangeEvent(value);
+            const [v, isValid] = getInputValueAsNumber();
+            if (isValid) {
+              executeChangeEvent(v);
+            } else {
+              setInputValue(value);
+            }
           }
         }
         break;
@@ -279,7 +280,6 @@ export function NumberBox$({
     focus: () => iref.current.focus(),
     format,
     parse,
-    isComposing: () => isComposing,
   } as const satisfies NumberBox$Ref));
 
   return (
@@ -308,17 +308,17 @@ export function NumberBox$({
         inputMode={inputMode}
         onFocus={handleFocus}
         onBlur={handleBlur}
-        onCompositionStart={handleCompositionStart}
-        onCompositionEnd={handleCompositionEnd}
         onKeyDown={handleKeydown}
         onChange={handleChange}
         {...isControlled
           ? {
-            value: (state === "enabled" && hasFocus)
-              ? (value ?? "")
-              : format(value),
+            value: validScripts
+              ? (state === "enabled" && hasFocus ? rawValue : format(value))
+              : value ?? "",
           }
-          : { defaultValue: defaultValue ?? "" }
+          : {
+            defaultValue: defaultValue ?? "",
+          }
         }
       />
       {

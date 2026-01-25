@@ -1,66 +1,34 @@
 # 環境変数
 
-## コンテナ用
+`./docker/.env.example`を参考に、`./docker/.env`を作成してください。  
 
-### 本番コンテナ用環境変数
+※ コンテナの環境変数と整合性を確保するため、viteで使用できる`.env.*`は使用不可とします。
 
-`./.container/.env.example`を参考に、`./.container/.env`を作成してください。  
-
-### 開発コンテナ用環境変数
-
-`./.devcontainer/.env.example`を参考に、`./.devcontainer/.env`を作成してください。  
-
-### 設定値
+## 設定値
 
 - r: 必須
 - o: 任意
 - -: 未使用
 
-| 本番  | 開発  | キー               | 説明                                                                   |
-| :---: | :---: | ------------------ | ---------------------------------------------------------------------- |
-|   -   |   o   | UID                | uid（Linux系の場合必須）                                               |
-|   -   |   o   | GID                | gid（Linux系の場合必須）                                               |
-|   o   |   o   | TZ                 | タイムゾーン                                                           |
-|   -   |   o   | LOCALHOST          | LOCALHOST                                                              |
-|   o   |   o   | PORT               | アプリケーションサーバー起動ポート                                     |
-|   -   |   o   | DEV_PORT           | アプリケーションサーバーdev起動ポート                                  |
-|   o   |   o   | SELF_ORIGIN        | アプリケーションサーバーオリジン                                       |
-|   o   |   o   | CSP_REPORT_ORIGIN  | CSPレポート送信先オリジン                                              |
-|   o   |   o   | DATABASE_HOST      | データベースホスト                                                     |
-|   o   |   o   | POSTGRES_PORT      | PostgreSQLポート                                                       |
-|   o   |   o   | POSTGRES_USER      | PostgresSQLユーザー                                                    |
-|   o   |   o   | POSTGRES_PASSWORD  | PostgreSQLパスワード                                                   |
-|   o   |   o   | POSTGRES_DB        | PostgreSQLデータベース名                                               |
-|   o   |   o   | POSTGRES_LOG_LEVEL | PostgreSQLログレベル                                                   |
-|   r   |   o   | BETTER_AUTH_SECRET | BetterAuth用シークレット<br>（変更すると既存セッションは無効化される） |
-<!-- TODO -->
-
-## アプリケーション用
-
-基本的にコンテナの環境変数に設定してください。  
-アプリケーション用は開発時に切り替えたい場合にのみ使用します。
-
-### 優先順位
-
-| 優先度 | ファイル名              | 説明                               |
-| :----: | ----------------------- | ---------------------------------- |
-|   1    | .env.[`NODE_ENV`].local | `NODE_ENV`に依存するローカル値     |
-|   2    | .env.local              | `NODE_ENV`に依存しないローカル値   |
-|   3    | .env.[`NODE_ENV`]       | `NODE_ENV`に依存するデフォルト値   |
-|   4    | .env                    | `NODE_ENV`に依存しないデフォルト値 |
-
-※ `NODE_ENV`は開発モードでは`development`、製品モード（ビルド含む）では`production`が設定されます。  
-
-ファイル名に`.local`が付いていないファイルがgit管理対象となります。  
-各環境で値を変更する場合は、`.env*.local`を作成してください。  
-
-### 設定値
-
-| キー              | 説明                                                                  |
-| ----------------- | --------------------------------------------------------------------- |
-| DEV_PORT          | アプリケーションサーバーdev起動ポート（コンテナ使用時はこちらが優先） |
-| SELF_ORIGIN       |                                                                       |
-| CSP_REPORT_ORIGIN |                                                                       |
+| 本番  | 開発  | キー                 | 説明                                                                   |
+| :---: | :---: | -------------------- | ---------------------------------------------------------------------- |
+|   -   |   o   | UID                  | uid（Linux系の場合必須）                                               |
+|   -   |   o   | GID                  | gid（Linux系の場合必須）                                               |
+|   -   |   o   | COMPOSE_PROJECT_NAME | docker composeのプロジェクト名                                         |
+|   o   |   o   | TZ                   | タイムゾーン                                                           |
+|   -   |   o   | LOCALHOST            | LOCALHOST                                                              |
+|   o   |   o   | PORT                 | アプリケーションサーバー起動ポート                                     |
+|   -   |   o   | DEV_PORT             | アプリケーションサーバーdev起動ポート                                  |
+|   o   |   o   | SELF_ORIGIN          | アプリケーションサーバーオリジン                                       |
+|   o   |   o   | CSP_REPORT_URL       | CSPレポート送信先URL                                                   |
+|   o   |   o   | DATABASE_HOST        | データベースホスト                                                     |
+|   o   |   o   | POSTGRES_PORT        | PostgreSQLポート                                                       |
+|   o   |   o   | POSTGRES_USER        | PostgresSQLユーザー                                                    |
+|   o   |   o   | POSTGRES_PASSWORD    | PostgreSQLパスワード                                                   |
+|   o   |   o   | POSTGRES_DB          | PostgreSQLデータベース名                                               |
+|   o   |   o   | POSTGRES_LOG_LEVEL   | PostgreSQLログレベル                                                   |
+|   o   |   -   | MIGRATE              | マイグレーション実行有無                                               |
+|   r   |   o   | BETTER_AUTH_SECRET   | BetterAuth用シークレット<br>（変更すると既存セッションは無効化される） |
 <!-- TODO -->
 
 ## 使い方

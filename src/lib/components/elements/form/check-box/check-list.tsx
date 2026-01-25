@@ -125,7 +125,7 @@ export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemS
                 autoFocus: autoFocus ? index === 0 : undefined,
               }}
             >
-              {item.node || item.text}
+              {item.node ?? item.text}
             </CheckBox$>
           );
         })}

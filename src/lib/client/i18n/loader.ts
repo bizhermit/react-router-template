@@ -32,7 +32,7 @@ export async function loadI18nAsClient(): Promise<{
   };
 };
 
-const i18nCookieRegExp = new RegExp(`^${encodeURIComponent(LOCALE_KEY)}=(.+)`);
+const I18N_COOKIE_REG_EXP = new RegExp(`^${encodeURIComponent(LOCALE_KEY)}=(.+)`);
 
 export async function findLocaleAsClient() {
   let locale: Locales = DEFAULT_LOCALE;
@@ -44,7 +44,7 @@ export async function findLocaleAsClient() {
   //   locale = (navigator.languages.find(l => SUPPORTED_LOCALES.find(L => L === l)) as Locales | undefined) || locale;
   // }
   /* Cookie */
-  const v = document.cookie.split(/;\s?/g).find(c => c.match(i18nCookieRegExp))?.split("=")[1];
+  const v = document.cookie.split(/;\s?/g).find(c => c.match(I18N_COOKIE_REG_EXP))?.split("=")[1];
   if (v) {
     const l = decodeURIComponent(v);
     locale = SUPPORTED_LOCALES.find(k => k === l) || locale;
