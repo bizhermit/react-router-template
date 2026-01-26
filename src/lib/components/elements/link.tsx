@@ -30,7 +30,7 @@ export function Link({
 }: LinkProps) {
   return (
     <$Link
-      prefetch="intent"
+      prefetch="none"
       {...props}
       to={
         typeof to === "string"

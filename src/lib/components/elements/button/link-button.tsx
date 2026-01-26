@@ -26,7 +26,7 @@ export function LinkButton({
 
   return (
     <Link
-      prefetch="intent"
+      prefetch="none"
       {...props}
       className={clsx(
         "_btn",

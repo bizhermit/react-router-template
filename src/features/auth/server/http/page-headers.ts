@@ -19,7 +19,20 @@ const REPORT_TO_CSP_ENDPOINT = JSON.stringify({
   ],
 });
 
-const CONTENT_SECURITY_POLICY = createContentSecurityPolicy({ isDev: IS_DEV });
+const CONTENT_SECURITY_POLICY = createContentSecurityPolicy({
+  isDev: IS_DEV,
+  policies: {
+    "script-src": IS_DEV ? undefined : false, // NOTE: 本番環境はnonceを使用するためリクエスト内で追加する
+    "style-src": IS_DEV ? undefined : false, // NOTE: 本番環境はnonceを使用するためリクエスト内で追加する
+  },
+});
+
+export const getCspDirectiveNonceable: ((nonce?: string) => string) = IS_DEV
+  ? () => ""
+  : (nonce) => {
+    const val = `'self' '${nonce ? `nonce-${nonce}` : "unsafe-inline"}'`;
+    return `; script-src ${val}; style-src ${val}`;
+  };
 
 const PERMISSION_POLICY = createPermissionPolicy();
 
@@ -74,7 +87,7 @@ const setResponseHeadersAsMode =
  * セキュリティヘッダー、キャッシュ制御、CORS設定等を包括的に設定する
  * @param headers - HTTPレスポンスヘッダー
  */
-export function setPageResponseHeaders(headers: Headers): void {
+export function setPageResponseHeaders(headers: Headers, options?: { nonce?: string; }): void {
   // Content type
   headers.set("Content-Type", "text/html; charset=utf-8");
 
@@ -94,7 +107,7 @@ export function setPageResponseHeaders(headers: Headers): void {
 
   // Modern security policies
   headers.set("Permission-Policy", PERMISSION_POLICY);
-  headers.set("Content-Security-Policy", CONTENT_SECURITY_POLICY);
+  headers.set("Content-Security-Policy", CONTENT_SECURITY_POLICY + getCspDirectiveNonceable(options?.nonce));
   headers.set("Report-To", REPORT_TO_CSP_ENDPOINT);
 
   // Server information hiding

@@ -3,7 +3,10 @@ import { clsx } from "./utilities";
 
 interface IconOptions { };
 
-type IconProps = Overwrite<Omit<HTMLAttributes<SVGSVGElement>, "children">, IconOptions>;
+export type IconProps = Overwrite<
+  Omit<HTMLAttributes<SVGSVGElement>, "children">,
+  IconOptions
+>;
 
 const attrs = (p: IconProps) => {
   return {
@@ -629,7 +632,7 @@ export function UndoIcon(p: IconProps) {
 
 export function RedoIcon(p: IconProps) {
   return (
-    <svg {...attrs(p)} style={{ overflow: "visible" }}>
+    <svg {...attrs(p)}>
       <path
         d="M16,3v5h-5 m5,0l-3,-3a4 4 0 0 0 -7,7l6.5,6.5"
         strokeWidth="1.5"

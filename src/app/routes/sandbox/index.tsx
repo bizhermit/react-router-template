@@ -35,11 +35,12 @@ import { TextBox$ } from "$/components/elements/form/text-box";
 import { TextBox } from "$/components/elements/form/text-box/text-box";
 import { FormItem } from "$/components/elements/form/wrapper/form-item";
 import { Text } from "$/components/elements/i18n-text";
-import { ArrowDownIcon, ArrowLeftIcon, ArrowRightIcon, ArrowUpIcon, BadgeIcon, BookmarkFillIcon, BookmarkIcon, ButtonIcon, CalendarFillIcon, CalendarIcon, CameraFillIcon, CameraIcon, CardIcon, CheckCircleFillIcon, CheckCircleIcon, CheckIcon, ChocolateMenuFillIcon, ChocolateMenuIcon, CircleFillIcon, CircleIcon, ClearAllIcon, ClockFillIcon, ClockIcon, CloudDownloadIcon, CloudFillIcon, CloudIcon, CloudUploadIcon, ContainerIcon, CrossCircleFillIcon, CrossCircleIcon, CrossIcon, DeleteBackFillIcon, DeleteBackIcon, DeleteFillIcon, DeleteIcon, DocumentFillIcon, DocumentIcon, DoubleDownFillIcon, DoubleDownIcon, DoubleLeftFillIcon, DoubleLeftIcon, DoubleRightFillIcon, DoubleRightIcon, DoubleUpFillIcon, DoubleUpIcon, DownFillIcon, DownIcon, DownloadIcon, ElementIcon, ExclamationCircleFillIcon, ExclamationCircleIcon, ExclamationDiamondFillIcon, ExclamationDiamondIcon, ExclamationIcon, ExclamationTriangleFillIcon, ExclamationTriangleIcon, ExLinkIcon, FileAddFillIcon, FileAddIcon, FileDeleteFillIcon, FileDeleteIcon, FileFillIcon, FileIcon, FilterFillIcon, FilterIcon, FolderAddFillIcon, FolderAddIcon, FolderDeleteFillIcon, FolderDeleteIcon, FolderFillIcon, FolderIcon, FormIcon, FormItemIcon, GearFillIcon, GearIcon, GridFillIcon, GridIcon, HeartFillIcon, HeartHalfFillIcon, HeartIcon, HomeFillIcon, HomeIcon, HorizontalDividerIcon, KebabMenuIcon, LabelFillIcon, LabelIcon, LeftFillIcon, LeftIcon, LeftRightIcon, LinkIcon, ListFilterIcon, ListIcon, LoadingIcon, LocationFillIcon, LocationIcon, MagnifyingGlassIcon, MagnifyingGlassMinusFillIcon, MagnifyingGlassMinusIcon, MagnifyingGlassPlusFillIcon, MagnifyingGlassPlusIcon, MailFillIcon, MailIcon, MeatballsMenuIcon, MenuIcon, MenuLeftIcon, MenuLeftRightIcon, MenuRightIcon, MinusCircleFillIcon, MinusCircleIcon, MinusIcon, NavContainerIcon, OrderListIcon, PinFillIcon, PinIcon, PlusCircleFillIcon, PlusCircleIcon, PlusIcon, PopupIcon, PowerIcon, QuestionCircleFillIcon, QuestionCircleIcon, QuestionIcon, RedoIcon, ReloadIcon, RightFillIcon, RightIcon, SaveFillIcon, SaveIcon, ShareFillIcon, ShareIcon, SignInIcon, SignOutIcon, SlideContainerIcon, SmileFillIcon, SmileIcon, SplitContainerIcon, StarFillIcon, StarHalfFillIcon, StarIcon, StepperIcon, SyncIcon, TabContainerIcon, TextBoxIcon, TodayFillIcon, TodayIcon, TooltipIcon, TrashCanFillIcon, TrashCanIcon, UndoIcon, UnloadIcon, UpDownIcon, UpFillIcon, UpIcon, UploadIcon, UserAddIcon, UserFillIcon, UserIcon, UserMinusIcon, UsersFillIcon, UsersIcon, VerticalDividerIcon } from "$/components/elements/icon";
+import { ArrowDownIcon, ArrowLeftIcon, ArrowRightIcon, ArrowUpIcon, BadgeIcon, BookmarkFillIcon, BookmarkIcon, ButtonIcon, CalendarFillIcon, CalendarIcon, CameraFillIcon, CameraIcon, CardIcon, CheckCircleFillIcon, CheckCircleIcon, CheckIcon, ChocolateMenuFillIcon, ChocolateMenuIcon, CircleFillIcon, CircleIcon, ClearAllIcon, ClockFillIcon, ClockIcon, CloudDownloadIcon, CloudFillIcon, CloudIcon, CloudUploadIcon, ContainerIcon, CrossCircleFillIcon, CrossCircleIcon, CrossIcon, DeleteBackFillIcon, DeleteBackIcon, DeleteFillIcon, DeleteIcon, DocumentFillIcon, DocumentIcon, DoubleDownFillIcon, DoubleDownIcon, DoubleLeftFillIcon, DoubleLeftIcon, DoubleRightFillIcon, DoubleRightIcon, DoubleUpFillIcon, DoubleUpIcon, DownFillIcon, DownIcon, DownloadIcon, ElementIcon, ExclamationCircleFillIcon, ExclamationCircleIcon, ExclamationDiamondFillIcon, ExclamationDiamondIcon, ExclamationIcon, ExclamationTriangleFillIcon, ExclamationTriangleIcon, ExLinkIcon, FileAddFillIcon, FileAddIcon, FileDeleteFillIcon, FileDeleteIcon, FileFillIcon, FileIcon, FilterFillIcon, FilterIcon, FolderAddFillIcon, FolderAddIcon, FolderDeleteFillIcon, FolderDeleteIcon, FolderFillIcon, FolderIcon, FormIcon, FormItemIcon, GearFillIcon, GearIcon, GridFillIcon, GridIcon, HeartFillIcon, HeartHalfFillIcon, HeartIcon, HomeFillIcon, HomeIcon, HorizontalDividerIcon, KebabMenuIcon, LabelFillIcon, LabelIcon, LeftFillIcon, LeftIcon, LeftRightIcon, LinkIcon, ListFilterIcon, ListIcon, LoadingIcon, LocationFillIcon, LocationIcon, MagnifyingGlassIcon, MagnifyingGlassMinusFillIcon, MagnifyingGlassMinusIcon, MagnifyingGlassPlusFillIcon, MagnifyingGlassPlusIcon, MailFillIcon, MailIcon, MeatballsMenuIcon, MenuIcon, MenuLeftIcon, MenuLeftRightIcon, MenuRightIcon, MinusCircleFillIcon, MinusCircleIcon, MinusIcon, NavContainerIcon, OrderListIcon, PinFillIcon, PinIcon, PlusCircleFillIcon, PlusCircleIcon, PlusIcon, PopupIcon, PowerIcon, QuestionCircleFillIcon, QuestionCircleIcon, QuestionIcon, RedoIcon, ReloadIcon, RightFillIcon, RightIcon, SaveFillIcon, SaveIcon, ShareFillIcon, ShareIcon, SignInIcon, SignOutIcon, SlideContainerIcon, SmileFillIcon, SmileIcon, SplitContainerIcon, StarFillIcon, StarHalfFillIcon, StarIcon, StepperIcon, SyncIcon, TabContainerIcon, TextBoxIcon, TodayFillIcon, TodayIcon, TooltipIcon, TrashCanFillIcon, TrashCanIcon, UndoIcon, UnloadIcon, UpDownIcon, UpFillIcon, UpIcon, UploadIcon, UserAddIcon, UserFillIcon, UserIcon, UserMinusIcon, UsersFillIcon, UsersIcon, VerticalDividerIcon, type IconProps } from "$/components/elements/icon";
 import { Link } from "$/components/elements/link";
 import { LoadingBar } from "$/components/elements/loading";
 import { $alert, $confirm, $toast } from "$/components/elements/message-box";
 import { NavLayout, useNavLayout } from "$/components/elements/nav-layout";
+import { Style } from "$/components/elements/style";
 import { clsx } from "$/components/elements/utilities";
 import { useAbortController } from "$/shared/hooks/abort-controller";
 import { useLocale, useText } from "$/shared/hooks/i18n";
@@ -59,7 +60,7 @@ import { getPayload } from "$/shared/schema/server";
 import { $str } from "$/shared/schema/string";
 import { $struct } from "$/shared/schema/struct";
 import sleep from "$/shared/timing/sleep";
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useRef, useState, type JSX, type ReactNode } from "react";
 import { data, useFetcher } from "react-router";
 import { api } from "~/api/shared/internal";
 import { auth } from "~/auth/server/auth";
@@ -655,9 +656,7 @@ function Component2() {
           initValue="3"
           placeholder="世代"
           manualWidth
-          style={{
-            width: 100,
-          }}
+          className="w-25"
         >
           {source2.map(item => {
             return (
@@ -926,7 +925,7 @@ function LangComponent() {
             i18nKey="htmlText"
             replaceMap={{
               replace1: (props: { children?: ReactNode; }) => (
-                <span style={{ color: "red" }}>
+                <span className="text-red-500">
                   完全に置き換えてもいいよ
                   {props.children}
                 </span>
@@ -1183,168 +1182,168 @@ function StreamCompoment() {
   );
 };
 
-const icons = [
-  PlusIcon,
-  PlusCircleIcon,
-  PlusCircleFillIcon,
-  MinusIcon,
-  MinusCircleIcon,
-  MinusCircleFillIcon,
-  CrossIcon,
-  CrossCircleIcon,
-  CrossCircleFillIcon,
-  MenuIcon,
-  MenuLeftIcon,
-  MenuRightIcon,
-  MenuLeftRightIcon,
-  KebabMenuIcon,
-  MeatballsMenuIcon,
-  ChocolateMenuIcon,
-  ChocolateMenuFillIcon,
-  LeftIcon,
-  LeftFillIcon,
-  DoubleLeftIcon,
-  DoubleLeftFillIcon,
-  RightIcon,
-  RightFillIcon,
-  DoubleRightIcon,
-  DoubleRightFillIcon,
-  UpIcon,
-  UpFillIcon,
-  DoubleUpIcon,
-  DoubleUpFillIcon,
-  DownIcon,
-  DownFillIcon,
-  DoubleDownIcon,
-  DoubleDownFillIcon,
-  LeftRightIcon,
-  UpDownIcon,
-  ArrowLeftIcon,
-  ArrowRightIcon,
-  ArrowUpIcon,
-  ArrowDownIcon,
-  CalendarIcon,
-  CalendarFillIcon,
-  TodayIcon,
-  TodayFillIcon,
-  ClockIcon,
-  ClockFillIcon,
-  ListIcon,
-  OrderListIcon,
-  ListFilterIcon,
-  ClearAllIcon,
-  GridIcon,
-  GridFillIcon,
-  SaveIcon,
-  SaveFillIcon,
-  UndoIcon,
-  RedoIcon,
-  CloudIcon,
-  CloudFillIcon,
-  CloudDownloadIcon,
-  CloudUploadIcon,
-  DownloadIcon,
-  UploadIcon,
-  CircleIcon,
-  CircleFillIcon,
-  ReloadIcon,
-  UnloadIcon,
-  SyncIcon,
-  HomeIcon,
-  HomeFillIcon,
-  ElementIcon,
-  SmileIcon,
-  SmileFillIcon,
-  ButtonIcon,
-  LinkIcon,
-  ExLinkIcon,
-  ContainerIcon,
-  NavContainerIcon,
-  PopupIcon,
-  FormIcon,
-  FormItemIcon,
-  MagnifyingGlassIcon,
-  MagnifyingGlassPlusIcon,
-  MagnifyingGlassPlusFillIcon,
-  MagnifyingGlassMinusIcon,
-  MagnifyingGlassMinusFillIcon,
-  TextBoxIcon,
-  TabContainerIcon,
-  SlideContainerIcon,
-  SplitContainerIcon,
-  LoadingIcon,
-  LabelIcon,
-  LabelFillIcon,
-  StepperIcon,
-  VerticalDividerIcon,
-  HorizontalDividerIcon,
-  TooltipIcon,
-  BadgeIcon,
-  CardIcon,
-  SignInIcon,
-  SignOutIcon,
-  FolderIcon,
-  FolderFillIcon,
-  FolderAddIcon,
-  FolderAddFillIcon,
-  FolderDeleteIcon,
-  FolderDeleteFillIcon,
-  FileIcon,
-  FileFillIcon,
-  FileAddIcon,
-  FileAddFillIcon,
-  FileDeleteIcon,
-  FileDeleteFillIcon,
-  DocumentIcon,
-  DocumentFillIcon,
-  ExclamationIcon,
-  ExclamationCircleIcon,
-  ExclamationCircleFillIcon,
-  ExclamationTriangleIcon,
-  ExclamationTriangleFillIcon,
-  ExclamationDiamondIcon,
-  ExclamationDiamondFillIcon,
-  QuestionIcon,
-  QuestionCircleIcon,
-  QuestionCircleFillIcon,
-  UserIcon,
-  UserFillIcon,
-  UserAddIcon,
-  UserMinusIcon,
-  UsersIcon,
-  UsersFillIcon,
-  PowerIcon,
-  TrashCanIcon,
-  TrashCanFillIcon,
-  DeleteIcon,
-  DeleteFillIcon,
-  DeleteBackIcon,
-  DeleteBackFillIcon,
-  CheckIcon,
-  CheckCircleIcon,
-  CheckCircleFillIcon,
-  ShareIcon,
-  ShareFillIcon,
-  BookmarkIcon,
-  BookmarkFillIcon,
-  GearIcon,
-  GearFillIcon,
-  PinIcon,
-  PinFillIcon,
-  MailIcon,
-  MailFillIcon,
-  StarIcon,
-  StarFillIcon,
-  StarHalfFillIcon,
-  HeartIcon,
-  HeartFillIcon,
-  HeartHalfFillIcon,
-  FilterIcon,
-  FilterFillIcon,
-  LocationIcon,
-  LocationFillIcon,
-  CameraIcon,
-  CameraFillIcon,
+const icons: [string, (p: IconProps) => JSX.Element][] = [
+  ["PlusIcon", PlusIcon],
+  ["PlusCircleIcon", PlusCircleIcon],
+  ["PlusCircleFillIcon", PlusCircleFillIcon],
+  ["MinusIcon", MinusIcon],
+  ["MinusCircleIcon", MinusCircleIcon],
+  ["MinusCircleFillIcon", MinusCircleFillIcon],
+  ["CrossIcon", CrossIcon],
+  ["CrossCircleIcon", CrossCircleIcon],
+  ["CrossCircleFillIcon", CrossCircleFillIcon],
+  ["MenuIcon", MenuIcon],
+  ["MenuLeftIcon", MenuLeftIcon],
+  ["MenuRightIcon", MenuRightIcon],
+  ["MenuLeftRightIcon", MenuLeftRightIcon],
+  ["KebabMenuIcon", KebabMenuIcon],
+  ["MeatballsMenuIcon", MeatballsMenuIcon],
+  ["ChocolateMenuIcon", ChocolateMenuIcon],
+  ["ChocolateMenuFillIcon", ChocolateMenuFillIcon],
+  ["LeftIcon", LeftIcon],
+  ["LeftFillIcon", LeftFillIcon],
+  ["DoubleLeftIcon", DoubleLeftIcon],
+  ["DoubleLeftFillIcon", DoubleLeftFillIcon],
+  ["RightIcon", RightIcon],
+  ["RightFillIcon", RightFillIcon],
+  ["DoubleRightIcon", DoubleRightIcon],
+  ["DoubleRightFillIcon", DoubleRightFillIcon],
+  ["UpIcon", UpIcon],
+  ["UpFillIcon", UpFillIcon],
+  ["DoubleUpIcon", DoubleUpIcon],
+  ["DoubleUpFillIcon", DoubleUpFillIcon],
+  ["DownIcon", DownIcon],
+  ["DownFillIcon", DownFillIcon],
+  ["DoubleDownIcon", DoubleDownIcon],
+  ["DoubleDownFillIcon", DoubleDownFillIcon],
+  ["LeftRightIcon", LeftRightIcon],
+  ["UpDownIcon", UpDownIcon],
+  ["ArrowLeftIcon", ArrowLeftIcon],
+  ["ArrowRightIcon", ArrowRightIcon],
+  ["ArrowUpIcon", ArrowUpIcon],
+  ["ArrowDownIcon", ArrowDownIcon],
+  ["CalendarIcon", CalendarIcon],
+  ["CalendarFillIcon", CalendarFillIcon],
+  ["TodayIcon", TodayIcon],
+  ["TodayFillIcon", TodayFillIcon],
+  ["ClockIcon", ClockIcon],
+  ["ClockFillIcon", ClockFillIcon],
+  ["ListIcon", ListIcon],
+  ["OrderListIcon", OrderListIcon],
+  ["ListFilterIcon", ListFilterIcon],
+  ["ClearAllIcon", ClearAllIcon],
+  ["GridIcon", GridIcon],
+  ["GridFillIcon", GridFillIcon],
+  ["SaveIcon", SaveIcon],
+  ["SaveFillIcon", SaveFillIcon],
+  ["UndoIcon", UndoIcon],
+  ["RedoIcon", RedoIcon],
+  ["CloudIcon", CloudIcon],
+  ["CloudFillIcon", CloudFillIcon],
+  ["CloudDownloadIcon", CloudDownloadIcon],
+  ["CloudUploadIcon", CloudUploadIcon],
+  ["DownloadIcon", DownloadIcon],
+  ["UploadIcon", UploadIcon],
+  ["CircleIcon", CircleIcon],
+  ["CircleFillIcon", CircleFillIcon],
+  ["ReloadIcon", ReloadIcon],
+  ["UnloadIcon", UnloadIcon],
+  ["SyncIcon", SyncIcon],
+  ["HomeIcon", HomeIcon],
+  ["HomeFillIcon", HomeFillIcon],
+  ["ElementIcon", ElementIcon],
+  ["SmileIcon", SmileIcon],
+  ["SmileFillIcon", SmileFillIcon],
+  ["ButtonIcon", ButtonIcon],
+  ["LinkIcon", LinkIcon],
+  ["ExLinkIcon", ExLinkIcon],
+  ["ContainerIcon", ContainerIcon],
+  ["NavContainerIcon", NavContainerIcon],
+  ["PopupIcon", PopupIcon],
+  ["FormIcon", FormIcon],
+  ["FormItemIcon", FormItemIcon],
+  ["MagnifyingGlassIcon", MagnifyingGlassIcon],
+  ["MagnifyingGlassPlusIcon", MagnifyingGlassPlusIcon],
+  ["MagnifyingGlassPlusFillIcon", MagnifyingGlassPlusFillIcon],
+  ["MagnifyingGlassMinusIcon", MagnifyingGlassMinusIcon],
+  ["MagnifyingGlassMinusFillIcon", MagnifyingGlassMinusFillIcon],
+  ["TextBoxIcon", TextBoxIcon],
+  ["TabContainerIcon", TabContainerIcon],
+  ["SlideContainerIcon", SlideContainerIcon],
+  ["SplitContainerIcon", SplitContainerIcon],
+  ["LoadingIcon", LoadingIcon],
+  ["LabelIcon", LabelIcon],
+  ["LabelFillIcon", LabelFillIcon],
+  ["StepperIcon", StepperIcon],
+  ["VerticalDividerIcon", VerticalDividerIcon],
+  ["HorizontalDividerIcon", HorizontalDividerIcon],
+  ["TooltipIcon", TooltipIcon],
+  ["BadgeIcon", BadgeIcon],
+  ["CardIcon", CardIcon],
+  ["SignInIcon", SignInIcon],
+  ["SignOutIcon", SignOutIcon],
+  ["FolderIcon", FolderIcon],
+  ["FolderFillIcon", FolderFillIcon],
+  ["FolderAddIcon", FolderAddIcon],
+  ["FolderAddFillIcon", FolderAddFillIcon],
+  ["FolderDeleteIcon", FolderDeleteIcon],
+  ["FolderDeleteFillIcon", FolderDeleteFillIcon],
+  ["FileIcon", FileIcon],
+  ["FileFillIcon", FileFillIcon],
+  ["FileAddIcon", FileAddIcon],
+  ["FileAddFillIcon", FileAddFillIcon],
+  ["FileDeleteIcon", FileDeleteIcon],
+  ["FileDeleteFillIcon", FileDeleteFillIcon],
+  ["DocumentIcon", DocumentIcon],
+  ["DocumentFillIcon", DocumentFillIcon],
+  ["ExclamationIcon", ExclamationIcon],
+  ["ExclamationCircleIcon", ExclamationCircleIcon],
+  ["ExclamationCircleFillIcon", ExclamationCircleFillIcon],
+  ["ExclamationTriangleIcon", ExclamationTriangleIcon],
+  ["ExclamationTriangleFillIcon", ExclamationTriangleFillIcon],
+  ["ExclamationDiamondIcon", ExclamationDiamondIcon],
+  ["ExclamationDiamondFillIcon", ExclamationDiamondFillIcon],
+  ["QuestionIcon", QuestionIcon],
+  ["QuestionCircleIcon", QuestionCircleIcon],
+  ["QuestionCircleFillIcon", QuestionCircleFillIcon],
+  ["UserIcon", UserIcon],
+  ["UserFillIcon", UserFillIcon],
+  ["UserAddIcon", UserAddIcon],
+  ["UserMinusIcon", UserMinusIcon],
+  ["UsersIcon", UsersIcon],
+  ["UsersFillIcon", UsersFillIcon],
+  ["PowerIcon", PowerIcon],
+  ["TrashCanIcon", TrashCanIcon],
+  ["TrashCanFillIcon", TrashCanFillIcon],
+  ["DeleteIcon", DeleteIcon],
+  ["DeleteFillIcon", DeleteFillIcon],
+  ["DeleteBackIcon", DeleteBackIcon],
+  ["DeleteBackFillIcon", DeleteBackFillIcon],
+  ["CheckIcon", CheckIcon],
+  ["CheckCircleIcon", CheckCircleIcon],
+  ["CheckCircleFillIcon", CheckCircleFillIcon],
+  ["ShareIcon", ShareIcon],
+  ["ShareFillIcon", ShareFillIcon],
+  ["BookmarkIcon", BookmarkIcon],
+  ["BookmarkFillIcon", BookmarkFillIcon],
+  ["GearIcon", GearIcon],
+  ["GearFillIcon", GearFillIcon],
+  ["PinIcon", PinIcon],
+  ["PinFillIcon", PinFillIcon],
+  ["MailIcon", MailIcon],
+  ["MailFillIcon", MailFillIcon],
+  ["StarIcon", StarIcon],
+  ["StarFillIcon", StarFillIcon],
+  ["StarHalfFillIcon", StarHalfFillIcon],
+  ["HeartIcon", HeartIcon],
+  ["HeartFillIcon", HeartFillIcon],
+  ["HeartHalfFillIcon", HeartHalfFillIcon],
+  ["FilterIcon", FilterIcon],
+  ["FilterFillIcon", FilterFillIcon],
+  ["LocationIcon", LocationIcon],
+  ["LocationFillIcon", LocationFillIcon],
+  ["CameraIcon", CameraIcon],
+  ["CameraFillIcon", CameraFillIcon],
 ];
 
 function IconsComponent() {
@@ -1352,13 +1351,13 @@ function IconsComponent() {
     <section>
       <Details summary="Icons">
         <ul className="flex flex-row flex-wrap gap-4 p-2">
-          {icons.map((Icon, index) => {
-            const IconlessName = Icon.name.match(/(.*)Icon/)?.[1] || Icon.name;
+          {icons.map(([name, Icon], index) => {
+            const IconlessName = name.match(/(.*)Icon/)?.[1] || name;
 
             return (
-              <li key={Icon.name}>
+              <li key={name}>
                 <h3 className="flex flex-row gap-2">
-                  {index + 1}. {Icon.name} <Icon />
+                  {index + 1}. {name} <Icon />
                 </h3>
                 <div className="flex gap-2 w-75 overflow-hidden">
                   <Button>
@@ -1394,6 +1393,7 @@ function DialogComponent() {
   const preventEscapeClose = useToggle();
   const preventCloseWhenClickOuter = useToggle();
   const preventRootScroll = useToggle();
+  const anchorRef = useRef<HTMLButtonElement>(null!);
 
   return (
     <section>
@@ -1433,6 +1433,7 @@ function DialogComponent() {
             onClick={() => {
               dialog.current?.showModal();
             }}
+            ref={anchorRef}
           >
             showModal
           </Button>
@@ -1511,6 +1512,11 @@ function DialogComponent() {
         </div>
         <Dialog
           className="p-4 grid items-center gap-4"
+          anchor={{
+            element: anchorRef,
+            x: "inner-left",
+            y: "outer-top",
+          }}
           ref={dialog}
           closeWhenScrolled={closeWhenScrolled.flag}
           preventEscapeClose={preventEscapeClose.flag}
@@ -1683,18 +1689,19 @@ function CarouselComponent() {
           <Button onClick={() => setSlideWidth("100px")}>100px</Button>
           <Button onClick={() => setSlideWidth("250px")}>250px</Button>
         </div>
-        <div
-          className="w-full bg-red-600 p-8 flex flex-col"
-          style={{ height: 300 }}
-        >
+        <div className="w-full bg-red-600 p-8 flex flex-col h-75">
+          {
+            slideWidth != null &&
+            <Style suppressHydrationWarning>
+              {`#carousel{--slide-width:${slideWidth}}`}
+            </Style>
+          }
           <Carousel
             className="w-full bg-bg grow shrink"
             align={align}
             removePadding={removePaddingSpace}
             ref={carousel}
-            style={{
-              "--slide-width": slideWidth,
-            } as CSSProperties}
+            id="carousel"
             onChangeScroll={setHasScroll}
             onChange={setCurrentIndex}
           >

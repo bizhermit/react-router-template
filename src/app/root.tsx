@@ -13,9 +13,11 @@ import "$/components/global.css";
 import { useLocale } from "$/shared/hooks/i18n";
 import { I18nCookieLocator } from "$/shared/providers/i18n";
 import { useTheme } from "$/shared/providers/theme";
-import type { ReactNode } from "react";
+import crypto from "node:crypto";
+import { useState, type ReactNode } from "react";
 import { auth } from "~/auth/server/auth";
-import { AuthProvider } from "~/auth/shared/providers/auth";
+import { AuthContext } from "~/auth/shared/providers/auth";
+import { CspContext } from "~/auth/shared/providers/csp";
 import type { Route } from "./+types/root";
 
 export const links: Route.LinksFunction = () => [
@@ -32,6 +34,7 @@ export const links: Route.LinksFunction = () => [
 ];
 
 export async function loader({ request }: Route.LoaderArgs) {
+  const nonce = crypto.randomBytes(16).toString("base64");
   try {
     const { headers, response } = await auth.api.getSession({
       headers: request.headers,
@@ -41,6 +44,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     if (response) {
       return data({
         user: response?.user,
+        nonce,
       }, { headers });
     }
   } catch {
@@ -48,6 +52,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   }
   return data({
     user: undefined,
+    nonce,
   });
 };
 
@@ -56,30 +61,39 @@ export function Layout({ children }: { children: ReactNode; }) {
 
   const { lang } = useLocale();
   const { theme } = useTheme();
+  const [nonce] = useState(data?.nonce);
 
   return (
-    <I18nCookieLocator>
-      <AuthProvider
-        user={data?.user}
-      >
-        <html
-          lang={lang}
-          data-theme={theme}
+    <CspContext
+      value={{
+        nonce,
+      }}
+    >
+      <I18nCookieLocator>
+        <AuthContext
+          value={{
+            user: data?.user,
+          }}
         >
-          <head>
-            <meta charSet="utf-8" />
-            <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content" />
-            <Meta />
-            <Links />
-          </head>
-          <body>
-            {children}
-            <ScrollRestoration />
-            <Scripts />
-          </body>
-        </html>
-      </AuthProvider>
-    </I18nCookieLocator>
+          <html
+            lang={lang}
+            data-theme={theme}
+          >
+            <head>
+              <meta charSet="utf-8" />
+              <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content" />
+              <Meta />
+              <Links />
+            </head>
+            <body>
+              {children}
+              <ScrollRestoration nonce={nonce} />
+              <Scripts nonce={nonce} />
+            </body>
+          </html>
+        </AuthContext>
+      </I18nCookieLocator>
+    </CspContext>
   );
 }
 
