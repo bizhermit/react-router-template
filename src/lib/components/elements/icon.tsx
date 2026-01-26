@@ -3,7 +3,10 @@ import { clsx } from "./utilities";
 
 interface IconOptions { };
 
-type IconProps = Overwrite<Omit<HTMLAttributes<SVGSVGElement>, "children">, IconOptions>;
+export type IconProps = Overwrite<
+  Omit<HTMLAttributes<SVGSVGElement>, "children">,
+  IconOptions
+>;
 
 const attrs = (p: IconProps) => {
   return {
