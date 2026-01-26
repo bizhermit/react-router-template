@@ -121,7 +121,7 @@ export function Slider$({
       {
         validScripts &&
         <Style suppressHydrationWarning={!inputProps?.id}>
-          {`#${inputId} { --rate: ${getRate(value)}%; }`}
+          {`#${inputId}{--rate:${getRate(value)}%}`}
         </Style>
       }
       <input
@@ -201,7 +201,7 @@ export function Slider$({
               <Style suppressHydrationWarning={!inputProps?.id}>
                 {
                   dataList.source.map(item =>
-                    `#${inputId}_${item.value} { --rate:${getRate(item.value)}%; }`
+                    `#${inputId}_${item.value}{--rate:${getRate(item.value)}%}`
                   ).join("")
                 }
               </Style>

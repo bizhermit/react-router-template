@@ -184,7 +184,7 @@ export function ComboBox$({
       suppressHydrationWarning={!wrapperId}
     >
       <Style suppressHydrationWarning>
-        {`#${popoverId} { anchor-name: --${popoverId}; &>._ipt-combo-picker { position-anchor: --${popoverId}; } }`}
+        {`#${popoverId} {anchor-name:--${popoverId};&>._ipt-combo-picker{position-anchor:--${popoverId}}}`}
       </Style>
       <input
         type="text"

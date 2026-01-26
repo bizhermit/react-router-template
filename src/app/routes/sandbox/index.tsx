@@ -1686,7 +1686,7 @@ function CarouselComponent() {
           {
             slideWidth != null &&
             <Style suppressHydrationWarning>
-              {`#carousel { --slide-width: ${slideWidth}; }`}
+              {`#carousel{--slide-width:${slideWidth}}`}
             </Style>
           }
           <Carousel
