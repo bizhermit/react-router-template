@@ -14,7 +14,7 @@ import { useLocale } from "$/shared/hooks/i18n";
 import { I18nCookieLocator } from "$/shared/providers/i18n";
 import { useTheme } from "$/shared/providers/theme";
 import crypto from "node:crypto";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { auth } from "~/auth/server/auth";
 import { AuthContext } from "~/auth/shared/providers/auth";
 import { CspContext } from "~/auth/shared/providers/csp";
@@ -61,7 +61,7 @@ export function Layout({ children }: { children: ReactNode; }) {
 
   const { lang } = useLocale();
   const { theme } = useTheme();
-  const nonce = data?.nonce;
+  const [nonce] = useState(data?.nonce);
 
   return (
     <CspContext
