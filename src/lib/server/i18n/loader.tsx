@@ -12,6 +12,25 @@ const COOKIE_PATTERN = `${encodeURIComponent(LOCALE_KEY)}=`;
 const IS_DEV = process.env.NODE_ENV === "development";
 const SERIALIZED_CACHE = new Map<string, string>();
 
+const getSerializedData: ((locale: Locales, resource: Record<string, unknown>) => string) =
+  IS_DEV ?
+    (locale, resource) => {
+      return serialize({ locale, resource }, {
+        isJSON: true,
+      });
+    } :
+    (locale, resource) => {
+      const cacheKey = `${locale}-${Object.keys(resource).length}`;
+      if (SERIALIZED_CACHE.has(cacheKey)) {
+        return SERIALIZED_CACHE.get(cacheKey)!;
+      }
+      const data = serialize({ locale, resource }, {
+        isJSON: true,
+      });
+      SERIALIZED_CACHE.set(cacheKey, data);
+      return data;
+    };
+
 export function getI18nPayload(request: Request) {
   let locale: Locales = DEFAULT_LOCALE;
   /* URL */
@@ -40,30 +59,16 @@ export function getI18nPayload(request: Request) {
   }
 
   const resource = I18N_RESOURCES[locale];
-  const cacheKey = `${locale}-${Object.keys(resource).length}`;
 
   return {
     locale,
     resource,
     Payload: function ({ nonce }: { nonce?: string; }) {
-      let serializedData: string;
-
-      if (!IS_DEV && SERIALIZED_CACHE.has(cacheKey)) {
-        serializedData = SERIALIZED_CACHE.get(cacheKey)!;
-      } else {
-        serializedData = serialize({ locale, resource }, {
-          isJSON: true,
-        });
-        if (!IS_DEV) {
-          SERIALIZED_CACHE.set(cacheKey, serializedData);
-        }
-      }
-
       return (
         <script
           id={I18N_PROP_NAME}
           dangerouslySetInnerHTML={{
-            __html: `window.${I18N_PROP_NAME}=${serializedData}`,
+            __html: `window.${I18N_PROP_NAME}=${getSerializedData(locale, resource)}`,
           }}
           nonce={nonce}
         />
