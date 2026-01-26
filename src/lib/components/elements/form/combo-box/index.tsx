@@ -2,6 +2,7 @@ import { createContext, use, useId, useImperativeHandle, useMemo, useRef, useSta
 import { containElement } from "../../../../client/dom/contain";
 import { ValidScriptsContext } from "../../../../shared/providers/valid-scripts";
 import { DownIcon } from "../../icon";
+import { Style } from "../../style";
 import { clsx } from "../../utilities";
 import { InputFieldWrapper, type InputFieldProps, type InputFieldWrapperProps } from "../wrapper/input-field";
 
@@ -43,6 +44,7 @@ export interface ComboBoxContextProps {
   isControlled: boolean;
   filterText: string;
   change: () => void;
+  suppressHydrationWarning: boolean;
 };
 
 const ComboBoxContext = createContext<ComboBoxContextProps | null>(null);
@@ -52,10 +54,10 @@ const CHECK_INPUT_SELECTOR_BASE = `input:is([type="checkbox"],[type="radio"])`;
 
 export function ComboBox$({
   ref,
+  id: wrapperId,
   invalid,
   inputProps,
   className,
-  style,
   placeholder,
   state = "enabled",
   children,
@@ -76,7 +78,7 @@ export function ComboBox$({
 
   const id = useId();
   const $name = name || id;
-  const popoverId = `${$name}_picker`;
+  const popoverId = wrapperId || `${id}_picker`;
 
   const arrayValue = useMemo(() => {
     if (value == null || value === "") return [];
@@ -172,17 +174,18 @@ export function ComboBox$({
   return (
     <InputFieldWrapper
       {...wrapperProps}
+      id={popoverId}
       className={clsx(
         "_ipt-combox-box",
         className,
       )}
-      style={{
-        ...style,
-        anchorName: `--${popoverId}`,
-      }}
       state={state}
       onBlur={handleBlur}
+      suppressHydrationWarning={!wrapperId}
     >
+      <Style suppressHydrationWarning>
+        {`#${popoverId} { anchor-name: --${popoverId}; &>._ipt-combo-picker { position-anchor: --${popoverId}; } }`}
+      </Style>
       <input
         type="text"
         disabled={state === "disabled"}
@@ -223,9 +226,6 @@ export function ComboBox$({
       }
       <div
         className="_ipt-combo-picker"
-        style={{
-          positionAnchor: `--${popoverId}`,
-        }}
       >
         <div
           ref={lref}
@@ -244,6 +244,7 @@ export function ComboBox$({
               isControlled,
               filterText,
               change: handleChange,
+              suppressHydrationWarning: !name,
             }}
           >
             {children}
@@ -377,6 +378,7 @@ export function ComboBoxItem({
             value={valueStr}
             aria-label={text}
             tabIndex={(isHidden || ctx.state !== "enabled") ? -1 : undefined}
+            suppressHydrationWarning={ctx.suppressHydrationWarning}
             {...ctx.isControlled
               ? {
                 checked: ctx.value.some(v => v === valueStr),

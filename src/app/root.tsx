@@ -16,7 +16,8 @@ import { useTheme } from "$/shared/providers/theme";
 import crypto from "node:crypto";
 import type { ReactNode } from "react";
 import { auth } from "~/auth/server/auth";
-import { AuthProvider } from "~/auth/shared/providers/auth";
+import { AuthContext } from "~/auth/shared/providers/auth";
+import { CspContext } from "~/auth/shared/providers/csp";
 import type { Route } from "./+types/root";
 
 export const links: Route.LinksFunction = () => [
@@ -63,28 +64,36 @@ export function Layout({ children }: { children: ReactNode; }) {
   const nonce = data?.nonce;
 
   return (
-    <I18nCookieLocator>
-      <AuthProvider
-        user={data?.user}
-      >
-        <html
-          lang={lang}
-          data-theme={theme}
+    <CspContext
+      value={{
+        nonce,
+      }}
+    >
+      <I18nCookieLocator>
+        <AuthContext
+          value={{
+            user: data?.user,
+          }}
         >
-          <head>
-            <meta charSet="utf-8" />
-            <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content" />
-            <Meta />
-            <Links />
-          </head>
-          <body>
-            {children}
-            <ScrollRestoration nonce={nonce} />
-            <Scripts nonce={nonce} />
-          </body>
-        </html>
-      </AuthProvider>
-    </I18nCookieLocator>
+          <html
+            lang={lang}
+            data-theme={theme}
+          >
+            <head>
+              <meta charSet="utf-8" />
+              <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content" />
+              <Meta />
+              <Links />
+            </head>
+            <body>
+              {children}
+              <ScrollRestoration nonce={nonce} />
+              <Scripts nonce={nonce} />
+            </body>
+          </html>
+        </AuthContext>
+      </I18nCookieLocator>
+    </CspContext>
   );
 }
 

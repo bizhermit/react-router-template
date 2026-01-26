@@ -125,8 +125,3 @@ export function createContentSecurityPolicy(params?: {
   }
   return csp.filter(Boolean).join("; ");
 };
-
-export function getCspDirectiveNonceable(nonce?: string) {
-  const val = `${SELF} '${nonce ? `nonce-${nonce}` : "unsafe-inline"}'`;
-  return `; script-src ${val}; style-src ${val}`;
-};

@@ -40,6 +40,7 @@ import { Link } from "$/components/elements/link";
 import { LoadingBar } from "$/components/elements/loading";
 import { $alert, $confirm, $toast } from "$/components/elements/message-box";
 import { NavLayout, useNavLayout } from "$/components/elements/nav-layout";
+import { Style } from "$/components/elements/style";
 import { clsx } from "$/components/elements/utilities";
 import { useAbortController } from "$/shared/hooks/abort-controller";
 import { useLocale, useText } from "$/shared/hooks/i18n";
@@ -59,7 +60,7 @@ import { getPayload } from "$/shared/schema/server";
 import { $str } from "$/shared/schema/string";
 import { $struct } from "$/shared/schema/struct";
 import sleep from "$/shared/timing/sleep";
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { data, useFetcher } from "react-router";
 import { api } from "~/api/shared/internal";
 import { auth } from "~/auth/server/auth";
@@ -655,9 +656,7 @@ function Component2() {
           initValue="3"
           placeholder="世代"
           manualWidth
-          style={{
-            width: 100,
-          }}
+          className="w-25"
         >
           {source2.map(item => {
             return (
@@ -926,7 +925,7 @@ function LangComponent() {
             i18nKey="htmlText"
             replaceMap={{
               replace1: (props: { children?: ReactNode; }) => (
-                <span style={{ color: "red" }}>
+                <span className="text-red-500">
                   完全に置き換えてもいいよ
                   {props.children}
                 </span>
@@ -1683,18 +1682,19 @@ function CarouselComponent() {
           <Button onClick={() => setSlideWidth("100px")}>100px</Button>
           <Button onClick={() => setSlideWidth("250px")}>250px</Button>
         </div>
-        <div
-          className="w-full bg-red-600 p-8 flex flex-col"
-          style={{ height: 300 }}
-        >
+        <div className="w-full bg-red-600 p-8 flex flex-col h-75">
+          {
+            slideWidth != null &&
+            <Style suppressHydrationWarning>
+              {`#carousel { --slide-width: ${slideWidth}; }`}
+            </Style>
+          }
           <Carousel
             className="w-full bg-bg grow shrink"
             align={align}
             removePadding={removePaddingSpace}
             ref={carousel}
-            style={{
-              "--slide-width": slideWidth,
-            } as CSSProperties}
+            id="carousel"
             onChangeScroll={setHasScroll}
             onChange={setCurrentIndex}
           >

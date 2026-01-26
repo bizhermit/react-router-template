@@ -1,4 +1,4 @@
-import { createContentSecurityPolicy, getCspDirectiveNonceable } from "$/server/http/content-security-policy";
+import { createContentSecurityPolicy } from "$/server/http/content-security-policy";
 import { createPermissionPolicy } from "$/server/http/permission-policy";
 
 const IS_DEV = process.env.NODE_ENV === "development";
@@ -26,6 +26,13 @@ const CONTENT_SECURITY_POLICY = createContentSecurityPolicy({
     "style-src": IS_DEV ? undefined : false, // NOTE: 本番環境はnonceを使用するためリクエスト内で追加する
   },
 });
+
+export const getCspDirectiveNonceable: ((nonce?: string) => string) = IS_DEV
+  ? () => ""
+  : (nonce) => {
+    const val = `'self' '${nonce ? `nonce-${nonce}` : "unsafe-inline"}'`;
+    return `; script-src ${val}; style-src ${val}`;
+  };
 
 const PERMISSION_POLICY = createPermissionPolicy();
 
