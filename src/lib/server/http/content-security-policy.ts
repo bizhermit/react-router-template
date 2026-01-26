@@ -58,6 +58,7 @@ function normalizeCspTokens(v: string) {
  */
 export function createContentSecurityPolicy(params?: {
   policies?: Partial<ContentSecurityPolicy>;
+  nonce?: string;
   isDev?: boolean;
 }) {
   const defaultSrcRaw = params?.policies?.["default-src"] || SELF;
@@ -90,9 +91,13 @@ export function createContentSecurityPolicy(params?: {
     getCspDirective("script-src",
       params?.isDev ?
         `${SELF} 'unsafe-inline' 'unsafe-eval'` :
-        `${SELF} 'unsafe-inline'`
+        `${SELF} '${params?.nonce ? `nonce-${params.nonce}` : "unsafe-inline"}'`
     ),
-    getCspDirective("style-src", `${SELF} 'unsafe-inline'`),
+    getCspDirective("style-src",
+      params?.isDev ?
+        `${SELF} 'unsafe-inline'` :
+        `${SELF} '${params?.nonce ? `nonce-${params.nonce}` : "unsafe-inline"}'`
+    ),
     getCspDirective("img-src", `${SELF} data:`),
     getCspDirective("font-src"),
     getCspDirective("connect-src",
@@ -119,4 +124,9 @@ export function createContentSecurityPolicy(params?: {
     );
   }
   return csp.filter(Boolean).join("; ");
+};
+
+export function getCspDirectiveNonceable(nonce?: string) {
+  const val = `${SELF} '${nonce ? `nonce-${nonce}` : "unsafe-inline"}'`;
+  return `; script-src ${val}; style-src ${val}`;
 };

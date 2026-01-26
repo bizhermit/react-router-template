@@ -13,6 +13,7 @@ import "$/components/global.css";
 import { useLocale } from "$/shared/hooks/i18n";
 import { I18nCookieLocator } from "$/shared/providers/i18n";
 import { useTheme } from "$/shared/providers/theme";
+import crypto from "node:crypto";
 import type { ReactNode } from "react";
 import { auth } from "~/auth/server/auth";
 import { AuthProvider } from "~/auth/shared/providers/auth";
@@ -32,6 +33,7 @@ export const links: Route.LinksFunction = () => [
 ];
 
 export async function loader({ request }: Route.LoaderArgs) {
+  const nonce = crypto.randomBytes(16).toString("base64");
   try {
     const { headers, response } = await auth.api.getSession({
       headers: request.headers,
@@ -41,6 +43,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     if (response) {
       return data({
         user: response?.user,
+        nonce,
       }, { headers });
     }
   } catch {
@@ -48,6 +51,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   }
   return data({
     user: undefined,
+    nonce,
   });
 };
 
@@ -56,7 +60,7 @@ export function Layout({ children }: { children: ReactNode; }) {
 
   const { lang } = useLocale();
   const { theme } = useTheme();
-  const nonce = "";
+  const nonce = data?.nonce;
 
   return (
     <I18nCookieLocator>

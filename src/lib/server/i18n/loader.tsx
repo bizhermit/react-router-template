@@ -45,7 +45,7 @@ export function getI18nPayload(request: Request) {
   return {
     locale,
     resource,
-    Payload: function () {
+    Payload: function ({ nonce }: { nonce?: string; }) {
       let serializedData: string;
 
       if (!IS_DEV && SERIALIZED_CACHE.has(cacheKey)) {
@@ -65,6 +65,7 @@ export function getI18nPayload(request: Request) {
           dangerouslySetInnerHTML={{
             __html: `window.${I18N_PROP_NAME}=${serializedData}`,
           }}
+          nonce={nonce}
         />
       );
     },
