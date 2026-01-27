@@ -256,8 +256,8 @@ AGENT は以下の規約に従ってコミットメッセージを作成する�
 
 レビューの内容に応じて、以下のバッジを使用して分類する。
 
-- 変更必須事項: ![must](https://img.shields.io/badge/review-must-red.svg)
-- 指摘事項: ![nits](https://img.shields.io/badge/review-nits-green.svg)
+- 変更必須事項: ![must](https://img.shields.io/badge/review-must-darkred.svg)
+- 指摘事項: ![nits](https://img.shields.io/badge/review-nits-darkgreen.svg)
 - 変更任意事項: ![imo-badge](https://img.shields.io/badge/review-imo-orange.svg)
 - 質問事項: ![ask](https://img.shields.io/badge/review-ask-blue.svg)
 - メモ: ![badge](https://img.shields.io/badge/note-lightgray.svg)
