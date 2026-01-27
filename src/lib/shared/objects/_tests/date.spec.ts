@@ -2,8 +2,20 @@ import { describe, expect, it } from "vitest";
 import {
   DateTime,
   WEEK,
+  addDay,
   addMonth,
+  addYear,
   formatDate,
+  getFirstDateAtMonth,
+  getLastDateAtMonth,
+  getNextDate,
+  getNextMonthDate,
+  getNextWeekDate,
+  getNextYearDate,
+  getPrevDate,
+  getPrevMonthDate,
+  getPrevWeekDate,
+  getPrevYearDate,
   parseDate,
   parseOffsetString,
   parseTimezoneOffset,
@@ -348,6 +360,78 @@ describe("date", () => {
       expect(date.getFullYear()).toBe(2023);
       expect(date.getMonth()).toBe(1);
       expect(date.getDate()).toBe(28);
+    });
+
+    it("addDay rolls over to next month", () => {
+      const date = new Date(2024, 0, 31);
+      addDay(date, 1);
+      expect(date.getFullYear()).toBe(2024);
+      expect(date.getMonth()).toBe(1);
+      expect(date.getDate()).toBe(1);
+    });
+
+    it("addYear keeps end-of-month semantics", () => {
+      const date = new Date(2024, 1, 29);
+      addYear(date, 1);
+      expect(date.getFullYear()).toBe(2025);
+      expect(date.getMonth()).toBe(1);
+      expect(date.getDate()).toBe(28);
+    });
+
+    it("getFirstDateAtMonth returns first day", () => {
+      const first = getFirstDateAtMonth(new Date(2024, 5, 15));
+      expect(first.getFullYear()).toBe(2024);
+      expect(first.getMonth()).toBe(5);
+      expect(first.getDate()).toBe(1);
+    });
+
+    it("getLastDateAtMonth returns last day", () => {
+      const last = getLastDateAtMonth(new Date(2024, 1, 10));
+      expect(last.getFullYear()).toBe(2024);
+      expect(last.getMonth()).toBe(1);
+      expect(last.getDate()).toBe(29);
+    });
+
+    it("getPrevDate and getNextDate shift by one day", () => {
+      const base = new Date(2024, 0, 1);
+      const prev = getPrevDate(base);
+      expect(prev.getFullYear()).toBe(2023);
+      expect(prev.getMonth()).toBe(11);
+      expect(prev.getDate()).toBe(31);
+      const next = getNextDate(base);
+      expect(next.getFullYear()).toBe(2024);
+      expect(next.getMonth()).toBe(0);
+      expect(next.getDate()).toBe(2);
+    });
+
+    it("getPrevWeekDate and getNextWeekDate shift by seven days", () => {
+      const base = new Date(2024, 5, 15);
+      const prev = getPrevWeekDate(base);
+      expect(prev.getDate()).toBe(8);
+      const next = getNextWeekDate(base);
+      expect(next.getDate()).toBe(22);
+    });
+
+    it("getPrevMonthDate and getNextMonthDate respect month lengths", () => {
+      const prev = getPrevMonthDate(new Date(2024, 2, 31));
+      expect(prev.getFullYear()).toBe(2024);
+      expect(prev.getMonth()).toBe(1);
+      expect(prev.getDate()).toBe(29);
+      const next = getNextMonthDate(new Date(2024, 0, 31));
+      expect(next.getFullYear()).toBe(2024);
+      expect(next.getMonth()).toBe(1);
+      expect(next.getDate()).toBe(29);
+    });
+
+    it("getPrevYearDate and getNextYearDate maintain day when possible", () => {
+      const prev = getPrevYearDate(new Date(2024, 1, 29));
+      expect(prev.getFullYear()).toBe(2023);
+      expect(prev.getMonth()).toBe(1);
+      expect(prev.getDate()).toBe(28);
+      const next = getNextYearDate(new Date(2024, 1, 29));
+      expect(next.getFullYear()).toBe(2025);
+      expect(next.getMonth()).toBe(1);
+      expect(next.getDate()).toBe(28);
     });
   });
 });
