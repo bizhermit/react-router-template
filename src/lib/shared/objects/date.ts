@@ -73,7 +73,11 @@ export function parseDate(value: unknown) {
   }
 };
 
-export function formatDate(date: string | number | Date | null | undefined, pattern = "yyyy-MM-dd", week?: Array<string>) {
+export function formatDate(
+  date: string | number | Date | null | undefined,
+  pattern = "yyyy-MM-dd",
+  week?: Array<string> | typeof WEEK.en_s | typeof WEEK.ja_s
+) {
   if (date == null) return undefined;
   const d = parseDate(date);
   if (d == null) return undefined;
