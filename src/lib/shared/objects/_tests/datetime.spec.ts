@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DateTime } from "./date";
+import { DateTime } from "../date";
 
 describe("datetime", () => {
   describe("new DateTime", () => {
