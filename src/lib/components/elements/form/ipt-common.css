@@ -55,8 +55,8 @@
     border-radius: var(--radius-input);
     pointer-events: none;
     z-index: -1;
-    line-height: 1.2rem;
-    margin-top: -0.6rem;
+    line-height: 1rem;
+    margin-top: -0.5rem;
     transition: background-color 0.2s, border-color 0.2s;
   }
 
@@ -80,11 +80,11 @@
     min-width: 0;
     max-width: 100%;
     color: var(--color-error);
-    font-size: 1.4rem;
+    font-size: 0.9rem;
   }
 
   ._ipt-default-width {
-    width: 20rem;
+    width: 12rem;
   }
 
   ._ipt-label {
@@ -161,7 +161,7 @@
     transition: transform 0.2s;
 
     >._icon {
-      width: 1.0rem;
+      width: 0.75rem;
     }
   }
 

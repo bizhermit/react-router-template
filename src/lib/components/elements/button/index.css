@@ -10,7 +10,7 @@
     flex-flow: row nowrap;
     justify-content: center;
     align-items: center;
-    gap: 0.8rem;
+    gap: 0.5rem;
     height: var(--spacing-button);
     min-width: 0;
     padding: 0 calc(var(--spacing-button) / 2);

@@ -1,8 +1,8 @@
 @layer components {
 
   ._nav-wrap {
-    --nav-min-width: 3.6rem;
-    --nav-width: 26rem;
+    --nav-min-width: 3rem;
+    --nav-width: 16rem;
     --header-height: var(--nav-min-width);
     --height: 100%;
     ---nav-width: var(--nav-width);
@@ -144,7 +144,7 @@
 
   ._nav-nav-main {
     z-index: 1;
-    flex: 1 0 0 rem;
+    flex: 1 0 0rem;
     min-height: 100%;
     width: 100%;
     overflow: auto;
