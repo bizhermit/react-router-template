@@ -104,17 +104,17 @@ public/
 
 ## テストディレクトリ
 
-単体／結合テストファイル（`*.spec.ts`/`*.test.ts`）はテスト対象が所属するディレクトリ内に`_test/`ディレクトリに作成する。
+単体／結合テストファイル（`*.spec.ts`/`*.test.ts`）はテスト対象が所属するディレクトリ内に`_tests/`ディレクトリに作成する。
 
 ```
 src/lib/
-├── components/
-│   ├── elements/
-│   │   ├── button.tsx
-│   │   ├── head-line.tsx
-│   │   ├── section.tsx
-│   │   └── _test/
-│   │       ├── button.spec.ts
-│   │       └── head-line.spec.tsx
+├── shared/
+│   ├── objects/
+│   │   ├── data.ts
+│   │   ├── date.ts
+│   │   ├── string.ts
+│   │   └── _tests/
+│   │       ├── data.spec.ts
+│   │       └── date.spec.tsx
 ...
 ```
