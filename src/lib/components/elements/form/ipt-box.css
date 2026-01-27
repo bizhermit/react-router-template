@@ -41,7 +41,7 @@
     user-select: none;
 
     >._icon {
-      width: 1.0rem;
+      width: 0.6rem;
     }
   }
 
@@ -233,7 +233,7 @@
     align-items: stretch;
     white-space: nowrap;
     overflow: hidden;
-    gap: 1rem;
+    gap: 0.6rem;
     padding-inline: var(--spacing-input-pad-x) var(--spacing-input-pad-btn);
   }
 

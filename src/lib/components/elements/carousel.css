@@ -2,7 +2,7 @@
 
   ._carousel {
     --slide-width: 100%;
-    --slide-gap: 0rem;
+    --slide-gap: 0;
 
     position: relative;
     overflow: hidden;

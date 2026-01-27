@@ -63,8 +63,14 @@
       ---track-bg: var(--color-input-bg);
 
       &::-webkit-slider-thumb {
-        cursor: pointer;
+        cursor: grab;
         background-color: var(--color-input-bg);
+      }
+
+      &:active {
+        &::-webkit-slider-thumb {
+          cursor: grabbing;
+        }
       }
 
       &::-moz-range-thumb {
@@ -89,7 +95,7 @@
   ._ipt-slider-label {
     grid-row: 1 / 2;
     grid-column: 2 / 3;
-    padding-left: 1rem;
+    padding-left: 0.5rem;
   }
 
   ._ipt-slider-scales {
@@ -99,10 +105,10 @@
     grid-column: 1 / 2;
     margin-top: calc(var(--spacing-input) * -0.4);
     margin-inline: calc(var(--spacing-input) * 0.25 + 0.5px);
-    height: 2.2rem;
+    height: 1.5rem;
     display: flex;
     flex-flow: row nowrap;
-    font-size: 1.1rem;
+    font-size: 0.75rem;
     pointer-events: none;
   }
 

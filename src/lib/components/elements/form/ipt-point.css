@@ -127,7 +127,7 @@
       inset: 20%;
       border-radius: var(--radius-input);
       background-color: var(---color-fg);
-      mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M20 50 L40 70 L80 30" stroke="currentColor" stroke-width="0.75rem" fill="none" stroke-linecap="round" /></svg>') center / contain no-repeat;
+      mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M20 50 L40 70 L80 30" stroke="currentColor" stroke-width="0.6rem" fill="none" stroke-linecap="round" /></svg>') center / contain no-repeat;
     }
   }
 

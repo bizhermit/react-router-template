@@ -784,7 +784,7 @@ function Component2() {
       </FormItem>
       <FormItem>
         <NumberBox
-          className="w-40"
+          className="w-16"
           $={dataItems.range}
         />
       </FormItem>
