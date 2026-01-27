@@ -108,13 +108,13 @@ public/
 
 ```
 src/lib/
-├── components/
-│   ├── elements/
-│   │   ├── button.tsx
-│   │   ├── head-line.tsx
-│   │   ├── section.tsx
+├── shared/
+│   ├── objects/
+│   │   ├── data.ts
+│   │   ├── date.ts
+│   │   ├── string.ts
 │   │   └── _tests/
-│   │       ├── button.spec.ts
-│   │       └── head-line.spec.tsx
+│   │       ├── data.spec.ts
+│   │       └── date.spec.tsx
 ...
 ```
