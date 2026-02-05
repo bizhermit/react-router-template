@@ -10,8 +10,6 @@ if [ -z "$COMPOSE_PROJECT_NAME" ]; then
   COMPOSE_PROJECT_NAME="template-dev"
 fi
 
-COMPOSE_FILE=".docker/docker-compose.yml"
-
 echo "Deleting development containers and volumes..."
 echo " - Container prefix: $COMPOSE_PROJECT_NAME"
 
