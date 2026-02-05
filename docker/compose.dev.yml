@@ -23,7 +23,7 @@ services:
       - default
 
   postgres:
-    restart: always
+    restart: "no"
     volumes:
       - "postgres:/var/lib/postgresql/data"
       - "../database/postgres/init:/docker-entrypoint-initdb.d"
