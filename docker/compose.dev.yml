@@ -19,8 +19,6 @@ services:
       DEV_PORT: "${DEV_PORT:-5173}"
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    networks:
-      - default
 
   postgres:
     restart: "no"
@@ -37,12 +35,6 @@ services:
       -c "log_connections=on"
       -c "log_disconnections=on"
       -c "log_statement=all"
-    networks:
-      - default
-
-networks:
-  default:
-    driver: "bridge"
 
 volumes:
   node_modules:

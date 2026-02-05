@@ -11,8 +11,6 @@ services:
       MIGRATE: "${MIGRATE:-true}"
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    networks:
-      - default
 
   postgres:
     restart: always
@@ -42,12 +40,6 @@ services:
       -c "log_connections=off"
       -c "log_disconnections=off"
       -c "log_statement=none"
-    networks:
-      - default
-
-networks:
-  default:
-    driver: "bridge"
 
 volumes:
   postgres:
