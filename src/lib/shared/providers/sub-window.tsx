@@ -14,14 +14,24 @@ export function SubWindowProvider(props: {
     wins.current.push(ctx);
   };
 
+  function closeForPageTransition() {
+    for (let i = wins.current.length - 1; i >= 0; i--) {
+      const { controller, closeTrigger } = wins.current[i];
+      if (closeTrigger.transitionPage) {
+        controller.close();
+        wins.current.splice(i, 1);
+      }
+    }
+  };
+
   useEffect(() => {
     if (typeof window === "undefined") return;
     function beforeUnloadEvent() {
       for (let i = wins.current.length - 1; i >= 0; i--) {
         const { controller, closeTrigger } = wins.current[i];
         if (
-          closeTrigger.transitionPage ||
-          closeTrigger.closeTab
+          closeTrigger.closeTab ||
+          closeTrigger.transitionPage // NOTE: タブを閉じる場合もページ遷移と見なす
         ) {
           controller.close();
           wins.current.splice(i, 1);
@@ -39,6 +49,8 @@ export function SubWindowProvider(props: {
       value={{
         append,
         closeTrigger: props.closeTrigger ?? DEFAULT_CLOSE_TRIGGER,
+        initialUrl: props.initialUrl,
+        closeForPageTransition,
       }}
     >
       {props.children}

@@ -10,6 +10,7 @@ interface SubWindowContextProps {
   append: (ctx: SubWindowControllerContext) => void;
   closeTrigger: SubWindowCloseTrigger;
   initialUrl?: string;
+  closeForPageTransition: () => void;
 };
 
 export const SubWindowContext = createContext<SubWindowContextProps | null>(null);
