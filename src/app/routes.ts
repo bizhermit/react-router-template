@@ -22,5 +22,6 @@ export default [
   // system
   route("/health", "routes/health.ts"),
   route("/csp-report", "routes/csp-report.tsx"),
+  route("/loading", "routes/loading.tsx"),
   route("*", "routes/fallback.tsx"),
 ] satisfies RouteConfig;

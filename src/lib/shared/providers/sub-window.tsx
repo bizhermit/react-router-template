@@ -5,6 +5,7 @@ const DEFAULT_CLOSE_TRIGGER: SubWindowCloseTrigger = {};
 
 export function SubWindowProvider(props: {
   closeTrigger?: SubWindowCloseTrigger;
+  initialUrl?: string;
   children?: ReactNode;
 }) {
   const wins = useRef<SubWindowControllerContext[]>([]);

@@ -9,20 +9,19 @@ export interface SubWindowCloseTrigger {
 interface SubWindowContextProps {
   append: (ctx: SubWindowControllerContext) => void;
   closeTrigger: SubWindowCloseTrigger;
+  initialUrl?: string;
 };
 
 export const SubWindowContext = createContext<SubWindowContextProps | null>(null);
 
-interface SubWindowBaseParams {
-  closeTrigger?: SubWindowCloseTrigger;
-};
-
-interface SubWindowParams extends SubWindowBaseParams {
+interface SubWindowParams {
   url?: string;
   target?: string;
   popup?: boolean;
   closed?: () => void;
   blocked?: () => void;
+  closeTrigger?: SubWindowCloseTrigger;
+  initialUrl?: string;
 };
 
 interface SubWindowController {
@@ -36,10 +35,11 @@ interface SubWindowController {
 export interface SubWindowControllerContext {
   controller: SubWindowController;
   closeTrigger: SubWindowCloseTrigger;
-}
+};
 
 export function useSubWindow(baseParams?: {
   closeTrigger?: SubWindowCloseTrigger;
+  initialUrl?: string;
 }) {
   const ctx = use(SubWindowContext);
   const wins = useRef<SubWindowControllerContext[]>([]);
@@ -56,7 +56,7 @@ export function useSubWindow(baseParams?: {
     };
 
     const win = window.open(
-      params?.url,
+      params?.url || baseParams?.initialUrl || ctx?.initialUrl,
       params?.target,
       [
         params?.popup ? "popup" : undefined,
