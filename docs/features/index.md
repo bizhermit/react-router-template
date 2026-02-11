@@ -2,7 +2,7 @@
 
 ## 画面
 
-- [ルーティング](../../app/routes.ts)  
+- [ルーティング](/src/app/routes.ts)  
 
 <details>
 <summary>一覧</summary>
@@ -18,9 +18,9 @@
 
 ## WebAPI
 
-- [ルーティング](../../app/routes.ts)  
-- [TSOpenAPI](../../app/api-docs/internal.ts)
-- [OpenAPI](../api/internal.yaml)
+- [ルーティング](/src/app/routes.ts)  
+- [TSOpenAPI](/docs/api/internal.ts)
+- [OpenAPI](/docs/api/internal.yaml)
 
 <details>
 <summary>一覧</summary>
