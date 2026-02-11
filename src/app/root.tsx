@@ -6,15 +6,18 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLocation,
   useRouteLoaderData,
 } from "react-router";
 
 import "$/components/global.css";
 import { useLocale } from "$/shared/hooks/i18n";
+import { SubWindowContext } from "$/shared/hooks/sub-window";
 import { I18nCookieLocator } from "$/shared/providers/i18n";
+import { SubWindowProvider } from "$/shared/providers/sub-window";
 import { useTheme } from "$/shared/providers/theme";
 import crypto from "node:crypto";
-import { useState, type ReactNode } from "react";
+import { use, useEffect, useState, type ReactNode } from "react";
 import { auth } from "~/auth/server/auth";
 import { AuthContext } from "~/auth/shared/providers/auth";
 import { CspContext } from "~/auth/shared/providers/csp";
@@ -75,22 +78,26 @@ export function Layout({ children }: { children: ReactNode; }) {
             user: data?.user,
           }}
         >
-          <html
-            lang={lang}
-            data-theme={theme}
+          <SubWindowProvider
+            initialUrl="/loading"
           >
-            <head>
-              <meta charSet="utf-8" />
-              <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content" />
-              <Meta />
-              <Links />
-            </head>
-            <body>
-              {children}
-              <ScrollRestoration nonce={nonce} />
-              <Scripts nonce={nonce} />
-            </body>
-          </html>
+            <html
+              lang={lang}
+              data-theme={theme}
+            >
+              <head>
+                <meta charSet="utf-8" />
+                <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content" />
+                <Meta />
+                <Links />
+              </head>
+              <body>
+                {children}
+                <ScrollRestoration nonce={nonce} />
+                <Scripts nonce={nonce} />
+              </body>
+            </html>
+          </SubWindowProvider>
         </AuthContext>
       </I18nCookieLocator>
     </CspContext>
@@ -98,8 +105,19 @@ export function Layout({ children }: { children: ReactNode; }) {
 }
 
 export default function App() {
+  const subWindow = use(SubWindowContext);
+  const location = useLocation();
+
+  useEffect(() => {
+    return () => {
+      subWindow?.closeForPageTransition();
+    };
+  }, [
+    location,
+  ]);
+
   return <Outlet />;
-}
+};
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   let message = "Oops!";

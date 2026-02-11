@@ -46,6 +46,7 @@ import { useAbortController } from "$/shared/hooks/abort-controller";
 import { useLocale, useText } from "$/shared/hooks/i18n";
 import { usePageExitPropmt } from "$/shared/hooks/page-exit-prompt";
 import { useSchema, useSchemaArray, useSchemaContext, useSchemaValue } from "$/shared/hooks/schema";
+import { useSubWindow } from "$/shared/hooks/sub-window";
 import { useToggle } from "$/shared/hooks/toggle";
 import { formatDate } from "$/shared/objects/date";
 import { parseNumber } from "$/shared/objects/numeric";
@@ -511,6 +512,7 @@ function Contents(props: Route.ComponentProps) {
       <DialogComponent />
       <FetchComponent />
       <CarouselComponent />
+      <SubWindowComponent />
     </div>
   );
 };
@@ -1734,6 +1736,71 @@ function CarouselComponent() {
                 })
               }
             </ol>}
+        </div>
+      </Details>
+    </section>
+  );
+};
+
+function SubWindowComponent() {
+  const win = useSubWindow();
+
+  return (
+    <section>
+      <Details summary="Sub Window">
+        <div className="flex flex-row gap-2">
+          <Button
+            onClick={() => {
+              win.closeAll();
+            }}
+          >
+            close all
+          </Button>
+          <Button
+            onClick={() => {
+              win.open({
+                url: "/sandbox?trigger=unmount",
+                closeTrigger: {
+                  unmount: true,
+                },
+              });
+            }}
+          >
+            open(unmount)
+          </Button>
+          <Button
+            onClick={() => {
+              win.open({
+                url: "/sandbox?trigger=closeTab",
+                closeTrigger: {
+                  closeTab: true,
+                },
+              });
+            }}
+          >
+            open(close tab)
+          </Button>
+          <Button
+            onClick={() => {
+              win.open({
+                url: "/sandbox?trigger=transitionPage",
+                closeTrigger: {
+                  transitionPage: true,
+                },
+              });
+            }}
+          >
+            open(transition page)
+          </Button>
+          <Button
+            onClick={() => {
+              win.open({
+                url: "/sandbox?trigger=none",
+              });
+            }}
+          >
+            open
+          </Button>
         </div>
       </Details>
     </section>
