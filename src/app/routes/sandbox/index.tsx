@@ -44,6 +44,7 @@ import { Style } from "$/components/elements/style";
 import { clsx } from "$/components/elements/utilities";
 import { useAbortController } from "$/shared/hooks/abort-controller";
 import { useLocale, useText } from "$/shared/hooks/i18n";
+import { useInterval } from "$/shared/hooks/interval";
 import { usePageExitPropmt } from "$/shared/hooks/page-exit-prompt";
 import { useSchema, useSchemaArray, useSchemaContext, useSchemaValue } from "$/shared/hooks/schema";
 import { useSubWindow } from "$/shared/hooks/sub-window";
@@ -513,6 +514,7 @@ function Contents(props: Route.ComponentProps) {
       <FetchComponent />
       <CarouselComponent />
       <SubWindowComponent />
+      <HooksComponent />
     </div>
   );
 };
@@ -1802,6 +1804,51 @@ function SubWindowComponent() {
             open
           </Button>
         </div>
+      </Details>
+    </section>
+  );
+};
+
+function HooksComponent() {
+  const intervalSwitch = useToggle(false);
+  const [intervalCount, setIntervalCount] = useState(0);
+
+  const interval = useInterval(
+    () => {
+      setIntervalCount(intervalCount + 1);
+    },
+    intervalSwitch.flag ? 1000 : false
+  );
+
+  return (
+    <section>
+      <Details summary="Hooks">
+        <table>
+          <tbody>
+            <tr>
+              <th>interval</th>
+              <td>
+                <Button
+                  onClick={() => {
+                    intervalSwitch.on();
+                  }}
+                >
+                  start
+                </Button>
+              </td>
+              <td>
+                <Button
+                  onClick={() => {
+                    intervalSwitch.off();
+                  }}
+                >
+                  stop
+                </Button>
+              </td>
+              <td>{intervalCount}</td>
+            </tr>
+          </tbody>
+        </table>
       </Details>
     </section>
   );
