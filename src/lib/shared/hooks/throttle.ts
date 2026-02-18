@@ -31,19 +31,19 @@ export function useThrottle<T extends Array<unknown>>(
     }, remaining);
   }, [timeout]);
 
-  function cancel() {
+  const cancel = useCallback(() => {
     if (t.current) {
       clearTimeout(t.current);
       t.current = null;
     }
     l.current = delayFirst ? Date.now() : 0;
-  };
+  }, [delayFirst]);
 
   useEffect(() => {
     return () => {
       cancel();
     };
-  }, []);
+  }, [cancel]);
 
   return [
     throttleCallback,
