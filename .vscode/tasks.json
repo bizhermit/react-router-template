@@ -14,6 +14,12 @@
       "command": "bash scripts/git-merge-default-branch.sh"
     },
     {
+      "label": "[git] squash commits",
+      "group": "none",
+      "type": "shell",
+      "command": "bash scripts/git-squash-commits.sh"
+    },
+    {
       "label": "[devcontainer] remove container&volumes",
       "group": "none",
       "type": "shell",
