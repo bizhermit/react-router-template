@@ -21,10 +21,8 @@ git fetch --prune
 
 # 削除対象ブランチ抽出
 gone_branches=$(
-  git branch -vv \
-    | grep ': gone]' || true \
-    | sed 's/^[* ]*//' \
-    | awk '{print $1}'
+  git for-each-ref --format '%(refname:short) %(upstream:track)' refs/heads \
+  | awk '$2 == "[gone]" {print $1}'
 )
 
 if [ -z "$gone_branches" ]; then
