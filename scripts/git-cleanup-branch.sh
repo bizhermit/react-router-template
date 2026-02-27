@@ -8,18 +8,12 @@ if [ -n "$(git status --porcelain)" ]; then
   exit 1
 fi
 
-# デフォルトブランチ検出（ローカル参照で高速化し、ダメならリモートへ）
+# デフォルトブランチを確実に検出（リモートの変更に自動追従）
+echo "Detecting default branch from remote..."
+git remote set-head origin -a >/dev/null 2>&1 || true
 default_branch=$(git rev-parse --abbrev-ref origin/HEAD 2>/dev/null | sed 's!origin/!!' || true)
 
-if [ -z "$default_branch" ]; then
-  echo "Fetching remote info to detect default branch..."
-  default_branch=$(
-    git remote show origin 2>/dev/null \
-      | sed -n 's/.*HEAD branch: //p'
-  )
-fi
-
-if [ -z "$default_branch" ]; then
+if [ -z "$default_branch" ] || [ "$default_branch" = "HEAD" ]; then
   echo "Error: Could not detect default branch from origin." >&2
   exit 1
 fi
