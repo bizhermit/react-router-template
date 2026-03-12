@@ -6,7 +6,7 @@
     ".react-router/types/**/*"
   ],
   "exclude": [
-    "build/**/*",
+    ".artifacts/**/*"
   ],
   "compilerOptions": {
     "lib": [

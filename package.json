@@ -8,7 +8,7 @@
     "prebuild": "npm run generate:i18n-types & npm run generate:openapi-types",
     "build": "npx react-router build",
     "dev": "npx react-router dev --host",
-    "start": "npx react-router-serve ./build/server/index.js",
+    "start": "npx react-router-serve ./.artifacts/build/server/index.js",
     "typecheck": "npx tsc && npx eslint",
     "typecheck:rebuild": "npm run prebuild && npx react-router typegen && npm run typecheck",
     "generate:i18n-types": "npx tsx ./scripts/generate-i18n-types.ts",
@@ -23,8 +23,8 @@
     "postgres:init": "npx tsx scripts/seed.ts",
     "playwright": "npx playwright test",
     "test": "npx vitest run src",
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "storybook": "npx storybook dev -p 6006",
+    "build-storybook": "npx storybook build -o ./.artifacts/storybook-static"
   },
   "dependencies": {
     "@react-router/node": "^7.11.0",

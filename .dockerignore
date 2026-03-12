@@ -20,4 +20,4 @@ storybook.config.ts
 
 # build
 .react-router
-build
+.artifacts

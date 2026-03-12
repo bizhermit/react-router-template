@@ -1,8 +1,8 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -eu
 
-# # 外部ネットワーク構築 #
+# 外部ネットワーク構築 #
 
 # EXTERNAL_NETWORK_NAME="template-external-dev"
 
