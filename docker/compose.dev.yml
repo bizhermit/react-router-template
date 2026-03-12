@@ -10,10 +10,9 @@ services:
     working_dir: /workspace
     volumes:
       - "../:/workspace"
-      - "~/.ssh:/home/node/.ssh"
       - "node_modules:/workspace/node_modules"
       - "react-router:/workspace/.react-router"
-      - "playwright:/workspace/.playwright"
+      - "artifacts:/workspace/.artifacts"
     environment:
       LOCALHOST: "${LOCALHOST:-host.docker.internal}"
       DEV_PORT: "${DEV_PORT:-5173}"
@@ -39,5 +38,5 @@ services:
 volumes:
   node_modules:
   react-router:
-  playwright:
+  artifacts:
   postgres:

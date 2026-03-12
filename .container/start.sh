@@ -13,4 +13,4 @@ if [ "${MIGRATE:-true}" = "true" ]; then
 fi
 
 echo "[app] Starting app..."
-exec npm run start
+exec npx react-router-serve ./build/server/index.js

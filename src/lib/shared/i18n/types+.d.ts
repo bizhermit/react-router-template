@@ -3,15 +3,15 @@
 
 interface I18N_Texts {
   "halloWorld": null;
+  "replaceText": "hoge" | "fuga";
+  "htmlText": null;
+  "OK": null;
+  "Cancel": null;
   "format_datetime": null;
   "format_sdatetime": null;
   "format_date": null;
   "format_sdate": null;
   "format_month": null;
-  "replaceText": "hoge" | "fuga";
-  "htmlText": null;
-  "OK": null;
-  "Cancel": null;
   "formPrompt": null;
   "default_label": null;
   "required_input": "label";
@@ -21,8 +21,8 @@ interface I18N_Texts {
   "invalidValue_select": "label";
   "invalidValue_set": "label";
   "matchStrLength": "label" | "length";
-  "minStrLength": "label" | "minLength";
-  "maxStrLength": "label" | "maxLength";
+  "minStrLength": "minLength" | "label";
+  "maxStrLength": "maxLength" | "label";
   "rangeStrLength": "label" | "minLength" | "maxLength";
   "invalidPattern_input": "label" | "pattern";
   "int": null;
@@ -60,12 +60,12 @@ interface I18N_Texts {
   "matchArrLength_input": "label" | "length";
   "matchArrLength_select": "label" | "length";
   "matchArrLength_set": "label" | "length";
-  "minArrLength_input": "label" | "minLength";
-  "minArrLength_select": "label" | "minLength";
-  "minArrLength_set": "label" | "minLength";
-  "maxArrLength_input": "label" | "maxLength";
-  "maxArrLength_select": "label" | "maxLength";
-  "maxArrLength_set": "label" | "maxLength";
+  "minArrLength_input": "minLength" | "label";
+  "minArrLength_select": "minLength" | "label";
+  "minArrLength_set": "minLength" | "label";
+  "maxArrLength_input": "maxLength" | "label";
+  "maxArrLength_select": "maxLength" | "label";
+  "maxArrLength_set": "maxLength" | "label";
   "rangeArrLength_input": "label" | "minLength" | "maxLength";
   "rangeArrLength_select": "label" | "minLength" | "maxLength";
   "rangeArrLength_set": "label" | "minLength" | "maxLength";
