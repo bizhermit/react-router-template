@@ -9,13 +9,9 @@ RUN apt-get update -y \
   # && apt-get install -y --no-install-recommends \
   # sudo \
   && apt-get -y clean \
-  && rm -rf /var/lib/apt/lists/* \
-  # && echo 'node:node' | chpasswd \
-  # && gpasswd -a node sudo
-  && echo "apt-get end"
+  && rm -rf /var/lib/apt/lists/*
 
 RUN for dir in $WORKSPACE_DIRS; do mkdir -p "/workspace/$dir"; done \
-  && chown -R node:node /workspace \
-  && echo "mkdir end"
+  && chown -R node:node /workspace
 
 USER node

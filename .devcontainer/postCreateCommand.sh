@@ -1,51 +1,26 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -eu
 
-# # docker volumeをnodeユーザー所有に変更
-# PASSWORD="node"
-# OWNER="node:node"
-# DIRS=(
-#   "/home/node/.ssh"
-#   "/workspace/node_modules"
-#   "/workspace/.react-router"
-#   "/workspace/.playwright"
-# )
+log() {
+	printf '[postCreate][%s] %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$*"
+}
 
-# for dir in "${DIRS[@]}"; do
-#   echo "Changing ownership of $dir to $OWNER"
-#   echo "$PASSWORD" | sudo -S chown -R "$OWNER" "$dir"
-# done
+log "postCreateCommand を開始します"
 
-# # パーミッション設定ルール（ファイルパス:権限）
-# declare -A SSH_PERMS=(
-#   ["$HOME/.ssh"]=700
-#   ["$HOME/.ssh/id_rsa"]=600
-#   ["$HOME/.ssh/id_ecdsa"]=600
-#   ["$HOME/.ssh/id_rsa.pub"]=644
-#   ["$HOME/.ssh/id_ecdsa.pub"]=644
-#   ["$HOME/.ssh/config"]=600
-#   ["$HOME/.ssh/known_hosts"]=644
-# )
+# 依存関係インストール #
+log "依存関係をインストールします"
+npm install
 
-# for path in "${!SSH_PERMS[@]}"; do
-#   if [ -e "$path" ]; then
-#     chmod "${SSH_PERMS[$path]}" "$path"
-#     echo "set ${SSH_PERMS[$path]}: $path"
-#   fi
-# done
+log "PostgreSQL の起動を待機します: ${DATABASE_HOST}:${POSTGRES_PORT}"
+./wait-for-it.sh "$DATABASE_HOST:$POSTGRES_PORT" -t 60
 
-# # 所有者変更は差分としない
-# git config --local core.fileMode false
+# DB最新化
+log "DB マイグレーションを実行します"
+npm run dev:migrate
 
-# # 依存関係インストール #
-# npm install
+# DB初回データ作成
+log "初回データを投入します"
+npm run postgres:init
 
-# chmod +x ./wait-for-it.sh
-# ./wait-for-it.sh "$DATABASE_HOST:$POSTGRES_PORT" -t 60
-
-# # DB最新化
-# npm run dev:migrate
-
-# # DB初回データ作成
-# npm run postgres:init
+log "postCreateCommand が完了しました"
