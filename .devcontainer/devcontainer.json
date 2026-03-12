@@ -44,7 +44,7 @@
           "source.fixAll.eslint": "explicit",
           "source.organizeImports": "explicit"
         },
-        "liveServer.settings.root": "/build/client"
+        "liveServer.settings.root": "/.artifacts/build/client"
       }
     }
   }

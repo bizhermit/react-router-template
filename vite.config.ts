@@ -32,7 +32,7 @@ export default defineConfig(({ mode }) => {
           ".playwright/**",
           "**/node_modules/**",
           "**/.git/**",
-          "**/build/**",
+          "**/.artifacts/**",
           "scripts/**",
         ],
       } : undefined,
