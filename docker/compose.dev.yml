@@ -18,6 +18,9 @@ services:
       DEV_PORT: "${DEV_PORT:-5173}"
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    env_file:
+      - path: .env
+        required: true
 
   postgres:
     restart: "no"
