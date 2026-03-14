@@ -14,10 +14,10 @@ services:
       - "react-router:/workspace/.react-router"
       - "artifacts:/workspace/.artifacts"
     environment:
-      LOCALHOST: "${LOCALHOST:-host.docker.internal}"
       DEV_PORT: "${DEV_PORT:-5173}"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      # LOCALHOST: "${LOCALHOST:-host.docker.internal}"
+    # extra_hosts:
+    #   - "host.docker.internal:host-gateway"
 
   postgres:
     restart: "no"
