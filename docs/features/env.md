@@ -13,8 +13,8 @@
 
 | 本番  | 開発  | キー                 | 説明                                                                   |
 | :---: | :---: | -------------------- | ---------------------------------------------------------------------- |
-|   -   |   o   | UID                  | uid（Linux系の場合必須）                                               |
-|   -   |   o   | GID                  | gid（Linux系の場合必須）                                               |
+|   -   |   o   | HOST_UID             | uid（Linux系の場合必須）                                               |
+|   -   |   o   | HOST_GID             | gid（Linux系の場合必須）                                               |
 |   -   |   o   | COMPOSE_PROJECT_NAME | docker composeのプロジェクト名                                         |
 |   o   |   o   | TZ                   | タイムゾーン                                                           |
 |   -   |   o   | LOCALHOST            | LOCALHOST                                                              |

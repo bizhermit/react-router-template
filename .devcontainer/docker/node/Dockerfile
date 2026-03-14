@@ -11,6 +11,9 @@ RUN apt-get update -y \
   && apt-get -y clean \
   && rm -rf /var/lib/apt/lists/*
 
+RUN groupmod -og $HOST_GID node \
+  && usermod -ou $HOST_UID node
+
 RUN for dir in $WORKSPACE_DIRS; do mkdir -p "/workspace/$dir"; done \
   && chown -R node:node /workspace
 
