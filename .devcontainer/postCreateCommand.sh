@@ -13,7 +13,7 @@ log "依存関係をインストールします"
 npm install
 
 log "PostgreSQL の起動を待機します: ${DATABASE_HOST}:${POSTGRES_PORT}"
-./docker/wait-for-it.sh "$DATABASE_HOST:$POSTGRES_PORT" -t 60
+./scripts/wait-for-it.sh "$DATABASE_HOST:$POSTGRES_PORT" -t 60
 
 # DB最新化
 log "DB マイグレーションを実行します"

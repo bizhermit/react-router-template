@@ -4,12 +4,15 @@ set -e
 
 if [ -n "${WAITFOR:-}" ]; then
   echo "[init] Waiting for DB..."
-  ./docker/wait-for-it.sh "$WAITFOR" -t 60
+  ./scripts/wait-for-it.sh "$WAITFOR" -t 60
 fi
 
 if [ "${MIGRATE:-true}" = "true" ]; then
   echo "[init] Running migrations..."
-  node ./docker/migrate.mjs
+  node ./.artifacts/scripts/migrate.js
+
+  echo "[init] Inserting seed..."
+  node ./.artifacts/scripts/seed.js
 fi
 
 echo "[app] Starting app..."
