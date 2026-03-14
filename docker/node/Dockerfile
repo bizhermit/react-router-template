@@ -31,16 +31,15 @@ RUN apt-get update -y \
   && apt-get -y clean \
   && rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /app/wait-for-it.sh ./wait-for-it.sh
-COPY --from=builder /app/.container/start.sh ./start.sh
-COPY --from=builder /app/.container/migrate.mjs ./migrate.mjs
+COPY --from=builder /app/docker/.env ./docker/.env
+COPY --from=builder /app/docker/wait-for-it.sh ./docker/wait-for-it.sh
+COPY --from=builder /app/docker/start.sh ./docker/start.sh
+COPY --from=builder /app/docker/migrate.mjs ./docker/migrate.mjs
 COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
 COPY --from=builder /app/drizzle ./drizzle
 COPY --from=runner-dep /app/node_modules ./node_modules
-COPY --from=builder /app/.artifacts/build ./build
-
-RUN chmod +x ./start.sh ./wait-for-it.sh
+COPY --from=builder /app/.artifacts/build ./.artifacts/build
 
 USER node
 
-CMD ["sh", "./start.sh"]
+CMD ["sh", "./docker/start.sh"]

@@ -7,7 +7,7 @@
 - React v19
 - ReactRouter v7
 - TailwindCSS v4
-- PostgreSQL v17
+- PostgreSQL v18
 
 ## 開発環境構築手順
 
@@ -143,16 +143,6 @@ bash docker-compose.sh up
 
 # 再ビルドする場合
 bash docker-compose.sh up --build
-```
-
-#### シェルスクリプトから実行しない場合
-
-```bash
-# 1. カレントディレクトリの移動
-cd ./.container
-
-# 2. 実行
-docker compose up
 ```
 
 ## ドキュメント

@@ -1,9 +1,11 @@
+name: template
+
 services:
   app:
     image: template-app
     build:
       context: ../
-      dockerfile: .container/docker/node/Dockerfile
+      dockerfile: docker/node/Dockerfile
     ports:
       - "${PORT:-3000}:${PORT:-3000}"
     environment:
@@ -16,7 +18,7 @@ services:
     restart: always
     user: postgres
     volumes:
-      - "postgres:/var/lib/postgresql/data"
+      - "postgres:/var/lib/postgresql"
       - "../database/postgres/init:/docker-entrypoint-initdb.d"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]

@@ -18,14 +18,11 @@ services:
       DEV_PORT: "${DEV_PORT:-5173}"
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    env_file:
-      - path: .env
-        required: true
 
   postgres:
     restart: "no"
     volumes:
-      - "postgres:/var/lib/postgresql/data"
+      - "postgres:/var/lib/postgresql"
       - "../database/postgres/init:/docker-entrypoint-initdb.d"
     ports:
       - "${POSTGRES_PORT:-5432}:${POSTGRES_PORT:-5432}"

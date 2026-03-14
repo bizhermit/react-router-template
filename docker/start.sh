@@ -4,13 +4,13 @@ set -e
 
 if [ -n "${WAITFOR:-}" ]; then
   echo "[init] Waiting for DB..."
-  ./wait-for-it.sh "$WAITFOR" -t 60
+  ./docker/wait-for-it.sh "$WAITFOR" -t 60
 fi
 
 if [ "${MIGRATE:-true}" = "true" ]; then
   echo "[init] Running migrations..."
-  node migrate.mjs
+  node ./docker/migrate.mjs
 fi
 
 echo "[app] Starting app..."
-exec npx react-router-serve ./build/server/index.js
+exec npx react-router-serve ./.artifacts/build/server/index.js
