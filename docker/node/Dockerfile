@@ -31,7 +31,6 @@ RUN apt-get update -y \
   && apt-get -y clean \
   && rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /app/docker/.env ./docker/.env
 COPY --from=builder /app/docker/wait-for-it.sh ./docker/wait-for-it.sh
 COPY --from=builder /app/docker/start.sh ./docker/start.sh
 COPY --from=builder /app/docker/migrate.mjs ./docker/migrate.mjs
