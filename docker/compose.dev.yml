@@ -1,7 +1,7 @@
 name: template-dev
 services:
   app:
-    image: node24-dev
+    image: node:24-rr
     build:
       context: ../
       dockerfile: .devcontainer/docker/node/Dockerfile
