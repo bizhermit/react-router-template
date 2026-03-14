@@ -1,4 +1,5 @@
 name: template-dev
+
 services:
   app:
     image: node-dev:24-rr
@@ -6,8 +7,8 @@ services:
       context: ../
       dockerfile: .devcontainer/docker/node/Dockerfile
       args:
-        HOST_UID: ${HOST_UID:-1000}
-        HOST_GID: ${HOST_GID:-1000}
+        HOST_UID: "${HOST_UID:-1000}"
+        HOST_GID: "${HOST_GID:-1000}"
     tty: true
     user: "${HOST_UID:-1000}:${HOST_UID:-1000}"
     working_dir: /workspace
