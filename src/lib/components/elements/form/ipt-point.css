@@ -10,6 +10,7 @@
     position: relative;
     width: var(--spacing-input);
     height: var(--spacing-input);
+    flex: none;
     cursor: inherit;
 
     &::before {
@@ -139,6 +140,7 @@
     position: relative;
     width: calc(var(--spacing-input) * 1.6);
     height: var(--spacing-input);
+    flex: none;
     outline: none;
 
     &::before {

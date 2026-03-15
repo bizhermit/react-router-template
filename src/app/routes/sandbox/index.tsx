@@ -434,7 +434,7 @@ function Contents(props: Route.ComponentProps) {
     <div className="relative flex flex-col gap-4 p-4">
       {/* <LoadingBar color="primary" /> */}
       {fetcher.state === "submitting" && <LoadingBar />}
-      <div className="flex flex-row">
+      <div className="flex flex-row  flex-wrap">
         <h1>Sandbox</h1>
         <LinkButton
           to="/"
@@ -448,7 +448,7 @@ function Contents(props: Route.ComponentProps) {
         </LinkButton>
       </div>
       <section className="flex flex-col gap-2">
-        <div className="flex flex-row gap-2">
+        <div className="flex flex-row flex-wrap gap-2">
           <Button
             onClick={() => {
               console.log(getData());
@@ -526,7 +526,7 @@ function Component1() {
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex flex-row gap-2">
+      <div className="flex flex-row flex-wrap gap-2">
         <Button
           appearance="outline"
           onClick={() => {
@@ -566,7 +566,7 @@ function Component1() {
           return (
             <li
               key={params.key}
-              className="flex flex-row gap-2 items-center"
+              className="flex flex-row flex-wrap gap-2 items-center"
             >
               <span>
                 {JSON.stringify(params.value)}
@@ -625,7 +625,7 @@ function Component2() {
   const { dataItems } = useSchemaContext<typeof schema>();
   console.log("render");
   return (
-    <div className="flex flex-row flex-wrap gap-2">
+    <div className="flex flex-row flex-wrap flex-wrap gap-2">
       <FormValueSetterComponent />
       <FormItem>
         <TextBox
@@ -840,7 +840,7 @@ function ThemeComponent() {
   return (
     <section>
       <Details summary="Theme">
-        <div className="flex flex-row gap-2">
+        <div className="flex flex-row flex-wrap gap-2">
           <Button
             onClick={() => {
               setTheme("light");
@@ -866,13 +866,13 @@ function ThemeComponent() {
             {theme}
           </span>
         </div>
-        <div className="flex flex-row gap-2">
+        <div className="flex flex-row flex-wrap gap-2">
           <Button onClick={toggle}>disbaled: {String(flag)}</Button>
         </div>
         <ul>
           <li>
             <h2>default</h2>
-            <div className="flex flex-row gap-2">
+            <div className="flex flex-row flex-wrap gap-2">
               <Button
                 disabled={flag}
                 onClick={async ({ unlock }) => {
@@ -900,7 +900,7 @@ function ThemeComponent() {
                 >
                   {color}
                 </h2>
-                <div className="flex flex-row gap-2">
+                <div className="flex flex-row flex-wrap gap-2">
                   <Button disabled={flag} color={color}>OutlineButton</Button>
                   <Button disabled={flag} color={color} appearance="fill">FillButton</Button>
                   <Button disabled={flag} color={color} appearance="text">TextButton</Button>
@@ -1003,7 +1003,7 @@ function IndexedDBComponent() {
         {db == null
           ? "loading..."
           : <>
-            <div className="flex flex-row gap-2">
+            <div className="flex flex-row flex-wrap gap-2">
               <Button
                 onClick={async ({ unlock }) => {
                   const value = await db.read({
@@ -1142,7 +1142,7 @@ function StreamCompoment() {
   return (
     <section>
       <Details summary="Stream Response">
-        <div className="flex flex-row gap-2">
+        <div className="flex flex-row flex-wrap gap-2">
           <Button
             disabled={isProcessing}
             onClick={async ({ unlock }) => {
@@ -1402,7 +1402,7 @@ function DialogComponent() {
   return (
     <section>
       <Details summary="Dialog">
-        <div className="flex flex-row gap-2">
+        <div className="flex flex-row flex-wrap gap-2">
           <CheckBox$
             appearance="togglebox"
             checked={closeWhenScrolled.flag}
@@ -1432,7 +1432,7 @@ function DialogComponent() {
             preventRootScroll
           </CheckBox$>
         </div>
-        <div className="flex flex-row gap-2">
+        <div className="flex flex-row flex-wrap gap-2">
           <Button
             onClick={() => {
               dialog.current?.showModal();
@@ -1549,7 +1549,7 @@ function FetchComponent() {
   return (
     <section>
       <Details summary="Fetch">
-        <div className="flex flex-row gap-2">
+        <div className="flex flex-row flex-wrap gap-2">
           <Button
             onClick={async ({ unlock }) => {
               try {
@@ -1721,7 +1721,7 @@ function CarouselComponent() {
             })}
           </Carousel>
           {hasScroll &&
-            <ol className="flex flex-row justify-center w-full gap-4 flex-none">
+            <ol className="flex flex-row flex-wrap justify-center w-full gap-4 flex-none">
               {
                 [0, 1, 2, 3, 4, 5].map((num) => {
                   return (
@@ -1750,7 +1750,7 @@ function SubWindowComponent() {
   return (
     <section>
       <Details summary="Sub Window">
-        <div className="flex flex-row gap-2">
+        <div className="flex flex-row flex-wrap gap-2">
           <Button
             onClick={() => {
               win.closeAll();

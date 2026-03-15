@@ -13,7 +13,7 @@
   --text-xl: 1.6rem;
 
   --color-bg: #eee;
-  --color-fg: #111;
+  --color-fg: #404040;
   --color-bga: #eeeeeedf;
   --color-shadow: rgba(0, 0, 0, 0.4);
   --color-primary: #4593ef;
@@ -25,11 +25,11 @@
   --color-danger: #f05454;
   --color-danger-fg: #f4f4f4;
   --color-header-bg: #e0e0e4d0;
-  --color-header-fg: #111;
+  --color-header-fg: #404040;
   --color-footer-bg: #e0e0e4;
-  --color-footer-fg: #111;
+  --color-footer-fg: #404040;
   --color-nav-bg: #e0e0e4d0;
-  --color-nav-fg: #111;
+  --color-nav-fg: #404040;
   --color-mask: rgba(0, 0, 0, 0.2);
   --color-link: #0000EE;
   --color-link-visited: #551A8B;
@@ -42,10 +42,10 @@
   --spacing-button: 2rem;
 
   /* input */
-  --color-input: #111;
+  --color-input: #404040;
   --color-input-bg: #f9f9f9;
   --color-input-bd: #555;
-  --color-input-err: #111;
+  --color-input-err: #404040;
   --color-input-err-bg: #fdd;
   --color-input-err-bd: #f00;
   --color-placeholder: #888;
@@ -64,30 +64,30 @@
 @utility dark-theme-vars {
   color-scheme: dark;
   --color-bg: #2c2c2c;
-  --color-fg: #ddd;
+  --color-fg: #cdcdcd;
   --color-bga: #2c2c2cdf;
   --color-shadow: rgba(255, 255, 255, 0.4);
   --color-primary: #4085ca;
-  --color-primary-fg: #ddd;
+  --color-primary-fg: #cdcdcd;
   --color-secondary: #14a389;
-  --color-secondary-fg: #ddd;
+  --color-secondary-fg: #cdcdcd;
   --color-sub: #778;
-  --color-sub-fg: #ddd;
+  --color-sub-fg: #cdcdcd;
   --color-danger: #e85151;
-  --color-danger-fg: #ddd;
+  --color-danger-fg: #cdcdcd;
   --color-header-bg: #1c1c1fd0;
-  --color-header-fg: #ddd;
+  --color-header-fg: #cdcdcd;
   --color-footer-bg: #1c1c1f;
-  --color-footer-fg: #ddd;
+  --color-footer-fg: #cdcdcd;
   --color-nav-bg: #1c1c1fd0;
-  --color-nav-fg: #ddd;
+  --color-nav-fg: #cdcdcd;
   --color-mask: rgba(192, 192, 192, 0.2);
   --color-link: #8ab4f8;
   --color-link-visited: #c58af9;
-  --color-input: #ddd;
+  --color-input: #cdcdcd;
   --color-input-bg: #181818;
   --color-input-bd: #bbb;
-  --color-input-err: #ddd;
+  --color-input-err: #cdcdcd;
   --color-input-err-bg: #322;
   --color-input-err-bd: #f57;
   --color-error: #f57;
@@ -120,8 +120,6 @@
   html {
     background-color: var(--color-bg);
     color: var(--color-fg);
-    width: 100%;
-    height: 100%;
 
     &[data-theme="dark"] {
       @apply dark-theme-vars;
@@ -135,8 +133,9 @@
   }
 
   body {
-    width: 100%;
-    min-height: 100%;
+    width: 100dvw;
+    max-width: 100dvw;
+    min-height: 100dvh;
     display: flex;
     flex-flow: column nowrap;
     justify-content: flex-start;
