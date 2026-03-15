@@ -625,7 +625,7 @@ function Component2() {
   const { dataItems } = useSchemaContext<typeof schema>();
   console.log("render");
   return (
-    <div className="flex flex-row flex-wrap flex-wrap gap-2">
+    <div className="flex flex-row flex-wrap gap-2">
       <FormValueSetterComponent />
       <FormItem>
         <TextBox
