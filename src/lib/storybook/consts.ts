@@ -2,6 +2,7 @@ import type { Meta } from "@storybook/react-vite";
 
 export const STYLE_COLOR_ARGTYPE = {
   control: "radio",
+  description: "テーマベースのカラー",
   options: [
     undefined,
     "primary",
