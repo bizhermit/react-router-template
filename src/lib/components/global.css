@@ -20,8 +20,8 @@
   --color-primary-fg: #f4f4f4;
   --color-secondary: #30a950;
   --color-secondary-fg: #f4f4f4;
-  --color-sub: #aab;
-  --color-sub-fg: #f4f4f4;
+  --color-mute: #aab;
+  --color-mute-fg: #f4f4f4;
   --color-danger: #f05454;
   --color-danger-fg: #f4f4f4;
   --color-header-bg: #e0e0e4d0;
@@ -71,8 +71,8 @@
   --color-primary-fg: #cdcdcd;
   --color-secondary: #14a389;
   --color-secondary-fg: #cdcdcd;
-  --color-sub: #778;
-  --color-sub-fg: #cdcdcd;
+  --color-mute: #778;
+  --color-mute-fg: #cdcdcd;
   --color-danger: #e85151;
   --color-danger-fg: #cdcdcd;
   --color-header-bg: #1c1c1fd0;
@@ -105,9 +105,9 @@
   ---color-fg: var(--color-secondary-fg);
 }
 
-@utility var-color-sub {
-  ---color: var(--color-sub);
-  ---color-fg: var(--color-sub-fg);
+@utility var-color-mute {
+  ---color: var(--color-mute);
+  ---color-fg: var(--color-mute-fg);
 }
 
 @utility var-color-danger {

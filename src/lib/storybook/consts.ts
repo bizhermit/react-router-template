@@ -6,7 +6,7 @@ export const STYLE_COLOR_ARGTYPE = {
     undefined,
     "primary",
     "secondary",
-    "sub",
+    "mute",
     "danger",
   ] satisfies (StyleColor | undefined)[],
   defaultValue: undefined,

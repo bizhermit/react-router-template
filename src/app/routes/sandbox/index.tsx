@@ -438,7 +438,7 @@ function Contents(props: Route.ComponentProps) {
         <h1>Sandbox</h1>
         <LinkButton
           to="/"
-          color="sub"
+          color="mute"
           appearance="outline"
           className="ml-auto"
         // disabled
@@ -496,7 +496,7 @@ function Contents(props: Route.ComponentProps) {
               </Button$>
               <Button$
                 type="reset"
-                color="sub"
+                color="mute"
                 round
               >
                 reset
@@ -835,7 +835,7 @@ function ThemeComponent() {
   const { theme, setTheme } = useTheme();
   const { flag, toggle } = useToggle(false);
 
-  const colors = ["primary", "secondary", "sub", "danger"] as const;
+  const colors = ["primary", "secondary", "mute", "danger"] as const;
 
   return (
     <section>
@@ -894,7 +894,7 @@ function ThemeComponent() {
                   className={clsx(
                     color === "primary" && "text-primary",
                     color === "secondary" && "text-secondary",
-                    color === "sub" && "text-sub",
+                    color === "mute" && "text-mute",
                     color === "danger" && "text-danger",
                   )}
                 >
@@ -1368,7 +1368,7 @@ function IconsComponent() {
                     <Icon />
                   </Button>
                   <Button
-                    color="sub"
+                    color="mute"
                     appearance="outline"
                     round
                   >
@@ -1484,7 +1484,7 @@ function DialogComponent() {
                     <span className="w-full text-right">confirm</span>
                   </>
                 ),
-                color: "sub",
+                color: "mute",
                 t,
               });
               console.log("confirm", ret);
@@ -1729,7 +1729,7 @@ function CarouselComponent() {
                       <Button
                         appearance="fill"
                         onClick={() => carousel.current?.select(num)}
-                        color={currentIndex === num ? "primary" : "sub"}
+                        color={currentIndex === num ? "primary" : "mute"}
                       >
                         {num}
                       </Button>

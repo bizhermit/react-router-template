@@ -45,7 +45,7 @@ function Component() {
       >
         <Button$
           type="submit"
-          color="sub"
+          color="mute"
         >
           Sign Out
         </Button$>

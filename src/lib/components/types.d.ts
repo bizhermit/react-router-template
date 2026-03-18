@@ -1,1 +1,1 @@
-type StyleColor = "primary" | "secondary" | "sub" | "danger";
+type StyleColor = "primary" | "secondary" | "mute" | "danger";
