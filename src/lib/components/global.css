@@ -120,6 +120,7 @@
   html {
     background-color: var(--color-bg);
     color: var(--color-fg);
+    width: 100%;
 
     &[data-theme="dark"] {
       @apply dark-theme-vars;
@@ -133,8 +134,8 @@
   }
 
   body {
-    width: 100dvw;
-    max-width: 100dvw;
+    width: 100%;
+    max-width: 100%;
     min-height: 100dvh;
     display: flex;
     flex-flow: column nowrap;
