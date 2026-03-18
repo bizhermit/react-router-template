@@ -1,5 +1,10 @@
 import { useState } from "react";
 
+/**
+ * トグルフック
+ * @param init
+ * @returns
+ */
 export const useToggle = (init: boolean | (() => boolean) = false) => {
   const [f, set] = useState(init);
   return {

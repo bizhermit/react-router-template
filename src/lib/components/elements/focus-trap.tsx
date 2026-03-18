@@ -1,14 +1,25 @@
 import type { FocusEvent, HTMLAttributes, ReactNode } from "react";
 import { getNextFocusableElement, getPrevFocusableElement } from "../../client/dom/focus";
 
+/** フォーカストラップ Props */
 interface FocusTrapProps {
+  /** 前方方向へのフォーカストラップ */
   onFocusHead?: boolean | ((e: FocusEvent<HTMLDivElement>) => void);
+  /** 前方方向フォーカストラップ要素 Props */
   headProps?: HTMLAttributes<HTMLDivElement>;
+  /** 後方方向へのフォーカストラップ */
   onFocusLast?: boolean | ((e: FocusEvent<HTMLDivElement>) => void);
+  /** 後方方向フォーカストラップ要素 Props */
   lastProps?: HTMLAttributes<HTMLDivElement>;
+  /** 子要素 */
   children?: ReactNode;
 };
 
+/**
+ * フォーカストラップ
+ * @param param {@link FocusTrapProps}
+ * @returns
+ */
 export function FocusTrap({
   onFocusHead,
   headProps,

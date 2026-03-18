@@ -5,23 +5,34 @@ import { useSchemaItem } from "../../../../shared/hooks/schema";
 import { WithMessage } from "../message";
 import { InputGroupWrapper } from "../wrapper/input-group";
 
+/** ラジオボタン対応スキーマアイテム */
 type RadioButtonsSchemaProps =
   | Schema.$String
   | Schema.$Number
   | Schema.$Boolean;
 ;
 
+/** ラジオボタン ref オブジェクト */
 export interface RadioButtonsRef extends InputRef { };
 
+/** ラジオボタン Props */
 export type RadioButtonsProps<D extends Schema.DataItem<RadioButtonsSchemaProps>> = Overwrite<
   InputPropsWithDataItem<D>,
   {
+    /** 見た目 */
     appearance?: RadioButtonAppearance;
+    /** 配色 */
     color?: StyleColor;
+    /** ラジオアイテム（配列） */
     source?: Schema.Source<Schema.ValueType<D["_"]>>;
   }
 >;
 
+/**
+ * ラジオボタン（スキーマ対応）
+ * @param param {@link RadioButtonsProps}
+ * @returns
+ */
 export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>({
   className,
   style,

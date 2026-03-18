@@ -3,6 +3,7 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import * as authSchema from "./schema";
 
+/** 認証設定 */
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg",

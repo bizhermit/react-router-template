@@ -1,30 +1,44 @@
 import { useState } from "react";
-import { TextArea$, type TextArea$Ref } from ".";
+import { TextArea$, type TextArea$Ref, type TextAreaResize } from ".";
 import { useSchemaItem } from "../../../../shared/hooks/schema";
 import { getValidationValue } from "../../../../shared/schema/utilities";
 import { WithMessage } from "../message";
 
-type Resize = "none" | "vertical" | "horizontal" | "both";
-
+/** テキストエリア ref オブジェクト */
 export interface TextAreaRef extends TextArea$Ref { };
 
+/** テキストエリア Props */
 export type TextAreaProps<D extends Schema.DataItem<Schema.$String>> = Overwrite<
   InputPropsWithDataItem<D>,
   {
+    /** プレースホルダー */
     placeholder?: string;
+    /** cols */
     cols?: number;
-    resize?: Resize;
+    /** リサイズモード */
+    resize?: TextAreaResize;
   } & ({
+    /** 行数 */
     rows?: number;
+    /** 最小行数（undefined固定） */
     minRows?: undefined;
+    /** 最大行数（undefined固定） */
     maxRows?: undefined;
   } | {
+    /** 行数（可変） */
     rows: "fit";
+    /** 最小行数 */
     minRows?: number;
+    /** 最大行数 */
     maxRows?: number;
   })
 >;
 
+/**
+ * テキストエリア
+ * @param param {@link TextAreaProps}
+ * @returns
+ */
 export function TextArea<D extends Schema.DataItem<Schema.$String>>({
   className,
   style,

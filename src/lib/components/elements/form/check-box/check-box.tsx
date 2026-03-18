@@ -3,17 +3,27 @@ import { CheckBox$, type CheckBox$Ref, type CheckBoxAppearance } from ".";
 import { useSchemaItem } from "../../../../shared/hooks/schema";
 import { WithMessage } from "../message";
 
+/** チェックボックス ref オブジェクト */
 export interface CheckBoxRef extends CheckBox$Ref { };
 
+/** チェックボックス Props */
 export type CheckBoxProps<D extends Schema.DataItem<Schema.$Boolean>> = Overwrite<
   InputPropsWithDataItem<D>,
   {
+    /** チェックボックス見た目 */
     appearance?: CheckBoxAppearance;
+    /** チェックボックス配色 */
     color?: StyleColor;
+    /** チェックボックステキスト */
     children?: ReactNode;
   }
 >;
 
+/**
+ * チェックボックス（スキーマ対応）
+ * @param param {@link CheckBoxProps}
+ * @returns
+ */
 export function CheckBox<D extends Schema.DataItem<Schema.$Boolean>>({
   className,
   style,

@@ -5,48 +5,67 @@ import { clsx, getColorClassName } from "../../utilities";
 import { InputDummyFocus } from "../dummy-focus";
 import { InputLabelWrapper, type InputLabelProps, type InputLabelWrapperProps } from "../wrapper/input-label";
 
+/** スライダー ref オブジェクト */
 export interface Slider$Ref extends InputRef {
+  /** DOM input[type="slider"] */
   inputElement: HTMLInputElement;
 };
 
+/** スライダー Props */
 export type Slider$Props = Overwrite<
   InputLabelWrapperProps,
   InputLabelProps<{
+    /** input Props */
     inputProps?: Overwrite<
       Omit<
         InputHTMLAttributes<HTMLInputElement>,
         InputOmitProps
       >,
       {
+        /** 最小値 @default 0 */
         min?: number;
+        /** 最大値 @default 100 */
         max?: number;
+        /** ステップ @default 1 */
         step?: number;
       }
     >;
-    labelProps?: HTMLAttributes<HTMLSpanElement>;
+    /** 配色 */
     color?: StyleColor;
+    /** 数値ラベル表示 */
     showValueText?: boolean;
+    /** 数値ラベル Props */
+    valueTextProps?: HTMLAttributes<HTMLSpanElement>;
+    /** データリスト（目盛り） */
     dataList?: {
+      /** id */
       id: string;
+      /** 目盛りアイテム（配列） */
       source: Schema.Source<number | null | undefined>;
+      /** 目盛り非表示 @default false */
       hideScales?: boolean;
     };
   } & InputValueProps<number, number | undefined>>
 >;
 
-const DEFAULT_MIN = 0;
-const DEFAULT_MAX = 100;
+const DEFAULT_MIN = 0; // デフォルト最小値
+const DEFAULT_MAX = 100; // デフォルト最大値
 
+/**
+ * スライダー
+ * @param param {@link Slider$Props}
+ * @returns
+ */
 export function Slider$({
   ref,
   invalid,
   inputProps,
-  labelProps,
   state = "enabled",
   className,
   children,
   color,
   showValueText,
+  valueTextProps,
   dataList,
   defaultValue,
   onChangeValue,
@@ -153,10 +172,10 @@ export function Slider$({
         showValueText &&
         value != null &&
         <span
-          {...labelProps}
+          {...valueTextProps}
           className={clsx(
             "_ipt-slider-label",
-            labelProps?.className,
+            valueTextProps?.className,
           )}
         >
           {value}

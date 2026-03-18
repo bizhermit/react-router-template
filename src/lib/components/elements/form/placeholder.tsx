@@ -1,8 +1,14 @@
 import type { HTMLAttributes } from "react";
 import { clsx } from "../utilities";
 
+/** プレースホルダー Props */
 type PlaceholderProps = HTMLAttributes<HTMLDivElement>;
 
+/**
+ * プレースホルダー
+ * @param param {@link PlaceholderProps}
+ * @returns
+ */
 export function Placeholder({
   className,
   children,

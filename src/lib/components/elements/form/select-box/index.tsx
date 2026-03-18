@@ -5,22 +5,33 @@ import { InputDummyFocus } from "../dummy-focus";
 import { Placeholder } from "../placeholder";
 import { InputFieldWrapper, type InputFieldProps, type InputFieldWrapperProps } from "../wrapper/input-field";
 
+/** セレクトボックス ref オブジェクト */
 export interface SelectBox$Ref extends InputRef {
+  /** DOM select */
   selectElement: HTMLSelectElement;
 };
 
+/** セレクトボックス Props */
 export type SelectBox$Props = Overwrite<
   InputFieldWrapperProps,
   InputFieldProps<{
+    /** select Props */
     selectProps?: Omit<
       SelectHTMLAttributes<HTMLSelectElement>,
       InputOmitProps
     >;
+    /** 子要素（ボタン他） */
     children?: ReactNode;
+    /** プレースホルダー */
     placeholder?: ReactNode;
   } & InputValueProps<string | number | boolean, string>>
 >;
 
+/**
+ * セレクトボックス
+ * @param param {@link SelectBox$Props}
+ * @returns
+ */
 export function SelectBox$({
   ref,
   invalid,
@@ -112,11 +123,17 @@ export function SelectBox$({
   );
 };
 
+/** セレクトボックス未選択項目 Props */
 interface SelectBoxEmptyOptionProps {
   required?: boolean;
   children?: ReactNode;
 };
 
+/**
+ * セレクトボックス未選択項目
+ * @param param {@link SelectBoxEmptyOptionProps}
+ * @returns
+ */
 export function SelectBoxEmptyOption({
   required,
   children,

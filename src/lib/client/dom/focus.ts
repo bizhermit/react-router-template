@@ -1,3 +1,4 @@
+/** フォーカス可能対象要素セレクタ */
 const FOCUSABLE_SELECTOR = [
   `a[href]`,
   `button:not([disabled],[tabindex="-1"])`,
@@ -9,6 +10,11 @@ const FOCUSABLE_SELECTOR = [
   `[contenteditable="true"]`,
 ].join(",");
 
+/**
+ * スコープ内からフォーカス可能な要素を取得する
+ * @param scope
+ * @returns
+ */
 export function getFocusableElements(scope?: HTMLElement | HTMLElement[]) {
   const elems = Array.isArray(scope) ?
     scope.filter(s => !!s).map(scopeElem => Array.from(
@@ -37,10 +43,21 @@ export function getFocusableElements(scope?: HTMLElement | HTMLElement[]) {
   });
 }
 
+/**
+ * スコープ内からフォーカス可能な最初の要素を取得する
+ * @param scope
+ * @returns
+ */
 export function getFocusableElement(scope?: HTMLElement | HTMLElement[]): HTMLElement | undefined {
   return getFocusableElements(scope)[0];
 };
 
+/**
+ * スコープ内からフォーカス可能な一つ前の要素を取得する
+ * @param target
+ * @param scope
+ * @returns
+ */
 export function getPrevFocusableElement(
   target: Element | null | undefined = document.activeElement,
   scope?: HTMLElement | HTMLElement[]
@@ -52,6 +69,12 @@ export function getPrevFocusableElement(
   return focusables[(focusables.length + index - 1) % focusables.length];
 };
 
+/**
+ * スコープ内からフォーカス可能な一つ次の要素を取得する
+ * @param target
+ * @param scope
+ * @returns
+ */
 export function getNextFocusableElement(
   target: Element | null | undefined = document.activeElement,
   scope?: HTMLElement | HTMLElement[]

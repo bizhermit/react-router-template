@@ -1,6 +1,7 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 
+/** DBコネクションプール */
 const pool = new Pool({
   host: process.env.DATABASE_HOST || "localhost",
   port: Number(process.env.POSTGRES_PORT || 5432),
@@ -12,6 +13,7 @@ const pool = new Pool({
   connectionTimeoutMillis: 2_000,
 });
 
+/** DB */
 export const db = drizzle({
   client: pool,
 });

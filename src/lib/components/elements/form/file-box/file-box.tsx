@@ -5,24 +5,32 @@ import { convertBase64ToFile } from "../../../../shared/objects/file";
 import { getValidationValue } from "../../../../shared/schema/utilities";
 import { WithMessage } from "../message";
 
+/** ファイルボックス ref オブジェクト */
 export interface FileBoxRef extends FileBox$Ref { };
 
+/** ファイルボックス Props */
 export type FileBoxProps<D extends Schema.DataItem<Schema.$File>> = Overwrite<
   InputPropsWithDataItem<D>,
   {
+    /** プレースホルダー */
     placeholder?: ReactNode;
   } & (
     | {
+      /** ファイル表示方法: リンク */
       viewMode?: "link";
+      /** リンククリック時のコールバック */
       onViewClick?: (context: LinkContext, e: MouseEvent<HTMLAnchorElement>) => void;
     }
     | {
+      /** ファイル表示方法: 画像 */
       viewMode?: "image";
+      /** 画像クリック時のコールバック */
       onViewClick?: (context: ImageContext, e: MouseEvent<HTMLImageElement>) => void;
     }
   )
 >;
 
+/** ファイルボックス */
 export function FileBox<D extends Schema.DataItem<Schema.$File>>({
   className,
   style,
@@ -150,18 +158,30 @@ export function FileBox<D extends Schema.DataItem<Schema.$File>>({
   );
 };
 
+/** ファイルボックス表示 Props */
 type ViewerProps = {
   value: unknown;
   fileName: string;
 };
 
+/** リンク表示コンテキスト */
 type LinkContext = {
+  /** データ形式 */
   type: "url" | "base64" | "file" | "null";
+  /** リンクURL */
   href: string;
+  /** 子要素 */
   children: ReactNode;
+  /** 取り消しコールバック */
   revoke?: () => void;
 };
 
+/**
+ * リンク表示変換
+ * @param value ファイルオブジェクト または リンクURL
+ * @param fileName ファイル名
+ * @returns
+ */
 function parseToLinkContext(value: unknown, fileName: string): LinkContext {
   if (value == null) {
     return { type: "null", href: "", children: null };
@@ -203,6 +223,11 @@ function parseToLinkContext(value: unknown, fileName: string): LinkContext {
   }
 };
 
+/**
+ * ファイルリンク表示
+ * @param param
+ * @returns
+ */
 export function FileBoxLinkView({ value, fileName, onClick }: ViewerProps & {
   onClick?: (context: LinkContext, e: MouseEvent<HTMLAnchorElement>) => void;
 }) {
@@ -235,19 +260,30 @@ export function FileBoxLinkView({ value, fileName, onClick }: ViewerProps & {
   );
 };
 
+/** 画像表示コンテキスト */
 type ImageContext = {
+  /** データ形式 */
   type: "url" | "base64" | "file" | "null";
+  /** src */
   src: string;
+  /** alt */
   alt: string;
+  /** 取り消しコールバック */
   revoke?: () => void;
 };
 
+/** 画像変換失敗時コンテキスト */
 const FAILED_IMAGE_CONTEXT: ImageContext = {
   type: "null",
   src: "",
   alt: "Not image.",
 };
 
+/**
+ * 画像表示変換（データ文字列）
+ * @param value ファイルオブジェクト
+ * @returns
+ */
 function parseFileToSrc(value: File) {
   return new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
@@ -268,6 +304,12 @@ function parseFileToSrc(value: File) {
   });
 };
 
+/**
+ * 画像表示変換
+ * @param value ファイルオブジェクト または リンクURL
+ * @param fileName ファイル名
+ * @returns
+ */
 async function parseToImageContext(value: unknown, fileName: string): Promise<ImageContext | null> {
   if (value == null) return FAILED_IMAGE_CONTEXT;
   if (value instanceof File) {
@@ -303,6 +345,11 @@ async function parseToImageContext(value: unknown, fileName: string): Promise<Im
   }
 };
 
+/**
+ * 簡易画像判定
+ * @param src
+ * @returns
+ */
 function isValidImgSrc(src: string) {
   try {
     const url = new URL(src, window.location.href);
@@ -315,6 +362,11 @@ function isValidImgSrc(src: string) {
   }
 };
 
+/**
+ * ファイル画像表示
+ * @param param
+ * @returns
+ */
 export function FileBoxImageView({ value, fileName, onClick }: ViewerProps & {
   onClick?: (context: ImageContext, e: MouseEvent<HTMLImageElement>) => void;
 }) {

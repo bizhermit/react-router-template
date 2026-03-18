@@ -1,11 +1,20 @@
 import { useMemo, useState } from "react";
 
+/** ページネーション Props */
 interface PaginationProps<T> {
+  /** 配列 */
   value: Array<T> | null | undefined;
+  /** １ページあたりの件数 */
   limit: number;
+  /** 初期ページ（1 base） */
   initPage?: number;
 };
 
+/**
+ * ページネーション
+ * @param props {@link PaginationProps}
+ * @returns
+ */
 export function usePagination<T>(props: PaginationProps<T>) {
   const length = props.value?.length ?? 0;
   const maxPage = Math.max(1, Math.ceil(length / props.limit));

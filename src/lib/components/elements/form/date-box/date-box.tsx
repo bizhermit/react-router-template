@@ -6,18 +6,28 @@ import { parseTypedDateString } from "../../../../shared/schema/date";
 import { getValidationValue } from "../../../../shared/schema/utilities";
 import { WithMessage } from "../message";
 
+/** 日付ボックス対応スキーマアイテム */
 type DateBoxSchemaProps = Schema.$Date | Schema.$Month | Schema.$DateTime;
 
+/** 日付ボックス ref オブジェクト */
 export interface DateBoxRef extends DateBox$Ref { };
 
+/** 日付ボックス Props */
 export type DateBoxProps<D extends Schema.DataItem<DateBoxSchemaProps>> = Overwrite<
   InputPropsWithDataItem<D>,
   {
+    /** 選択候補アイテム（配列） */
     source?: Schema.Source<Schema.ValueType<D["_"]>>;
+    /** プレースホルダー */
     placeholder?: string;
   }
 >;
 
+/**
+ * 日付ボックス（スキーマ対応）
+ * @param param {@link DateBoxProps}
+ * @returns
+ */
 export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
   className,
   style,

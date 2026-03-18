@@ -2,11 +2,18 @@ import { useLayoutEffect, useRef } from "react";
 import { unstable_usePrompt } from "react-router";
 import { useText } from "./i18n";
 
-interface Options {
+/** ページ離脱制御フック */
+interface PageExitPromptOptions {
+  /** メッセージ */
   message?: string;
 }
 
-export function usePageExitPropmt(options?: Options) {
+/**
+ * ページ離脱制御フック
+ * @param options
+ * @returns
+ */
+export function usePageExitPrompt(options?: PageExitPromptOptions) {
   const enabledRef = useRef(false);
   const t = useText();
 

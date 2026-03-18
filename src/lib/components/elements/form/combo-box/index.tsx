@@ -6,52 +6,79 @@ import { Style } from "../../style";
 import { clsx } from "../../utilities";
 import { InputFieldWrapper, type InputFieldProps, type InputFieldWrapperProps } from "../wrapper/input-field";
 
+/** コンボボックス値 */
 type AtomValueType = string | number | boolean;
 
+/** コンボボックス ref オブジェクト */
 export interface ComboBox$Ref extends InputRef {
   inputElement: HTMLInputElement;
 };
 
+/** コンボボックス Props */
 export type ComboBox$Props = Overwrite<
   InputFieldWrapperProps,
   InputFieldProps<{
+    /** input Props */
     inputProps?: Omit<
       InputHTMLAttributes<HTMLInputElement>,
       InputOmitProps
     >;
+    /** name */
     name?: string;
+    /** 未選択時のコンボリスト初期選択値 */
     initValue?: AtomValueType | null | undefined;
+    /** 横幅を選択肢文字列に合わせない @default false */
     manualWidth?: boolean;
+    /** プレースホルダー */
     placeholder?: string;
+    /** 子要素（ボタン他） */
     children?: ReactNode;
   } & (
       | ({
+        /** 複数選択不可 */
         multiple?: false;
       } & InputValueProps<AtomValueType, string>)
       | ({
+        /** 複数選択可 */
         multiple: true;
       } & InputValueProps<AtomValueType[]>)
     )
   >
 >;
 
+/** コンボボックスコンテキスト Props */
 export interface ComboBoxContextProps {
+  /** name */
   name: string;
+  /** ポップオーバーID */
   popoverId: string;
+  /** 複数選択制御 */
   multiple: boolean;
+  /** 状態 */
   state: Schema.Mode;
+  /** 選択中の値（複数選択対応のため常時配列） */
   value: AtomValueType[];
+  /** valueをReact状態管理制御 */
   isControlled: boolean;
+  /** テキストフィルター */
   filterText: string;
+  /** 選択トリガー */
   change: () => void;
+  /** suppressHydrationWarning（id自動採番時の回避用） */
   suppressHydrationWarning: boolean;
 };
 
+/** コンボボックスコンテキスト */
 const ComboBoxContext = createContext<ComboBoxContextProps | null>(null);
 
-const ITEM_SELECTOR_BASE = `label[aria-hidden="false"]`;
-const CHECK_INPUT_SELECTOR_BASE = `input:is([type="checkbox"],[type="radio"])`;
+const ITEM_SELECTOR_BASE = `label[aria-hidden="false"]`; // コンボボックスアイテムセレクター
+const CHECK_INPUT_SELECTOR_BASE = `input:is([type="checkbox"],[type="radio"])`; // コンボボックス選択アイテムセレクター
 
+/**
+ * コンボボックス
+ * @param param {@link ComboBox$Props}
+ * @returns
+ */
 export function ComboBox$({
   ref,
   id: wrapperId,
@@ -66,7 +93,7 @@ export function ComboBox$({
   autoFocus,
   defaultValue,
   initValue,
-  manualWidth,
+  manualWidth = false,
   onChangeValue,
   onBlur,
   ...props

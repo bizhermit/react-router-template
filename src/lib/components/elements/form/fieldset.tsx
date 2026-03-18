@@ -1,18 +1,26 @@
 import { use, type FieldsetHTMLAttributes } from "react";
 import { FieldSetContext } from "../../../shared/hooks/schema";
 
+/** フィールドセット Props  */
 type FieldSetProps = Overwrite<
   FieldsetHTMLAttributes<HTMLFieldSetElement>,
   {
+    /** 読取専用 @default false */
     readOnly?: boolean;
+    /** 非表示 @default false */
     hide?: boolean;
   }
 >;
 
+/**
+ * フィールドセット（disabled, readonly対応）
+ * @param param {@link FieldSetProps}
+ * @returns
+ */
 export function FieldSet({
-  disabled,
-  readOnly,
-  hide,
+  disabled = false,
+  readOnly = false,
+  hide = false,
   children,
   ...props
 }: FieldSetProps) {

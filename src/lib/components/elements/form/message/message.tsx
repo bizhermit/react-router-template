@@ -4,13 +4,20 @@ import { I18nContext } from "../../../../shared/hooks/i18n";
 import { SchemaContext } from "../../../../shared/hooks/schema";
 import { getResultMessage } from "../../../../shared/schema/message";
 
+/** メッセージ Props */
 export type InputMessageProps = Overwrite<
   HTMLAttributes<HTMLSpanElement>,
   {
+    /** スキーマ */
     $: Schema.DataItem;
   }
 >;
 
+/**
+ * メッセージ（スキーマ対応）
+ * @param param {@link InputMessageProps}
+ * @returns
+ */
 export function InputMessage({
   $,
   ...props

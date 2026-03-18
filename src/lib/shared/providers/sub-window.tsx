@@ -1,8 +1,14 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { SubWindowContext, type SubWindowCloseTrigger, type SubWindowControllerContext } from "../hooks/sub-window";
 
+/** デフォルトクローズトリガー */
 const DEFAULT_CLOSE_TRIGGER: SubWindowCloseTrigger = {};
 
+/**
+ * サブウィンドウプロバイダー
+ * @param props
+ * @returns
+ */
 export function SubWindowProvider(props: {
   closeTrigger?: SubWindowCloseTrigger;
   initialUrl?: string;

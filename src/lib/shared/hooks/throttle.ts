@@ -1,5 +1,12 @@
 import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 
+/**
+ * 一定間隔で処理を実行する
+ * @param callback 処理
+ * @param timeout 間隔 @default 0
+ * @param delayFirst 最初の処理を即実行させず遅らせる @default false
+ * @returns
+ */
 export function useThrottle<T extends Array<unknown>>(
   callback: (...args: T) => void,
   timeout = 0,

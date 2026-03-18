@@ -5,9 +5,9 @@ export interface ThrottleFunc<T extends Array<unknown>> {
 
 /**
  * 一定間隔で処理を実行する
- * @param callback
- * @param timeout
- * @param delayFirst
+ * @param callback 処理
+ * @param timeout 間隔 @default 0
+ * @param delayFirst 最初の処理を即実行させず遅らせる @default false
  * @returns
  */
 export default function throttle<T extends Array<unknown>>(

@@ -7,26 +7,45 @@ import { parseToReactNode } from "./i18n-text";
 import { CrossIcon } from "./icon";
 import { clsx, getColorClassName } from "./utilities";
 
+/** メッセージボックスオプション */
 interface MessageBoxOptions {
+  /** ref */
   ref?: RefObject<HTMLDivElement>;
+  /** ヘッダー */
   header?: ReactNode;
+  /** ヘッダーID */
   headerId?: string;
+  /** ボディ */
   body?: ReactNode;
+  /** ボディID */
   bodyId?: string;
+  /** フッター */
   footer?: ReactNode;
+  /** フッターID */
   color?: StyleColor;
 };
 
+/** メッセージボックス Props */
 type MessageBoxProps = Overwrite<
   Omit<HTMLAttributes<HTMLDivElement>, "children">,
   MessageBoxOptions
 >;
 
+/**
+ * ReactNodeへ変換（文字列の場合のみ）
+ * @param content
+ * @returns
+ */
 function optimizeEndOfLines(content: ReactNode) {
   if (typeof content !== "string") return content;
   return parseToReactNode(content);
 };
 
+/**
+ * メッセージボックス
+ * @param param {@link MessageBoxProps}
+ * @returns
+ */
 function MessageBox({
   ref,
   header,
@@ -80,14 +99,46 @@ function MessageBox({
   );
 };
 
+/** メッセージボックス表示オプション */
 interface OpenMessageProps {
+  /** モーダル/モードレス */
   modeless?: boolean;
+  /**
+   * メッセージボックス要素構築コールバック
+   * @param element
+   * @returns
+   */
   setupElement: (element: HTMLDialogElement) => void;
-  component: (props: { close: (value?: unknown) => Promise<void>; }) => ReactNode;
+  /**
+   * 表示コンポーネント
+   * @param props
+   * @returns
+   */
+  component: (
+    props: {
+      /**
+       * クローズトリガー
+       * @param value
+       * @returns
+       */
+      close: (value?: unknown) => Promise<void>;
+    }
+  ) => ReactNode;
+  /** Escapeクローズ時の戻り値 */
   escapeValue?: unknown;
+  /**
+   * クローズコールバック
+   * @param value
+   * @returns
+   */
   closeCallback?: (value: unknown) => void;
 };
 
+/**
+ * メッセージボックス表示
+ * @param props {@link OpenMessageProps}
+ * @returns
+ */
 function openMessage(props: OpenMessageProps) {
   const elem = document.createElement("dialog");
   elem.classList.add("_dialog", "_msgbox-dialog");
@@ -151,21 +202,34 @@ function openMessage(props: OpenMessageProps) {
   } as const;
 };
 
+/** メッセージボックス 抽象Props */
 interface MessageBaseProps {
+  /** ヘッダー */
   header?: ReactNode;
+  /** ボディ */
   body?: ReactNode;
+  /** 配色 */
   color?: StyleColor;
+  /** i18nアクセサー */
   t?: I18nGetter;
 };
 
+/** アラートメッセージ Props */
 interface AlertProps extends MessageBaseProps {
+  /** ボタンテキスト */
   buttonText?: ReactNode;
 };
 
-const ALERT_HEADER_ID = "$alert-title";
-const ALERT_BODY_ID = "$alert-body";
-let alertIncrementId = 0;
+const ALERT_HEADER_ID = "$alert-title"; // デフォルトアラートメッセージヘッダーIDプレフィックス
+const ALERT_BODY_ID = "$alert-body"; // デフォルトアラートメッセージボディIDプレフィックス
+let alertIncrementId = 0; // アラートメッセージIDカウンター
 
+/**
+ * アラートメッセージ
+ * - 処理インターセプト用
+ * @param props {@link AlertProps}
+ * @returns
+ */
 export function $alert(props: AlertProps) {
   return new Promise<void>((resolve) => {
     const id = alertIncrementId++;
@@ -212,15 +276,24 @@ export function $alert(props: AlertProps) {
   });
 };
 
+/** 確認メッセージ Props */
 interface ConfirmProps extends MessageBaseProps {
+  /** ポジティブボタンテキスト */
   positiveButtonText?: ReactNode;
+  /** ネガティブボタンテキスト */
   nevativeButtonText?: ReactNode;
 };
 
-const CONFIRM_HEADER_ID = "$confirm-title";
-const CONFIRM_BODY_ID = "$confirm-body";
-let confirmIncrementId = 0;
+const CONFIRM_HEADER_ID = "$confirm-title"; // デフォルト確認メッセージヘッダーIDプレフィックス
+const CONFIRM_BODY_ID = "$confirm-body"; // デフォルト確認メッセージボディIDプレフィックス
+let confirmIncrementId = 0; // 確認メッセージIDカウンター
 
+/**
+ * 確認メッセージ
+ * - 処理インターセプト用
+ * @param props {@link ConfirmProps}
+ * @returns
+ */
 export function $confirm(props: ConfirmProps) {
   return new Promise<boolean>((resolve) => {
     const id = confirmIncrementId++;
@@ -279,21 +352,33 @@ export function $confirm(props: ConfirmProps) {
   });
 };
 
+/** トーストメッセージ Props */
 interface ToastProps extends Omit<MessageBaseProps, "header"> {
+  /** 表示時間 @default 10000 (ms) */
   duration?: number | false;
+  /** ロール @default "status" */
   role?: "status" | "alert";
 };
 
-export function $toast(props: ToastProps) {
+/**
+ * トーストメッセージ
+ * @param props {@link ToastProps}
+ * @returns
+ */
+export function $toast({
+  role = "status",
+  duration = 10000,
+  ...props
+}: ToastProps) {
   return new Promise<void>((resolve) => {
     let timeout: NodeJS.Timeout | null;
     openMessage({
       modeless: true,
       setupElement: (elem) => {
-        elem.setAttribute("role", props.role ?? "status");
+        elem.setAttribute("role", role);
         elem.setAttribute(
           "aria-live",
-          props.role === "alert" ? "assertive" : "polite"
+          role === "alert" ? "assertive" : "polite"
         );
       },
       closeCallback: () => {
@@ -304,10 +389,10 @@ export function $toast(props: ToastProps) {
         resolve();
       },
       component: ({ close }) => {
-        if (props.duration !== false) {
+        if (duration !== false) {
           timeout = setTimeout(() => {
             close();
-          }, props.duration ?? 10000);
+          }, duration);
         }
         return (
           <div

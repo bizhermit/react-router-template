@@ -4,28 +4,41 @@ import { InputDummyFocus } from "../dummy-focus";
 import { InputLabelText } from "../input-label-text";
 import { InputLabelWrapper, type InputLabelProps, type InputLabelWrapperProps } from "../wrapper/input-label";
 
+/** ラジオボタン ref オブジェクト */
 export interface RadioButton$Ref extends InputRef {
+  /** DOM input */
   inputElement: HTMLInputElement;
 };
 
+/** ラジオボタン見た目 */
 export type RadioButtonAppearance =
   | "radio"
   | "button"
   ;
 
+/** ラジオボタン Props */
 export type RadioButton$Props = Overwrite<
   InputLabelWrapperProps,
   InputLabelProps<{
+    /** input Props */
     inputProps?: Omit<
       InputHTMLAttributes<HTMLInputElement>,
       InputOmitProps
     >;
+    /** 見た目 */
     appearance?: RadioButtonAppearance;
+    /** 配色 */
     color?: StyleColor;
+    /** 値 */
     value?: string | number | boolean;
   } & InputCheckedProps>
 >;
 
+/**
+ * ラジオボタン（単項目）
+ * @param param {@link Radiobuttonpro}
+ * @returns
+ */
 export function RadioButton$({
   ref,
   invalid,

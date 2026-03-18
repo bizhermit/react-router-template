@@ -45,7 +45,7 @@ import { clsx } from "$/components/elements/utilities";
 import { useAbortController } from "$/shared/hooks/abort-controller";
 import { useLocale, useText } from "$/shared/hooks/i18n";
 import { useInterval } from "$/shared/hooks/interval";
-import { usePageExitPropmt } from "$/shared/hooks/page-exit-prompt";
+import { usePageExitPrompt } from "$/shared/hooks/page-exit-prompt";
 import { useSchema, useSchemaArray, useSchemaContext, useSchemaValue } from "$/shared/hooks/schema";
 import { useSubWindow } from "$/shared/hooks/sub-window";
 import { useToggle } from "$/shared/hooks/toggle";
@@ -398,7 +398,7 @@ function NavMenu() {
 
 function Contents(props: Route.ComponentProps) {
   const fetcher = useFetcher();
-  const handleConfirmEnabled = usePageExitPropmt();
+  const handleConfirmEnabled = usePageExitPrompt();
 
   const {
     SchemaProvider,

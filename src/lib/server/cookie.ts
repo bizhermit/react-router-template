@@ -1,5 +1,10 @@
 import { getCookieImpl, getCookiesImpl } from "../shared/cookie";
 
+/**
+ * リクエストからcookieを取得する
+ * @param request {@link Request}
+ * @returns
+ */
 export function cookieStore(request: Request) {
   const cookie = request.headers.get("cookie") || "";
   const cache = new Map<string, string | undefined>();

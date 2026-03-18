@@ -1,18 +1,40 @@
 import { clone } from ".";
 
+/**
+ * 文字列から配列番地を取得する
+ * @param name
+ * @returns
+ */
 export function getArrayIndex(name: string) {
   return name.match(/^\[(\d*)\]$/);
 };
 
+/**
+ * 文字列からプロパティまたは配列番地を取得する
+ * @param name
+ * @returns
+ */
 export function getArrayIndexOrName(name: string) {
   const r = getArrayIndex(name);
   return r ? Number(r[1] || "NaN") : name;
 };
 
+/**
+ * アクセスプロパティ名を取得する
+ * "hoge.fuga[1]" -> ["hoge", "fuga", "1"]
+ * @param name
+ * @returns
+ */
 export function splitName(name: string) {
   return name.split(/\.|(\[\d*\])/).filter(s => s);
 };
 
+/**
+ * アクセスプロパティ名を取得する（相対パス対応）
+ * @param baseName
+ * @param relativeName
+ * @returns
+ */
 export function getRelativeName(baseName: string, relativeName: string) {
   const relative = relativeName.match(/^(\.+)(.*)/);
   if (!relative) return relativeName;
@@ -29,10 +51,15 @@ export function getRelativeName(baseName: string, relativeName: string) {
 };
 
 type Item = {
+  /** プロパティ名 */
   name: string;
+  /** 値 */
   value: unknown;
 };
 
+/**
+ * 変更監視データオブジェクト
+ */
 export class ProxyData {
 
   private data: Record<string, unknown>;

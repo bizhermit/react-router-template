@@ -8,11 +8,14 @@ import { WithMessage } from "../message";
 import { SelectBox$, SelectBoxEmptyOption, type SelectBox$Ref } from "../select-box";
 import { InputGroupWrapper } from "../wrapper/input-group";
 
+/** 日付セレクトボックス ref オブジェクト */
 export interface DateSelectBoxRef extends InputRef { };
 
+/** 日付セレクトボックス Props */
 export type DateSelectBoxProps<D extends Schema.DataItem<Schema.$SplitDate>> = Overwrite<
   InputPropsWithDataItem<D>,
   {
+    /** プレースホルダー */
     placeholder?:
     | [string, string]
     | [string, string, string]
@@ -22,13 +25,32 @@ export type DateSelectBoxProps<D extends Schema.DataItem<Schema.$SplitDate>> = O
   }
 >;
 
-const DEFAULT_MIN_DATE = new Date("1900-01-01T00:00:00");
-const DEFAULT_MAX_DATE = new Date("2099-12-31T23:59:59");
+const DEFAULT_MIN_DATE = new Date("1900-01-01T00:00:00"); // デフォルト最小日時
+const DEFAULT_MAX_DATE = new Date("2099-12-31T23:59:59"); // デフォルト最大日時
 
+/**
+ * 区切り要素
+ * @param props
+ * @returns
+ */
 function SepSpan(props: { children: ReactNode; }) {
   return <span className="px-2">{props.children}</span>;
 };
 
+/**
+ * 表示リザルトオブジェクト判定
+ * @param t i18nアクセサー
+ * @param label ラベル
+ * @param actionType {@link Schema.ActionType}
+ * @param r 項目リザルト
+ * @param Y 年
+ * @param M 月
+ * @param D 日
+ * @param h 時
+ * @param m 分
+ * @param s 秒
+ * @returns
+ */
 function selectBoxDisplayResult(
   t: I18nGetter,
   label: string | undefined,
@@ -61,6 +83,13 @@ function selectBoxDisplayResult(
   return Y ?? M ?? D ?? h ?? m ?? s ?? r;
 };
 
+/**
+ * 各セレクトボックスの値をリセットする
+ * @param value リセット値
+ * @param valueSetter スキーマに連携する関数
+ * @param selectRef DOM ref
+ * @returns
+ */
 function resetSelectValue<V>(
   value: V,
   valueSetter: Dispatch<SetStateAction<V>>,
@@ -75,6 +104,11 @@ function resetSelectValue<V>(
   return value;
 };
 
+/**
+ * 日付セレクトボックス（スキーマ対応）
+ * @param param {@link DateSelectBoxProps}
+ * @returns
+ */
 export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
   $: _$,
   placeholder,
@@ -1222,23 +1256,43 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
   );
 };
 
+/** 日付セレクトボックス（単体） Props */
 interface SplittedSelectProps {
+  /** ref */
   ref: RefObject<SelectBox$Ref | null>;
+  /** 状態 */
   state: Schema.Mode;
+  /** コアリザルト */
   coreResult: Schema.Result | null | undefined;
+  /** スキーマ */
   $: Schema.DataItem<Schema.$SplitDate> | undefined;
+  /** モード */
   mode: Schema.Mode;
+  /** 必須 */
   required: boolean;
+  /** 値 */
   value: number | null | undefined;
+  /** 変更コールバック */
   onChange: (v: string) => void;
+  /** リザルト */
   result: Schema.Result | null | undefined;
+  /** プレースホルダー */
   placeholder: string | undefined;
+  /** サブミットに含めない */
   omitOnSubmit: boolean | undefined;
+  /** javascript有効 */
   validScripts: boolean;
+  /** autoFocus */
   autoFocus?: boolean;
+  /** 子要素（ボタン他） */
   children: ReactNode;
 };
 
+/**
+ * 日付セレクトボックス（単体）
+ * @param param {@link SplittedSelectProps}
+ * @returns
+ */
 function SplittedSelect({
   ref,
   coreResult,

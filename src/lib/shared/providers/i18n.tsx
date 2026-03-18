@@ -39,7 +39,7 @@ export function I18nProvider(props: {
   };
 
   return (
-    <I18nContext.Provider
+    <I18nContext
       value={{
         t: t as I18nGetter,
         locale,
@@ -47,7 +47,7 @@ export function I18nProvider(props: {
       }}
     >
       {props.children}
-    </I18nContext.Provider>
+    </I18nContext>
   );
 };
 

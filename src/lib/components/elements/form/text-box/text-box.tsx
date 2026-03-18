@@ -5,12 +5,16 @@ import { useSchemaItem } from "../../../../shared/hooks/schema";
 import { getValidationValue } from "../../../../shared/schema/utilities";
 import { WithMessage } from "../message";
 
+/** テキストボックス ref オブジェクト */
 export interface TextBoxRef extends TextBox$Ref { };
 
+/** テキストボックス Props */
 export type TextBoxProps<D extends Schema.DataItem<Schema.$String>> = Overwrite<
   InputPropsWithDataItem<D>,
   {
+    /** プレースホルダー */
     placeholder?: string;
+    /** データリストアイテム（配列） */
     source?: Schema.Source<Schema.ValueType<D["_"]>>;
   } & Pick<
     InputHTMLAttributes<HTMLInputElement>,
@@ -20,11 +24,19 @@ export type TextBoxProps<D extends Schema.DataItem<Schema.$String>> = Overwrite<
   >
 >;
 
+/** 入力パターン Props */
 interface PatternProps {
+  /** type */
   type?: HTMLInputTypeAttribute;
+  /** inputMode */
   inputMode?: HTMLAttributes<HTMLInputElement>["inputMode"];
 };
 
+/**
+ * 入力パターンからinputに設定する属性値を取得
+ * @param pattern {@link Schema.StringProps["pattern"]}
+ * @returns
+ */
 function getPatternInputProps(pattern: Schema.StringProps["pattern"]): PatternProps {
   if (pattern == null || typeof pattern !== "string") return {};
   switch (pattern) {
@@ -46,6 +58,11 @@ function getPatternInputProps(pattern: Schema.StringProps["pattern"]): PatternPr
   }
 }
 
+/**
+ * テキストボックス（スキーマ対応）
+ * @param param {@link TextBoxProps}
+ * @returns
+ */
 export function TextBox<D extends Schema.DataItem<Schema.$String>>({
   className,
   style,

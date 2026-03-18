@@ -8,9 +8,15 @@ type LinkButtonProps = LinkProps
   & React.RefAttributes<HTMLAnchorElement>
   & ButtonOptions
   & {
+    /** 非活性 */
     disabled?: boolean;
   };
 
+/**
+ * リンクボタン
+ * @param props {@link LinkButtonProps}
+ * @returns
+ */
 export function LinkButton({
   className,
   color,

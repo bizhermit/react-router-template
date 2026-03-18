@@ -1,6 +1,7 @@
 import type { HTMLAttributes, RefObject } from "react";
 import { clsx } from "../../utilities";
 
+/** 選択グループラッパー Props */
 export type InputGroupWrapperProps = Overwrite<
   Omit<HTMLAttributes<HTMLDivElement>, InputOmitProps>,
   {
@@ -9,6 +10,7 @@ export type InputGroupWrapperProps = Overwrite<
   }
 >;
 
+/** 選択グループラッパー */
 export function InputGroupWrapper({
   className,
   ref,

@@ -8,6 +8,11 @@ export const ValidScriptsContext = createContext<ContextProps>({
   valid: false,
 });
 
+/**
+ * JavaScript有効プロバイダー
+ * @param props
+ * @returns
+ */
 export function ValidScriptsProvider(props: {
   initValid?: boolean;
   children?: ReactNode;

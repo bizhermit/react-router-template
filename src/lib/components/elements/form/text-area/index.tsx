@@ -2,39 +2,54 @@ import { useEffect, useImperativeHandle, useRef, type ChangeEvent, type Textarea
 import { clsx } from "../../utilities";
 import { InputFieldWrapper, type InputFieldProps, type InputFieldWrapperProps } from "../wrapper/input-field";
 
+/** テキストエリア ref オブジェクト */
 export interface TextArea$Ref extends InputRef {
+  /** DOM textarea */
   textAreaElement: HTMLTextAreaElement;
+  /** テキストエリア高さ再計算 */
   calcFitContentHeight: () => void;
 };
 
-export type Resize =
+/** テキストエリア リサイズモード */
+export type TextAreaResize =
   | "none"
   | "vertical"
   | "horizontal"
   | "both"
   ;
 
+/** テキストエリア Props */
 export type TextArea$Props = Overwrite<
   InputFieldWrapperProps,
   InputFieldProps<{
+    /** textarea Props */
     textAreaProps?: Overwrite<
       Omit<
         TextareaHTMLAttributes<HTMLTextAreaElement>,
         InputOmitProps
       >,
       {
+        /** 表示行数（高さ） */
         rows?: number | "fit";
       }
     >;
+    /** 最小表示行数 */
     minRows?: number;
+    /** 最大表示行数 */
     maxRows?: number;
-    resize?: Resize;
+    /** リサイズ {@link TextAreaResize} */
+    resize?: TextAreaResize;
   } & InputValueProps<string>>
 >;
 
-const DEFAULT_ROWS = 3;
+const DEFAULT_ROWS = 3; // デフォルト行数
 
-function getResizeClassName(resize: Resize | undefined) {
+/**
+ * リサイズ属性値取得
+ * @param resize {@link TextAreaResize}
+ * @returns
+ */
+function getResizeClassName(resize: TextAreaResize | undefined) {
   switch (resize) {
     case "none": return "resize-none";
     case "vertical": return "resize-y";
@@ -43,6 +58,11 @@ function getResizeClassName(resize: Resize | undefined) {
   }
 };
 
+/**
+ * テキストエリア
+ * @param param {@link TextArea$Props}
+ * @returns
+ */
 export function TextArea$({
   ref,
   invalid,

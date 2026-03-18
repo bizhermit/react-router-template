@@ -2,6 +2,11 @@ import { use, useMemo, useState } from "react";
 import { getValidationValue } from "../schema/utilities";
 import { I18nContext } from "./i18n";
 
+/**
+ * 真偽値データソースを取得する
+ * @param param
+ * @returns
+ */
 export function getBooleanSource({
   dataItem,
   t,
@@ -20,14 +25,29 @@ export function getBooleanSource({
   ] satisfies Schema.Source<Schema.ValueType<typeof dataItem["_"]>>;
 };
 
+/**
+ * データソースフック
+ * @param param
+ * @returns
+ */
 export function useSource<D extends Schema.DataItem>({
   dataItem,
   propsSource,
   getCommonParams,
 }: {
+  /** スキーマアイテム */
   dataItem: D;
+  /**
+   * propsで渡されたソース
+   * - スキーマアイテムより優先される
+   */
   propsSource: Schema.Source<Schema.ValueType<D["_"]>> | undefined;
+  /**
+   * 共通パラメータ取得
+   * @returns
+   */
   getCommonParams: () => Schema.DynamicValidationValueParams;
+  /** 環境値 */
   env: Schema.Env;
 }) {
   type T = Schema.Source<Schema.ValueType<D["_"], true, false>>;

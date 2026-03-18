@@ -1,6 +1,7 @@
 import type { HTMLAttributes, ReactNode, RefObject } from "react";
 import { clsx, ZERO_WIDTH_SPACE } from "../../utilities";
 
+/** テキスト入力系要素ラッパー Props */
 export type InputFieldWrapperProps = Overwrite<
   Omit<HTMLAttributes<HTMLDivElement>, InputOmitProps>,
   {
@@ -10,6 +11,11 @@ export type InputFieldWrapperProps = Overwrite<
   }
 >;
 
+/**
+ * テキスト入力系要素ラッパー
+ * @param param {@link InputFieldWrapperProps}
+ * @returns
+ */
 export function InputFieldWrapper({
   className,
   children,
@@ -42,6 +48,7 @@ export function InputFieldWrapper({
   );
 };
 
+/** テキスト入力系共通 Props */
 export type InputFieldProps<T = {}> = Overwrite<
   Omit<InputFieldWrapperProps, InputOmitProps>,
   Overwrite<InputProps, T>

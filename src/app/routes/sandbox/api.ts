@@ -3,8 +3,8 @@ import { data } from "react-router";
 import type { InternalApiPaths } from "~/api/shared/internal";
 import type { Route } from "./+types/api";
 
-type Get = Api.SuccessResponse<InternalApiPaths, "/sandbox/api", "get">["data"];
-type Post = Api.SuccessResponse<InternalApiPaths, "/sandbox/api", "post">["data"];
+type Get = FetchApi.SuccessResponse<InternalApiPaths, "/sandbox/api", "get">["data"];
+type Post = FetchApi.SuccessResponse<InternalApiPaths, "/sandbox/api", "post">["data"];
 
 export async function loader({ request }: Route.LoaderArgs) {
   console.log("api loader", request.url, Array.from(request.headers.entries()));

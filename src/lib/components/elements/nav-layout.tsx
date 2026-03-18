@@ -5,34 +5,74 @@ import { FocusTrap } from "./focus-trap";
 import { CrossIcon, MenuIcon, MenuLeftIcon, MenuRightIcon } from "./icon";
 import { clsx } from "./utilities";
 
+/** ナビゲーションコンテキスト Props */
 interface NavContextProps {
+  /** ID */
   id: string;
+  /** トグルボタンID */
   toggleId: string;
+  /** メニュー表示領域切り替えボタンID */
   scalingId: string;
+  /**
+   * メニューを開閉する
+   * @param open
+   * - true: 開く
+   * - false: 閉じる
+   * @returns
+   */
   toggleMenu: (open: boolean) => void;
+  /**
+   * メニュー表示領域を切り替える
+   * @param narrow
+   * - true: 狭くする
+   * - false: 広げる
+   * @returns
+   */
   scalingNav: (narrow: boolean) => void;
 };
 
+/** ナビゲーションコンテキスト */
 const NavLayoutContext = createContext<NavContextProps | undefined>(undefined);
 
+/**
+ * ナビゲーションフック
+ * @returns
+ */
 export function useNavLayout() {
   return use(NavLayoutContext);
 };
 
+/** ナビゲーションレイアウト Props */
 interface NavLayoutProps {
+  /** id */
   id?: string;
+  /** クラス名 */
   className?: string;
+  /** ヘッダー */
   header?: ReactNode;
+  /** ヘッダー Props */
   headerProps?: Omit<HTMLAttributes<HTMLDivElement>, "children">;
+  /** フッター */
   footer?: ReactNode;
+  /** フッター Props */
   footerProps?: Omit<HTMLAttributes<HTMLElement>, "children">;
+  /** コンテンツ */
   content?: ReactNode;
+  /** コンテンツタグ @default "main" */
   contentTag?: "main" | "div";
+  /** コンテンツ Props */
   contentProps?: Omit<HTMLAttributes<HTMLElement>, "children">;
+  /** ナビゲーション Props */
   navigationProps?: Omit<HTMLAttributes<HTMLElement>, "children">;
+  /** ナビゲーション */
   children?: ReactNode;
 };
 
+/**
+ * ナビゲーションレイアウト
+ * @param props {@link NavLayoutProps}
+ * @returns
+ */
 export function NavLayout(props: NavLayoutProps) {
   const Tag = props.contentTag || "main";
   const id = useId();

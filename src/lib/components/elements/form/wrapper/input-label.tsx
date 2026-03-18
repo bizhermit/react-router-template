@@ -1,6 +1,7 @@
 import type { LabelHTMLAttributes, RefObject } from "react";
 import { clsx } from "../../utilities";
 
+/** ラベルラッパー Props */
 export type InputLabelWrapperProps = Overwrite<
   Omit<LabelHTMLAttributes<HTMLLabelElement>, InputOmitProps>,
   {
@@ -9,6 +10,11 @@ export type InputLabelWrapperProps = Overwrite<
   }
 >;
 
+/**
+ * ラベルラッパー
+ * @param param {@link InputLabelWrapperProps}
+ * @returns
+ */
 export function InputLabelWrapper({
   className,
   ref,
@@ -28,6 +34,7 @@ export function InputLabelWrapper({
   );
 };
 
+/** ラベル共通 Props */
 export type InputLabelProps<T = {}> = Overwrite<
   InputLabelWrapperProps,
   Overwrite<InputProps, T>

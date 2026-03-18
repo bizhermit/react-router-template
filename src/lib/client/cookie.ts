@@ -1,5 +1,9 @@
 import { getCookieImpl, getCookiesImpl } from "../shared/cookie";
 
+/**
+ * Cookieを連想配列状態で取得
+ * @returns
+ */
 export function getCookies() {
   if (typeof window === "undefined") {
     console.warn(`faild to get cookies, not client side.`);
@@ -8,6 +12,11 @@ export function getCookies() {
   return getCookiesImpl(document.cookie);
 };
 
+/**
+ * Cookieの値を取得する
+ * @param name
+ * @returns
+ */
 export function getCookie(name: string) {
   if (typeof window === "undefined") {
     console.warn(`faild to get cookie, not client side. get: [${name}]`);
@@ -16,6 +25,7 @@ export function getCookie(name: string) {
   return getCookieImpl(document.cookie, name);
 };
 
+/** Cookieオプション */
 interface CookieOptions {
   path?: string;
   domain?: string;
@@ -26,6 +36,13 @@ interface CookieOptions {
   samesite?: "Strict" | "Lax" | "None";
 };
 
+/**
+ * Cookieに値を設定する
+ * @param name
+ * @param value
+ * @param opts
+ * @returns
+ */
 export function setCookie(name: string, value: string, opts?: CookieOptions) {
   if (typeof window === "undefined") {
     console.warn(`faild to get cookie, not client side. set: [${name}]`);
@@ -43,6 +60,11 @@ export function setCookie(name: string, value: string, opts?: CookieOptions) {
   document.cookie = `${encodeURIComponent(name)}=${encodeURIComponent(value)};${strs.join(";")}`;
 };
 
+/**
+ * Cookieを削除する
+ * @param name
+ * @param opts
+ */
 export function deleteCookie(name: string, opts?: Pick<CookieOptions, "path" | "domain">) {
   setCookie(name, "", { ...opts, maxAge: 0 });
 };

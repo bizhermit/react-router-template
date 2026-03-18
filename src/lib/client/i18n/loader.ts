@@ -9,6 +9,10 @@ declare global {
   }
 };
 
+/**
+ * htmlに埋め込まれた言語リソースを取得する
+ * @returns
+ */
 export async function loadI18nAsClient(): Promise<{
   locale: Locales;
   resource: I18nResource;
@@ -32,8 +36,14 @@ export async function loadI18nAsClient(): Promise<{
   };
 };
 
+/** cookieからロケールを取得する正規表現 */
 const I18N_COOKIE_REG_EXP = new RegExp(`^${encodeURIComponent(LOCALE_KEY)}=(.+)`);
 
+/**
+ * ロケールを取得する
+ * - 優先順位: cookie > ブラウザ設定 > デフォルト
+ * @returns
+ */
 export async function findLocaleAsClient() {
   let locale: Locales = DEFAULT_LOCALE;
   /* URL */
@@ -54,6 +64,10 @@ export async function findLocaleAsClient() {
   return locale;
 };
 
+/**
+ * ブラウザのロケールを取得する
+ * @returns
+ */
 export function findBrowserLocaleAsClient() {
   return navigator.languages.find(l => SUPPORTED_LOCALES.find(L => L === l)) as Locales | undefined;
 };

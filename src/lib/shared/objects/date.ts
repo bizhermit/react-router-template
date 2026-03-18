@@ -108,6 +108,9 @@ export function formatDate(
 const env_tz = typeof process === "undefined" ? undefined : process.env.TZ?.trim() as TimeZone | TimeZoneOffset | undefined;
 const env_offset = env_tz ? parseTimezoneOffset(env_tz) : new Date().getTimezoneOffset();
 
+/**
+ * 日時オブジェクト（タイムゾーン対応）
+ */
 export class DateTime {
 
   private date: Date;
@@ -509,69 +512,147 @@ export class DateTime {
 
 };
 
+/**
+ * 日を加算する
+ * @param date
+ * @param num
+ * @returns
+ */
 export function addDay(date: Date, num: number) {
   date.setDate(date.getDate() + num);
   return date;
-}
+};
 
+/**
+ * 月を加算する
+ * @param date
+ * @param num
+ * @returns
+ */
 export function addMonth(date: Date, num: number) {
   const d = date.getDate();
   date.setMonth(date.getMonth() + num);
   if (d !== date.getDate()) date.setDate(0);
   return date;
-}
+};
 
+/**
+ * 年を加算する
+ * @param date
+ * @param num
+ * @returns
+ */
 export function addYear(date: Date, num: number) {
   const d = date.getDate();
   date.setFullYear(date.getFullYear() + num);
   if (d !== date.getDate()) date.setDate(0);
   return date;
-}
+};
 
+/**
+ * 月初日を取得する
+ * @param date
+ * @returns
+ */
 export function getFirstDateAtMonth(date = new Date()) {
   return new DateTime(date).setFirstDateAtMonth().getCloneDate();
-}
+};
 
+/**
+ * 月末日を取得する
+ * @param date
+ * @returns
+ */
 export function getLastDateAtMonth(date = new Date()) {
   return new DateTime(date).setLastDateAtMonth().getCloneDate();
-}
+};
 
+/**
+ * 年初日を取得する
+ * @param date
+ * @returns
+ */
 export function getFirstDateAtYear(date = new Date()) {
   return new DateTime(date).setFirstDateAtYear().getCloneDate();
-}
+};
 
+/**
+ * 年末日を取得する
+ * @param date
+ * @returns
+ */
 export function getLastDateAtYear(date = new Date()) {
   return new DateTime(date).setLastDateAtYear().getCloneDate();
-}
+};
 
+/**
+ * 前日を取得する
+ * @param date
+ * @returns
+ */
 export function getPrevDate(date = new Date()) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate() - 1);
-}
+};
 
+/**
+ * 翌日を取得する
+ * @param date
+ * @returns
+ */
 export function getNextDate(date = new Date()) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
-}
+};
 
+/**
+ * 一週間前を取得する
+ * @param date
+ * @returns
+ */
 export function getPrevWeekDate(date = new Date()) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate() - 7);
-}
+};
 
+/**
+ * 一週間後を取得する
+ * @param date
+ * @returns
+ */
 export function getNextWeekDate(date = new Date()) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate() + 7);
-}
+};
 
+/**
+ * 一ヶ月前を取得する（日維持）
+ * @param date
+ * @returns
+ */
 export function getPrevMonthDate(date = new Date()) {
   return new DateTime(date).setPrevMonth().getCloneDate();
-}
+};
 
+/**
+ * 一ヶ月後を取得する（日維持）
+ * @param date
+ * @returns
+ */
 export function getNextMonthDate(date = new Date()) {
   return new DateTime(date).setNextMonth().getCloneDate();
-}
+};
 
+/**
+ * 一年前を取得する（月日維持）
+ * @param date
+ * @returns
+ */
 export function getPrevYearDate(date = new Date()) {
   return new DateTime(date).setPrevYear().getCloneDate();
-}
+};
 
+/**
+ * 一年後を取得する（月日維持）
+ * @param date
+ * @returns
+ */
 export function getNextYearDate(date = new Date()) {
   return new DateTime(date).setNextYear().getCloneDate();
-}
+};

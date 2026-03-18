@@ -3,50 +3,98 @@ import { preventScroll } from "../../client/dom/prevent-scroll";
 import throttle from "../../shared/timing/throttle";
 import { clsx } from "./utilities";
 
+/** ダイアログ ref オブジェクト */
 interface DialogRef {
+  /** DOM */
   element: HTMLDialogElement;
+  /**
+   * モーダルダイアログを開く
+   * @returns
+   */
   showModal: () => void;
+  /**
+   * モードレスダイアログを開く
+   * @returns
+   */
   show: () => void;
+  /**
+   * ダイアログを閉じる
+   * @returns
+   */
   close: () => void;
+  /**
+   * ダイアログの位置を再計算する
+   * @returns
+   */
   resetPosition: () => void;
 };
 
+/**
+ * ダイアログフック
+ * @returns
+ */
 export function useDialog() {
   return useRef<DialogRef | null>(null);
 };
 
+/** ダイアログ表示位置 */
 interface DialogAnchor {
+  /** 基準要素 */
   element?: RefObject<HTMLElement>;
+  /** 水平位置 @default "center" */
   x?: "inner" | "outer" | "center" | "inner-left" | "inner-right" | "outer-left" | "outer-right";
+  /** 垂直位置 @default "center" */
   y?: "inner" | "outer" | "center" | "inner-top" | "inner-bottom" | "outer-top" | "outer-bottom";
+  /** 見切れる場合に枠内に移動させる @default true */
   flexible?: boolean;
+  /**
+   * ダイアログの横幅を基準要素に依存するかどうか
+   * @default undefined
+   */
   width?: "fill";
+  /**
+   * ダイアログの縦幅を基準要素に依存するかどうか
+   */
   height?: "fill";
 };
 
+/** ダイアログオプション */
 interface DialogOptions {
+  /** ref */
   ref?: RefObject<DialogRef | null>;
+  /** 初期表示時に開くかどうか @default undefined （開かない） */
   defaultOpen?: "modal" | "modeless";
+  /** ダイアログ表示位置 {@link DialogAnchor} */
   anchor?: DialogAnchor;
+  /** ダイアログ表示時にスクロールを抑制しない @default false （スクロールできない） */
   preventRootScroll?: boolean;
+  /** window要素がスクロールしたらダイアログを閉じる @default false （閉じない） */
   closeWhenScrolled?: boolean;
+  /** ダイアログ外をクリックしてもダイアログを閉じない @default false （閉じる） */
   preventCloseWhenClickOuter?: boolean;
+  /** Escapeキー押下でダイアログを閉じない @default false （閉じる） */
   preventEscapeClose?: boolean;
 };
 
+/** ダイアログ Props */
 type DialogProps = Overwrite<
   DialogHTMLAttributes<HTMLDialogElement>,
   DialogOptions
 >;
 
+/**
+ * ダイアログ
+ * @param param {@link DialogProps}
+ * @returns
+ */
 export function Dialog({
   ref,
   defaultOpen,
   anchor,
-  preventRootScroll,
-  closeWhenScrolled,
-  preventCloseWhenClickOuter,
-  preventEscapeClose,
+  preventRootScroll = false,
+  closeWhenScrolled = false,
+  preventCloseWhenClickOuter = false,
+  preventEscapeClose = false,
   className,
   ...props
 }: DialogProps) {

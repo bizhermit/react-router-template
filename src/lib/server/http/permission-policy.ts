@@ -1,3 +1,4 @@
+/** 権限ポリシー キー一覧 */
 const PERMISSION_POLICIES = [
   "geolocation",
   "microphone",
@@ -18,8 +19,15 @@ const PERMISSION_POLICIES = [
   "web-share",
 ] as const;
 
+/** 権限ポリシー キー型 */
 type PermissionPolicyKey = typeof PERMISSION_POLICIES[number];
 
+/**
+ * 権限ポリシーを作成する
+ * @param params デフォルトを上書きするポリシー
+ * @param noDefaut デフォルトを使用しない
+ * @returns
+ */
 export function createPermissionPolicy(
   params: Partial<Record<PermissionPolicyKey, string | false>> = {},
   noDefaut: boolean = false

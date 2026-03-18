@@ -4,25 +4,40 @@ import { clsx } from "../../utilities";
 import { Placeholder } from "../placeholder";
 import { InputFieldWrapper, type InputFieldProps, type InputFieldWrapperProps } from "../wrapper/input-field";
 
+/** ファイルボックス ref オブジェクト */
 export interface FileBox$Ref extends InputRef {
+  /** DOM input */
   inputElement: HTMLInputElement;
 };
 
+/** ファイルボックス Props */
 export type FileBox$Props = Overwrite<
   InputFieldWrapperProps,
   InputFieldProps<{
+    /** input Props */
     inputProps?: Overwrite<
       InputHTMLAttributes<HTMLInputElement>,
       {
+        /** プレースホルダー */
         placeholder?: ReactNode;
       }
     >;
+    /** 子要素 */
     children?: ReactNode;
   }>
 >;
 
-const DRAGGING_CLASSNAME = ["bg-sky-500", "dark:bg-sky-900"];
+/** ファイルドロップ時に付与するクラス名 */
+const DRAGGING_CLASSNAME = [
+  "bg-sky-500",
+  "dark:bg-sky-900",
+];
 
+/**
+ * ファイルボックス
+ * @param param {@link FileBox$Props}
+ * @returns
+ */
 export function FileBox$({
   ref,
   invalid,

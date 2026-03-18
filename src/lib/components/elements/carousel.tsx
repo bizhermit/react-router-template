@@ -2,32 +2,74 @@ import { useEffect, useImperativeHandle, useRef, type Key, type ReactNode, type 
 import throttle from "../../shared/timing/throttle";
 import { clsx } from "./utilities";
 
+/** カルーセル ref オブジェクト */
 export interface CarouselRef {
+  /** DOM */
   element: HTMLDivElement;
+  /**
+   * 表示アイテムを選択する
+   * @param index 表示アイテムのインデックス
+   * @returns
+   */
   select: (index: number) => void;
+  /**
+   * 表示中のアイテムのインデックスを取得する
+   * @returns
+   */
   getCurrentIndex: () => number;
+  /**
+   * 表示アイテムの数を取得する
+   * @returns
+   */
   getMaxLength: () => number;
 };
 
+/** カルーセル */
 export interface CarouselItemProps {
+  /** Key */
   key?: Key;
+  /** 表示アイテム */
   element: ReactNode;
 };
 
+/** カルーセルオプション */
 export interface CarouselOptions {
+  /** ref */
   ref?: RefObject<CarouselRef | null>;
+  /** 水平配置 */
   align?: "start" | "center" | "end";
+  /** 余白を除去 */
   removePadding?: boolean;
+  /** カルーセルアイテム（配列） */
   children: CarouselItemProps[];
+  /**
+   * 表示アイテム変更コールバック
+   * @param index {@link number} 表示アイテムのインデックス
+   * @returns
+   */
   onChange?: (index: number) => void;
+  /**
+   * カルーセルのスクロール有無変更コールバック
+   * @param scroll スクロール有無
+   * @returns
+   */
   onChangeScroll?: (scroll: boolean) => void;
 };
 
-type CarouselProps = Overwrite<React.HTMLAttributes<HTMLDivElement>, CarouselOptions>;
+/** カルーセル Props */
+type CarouselProps = Overwrite<
+  React.HTMLAttributes<HTMLDivElement>,
+  CarouselOptions
+>;
 
 const MOMENTUM_DIAMETER = 50; // 慣性速度倍率
 const ATTENUATION_COEFFICIENT = 0.90; // 慣性減速係数
 
+/**
+ * カルーセル
+ * @param param {@link CarouselProps}
+ * @returns
+ */
 export function Carousel({
   ref,
   className,

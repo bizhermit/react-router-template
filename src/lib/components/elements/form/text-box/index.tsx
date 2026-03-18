@@ -2,21 +2,31 @@ import { useImperativeHandle, useRef, type ChangeEvent, type InputHTMLAttributes
 import { clsx } from "../../utilities";
 import { InputFieldWrapper, type InputFieldProps, type InputFieldWrapperProps } from "../wrapper/input-field";
 
+/** テキストボックス ref オブジェクト  */
 export interface TextBox$Ref extends InputRef {
+  /** DOM input */
   inputElement: HTMLInputElement;
 };
 
+/** テキストボックス Props */
 export type TextBox$Props = Overwrite<
   InputFieldWrapperProps,
   InputFieldProps<{
+    /** input Props */
     inputProps?: Omit<
       InputHTMLAttributes<HTMLInputElement>,
       InputOmitProps
     >;
+    /** 子要素（ボタン他） */
     children?: ReactNode;
   } & InputValueProps<string>>
 >;
 
+/**
+ * テキストボックス
+ * @param param {@link TextBox$Props}
+ * @returns
+ */
 export function TextBox$({
   ref,
   invalid,

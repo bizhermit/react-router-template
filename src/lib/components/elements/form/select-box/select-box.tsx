@@ -4,24 +4,39 @@ import { useSource } from "../../../../shared/hooks/data-item-source";
 import { useSchemaItem } from "../../../../shared/hooks/schema";
 import { WithMessage } from "../message";
 
+/** セレクトボックス対応スキーマアイテム */
 type SelectBoxSchemaProps =
   | Schema.$String
   | Schema.$Number
   | Schema.$Boolean
   ;
 
+/** セレクトボックス ref オブジェクト */
 export interface SelectBoxRef extends SelectBox$Ref { };
 
+/** セレクトボックス Props */
 export type SelectBoxProps<D extends Schema.DataItem<SelectBoxSchemaProps>> = Overwrite<
   InputPropsWithDataItem<D>,
   {
+    /** プレースホルダー */
     placeholder?: string;
+    /**
+     * 未選択項目テキスト
+     * - 表示するかどうかはrequiredを参照
+     */
     emptyText?: string;
+    /** リストアイテム（配列） */
     source?: Schema.Source<Schema.ValueType<D["_"]>>;
+    /** 子要素（ボタン他） */
     children?: ReactNode;
   }
 >;
 
+/**
+ * セレクトボックス（スキーマ対応）
+ * @param param {@link SelectBoxProps}
+ * @returns
+ */
 export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
   className,
   style,

@@ -4,11 +4,14 @@ import { useSchemaItem } from "../../../../shared/hooks/schema";
 import { getValidationValue } from "../../../../shared/schema/utilities";
 import { WithMessage } from "../message";
 
+/** パスワードボックス ref オブジェクト */
 export interface PasswordBoxRef extends PasswordBox$Ref { };
 
+/** パスワードボックス Props */
 export type PasswordBoxProps<D extends Schema.DataItem<Schema.$String>> = Overwrite<
   InputPropsWithDataItem<D>,
   {
+    /** プレースホルダー */
     placeholder?: string;
   } & Pick<InputHTMLAttributes<HTMLInputElement>,
     | "autoComplete"
@@ -16,6 +19,11 @@ export type PasswordBoxProps<D extends Schema.DataItem<Schema.$String>> = Overwr
   >
 >;
 
+/**
+ * パスワードボックス（スキーマ対応）
+ * @param param {@link PasswordBoxProps}
+ * @returns
+ */
 export function PasswordBox<D extends Schema.DataItem<Schema.$String>>({
   className,
   style,

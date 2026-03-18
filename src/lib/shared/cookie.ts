@@ -1,3 +1,8 @@
+/**
+ * Cookie文字列をオブジェクトに変換する
+ * @param cookie
+ * @returns
+ */
 export function getCookiesImpl(cookie: string) {
   const ret: Record<string, string> = {};
   cookie.split(/;\s?/g).forEach(c => {
@@ -9,6 +14,12 @@ export function getCookiesImpl(cookie: string) {
   return ret;
 };
 
+/**
+ * Cookie文字列から値を取得する
+ * @param cookie
+ * @param name
+ * @returns
+ */
 export function getCookieImpl(cookie: string, name: string) {
   const safeName = encodeURIComponent(name);
   const re = new RegExp(`(^|;\\s?)${safeName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}=([^;]*)`);

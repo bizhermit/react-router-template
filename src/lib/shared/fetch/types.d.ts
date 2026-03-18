@@ -1,4 +1,5 @@
-namespace Api {
+/** fetch API */
+namespace FetchApi {
 
   type Method =
     | "get"

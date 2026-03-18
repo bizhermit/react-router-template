@@ -5,23 +5,34 @@ import { useSchemaItem } from "../../../../shared/hooks/schema";
 import { WithMessage } from "../message";
 import { InputGroupWrapper } from "../wrapper/input-group";
 
+/** チェックリスト対応スキーマアイテム */
 type CheckListItemSchemaProps =
   | Schema.$String
   | Schema.$Number
   | Schema.$Boolean
   ;
 
+/** チェックリスト ref オブジェクト */
 export interface CheckListRef extends InputRef { };
 
+/** チェックリスト Props */
 export type CheckListProps<D extends Schema.DataItem<Schema.$Array<CheckListItemSchemaProps>>> = Overwrite<
   InputPropsWithDataItem<D>,
   {
+    /** チェックボックス見た目 */
     appearance?: CheckBoxAppearance;
+    /** チェックボックス配色 */
     color?: StyleColor;
+    /** チェックリストアイテム（配列） */
     source?: Schema.Source<Schema.ValueType<D["_"]>>;
   }
 >;
 
+/**
+ * チェックリスト（スキーマ対応）
+ * @param param {@link CheckListProps}
+ * @returns
+ */
 export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemSchemaProps>>>({
   className,
   style,

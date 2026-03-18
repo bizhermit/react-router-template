@@ -4,23 +4,30 @@ import { clsx } from "../../utilities";
 import { InputDummyFocus } from "../dummy-focus";
 import { InputFieldWrapper, type InputFieldProps, type InputFieldWrapperProps } from "../wrapper/input-field";
 
+/** 日付ボックス ref オブジェクト */
 export interface DateBox$Ref extends InputRef {
+  /** DOM input */
   inputElement: HTMLInputElement;
 };
 
+/** 日付ボックス Props */
 export type DateBox$Props = Overwrite<
   InputFieldWrapperProps,
   InputFieldProps<{
+    /** input Props */
     inputProps?: Overwrite<
       Omit<InputHTMLAttributes<HTMLInputElement>, InputOmitProps>,
       {
+        /** type */
         type: "date" | "month" | "datetime-local";
       }
     >;
+    /** 子要素（ボタン他） */
     children?: ReactNode;
   } & InputValueProps<string>>
 >;
 
+/** 日付ボックス */
 export function DateBox$({
   ref,
   invalid,

@@ -4,30 +4,44 @@ import { InputDummyFocus } from "../dummy-focus";
 import { InputLabelText } from "../input-label-text";
 import { InputLabelWrapper, type InputLabelProps, type InputLabelWrapperProps } from "../wrapper/input-label";
 
+/** チェックボックス ref オブジェクト */
 export interface CheckBox$Ref extends InputRef {
+  /** DOM input[type="checkbox"] */
   inputElement: HTMLInputElement;
 };
 
+/** チェックボックス見た目 */
 export type CheckBoxAppearance =
   | "checkbox"
   | "button"
   | "togglebox"
   ;
 
+/** チェックボックス Props */
 export type CheckBox$Props = Overwrite<
   InputLabelWrapperProps,
   InputLabelProps<{
+    /** input Props */
     inputProps?: Omit<
       InputHTMLAttributes<HTMLInputElement>,
       InputOmitProps
     >;
+    /** チェックボックス見た目 */
     appearance?: CheckBoxAppearance;
+    /** チェックボックス配色 */
     color?: StyleColor;
+    /** チェック時の値 */
     trueValue?: string | number | boolean | null | undefined;
+    /** 未チェック時の値 */
     falseValue?: string | number | boolean | null | undefined;
   } & InputCheckedProps>
 >;
 
+/**
+ * チェックボックス
+ * @param param {@link CheckBox$Props}
+ * @returns
+ */
 export function CheckBox$({
   className,
   children,

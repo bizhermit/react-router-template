@@ -1,3 +1,9 @@
+/**
+ * スクロールを禁止する
+ * - スクロール時にコール時の座標を再代入して疑似的にロックする
+ * @param element
+ * @returns
+ */
 export function preventScroll(element?: HTMLElement) {
   const elems = (() => {
     if (!element) return [document.documentElement];

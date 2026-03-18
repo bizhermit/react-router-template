@@ -1,7 +1,19 @@
 type Options = {
-  removeItem?: "un" | "null" | "null-blank";
+  /** 削除モード */
+  removeItem?: {
+    undefined?: boolean;
+    null?: boolean;
+    blank?: boolean;
+  };
 };
 
+/**
+ * FormDataに値を追加する
+ * @param formData
+ * @param struct
+ * @param options
+ * @returns
+ */
 export const appendStructData = (
   formData: FormData,
   struct: { [v: string]: unknown; } | null | undefined,
@@ -10,16 +22,12 @@ export const appendStructData = (
   if (struct == null) return formData;
   const setFormValue = (key: string, v: unknown) => {
     if (options?.removeItem) {
-      switch (options.removeItem) {
-        case "un":
-          if (v === undefined) return;
-          break;
-        case "null":
-          if (v == null) return;
-          break;
-        case "null-blank":
-          if (v == null || v === "") return;
-          break;
+      if (v === undefined) {
+        if (options.removeItem.undefined) return;
+      } else if (v === null) {
+        if (options.removeItem.null) return;
+      } else if (v === "") {
+        if (options.removeItem.blank) return;
       }
     } else {
       if (v == null) {
@@ -59,6 +67,12 @@ export const appendStructData = (
   return formData;
 };
 
+/**
+ * 連想配列をFormDataに変換する
+ * @param struct
+ * @param options
+ * @returns
+ */
 export const convertStructToFormData = (
   struct: { [v: string]: unknown; } | null | undefined,
   options?: Options
@@ -66,21 +80,23 @@ export const convertStructToFormData = (
   return appendStructData(new FormData(), struct, options);
 };
 
+/**
+ * FormDataからnull系の値を削除する
+ * @param formData
+ * @param options
+ * @returns
+ */
 export const removeFormDataValue = (formData: FormData, options?: Options) => {
   if (!formData) return formData;
   Array.from(formData.keys()).forEach(key => {
     const v = formData.get(key);
     if (options?.removeItem) {
-      switch (options.removeItem) {
-        case "un":
-          if (v === undefined) formData.delete(key);
-          break;
-        case "null":
-          if (v == null) formData.delete(key);
-          break;
-        case "null-blank":
-          if (v == null || v === "") formData.delete(key);
-          break;
+      if (v === undefined) {
+        if (options.removeItem.undefined) return;
+      } else if (v === null) {
+        if (options.removeItem.null) return;
+      } else if (v === "") {
+        if (options.removeItem.blank) return;
       }
     }
   });

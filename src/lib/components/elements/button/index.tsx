@@ -1,24 +1,31 @@
 import { type ButtonHTMLAttributes, type RefObject } from "react";
 import { clsx, getColorClassName } from "../utilities";
 
-/** Button の拡張オプション */
+/** ボタンオプション */
 export interface ButtonOptions {
-  /** DOM 参照を外部に渡す */
+  /** ref */
   ref?: RefObject<HTMLButtonElement>;
-  /** テーマベースのカラー */
+  /** 配色 */
   color?: StyleColor;
-  /** 枠線や塗りなどの見た目 */
+  /** 見た目 */
   appearance?: "outline" | "fill" | "text";
-  /** 処理中かどうか */
+  /** 処理中 */
   processing?: boolean;
-  /** 角丸を適用する */
+  /** 角丸 */
   round?: boolean;
 };
 
-/** Button が受け付ける props */
-export type Button$Props = Overwrite<ButtonHTMLAttributes<HTMLButtonElement>, ButtonOptions>;
+/** ボタン Props */
+export type Button$Props = Overwrite<
+  ButtonHTMLAttributes<HTMLButtonElement>,
+  ButtonOptions
+>;
 
-/** 共通スタイル付きのボタン */
+/**
+ * ボタン
+ * @param props {@link Button$Props}
+ * @returns
+ */
 export function Button$({
   className,
   color,

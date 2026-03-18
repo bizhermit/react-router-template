@@ -14,10 +14,20 @@ type ObjectType =
   | "Set"
   | "RegExp";
 
+/**
+ * オブジェクトタイプを取得する
+ * @param o
+ * @returns
+ */
 export function getObjectType(o: unknown) {
   return toString.call(o).slice(8, -1) as ObjectType;
 };
 
+/**
+ * オブジェクトをディープクローンする
+ * @param o
+ * @returns
+ */
 export function clone<T>(o: T): T {
   if (o == null || typeof o !== "object") return o;
   switch (getObjectType(o)) {
@@ -41,6 +51,11 @@ export function clone<T>(o: T): T {
   }
 };
 
+/**
+ * オブジェクトが空かどうか
+ * @param o
+ * @returns
+ */
 export function isEmpty(o: unknown | null | undefined) {
   if (o == null) return true;
   const t = typeof o;
@@ -59,6 +74,12 @@ export function isEmpty(o: unknown | null | undefined) {
   }
 };
 
+/**
+ * 比較（nullとundefinedを同一を見なす）
+ * @param v1
+ * @param v2
+ * @returns
+ */
 export function equals(v1: unknown, v2: unknown) {
   if (v1 == null && v2 == null) return true;
   return v1 === v2;

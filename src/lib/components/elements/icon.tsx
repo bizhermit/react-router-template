@@ -1,13 +1,20 @@
 import { type HTMLAttributes } from "react";
 import { clsx } from "./utilities";
 
+/** アイコンオプション */
 interface IconOptions { };
 
+/** アイコン Props */
 export type IconProps = Overwrite<
   Omit<HTMLAttributes<SVGSVGElement>, "children">,
   IconOptions
 >;
 
+/**
+ * アイコン属性値
+ * @param p {@link IconProps}
+ * @returns
+ */
 const attrs = (p: IconProps) => {
   return {
     viewBox: "0 0 20 20",

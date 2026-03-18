@@ -1,3 +1,10 @@
+/**
+ * Base64をファイルに変換する
+ * @param base64
+ * @param fileName
+ * @param options
+ * @returns
+ */
 export function convertBase64ToFile(
   base64: string | ArrayBuffer | null | undefined,
   fileName: string,
@@ -15,6 +22,11 @@ export function convertBase64ToFile(
   return new File([new Uint8Array(base64)], fileName, options);
 };
 
+/**
+ * ファイルをBase64に変換する
+ * @param file
+ * @returns
+ */
 export function convertFileToBase64(file: File | null | undefined) {
   return new Promise<string | ArrayBuffer>((resolve, reject) => {
     if (file == null) {
@@ -33,14 +45,30 @@ export function convertFileToBase64(file: File | null | undefined) {
   });
 };
 
+/**
+ * FileをBlobに変換する
+ * @param file
+ * @returns
+ */
 export function convertFileToBlob(file: File | null | undefined) {
   return file == null ? file : new Blob([file], { type: file.type });
 };
 
+/**
+ * BlobをFileに変換する
+ * @param blob
+ * @param fileName
+ * @returns
+ */
 export function convertBlobToFile(blob: Blob | null | undefined, fileName: string) {
   return blob == null ? blob : new File([blob], fileName, { type: blob.type });
 };
 
+/**
+ * 二進数単位付きファイルサイズを取得する
+ * @param size
+ * @returns
+ */
 export function getFileSize2Text(size: number) {
   if (size < 1024) return `${size}byte`;
   if (size < 1048576) return `${Math.floor(size / 1024 * 10) / 10}KiB`;
@@ -48,6 +76,11 @@ export function getFileSize2Text(size: number) {
   return `${Math.floor(size / 1073741824 * 10) / 10}GiB`;
 };
 
+/**
+ * 十進数単位付きファイルサイズを取得する
+ * @param size
+ * @returns
+ */
 export function getFileSize10Text(size: number) {
   if (size < 1000) return `${size}B`;
   if (size < 1000000) return `${Math.floor(size / 1000 * 10) / 10}KB`;

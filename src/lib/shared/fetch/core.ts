@@ -3,6 +3,12 @@ import { formatDate } from "../objects/date";
 import { convertBlobToFile, convertFileToBase64 } from "../objects/file";
 import { trimStruct } from "../schema/struct";
 
+/**
+ * パスパラメータを置換する
+ * @param path
+ * @param params
+ * @returns
+ */
 function replacePathParams(
   path: string,
   params: Record<string, unknown> | null | undefined,
@@ -22,6 +28,12 @@ function replacePathParams(
   return ret;
 };
 
+/**
+ * URL作成
+ * @param path
+ * @param params
+ * @returns
+ */
 function createUrl(
   path: string,
   params: Record<string, Record<string, unknown>> | null | undefined,
@@ -29,8 +41,13 @@ function createUrl(
   const replacedPath = replacePathParams(path, params?.path);
   const query = parseQueryString(params?.query);
   return `${replacedPath}${query ? `?${query}` : ""}`;
-}
+};
 
+/**
+ * 連想配列をクエリ文字列に変換する
+ * @param params
+ * @returns
+ */
 function parseQueryString(params: Record<string, unknown> | null | undefined) {
   if (params == null) return null;
   const d: Record<string, string> = {};
@@ -78,6 +95,11 @@ function parseQueryString(params: Record<string, unknown> | null | undefined) {
   return new URLSearchParams(d).toString();
 };
 
+/**
+ * リクエストボディをJSONに変換する
+ * @param params
+ * @returns
+ */
 async function requestBodyStringfy(params: Record<string, unknown> | null | undefined) {
   if (params == null) return undefined;
   async function bodySafe(v: unknown): Promise<unknown> {
@@ -113,6 +135,11 @@ async function requestBodyStringfy(params: Record<string, unknown> | null | unde
   return JSON.stringify(await bodySafe(params));
 }
 
+/**
+ * fetchAPIアクセサーを作成する
+ * @param options
+ * @returns
+ */
 export function generateApiAccessor<ApiPaths>(options?: {
   baseUrl?: string;
   headers?: Record<string, string>;
@@ -129,7 +156,7 @@ export function generateApiAccessor<ApiPaths>(options?: {
 }) {
   const baseUrl = (options?.baseUrl || "").replace(/\/+$/, "").replace(/\\/g, "/");
 
-  async function responseParser<P extends Api.Path<ApiPaths>, M extends Api.Method>(res: Response) {
+  async function responseParser<P extends FetchApi.Path<ApiPaths>, M extends FetchApi.Method>(res: Response) {
     return {
       ok: res.ok,
       status: res.status,
@@ -145,13 +172,13 @@ export function generateApiAccessor<ApiPaths>(options?: {
         }
       })(),
       _: res,
-    } as unknown as (Api.SuccessResponse<ApiPaths, P, M> | Api.ErrorResponse<ApiPaths, P, M>);
+    } as unknown as (FetchApi.SuccessResponse<ApiPaths, P, M> | FetchApi.ErrorResponse<ApiPaths, P, M>);
   };
 
-  async function post<P extends Api.Path<ApiPaths>, M extends Exclude<Api.Method, "get">>(
+  async function post<P extends FetchApi.Path<ApiPaths>, M extends Exclude<FetchApi.Method, "get">>(
     path: P,
     method: M,
-    params?: Api.Params<ApiPaths, P, M> | undefined
+    params?: FetchApi.Params<ApiPaths, P, M> | undefined
   ) {
     const url = createUrl(path as string, params as Record<string, Record<string, unknown>>);
     const res = await fetch(`${baseUrl}${url}`, {
@@ -176,9 +203,9 @@ export function generateApiAccessor<ApiPaths>(options?: {
   };
 
   return {
-    get: async function <P extends Api.GetPath<ApiPaths>>(
+    get: async function <P extends FetchApi.GetPath<ApiPaths>>(
       path: P,
-      params?: Api.Params<ApiPaths, P, "get">,
+      params?: FetchApi.Params<ApiPaths, P, "get">,
     ) {
       const url = createUrl(path as string, params as Record<string, Record<string, unknown>>);
       const res = await fetch(`${baseUrl}${url}`, {
@@ -199,27 +226,27 @@ export function generateApiAccessor<ApiPaths>(options?: {
       });
       return parsed;
     },
-    post: async function <P extends Api.PostPath<ApiPaths>>(
+    post: async function <P extends FetchApi.PostPath<ApiPaths>>(
       path: P,
-      params?: Api.Params<ApiPaths, P, "post">,
+      params?: FetchApi.Params<ApiPaths, P, "post">,
     ) {
       return post(path, "post", params);
     },
-    put: async function <P extends Api.PutPath<ApiPaths>>(
+    put: async function <P extends FetchApi.PutPath<ApiPaths>>(
       path: P,
-      params?: Api.Params<ApiPaths, P, "put">,
+      params?: FetchApi.Params<ApiPaths, P, "put">,
     ) {
       return post(path, "put", params);
     },
-    patch: async function <P extends Api.PatchPath<ApiPaths>>(
+    patch: async function <P extends FetchApi.PatchPath<ApiPaths>>(
       path: P,
-      params?: Api.Params<ApiPaths, P, "patch">,
+      params?: FetchApi.Params<ApiPaths, P, "patch">,
     ) {
       return post(path, "patch", params);
     },
-    delete: async function <P extends Api.DeletePath<ApiPaths>>(
+    delete: async function <P extends FetchApi.DeletePath<ApiPaths>>(
       path: P,
-      params?: Api.Params<ApiPaths, P, "delete">,
+      params?: FetchApi.Params<ApiPaths, P, "delete">,
     ) {
       return post(path, "delete", params);
     },

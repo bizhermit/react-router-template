@@ -4,14 +4,22 @@ import { CircleFillIcon, CircleIcon } from "../../icon";
 import { clsx } from "../../utilities";
 import { InputFieldWrapper, type InputFieldProps, type InputFieldWrapperProps } from "../wrapper/input-field";
 
+/** パスワードボックス ref オブジェクト */
 export interface PasswordBox$Ref extends InputRef {
+  /** DOM input */
   inputElement: HTMLInputElement;
+  /**
+   * マスク状態トグル
+   * @returns
+   */
   toggleMask: () => void;
 };
 
+/** パスワードボックス Props */
 export type PasswordBox$Props = Overwrite<
   InputFieldWrapperProps,
   InputFieldProps<{
+    /** input Props */
     inputProps?: Omit<
       InputHTMLAttributes<HTMLInputElement>,
       InputOmitProps
@@ -19,6 +27,11 @@ export type PasswordBox$Props = Overwrite<
   } & InputValueProps<string>>
 >;
 
+/**
+ * パスワードボックス
+ * @param param {@link PasswordBox$Props}
+ * @returns
+ */
 export function PasswordBox$({
   ref,
   invalid,

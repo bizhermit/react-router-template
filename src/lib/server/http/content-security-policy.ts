@@ -25,6 +25,7 @@ type ContentSecurityPolicy = {
   "block-all-mixed-content": boolean;
 };
 
+/** CSPキー型 */
 type ContentSecurityPolicyKey = keyof ContentSecurityPolicy;
 
 // default-srcにfallback可能なディレクティブ
@@ -47,6 +48,12 @@ const NO_FALLBACK_DIRECTIVES = new Set<ContentSecurityPolicyKey>([
 
 const SELF = "'self'";
 
+/**
+ * トークン配列取得
+ * - 重複除去
+ * @param v
+ * @returns
+ */
 function normalizeCspTokens(v: string) {
   return Array.from(new Set(v.trim().split(/\s+/))).sort();
 };
@@ -57,8 +64,11 @@ function normalizeCspTokens(v: string) {
  * @returns
  */
 export function createContentSecurityPolicy(params?: {
+  /** デフォルトを上書きするポリシー */
   policies?: Partial<ContentSecurityPolicy>;
+  /** nonce */
   nonce?: string;
+  /** 開発モード */
   isDev?: boolean;
 }) {
   const defaultSrcRaw = params?.policies?.["default-src"] || SELF;

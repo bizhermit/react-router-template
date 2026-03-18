@@ -2,7 +2,7 @@ import { DateTime } from "$/shared/objects/date";
 import { data } from "react-router";
 import type { InternalApiPaths } from "~/api/shared/internal";
 
-type Get = Api.SuccessResponse<InternalApiPaths, "/health", "get">["data"];
+type Get = FetchApi.SuccessResponse<InternalApiPaths, "/health", "get">["data"];
 
 export async function loader() {
   // eslint-disable-next-line no-console

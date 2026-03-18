@@ -5,34 +5,58 @@ import { DownIcon, UpIcon } from "../../icon";
 import { clsx } from "../../utilities";
 import { InputFieldWrapper, type InputFieldProps, type InputFieldWrapperProps } from "../wrapper/input-field";
 
+/** 数値ボックス */
 export interface NumberBox$Ref extends InputRef {
+  /** DOM input */
   inputElement: HTMLInputElement;
+  /**
+   * 文字列変換
+   * @param value
+   * @returns
+   */
   format: (value: unknown) => string;
+  /**
+   * 数値変換
+   * @param value
+   * @returns
+   */
   parse: (value: number | string | null | undefined) => (number | null | undefined);
 };
 
+/** 数値ボックス Props */
 export type NumberBox$Props = Overwrite<
   InputFieldWrapperProps,
   InputFieldProps<{
+    /** input Props */
     inputProps?: Overwrite<
       Omit<
         InputHTMLAttributes<HTMLInputElement>,
         InputOmitProps
       >,
       {
+        /** 最小値 */
         min?: number;
+        /** 最大値 */
         max?: number;
+        /** 増減ステップ @default 1 */
         step?: number;
+        /** 小数桁数 @default 0 */
         float?: number;
       }
     >;
+    /** 子要素（ボタン他） */
     children?: ReactNode;
   } & InputValueProps<number, number | undefined>>
 >;
 
-const UP_DOWN_ROOP_WAIT = 500;
-const UP_DOWN_INTERVAL = 50;
+const UP_DOWN_ROOP_WAIT = 500; // 増減ボタンを押下してループ処理に入るまでの猶予
+const UP_DOWN_INTERVAL = 50; // 増減処理間隔
 
+/**
+ * 数値ボックス
+ * @param param {@link NumberBox$Props}
+ * @returns
+ */
 export function NumberBox$({
   ref,
   invalid,

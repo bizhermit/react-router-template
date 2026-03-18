@@ -1,17 +1,30 @@
 import { useEffect, useRef, useState } from "react";
 
+/** 状態 */
 type State = "idle" | "processing" | "aborted" | "disposed";
 
-interface Options {
+/** Abortコントローラーオプション */
+interface AbortControllerOptions {
+  /** アンマウント時に中止処理を実行しない @default false */
   preventAbortOnUnmount?: boolean;
 };
 
-export function useAbortController(options?: Options) {
+/**
+ * Abortコントローラーフック
+ * @param options {@link AbortControllerOptions}
+ * @returns
+ */
+export function useAbortController(options?: AbortControllerOptions) {
   const controller = useRef<AbortController | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const abortCallbackRef = useRef<((reason: unknown) => void) | null>(null);
   const [state, setState] = useState<State>("idle");
 
+  /**
+   * コントローラー作成
+   * @param timeout
+   * @returns
+   */
   function create(timeout?: number) {
     if (controller.current) {
       controller.current.abort("recreated");
@@ -30,6 +43,11 @@ export function useAbortController(options?: Options) {
     return controller.current.signal;
   };
 
+  /**
+   * 中断する
+   * @param reason
+   * @returns
+   */
   function abort(reason?: unknown) {
     if (!controller.current) {
       console.warn("Cannot abort: the AbortController has already been disposed or was never created.");
@@ -49,6 +67,9 @@ export function useAbortController(options?: Options) {
     return true;
   };
 
+  /**
+   * 開放
+   */
   function dispose() {
     if (controller.current) {
       controller.current = null;
@@ -65,6 +86,12 @@ export function useAbortController(options?: Options) {
     abortCallbackRef.current = callback;
   };
 
+  /**
+   * 開始
+   * @param process 処理
+   * @param timeout タイムアウト時間
+   * @returns
+   */
   async function start<T>(process: (
     signal: AbortSignal,
     setAbortCallback: (callback: typeof abortCallbackRef.current) => void

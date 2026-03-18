@@ -1,43 +1,94 @@
 import { createContext, use, useEffect, useRef } from "react";
 
+/** サブウィンドウ クローズトリガー */
 export interface SubWindowCloseTrigger {
+  /** ページ遷移 */
   transitionPage?: boolean;
+  /** タブクローズ */
   closeTab?: boolean;
+  /** コンポーネントアンマウント */
   unmount?: boolean;
 };
 
+/** サブウィンドウコンテキスト Props */
 interface SubWindowContextProps {
+  /**
+   * 追加
+   * @param ctx
+   * @returns
+   */
   append: (ctx: SubWindowControllerContext) => void;
+  /** サブウィンドウ クローズトリガー */
   closeTrigger: SubWindowCloseTrigger;
+  /** サブウィンドウ デフォルトURL */
   initialUrl?: string;
+  /**
+   * ページ遷移でクローズするサブウィンドウをクローズする
+   * @returns
+   */
   closeForPageTransition: () => void;
 };
 
+/** サブウィンドウコンテキスト */
 export const SubWindowContext = createContext<SubWindowContextProps | null>(null);
 
+/** サブウィンドウ Params */
 interface SubWindowParams {
+  /** URL */
   url?: string;
+  /** target */
   target?: string;
+  /** ポップアップウィンドウ @default false */
   popup?: boolean;
+  /** クローズコールバック */
   closed?: () => void;
+  /** ブロックコールバック */
   blocked?: () => void;
+  /** クローズトリガー */
   closeTrigger?: SubWindowCloseTrigger;
+  /** デフォルトURL */
   initialUrl?: string;
 };
 
+/** サブウィンドウコントローラー */
 interface SubWindowController {
+  /** window */
   window: Window | null;
+  /**
+   * URLを変更する
+   * @param href 新しいURL
+   * @returns
+   */
   replace: (href: string) => boolean;
+  /**
+   * クローズする
+   * @returns
+   */
   close: () => boolean;
+  /**
+   * フォーカスする
+   */
   focus: () => boolean;
+  /**
+   * サブウィンドウが開かれているかどうか
+   * @returns
+   */
   isOpened: () => boolean;
 };
 
+/** サブウィンドウコントローラーコンテキスト */
 export interface SubWindowControllerContext {
+  /** コントローラー */
   controller: SubWindowController;
+  /** クローズトリガー */
   closeTrigger: SubWindowCloseTrigger;
 };
 
+/**
+ * サブウィンドウフック
+ * @param baseParams
+ * @returns
+ */
 export function useSubWindow(baseParams?: {
   closeTrigger?: SubWindowCloseTrigger;
   initialUrl?: string;

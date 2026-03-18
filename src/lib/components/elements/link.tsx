@@ -14,6 +14,7 @@ type PageToUnion = {
   }
 }[PagePath];
 
+/** リンク Props */
 type LinkProps = Overwrite<
   $LinkProps & React.RefAttributes<HTMLAnchorElement>,
   {
@@ -23,6 +24,11 @@ type LinkProps = Overwrite<
   }
 >;
 
+/**
+ * リンク
+ * @param param {@link LinkProps}
+ * @returns
+ */
 export function Link({
   className,
   to,

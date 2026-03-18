@@ -23,8 +23,13 @@ interface ThemeProviderProps {
 
 export function useTheme() {
   return use(ThemeContext);
-}
+};
 
+/**
+ * レイアウトテーマプロバイダー
+ * @param props
+ * @returns
+ */
 export function ThemeProvider(props: ThemeProviderProps) {
   const [theme, setTheme] = useReducer((_: Theme, action: Theme) => {
     if (typeof window !== "undefined") {

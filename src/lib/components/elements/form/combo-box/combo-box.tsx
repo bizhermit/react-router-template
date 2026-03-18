@@ -4,25 +4,43 @@ import { useImperativeHandle, useRef, type ReactNode } from "react";
 import { ComboBox$, ComboBoxItem, type ComboBox$Ref } from ".";
 import { WithMessage } from "../message";
 
+/** コンボボックス対応スキーマアイテム */
 type ComboBoxSchemaProps =
   | Schema.$String
   | Schema.$Number
   | Schema.$Boolean
   ;
 
+/** コンボボックス ref オブジェクト */
 export interface ComboBoxRef extends ComboBox$Ref { };
 
+/** コンボボックス Props */
 export type ComboBoxProps<D extends Schema.DataItem<ComboBoxSchemaProps>> = Overwrite<
   InputPropsWithDataItem<D>,
   {
+    /** プレースホルダー */
     placeholder?: string;
+    /** 横幅を選択肢文字列に合わせない @default false */
     manualWidth?: boolean;
+    /**
+     * 未選択アイテム
+     * - true: ブランク表示
+     * - false: なし
+     * - ReactNode: 任意の表示
+     */
     emptyText?: boolean | ReactNode;
+    /** 選択アイテム（配列） */
     source?: Schema.Source<Schema.ValueType<D["_"]>>;
+    /** 子要素（ボタン他） */
     children?: ReactNode;
   }
 >;
 
+/**
+ * コンボボックス
+ * @param param {@link ComboBoxProps}
+ * @returns
+ */
 export function ComboBox<D extends Schema.DataItem<ComboBoxSchemaProps>>({
   className,
   style,

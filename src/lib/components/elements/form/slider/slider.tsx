@@ -5,27 +5,39 @@ import { useSchemaItem } from "../../../../shared/hooks/schema";
 import { getValidationValue } from "../../../../shared/schema/utilities";
 import { WithMessage } from "../message";
 
+/** スライダー ref オブジェクト */
 export interface SliderRef extends Slider$Ref { };
 
+/** スライダー Props */
 export type SliderProps<D extends Schema.DataItem<Schema.$Number>> = Overwrite<
   InputPropsWithDataItem<D>,
   {
+    /** 配色 */
     color?: StyleColor;
+    /** 目盛りアイテム（配列） */
     source?: Schema.Source<Schema.ValueType<D["_"]>>;
+    /** ステップ @default 1 */
     step?: number;
+    /** 数値ラベル表示 @default false */
     showValueText?: boolean;
+    /** 目盛り非表示 @default false */
     hideScales?: boolean;
   }
 >;
 
+/**
+ * スライダー（スキーマ対応）
+ * @param param {@link SliderProps}
+ * @returns
+ */
 export function Slider<D extends Schema.DataItem<Schema.$Number>>({
   className,
   style,
   color,
   source: propsSource,
   step,
-  showValueText,
-  hideScales,
+  showValueText = false,
+  hideScales = false,
   autoFocus,
   ref,
   ...$props
@@ -85,10 +97,11 @@ export function Slider<D extends Schema.DataItem<Schema.$Number>>({
         invalid={invalid}
         state={state}
         color={color}
-        showValueText
+        showValueText={showValueText}
         dataList={source ? {
           id: `${name}_dl`,
           source,
+          hideScales,
         } : undefined}
         value={value}
         onChangeValue={setValue}

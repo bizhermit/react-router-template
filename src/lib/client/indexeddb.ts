@@ -1,8 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+/** IndexedDB Props */
 interface IndexedDBProps {
+  /** DB名 */
   name: string;
+  /** バージョン */
   version?: number;
+  /** バージョンアップ処理 */
   upgrade: (params: {
     db: IDBDatabase;
     oldVersion: number;

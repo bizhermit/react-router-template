@@ -1,5 +1,10 @@
 import { useEffect, useRef } from "react";
 
+/**
+ * 一定間隔で処理を実行する
+ * @param callback 処理
+ * @param delay 間隔
+ */
 export function useInterval(
   callback: () => void,
   delay: number | false | null,

@@ -5,13 +5,18 @@ import { useSchemaItem } from "../../../../shared/hooks/schema";
 import { getValidationValue } from "../../../../shared/schema/utilities";
 import { WithMessage } from "../message";
 
+/** 数値ボックス ref オブジェクト */
 export interface NumberBoxRef extends NumberBox$Ref { };
 
+/** 数値ボックス Props */
 export type NumberBoxProps<D extends Schema.DataItem<Schema.$Number>> = Overwrite<
   InputPropsWithDataItem<D>,
   {
+    /** プレースホルダー */
     placeholder?: string;
+    /** データリストアイテム（配列） */
     source?: Schema.Source<Schema.ValueType<D["_"]>>;
+    /** 増減ステップ @default 0 */
     step?: number;
   } & Pick<InputHTMLAttributes<HTMLInputElement>,
     | "autoComplete"
@@ -19,6 +24,11 @@ export type NumberBoxProps<D extends Schema.DataItem<Schema.$Number>> = Overwrit
   >
 >;
 
+/**
+ * 数値ボックス（スキーマ対応）
+ * @param param {@link NumberBoxProps}
+ * @returns
+ */
 export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
   className,
   style,

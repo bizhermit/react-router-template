@@ -1,3 +1,8 @@
+/**
+ * 数値変換
+ * @param value
+ * @returns
+ */
 export function parseNumber(value: unknown): [number: number | undefined, succeeded: boolean] {
   if (value == null || value === "") return [undefined, true];
   if (typeof value === "number") {

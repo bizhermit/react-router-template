@@ -1,17 +1,35 @@
 import { createElement, type FC, type ReactNode } from "react";
 import { useText } from "../../shared/hooks/i18n";
 
+/** i18nカスタムタグ */
 type ReplaceMap = Record<string, FC<{ children: ReactNode; }>>;
 
+/** i18nテキスト Props */
 type Props<K extends I18nTextKey> = {
   i18nKey: K;
   params?: I18nReplaceParams<K>;
   replaceMap?: ReplaceMap;
 };
 
-const SELF_CLOSING_TAGS = ["br", "hr"];
-const ALLOWED_TAGS = [...SELF_CLOSING_TAGS, "b", "strong", "u", "i"];
+/** セルフクローズタグ */
+const SELF_CLOSING_TAGS = [
+  "br",
+  "hr",
+];
+/** 許可タグ */
+const ALLOWED_TAGS = [
+  ...SELF_CLOSING_TAGS,
+  "b",
+  "strong",
+  "u",
+  "i",
+];
 
+/**
+ * i18nテキスト
+ * @param param {@link Props}
+ * @returns
+ */
 export function Text<K extends I18nTextKey>({
   i18nKey,
   params,
@@ -23,6 +41,14 @@ export function Text<K extends I18nTextKey>({
   return parseToReactNode(text, replaceMap);
 };
 
+/**
+ * タグ描画制御
+ * @param tag タグ
+ * @param children 子要素
+ * @param key ユニーク制御用Key
+ * @param replaceMap カスタムタグ
+ * @returns
+ */
 function renderTag(
   tag: string,
   children: ReactNode[],
@@ -49,7 +75,16 @@ function renderTag(
   }
 };
 
-export function parseToReactNode(str: string | undefined, replaceMap: ReplaceMap = {}): ReactNode[] {
+/**
+ * ReactNodeへ変換
+ * @param str 変換元文字列
+ * @param replaceMap カスタムタグ
+ * @returns
+ */
+export function parseToReactNode(
+  str: string | undefined,
+  replaceMap: ReplaceMap = {}
+): ReactNode[] {
   if (!str) return [];
   const tagRegex = new RegExp(
     `<\\s*(/?)\\s*(${[...ALLOWED_TAGS, ...Object.keys(replaceMap)].join("|")})\\s*(/?)\\s*>`,
