@@ -2,6 +2,8 @@ FROM node:24-bookworm
 
 WORKDIR /workspace
 
+ARG HOST_UID=1000
+ARG HOST_GID=1000
 ARG WORKSPACE_DIRS="node_modules .react-router .artifacts"
 
 RUN apt-get update -y \
