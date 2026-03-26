@@ -72,6 +72,53 @@
 - **並列実行**: `Promise.all` で並列呼び出しを再現し、ロックや排他制御をアサートする。
 - **ランダム値**: 乱数生成を DI で受け取り、テスト時は固定シードを注入する。
 
+### 非同期処理の制御パターン
+
+```ts
+import { vi, describe, it, expect } from "vitest";
+
+// タイムアウト検出
+describe("非同期処理: タイムアウト", () => {
+  it("API 呼び出しが指定時間内に完了しない場合は タイムアウト", async () => {
+    const slowFetch = vi.fn(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 10000));
+      return { data: "result" };
+    });
+
+    const timeoutPromise = Promise.race([
+      slowFetch(),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("TIMEOUT")), 5000),
+      ),
+    ]);
+
+    await expect(timeoutPromise).rejects.toThrow("TIMEOUT");
+  });
+});
+
+// race 条件の回避
+describe("非同期処理: Race 条件", () => {
+  it("複数の同一リソース更新が正しくシリアライズされる", async () => {
+    let updateOrder: number[] = [];
+
+    const update = async (id: number, delay: number) => {
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      updateOrder.push(id);
+    };
+
+    // Promise.all で並列実行を再現
+    await Promise.all([
+      update(1, 100),
+      update(2, 50),
+      update(3, 150),
+    ]);
+
+    // 実装が順序保証している場合は、最後の更新のみが反映される想定
+    expect(updateOrder).toEqual([2, 1, 3]);
+  });
+});
+```
+
 ## ターゲット別ガイド
 
 ### API ルート / Loader
@@ -80,26 +127,386 @@
 - 認証ヘッダーや Cookie を実際の API と同じ形で注入し、リダイレクトや 4xx/5xx を含むパスを網羅する。
 - ログ出力は `vi.spyOn(console, "log")` などで傍受し、秘匿情報が含まれないことを確認する。
 
+**エラーハンドリングの実装例**:
+
+```ts
+import { describe, it, expect, vi } from "vitest";
+import { createStaticHandler } from "react-router";
+
+describe("API ルート エラーハンドリング", () => {
+  it("401 認証失敗時は redirect レスポンスを返す", async () => {
+    const handler = createStaticHandler([{
+      path: "/protected",
+      loader: async ({ request }) => {
+        const auth = request.headers.get("authorization");
+        if (!auth) throw new Response(null, { status: 401 });
+        return { data: "success" };
+      },
+    }]);
+
+    const result = await handler.query(
+      new Request("http://localhost/protected"),
+    );
+
+    expect(result).toBeInstanceOf(Response);
+    expect(result.status).toBe(401);
+  });
+
+  it("500 エラー時にスタックトレースが response に含まれない", async () => {
+    const logSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const handler = createStaticHandler([{
+      path: "/error",
+      loader: async () => {
+        throw new Error("DATABASE_SECRET_xyz");
+      },
+    }]);
+
+    const result = await handler.query(
+      new Request("http://localhost/error"),
+    );
+    const body = await result.text();
+
+    expect(body).not.toContain("DATABASE_SECRET");
+    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("DATABASE_SECRET"));
+  });
+});
+```
+
 ### リポジトリ / DB アクセス
 
 - 実 DB と接続し、スキーマ制約やトリガーが効いているかを確認する。
 - 複数テーブルを跨ぐ操作はトランザクション単位で検証し、途中失敗時のロールバックもテストする。
+
+**複数テーブル・トランザクション失敗の実装例**:
+
+```ts
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { db, transaction } from "../database";
+import { withTestTransaction } from "../../../tests/utils/integration";
+
+describe("複数テーブル トランザクション検証", () => {
+  it("ユーザー作成と プロフィール作成が同一トランザクション内で成功", async () => {
+    await withTestTransaction(async (trx) => {
+      const userId = await db.user.create(
+        { name: "Test User", email: "test@example.com" },
+        { trx },
+      );
+      const profileId = await db.profile.create(
+        { userId, bio: "Hello" },
+        { trx },
+      );
+
+      // トランザクション内で検証
+      const user = await db.user.findById(userId, { trx });
+      const profile = await db.profile.findById(profileId, { trx });
+
+      expect(user).toBeDefined();
+      expect(profile.userId).toBe(userId);
+    });
+
+    // トランザクション終了後も整合性を確認
+    const user = await db.user.findByEmail("test@example.com");
+    expect(user).toBeDefined();
+  });
+
+  it("プロフィール作成失敗時にユーザー作成もロールバック", async () => {
+    let userId: string | null = null;
+
+    try {
+      await withTestTransaction(async (trx) => {
+        userId = await db.user.create(
+          { name: "Test User 2", email: "test2@example.com" },
+          { trx },
+        );
+        // 一意制約違反を故意に引き起こす
+        await db.profile.create(
+          { userId, bio: "Profile1" },
+          { trx },
+        );
+        await db.profile.create(
+          { userId, bio: "Profile2" },  // 同一ユーザーで2つ目のプロフィール（制約違反）
+          { trx },
+        );
+      });
+    } catch (error) {
+      // ロールバック確認
+    }
+
+    // ユーザーが作成されていないことを確認
+    const user = await db.user.findByEmail("test2@example.com");
+    expect(user).toBeUndefined();
+  });
+});
+```
+
+**ヘルパー関数 API 仕様**:
+
+```ts
+// withTestTransaction: テストケース単位でのトランザクション管理
+// - 開始時: BEGIN
+// - 終了時: ROLLBACK（失敗時も含む）
+export function withTestTransaction<T>(
+  callback: (trx: Transaction) => Promise<T>,
+): Promise<T>
+
+// truncateTables: 指定テーブルを全削除（トランザクション外）
+// - 用途: テスト間のクリーンアップ、初期状態リセット
+export function truncateTables(
+  tableNames: string[],
+): Promise<void>
+
+// seedData: 共通初期データ投入（マイグレーション済み前提）
+// - 既存データは上書きしない
+// - テスト内での追加データはコールバック内で個別生成
+export function seedData(
+  tables: Record<string, any[]>,
+): Promise<void>
+```
 
 ### バッチ / ジョブ
 
 - 実行キュー（例: BullMQ 相当）のテストダブルを起動し、ジョブ投入→実行→再試行までのイベントを検証する。
 - スケジューラはフェイクタイマーを使って時間を進め、予定どおりジョブが発火するか確認する。
 
+**バッチ・ジョブキューの実装例**:
+
+```ts
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import { Queue } from "bullmq";
+import { DateTime } from "../lib/shared/timing";
+
+describe("バッチジョブ 実行フロー", () => {
+  let queue: Queue;
+
+  beforeEach(async () => {
+    vi.useFakeTimers();
+    // メモリキューまたはテスト用キュー実装
+    queue = new Queue("test-queue", { connection: { host: "localhost" } });
+    await queue.clear();
+  });
+
+  it("ジョブ投入→実行→完了までのフロー", async () => {
+    const jobProcessor = vi.fn(async (job) => {
+      await db.log.create({
+        jobId: job.id,
+        status: "processed",
+        timestamp: DateTime.now(),
+      });
+      return { success: true };
+    });
+
+    queue.process(jobProcessor);
+
+    // ジョブ投入
+    const job = await queue.add("send-email", {
+      userId: "user-123",
+      template: "welcome",
+    });
+
+    // ジョブ実行をシミュレート（fakeTimer で時間進行）
+    vi.advanceTimersByTime(1000);
+    await vi.runAllTimersAsync();
+
+    expect(jobProcessor).toHaveBeenCalled();
+    const log = await db.log.findByJobId(job.id);
+    expect(log?.status).toBe("processed");
+  });
+
+  it("ジョブ失敗→リトライ→成功", async () => {
+    let attemptCount = 0;
+    const jobProcessor = vi.fn(async (job) => {
+      attemptCount++;
+      if (attemptCount < 2) {
+        throw new Error("Temporary failure");
+      }
+      return { success: true };
+    });
+
+    queue.process(jobProcessor);
+    const job = await queue.add("retry-job", { data: "test" }, {
+      attempts: 3,
+      backoff: { type: "exponential", delay: 1000 },
+    });
+
+    // 1回目失敗
+    vi.advanceTimersByTime(1000);
+    await vi.runAllTimersAsync();
+
+    // 2回目成功
+    vi.advanceTimersByTime(2000);
+    await vi.runAllTimersAsync();
+
+    expect(jobProcessor).toHaveBeenCalledTimes(2);
+    expect(job.progress()).toEqual({ completed: true });
+  });
+});
+```
+
 ### キャッシュ / Feature Flag
 
 - Redis 代替として in-memory 実装を使う場合でも、TTL・ミスヒット時の挙動をアサートする。
 - Feature Flag は複数の組み合わせを `test.each` で列挙し、権限やロールが正しく反映されるか確認する。
 
+**キャッシュ・Feature Flag の実装例**:
+
+```ts
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { cache } from "../lib/cache";
+import { featureFlags } from "../features/flags";
+
+describe("キャッシュ機構 TTL・ミスヒット", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    cache.clear();
+  });
+
+  it("TTL 切れ後にキャッシュが無効化される", async () => {
+    await cache.set("user:123", { id: "123", name: "John" }, 5000); // 5秒 TTL
+
+    expect(await cache.get("user:123")).toBeDefined();
+
+    // 3秒経過
+    vi.advanceTimersByTime(3000);
+    expect(await cache.get("user:123")).toBeDefined();
+
+    // 5秒経過（TTL 切れ）
+    vi.advanceTimersByTime(2000);
+    expect(await cache.get("user:123")).toBeUndefined();
+  });
+
+  it("キャッシュミスヒット時に DB へフォールバック", async () => {
+    const dbSpy = vi.spyOn(db.user, "findById");
+    const data = { id: "456", name: "Jane" };
+    dbSpy.mockResolvedValue(data);
+
+    // キャッシュに データなし
+    const result = await cache.getOrFetch(
+      "user:456",
+      () => db.user.findById("456"),
+      5000,
+    );
+
+    expect(result).toEqual(data);
+    expect(dbSpy).toHaveBeenCalledOnce();
+
+    // 次回呼び出しはキャッシュから
+    const result2 = await cache.getOrFetch(
+      "user:456",
+      () => db.user.findById("456"),
+      5000,
+    );
+
+    expect(result2).toEqual(data);
+    expect(dbSpy).toHaveBeenCalledOnce(); // 呼び出し増加なし
+  });
+});
+
+describe("Feature Flag 権限・ロール連携", () => {
+  const testCases = [
+    { role: "admin", flag: "beta-features", expected: true },
+    { role: "user", flag: "beta-features", expected: false },
+    { role: "user", flag: "standard-features", expected: true },
+  ];
+
+  it.each(testCases)(
+    "ロール $role は $flag を $expected",
+    async ({ role, flag, expected }) => {
+      const user = { id: "test", role };
+      const result = await featureFlags.isEnabled(flag, user);
+      expect(result).toBe(expected);
+    },
+  );
+});
+```
+
 ## 観測・セキュリティ点検
 
-- ログ/メトリクス/トレースが期待フォーマットになっているか、不要な個人情報を含まないかを検証する。
-- エラー時のレスポンス本文にスタックトレースやシークレットが混入していないことを確認する。
-- リクエスト/レスポンスの CSP・ヘッダー設定がセキュリティチェックリストに合致するかをテストに含める。
+### チェックリスト
+
+- [ ] **ログ・トレース** — ログ/メトリクス/トレースが期待フォーマットになっているか、不要な個人情報を含まないかを検証する
+- [ ] **エラーレスポンス** — エラー時のレスポンス本文にスタックトレース・DB スキーマ情報・シークレットが混入していないことを確認
+- [ ] **CSP・ヘッダー** — リクエスト/レスポンスの CSP・CORS・認証ヘッダー設定がセキュリティチェックリストに合致するか
+- [ ] **SQL インジェクション** — パラメータバインディングが正しく使用されているか、ユーザー入力が直接クエリに含まれていないか
+- [ ] **認可** — サーバー側で必ず再検証されているか（クライアント側判定のみではないか）
+- [ ] **レート制限** — API エンドポイントが意図したレート制限で保護されているか
+
+### インジェクション脆弱性テストの実装例
+
+```ts
+import { describe, it, expect } from "vitest";
+import { db } from "../database";
+
+describe("セキュリティ: SQLインジェクション対策", () => {
+  it("ユーザー検索時に SQL インジェクション攻撃を受け付けない", async () => {
+    // 攻撃ペイロード
+    const maliciousInput = "admin' OR '1'='1";
+
+    // プレースホルダー使用での実装（安全）
+    const result = await db.user.findByEmail(maliciousInput);
+
+    // 検索対象は email カラムのみで、他の行が返されない
+    expect(result).toBeUndefined();
+  });
+
+  it("API レスポンスにスキーマ情報を含めない", async () => {
+    const response = await fetch("http://localhost/api/invalid-endpoint", {
+      method: "GET",
+    });
+
+    const body = await response.text();
+    expect(body).not.toContain("table");
+    expect(body).not.toContain("column");
+    expect(body).not.toContain("schema");
+    expect(response.status).toBe(404);
+  });
+});
+
+describe("セキュリティ: 認可検証", () => {
+  it("サーバー側で認可を再検証（クライアント側判定に依存しない）", async () => {
+    const unauthorizedToken = "invalid_token";
+
+    const response = await fetch("http://localhost/api/admin/users", {
+      method: "GET",
+      headers: { authorization: `Bearer ${unauthorizedToken}` },
+    });
+
+    expect(response.status).toBe(401);
+    // ただし認可失敗時のエラーメッセージには権限情報を含めない
+    const body = await response.json();
+    expect(body.message).not.toContain("admin");
+  });
+
+  it("ユーザーが他ユーザーのデータにアクセスできない", async () => {
+    const userAToken = await createTestToken("user-a");
+    const userBId = "user-b-id";
+
+    const response = await fetch(
+      `http://localhost/api/users/${userBId}/profile`,
+      {
+        headers: { authorization: `Bearer ${userAToken}` },
+      },
+    );
+
+    expect(response.status).toBe(403);
+  });
+});
+
+describe("セキュリティ: データマスキング", () => {
+  it("ログまたはエラーメッセージに PII が含まれない", async () => {
+    const logSpy = vi.spyOn(console, "log");
+
+    await db.user.create({
+      name: "John Doe",
+      email: "john@example.com",
+      ssn: "123-45-6789",
+    });
+
+    expect(logSpy).not.toHaveBeenCalledWith(expect.stringContaining("123-45-6789"));
+    expect(logSpy).not.toHaveBeenCalledWith(expect.stringContaining("john@example.com"));
+  });
+});
+```
 
 ## ケーススタディ: health ルートの Loader
 
