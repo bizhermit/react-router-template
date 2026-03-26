@@ -21,6 +21,7 @@
 - 画面ルーティングとページ責務は`src/app`に置く
 - 機能固有のユースケースは`src/features/<feature-name>`に閉じる
 - 汎用化可能な部品は`src/lib`へ寄せる
+- 配置に迷う場合は、まず`src/features/<feature-name>`に置き、複数機能または複数画面での再利用が確認できた時点で`src/lib`へ移す
 - 依存方向は`app -> features -> lib`および`app -> lib`を維持する
 - `lib -> features`の逆依存は禁止する
 - 実行環境の境界は`client`/`server`/`shared`で明示する
@@ -68,6 +69,8 @@ ReactRouterはディレクトリ名またはファイル名に`client`または`
 4. Yesの場合は`src/features/<feature-name>`、Noの場合は`src/lib`
 5. 実行環境に応じて`client`/`server`/`shared`を選ぶ
 
+判断に迷う場合は`src/lib`へ先に置かず、`src/features/<feature-name>`から開始する。
+
 この判断は[機能境界](./app.md#機能境界)に沿って行う。
 
 ## ディレクトリ詳細
@@ -76,6 +79,7 @@ ReactRouterはディレクトリ名またはファイル名に`client`または`
 
 アプリ非依存・状態を持たない部品のみ（他プロジェクトへの流用が可能かどうかが目安）。  
 依存関係は`src/lib`内で完結させる。  
+将来的に共通化できそうという見込みだけでは置かず、機能境界をまたぐ再利用要件が明確になった時点で移す。
 
 主な責務:
 
@@ -118,6 +122,7 @@ src/lib/
 ユースケース・状態・APIに依存の部品。  
 依存関係は`src/lib`、および`src/features`の同グループ内で完結させる。  
 機能グループ内の構成（client/server/shared他）は基盤部品と同様。
+共通化の可能性があっても、機能境界に閉じている間は`src/features`に置く。
 
 主な責務:
 
