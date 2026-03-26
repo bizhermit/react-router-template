@@ -188,6 +188,14 @@ export function HogeFuga(props: HogeFugaProps) {
 }
 ```
 
+#### アクセシビリティ
+
+- クリック可能な要素は`button`または`a`を基本とし、`div`等にクリックイベントのみを付与しない（MUST）
+- フォーム部品は`label`または`aria-label`/`aria-labelledby`で操作対象の名称を提供する（MUST）
+- キーボード操作（Tab移動、Enter/Space操作）で到達・実行できる実装にする（MUST）
+- 見出し構造（h1-h6）を順序立てて使用し、ランドマーク要素（`main`/`nav`/`header`等）を適切に配置する（SHOULD）
+- 状態変化（ローディング、エラー、無効状態）は視覚表現だけでなく属性（`aria-busy`/`aria-invalid`/`disabled`等）でも表現する（SHOULD）
+
 ## サーバー実装
 
 - DBアクセス・外部APIアクセスは`server`配下に集約する
@@ -279,4 +287,5 @@ export function HogeFuga(props: HogeFugaProps) {
 - import順・改行スタイルが自動整形結果と一致している
 - `any`を使用せず、必要箇所で型を明示している
 - `Pages`の型定義が方針に一致し、例外時の理由が明記されている
+- UIコンポーネントがキーボード操作とラベル付けを満たし、必要なARIA属性で状態を表現している
 - テストが`_tests/`配下に配置され、対象の振る舞いを検証している
