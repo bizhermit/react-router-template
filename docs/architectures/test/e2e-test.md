@@ -84,17 +84,17 @@
 ### 推奨テスト実装スケッチ
 
 ```ts
-import { test, expect } from '@playwright/test';
+import { test, expect } from "@playwright/test";
 
-test.describe('Sign-in flow', () => {
-  test('ユーザーがログインしダッシュボードを見る', async ({ page }) => {
-    await page.goto('/sign-in');
-    await page.getByLabel('メールアドレス').fill('user@example.com');
-    await page.getByLabel('パスワード').fill('password');
-    await page.getByRole('button', { name: 'ログイン' }).click();
+test.describe("Sign-in flow", () => {
+  test("ユーザーがログインしダッシュボードを見る", async ({ page }) => {
+    await page.goto("/sign-in");
+    await page.getByLabel("メールアドレス").fill("user@example.com");
+    await page.getByLabel("パスワード").fill("password");
+    await page.getByRole("button", { name: "ログイン" }).click();
 
-    await expect(page).toHaveURL('/home');
-    await expect(page.getByRole('heading', { name: 'ホーム' })).toBeVisible();
+    await expect(page).toHaveURL("/home");
+    await expect(page.getByRole("heading", { name: "ホーム" })).toBeVisible();
   });
 });
 ```
@@ -108,7 +108,7 @@ test.describe('Sign-in flow', () => {
 ## AI エージェント手順
 
 1. ビジネスフローを整理し、シナリオごとに Page Object を作成する。
-2. Playwright 設定に `trace: 'on-first-retry'` を有効化し、デバッグ可能な成果物を常に残す。
+2. Playwright 設定に `trace: "on-first-retry"` を有効化し、デバッグ可能な成果物を常に残す。
 3. 外部サービスやメール送信は `route` でスタブし、受信内容を断言する。
 4. 画面遷移とバックエンドレスポンスを双方検証し、意図しない API エラーを検知する。
 5. 終了後はデータクリーニングを実行し、再実行可能な状態を維持する。

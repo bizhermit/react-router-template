@@ -46,7 +46,7 @@
 | DB            | `docker/compose.dev.yml` を利用して Postgres を起動し、`npm run dev:migrate` で最新化する |
 | 環境変数      | `.env.test` へ最小構成を記載し、Vitest 実行時に読み込む                                   |
 | 認証          | `features/auth` のモックトークンを発行し、HTTP ヘッダーに注入する                         |
-| 外部 HTTP     | MSW もしくは `vi.stubGlobal('fetch', ...)` でスタブし、期待呼び出しを検証する             |
+| 外部 HTTP     | MSW もしくは `vi.stubGlobal("fetch", ...)` でスタブし、期待呼び出しを検証する             |
 | 時刻/タイマー | `vi.useFakeTimers()` で固定し、`DateTime` ラッパーに依存するコードの再現性を担保          |
 
 > **Reusable helper**: DB まわりの初期化には [tests/utils/integration.ts](../../tests/utils/integration.ts) の `withTestTransaction` / `truncateTables` を利用し、全テストで同じパターンを踏襲する。
@@ -76,7 +76,7 @@
 
 - `createStaticHandler` / `createStaticRouter` を使ってルート全体を起動し、`loader` の実レスポンスを取得する。
 - 認証ヘッダーや Cookie を実際の API と同じ形で注入し、リダイレクトや 4xx/5xx を含むパスを網羅する。
-- ログ出力は `vi.spyOn(console, 'log')` などで傍受し、秘匿情報が含まれないことを確認する。
+- ログ出力は `vi.spyOn(console, "log")` などで傍受し、秘匿情報が含まれないことを確認する。
 
 ### リポジトリ / DB アクセス
 
@@ -101,7 +101,7 @@
 
 ## ケーススタディ: health ルートの Loader
 
-- 対象: [src/app/routes/health.ts](src/app/routes/health.ts)
+- 対象: [src/app/routes/health.ts](/src/app/routes/health.ts)
 - 目的: Loader が `DateTime` ラッパーと React Router の `data` を組み合わせ、環境変数情報をログに出力しつつ現在時刻を返すことを保証する。
 - テスト配置案: [src/app/routes/_tests/health.integration.test.ts](src/app/routes/_tests/health.integration.test.ts)
 
@@ -111,33 +111,33 @@
 | -------- | ------------------------------------------------------------------ | ------------------------------------------------------ |
 | 正常応答 | `loader()` を直接呼び出し、`process.env.NODE_ENV` を `test` に設定 | `data()` から `now` が ISO 文字列で返る                |
 | ログ検証 | `console.log` をスパイ化                                           | ログに Node バージョンと環境名だけが含まれ、PII がない |
-| 時刻固定 | `vi.setSystemTime('2024-01-01T00:00:00Z')`                         | レスポンスの `now` が固定値になる                      |
+| 時刻固定 | `vi.setSystemTime("2024-01-01T00:00:00Z")`                         | レスポンスの `now` が固定値になる                      |
 
 ### 推奨テスト実装スケッチ
 
 ```ts
-import { vi, describe, it, expect, beforeEach } from 'vitest';
-import { loader } from '../../health';
+import { vi, describe, it, expect, beforeEach } from "vitest";
+import { loader } from "../../health";
 
-describe('health loader (integration)', () => {
+describe("health loader (integration)", () => {
   beforeEach(() => {
     vi.useFakeTimers();
-    vi.setSystemTime(new Date('2024-01-01T00:00:00Z'));
+    vi.setSystemTime(new Date("2024-01-01T00:00:00Z"));
   });
 
-  it('現在時刻を返しログを残す', async () => {
-    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-    process.env.NODE_ENV = 'test';
+  it("現在時刻を返しログを残す", async () => {
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    process.env.NODE_ENV = "test";
 
     const response = await loader();
 
     expect(response).toMatchObject({
       payload: {
-        now: '2024-01-01T00:00:00.000Z',
+        now: "2024-01-01T00:00:00.000Z",
       },
     });
-    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('healthcheck'));
-    expect(logSpy).not.toHaveBeenCalledWith(expect.stringContaining('SECRET'));
+    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("healthcheck"));
+    expect(logSpy).not.toHaveBeenCalledWith(expect.stringContaining("SECRET"));
   });
 });
 ```
@@ -160,4 +160,4 @@ describe('health loader (integration)', () => {
 
 - 全体構成: [docs/architectures/test/index.md](./index.md)
 - ユニットテスト方針: [docs/architectures/test/unit-test.md](./unit-test.md)
-- セキュリティ観点: [docs/architectures/security-checklist.md](../architectures/security-checklist.md)
+- セキュリティ観点: [docs/architectures/security-checklist.md](../security-checklist.md)
