@@ -2,21 +2,34 @@
 .git
 .DS_Store
 .editorconfig
+.github
+.claude
+.cursor
+.continue
+.aider
+.roo
 
 # dep
 node_modules
 
 # dev
+.devcontainer
 .vscode
-docs
+docs/*
+!docs/api/
+!docs/api/**
 
 # test
+_tests
+tests
+vite.test.config.ts
 playwright
 playwright.config.ts
 .playwright
-tests
+playwright-report
 .storybook
 storybook.config.ts
+storybook
 
 # build
 .react-router
