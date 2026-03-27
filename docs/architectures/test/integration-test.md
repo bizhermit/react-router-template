@@ -2,7 +2,9 @@
 
 ユニットテスト済みのモジュール同士が結合した際の契約を検証し、実行時の設定・ストレージ・外部依存とのやり取りを確認するための指示書。アーキテクチャ全体のテスト構成は [docs/architectures/test/index.md](./index.md) を参照し、本書はインテグレーションテストに限定する。
 
-> **CI 実行**: インテグレーションテストも `npm run test`（Vitest）で実行される。特定ファイルのみ実行したい場合は `npx vitest run src/path/to/test.integration.test.ts` を使用する。
+> **CI 実行**: インテグレーションテストも `npm run test`（Vitest）で実行される。特定ファイルのみ実行したい場合は `npx vitest run src/path/to/test.int.test.ts` を使用する。
+
+> **命名規約**: テスト種別サフィックスは `unit / int / comp` を採用する。インテグレーションテストは `*.int.test.ts(x)` とする（互換のため既存 `*.integration.test.ts(x)` も当面許容）。
 
 > **運用優先度**: 本書は人間レビューにも対応するが、AI エージェントによる自動実行手順を優先する。AI は本書の「AI エージェント向け手順」と「実行結果レポート（必須フォーマット）」を満たすこと。
 
@@ -512,7 +514,7 @@ describe("セキュリティ: データマスキング", () => {
 
 - 対象: [src/app/routes/health.ts](/src/app/routes/health.ts)
 - 目的: Loader が `DateTime` ラッパーと React Router の `data` を組み合わせ、環境変数情報をログに出力しつつ現在時刻を返すことを保証する。
-- テスト配置案: [src/app/routes/_tests/health.integration.test.ts](src/app/routes/_tests/health.integration.test.ts)
+- テスト配置案: [src/app/routes/_tests/health.int.test.ts](src/app/routes/_tests/health.int.test.ts)
 
 ### テスト観点一覧
 
