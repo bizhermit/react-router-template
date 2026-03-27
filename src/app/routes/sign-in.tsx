@@ -103,7 +103,9 @@ export default function Page({ actionData }: Route.ComponentProps) {
         </fetcher.Form>
         {
           errorMessage &&
-          <InputMessageSpan>
+          <InputMessageSpan
+            code="signInError"
+          >
             {errorMessage}
           </InputMessageSpan>
         }
