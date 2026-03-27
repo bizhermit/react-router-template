@@ -48,12 +48,14 @@ npm run start
 
 ### 検証・テスト
 
-| コマンド             | 説明                                          |
-| -------------------- | --------------------------------------------- |
-| `npm run typecheck`  | TypeScript 型チェックと ESLint を実行します。 |
-| `npm run format`     | ESLint の自動修正を実行します。               |
-| `npm run test`       | `src` 配下の Vitest を実行します。            |
-| `npm run playwright` | Playwright の E2E テストを実行します。        |
+| コマンド                     | 説明                                                               |
+| ---------------------------- | ------------------------------------------------------------------ |
+| `npm run typecheck`          | TypeScript 型チェックと ESLint を実行します。                      |
+| `npm run format`             | ESLint の自動修正を実行します。                                    |
+| `npm run test`               | `src` 配下の Vitest を実行します。                                 |
+| `npm run playwright`         | Playwright の E2E テストを実行します（資料画像生成テストは除外）。 |
+| `npm run playwright:e2e`     | E2E 品質ゲート用テストのみを実行します。                           |
+| `npm run playwright:docshot` | 画面定義書向けの注入画像生成テストのみを実行します。               |
 
 #### Playwright
 
@@ -71,11 +73,17 @@ npm run build
 # 2. Webアプリケーションサーバーを起動する（すでに起動済みなら不要）
 npm run start
 
-# 3. Playwright 実行
+# 3. Playwright 実行（E2E 品質ゲート）
 npm run playwright
 ```
 
 各画面のスクリーンショットは `./.playwright/screenshot/` に保存されます。
+
+注入画像のみを更新したい場合は、次を実行します。
+
+```bash
+npm run playwright:docshot
+```
 
 ### UI 開発
 
