@@ -4,54 +4,31 @@ import { InputMessageSpan } from "$/components/elements/form/message";
 import { PasswordBox } from "$/components/elements/form/password-box/password-box";
 import { TextBox } from "$/components/elements/form/text-box/text-box";
 import { FormItem } from "$/components/elements/form/wrapper/form-item";
+import { useText } from "$/shared/hooks/i18n";
 import { useSchema } from "$/shared/hooks/schema";
-import { getPayload } from "$/shared/schema/server";
-import { APIError } from "better-auth";
 import { useEffect } from "react";
 import { data, redirect, useFetcher } from "react-router";
-import { auth } from "~/auth/server/auth";
+import { signInByEmail } from "~/auth/server/sign-in";
 import { authSchema } from "~/auth/shared/schema";
-import { getSignedInUrl } from "~/auth/shared/signed-in-url";
 import type { Route } from "./+types/sign-in";
 
 export async function action({ request }: Route.ActionArgs) {
-  try {
-    const submission = await getPayload({
-      request,
-      schema: authSchema,
-    });
-    if (submission.hasError) {
-      return data({
-        message: "Sign-in failed.",
-      });
-    }
-
-    const { headers } = await auth.api.signInEmail({
-      body: {
-        email: submission.data.email,
-        password: submission.data.password,
-      },
-      returnHeaders: true,
-    });
-
-    return redirect(
-      getSignedInUrl(request.url),
-      { headers }
-    );
-  } catch (err) {
-    if (err instanceof APIError) {
-      return data({
-        message: err.message,
-      });
-    }
+  const result = await signInByEmail(request);
+  if (!result.ok) {
     return data({
-      message: "Sign-in fatal error.",
+      messageKey: result.messageKey,
     });
   }
+
+  return redirect(
+    result.redirectTo,
+    { headers: result.headers }
+  );
 };
 
 export default function Page({ actionData }: Route.ComponentProps) {
   const fetcher = useFetcher<typeof actionData>();
+  const t = useText();
 
   const {
     SchemaProvider,
@@ -70,11 +47,11 @@ export default function Page({ actionData }: Route.ComponentProps) {
     }
   }, [fetcher.state]);
 
-  const errorMessage = fetcher.data?.message || actionData?.message;
+  const errorMessageKey = fetcher.data?.messageKey || actionData?.messageKey;
 
   return (
     <div className="flex flex-col justify-center items-center grow gap-8">
-      <h1>Template</h1>
+      <h1>{t("signIn_title")}</h1>
       <SchemaProvider>
         <fetcher.Form
           {...getFormProps("post")}
@@ -98,15 +75,15 @@ export default function Page({ actionData }: Route.ComponentProps) {
             color="primary"
             disabled={fetcher.state === "submitting"}
           >
-            Sign In
+            {t("signIn_submit")}
           </Button$>
         </fetcher.Form>
         {
-          errorMessage &&
+          errorMessageKey &&
           <InputMessageSpan
             code="signInError"
           >
-            {errorMessage}
+            {t(errorMessageKey)}
           </InputMessageSpan>
         }
       </SchemaProvider>

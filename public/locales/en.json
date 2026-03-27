@@ -94,5 +94,9 @@
   "contextTime": "{{label}} has an invalid chronological order.",
   "requiredSplitDate_input": "Enter {{label}}. ({{target}})",
   "requiredSplitDate_select": "Select {{label}}. ({{target}})",
-  "requiredSplitDate_set": "Set {{label}}. ({{target}})"
+  "requiredSplitDate_set": "Set {{label}}. ({{target}})",
+  "signIn_title": "Template",
+  "signIn_submit": "Sign In",
+  "signIn_failed": "Sign-in failed.",
+  "signIn_fatal": "An unexpected error occurred during sign-in."
 }

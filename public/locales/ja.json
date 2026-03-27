@@ -94,5 +94,9 @@
   "contextTime": "{{label}}の前後関係が不正です。",
   "requiredSplitDate_input": "{{label}}を入力してください。({{target}})",
   "requiredSplitDate_select": "{{label}}を選択してください。({{target}})",
-  "requiredSplitDate_set": "{{label}}を設定してください。({{target}})"
+  "requiredSplitDate_set": "{{label}}を設定してください。({{target}})",
+  "signIn_title": "Template",
+  "signIn_submit": "サインイン",
+  "signIn_failed": "サインインに失敗しました。",
+  "signIn_fatal": "サインイン中に予期せぬエラーが発生しました。"
 }

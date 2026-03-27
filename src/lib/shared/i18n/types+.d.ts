@@ -98,4 +98,8 @@ interface I18N_Texts {
   "requiredSplitDate_input": "label" | "target";
   "requiredSplitDate_select": "label" | "target";
   "requiredSplitDate_set": "label" | "target";
+  "signIn_title": null;
+  "signIn_submit": null;
+  "signIn_failed": null;
+  "signIn_fatal": null;
 };
