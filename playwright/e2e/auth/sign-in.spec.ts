@@ -25,7 +25,7 @@ test.describe("サインインフロー", () => {
     // /sign-in から遷移しないことを確認
     await expect(page).toHaveURL(/\/sign-in(?:\?|$)/);
     // エラーメッセージが表示されることを確認
-    await expect(page.locator("._ipt-msg")).toBeVisible({ timeout: 15000 });
+    await expect(page.locator("._ipt-msg[data-code=\"signInError\"]")).toBeVisible({ timeout: 15000 });
   });
 
   test("正常系(JS無効): 正しい認証情報でホームに遷移する", async ({ browser }) => {
@@ -60,7 +60,7 @@ test.describe("サインインフロー", () => {
 
       // JS 無効でも /sign-in に留まり、エラー表示されることを確認
       await expect(page).toHaveURL(/\/sign-in(?:\?|$)/);
-      await expect(page.locator("._ipt-msg")).toBeVisible();
+      await expect(page.locator("._ipt-msg[data-code=\"signInError\"]")).toBeVisible();
     } finally {
       await context.close();
     }

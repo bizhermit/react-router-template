@@ -58,6 +58,7 @@ export function InputMessage({
     <InputMessageSpan
       id={`${schema.id}_${$.name}__msg`}
       type={result.type}
+      code={result.code}
       {...props}
     >
       {message}

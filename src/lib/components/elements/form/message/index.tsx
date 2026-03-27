@@ -9,6 +9,8 @@ export type InputMessageSpanProps = Overwrite<
   {
     /** メッセージタイプ */
     type?: "e" | "w" | "i";
+    /** メッセージコード */
+    code?: string | number;
   }
 >;
 
@@ -20,6 +22,7 @@ export type InputMessageSpanProps = Overwrite<
 export function InputMessageSpan({
   className,
   type = "e",
+  code,
   ...props
 }: InputMessageSpanProps) {
   return (
@@ -30,6 +33,7 @@ export function InputMessageSpan({
         className,
       )}
       data-type={type}
+      data-code={code}
     />
   );
 };

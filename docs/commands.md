@@ -77,6 +77,8 @@ npm run start
 npm run playwright
 ```
 
+> 注意: `npm run dev` は初回コンパイルやウォッチ再ビルドの影響で、起動直後の E2E が不安定になる場合があります。安定性を優先する場合（特に CI）は `npm run build` + `npm run start` を基本にしてください。
+
 各画面のスクリーンショットは `./.playwright/screenshot/` に保存されます。
 
 注入画像のみを更新したい場合は、次を実行します。
