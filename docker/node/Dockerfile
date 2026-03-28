@@ -9,15 +9,6 @@ COPY . .
 RUN npm run build
 RUN npm run build:scripts
 
-RUN rm -rf \
-  .devcontainer \
-  .storybook \
-  playwright \ 
-  docs \
-  src \
-  .react-router \
-  node_modules
-
 FROM node:24-bookworm-slim AS runner-dep
 
 WORKDIR /app

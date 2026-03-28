@@ -22,7 +22,8 @@ docs/*
 # test
 _tests
 tests
-vite.test.config.ts
+*.test.*
+*.spec.*
 playwright
 playwright.config.ts
 .playwright
