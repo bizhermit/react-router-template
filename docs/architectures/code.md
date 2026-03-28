@@ -289,3 +289,32 @@ export function HogeFuga(props: HogeFugaProps) {
 - `Pages`の型定義が方針に一致し、例外時の理由が明記されている
 - UIコンポーネントがキーボード操作とラベル付けを満たし、必要なARIA属性で状態を表現している
 - テストが`_tests/`配下に配置され、対象の振る舞いを検証している
+
+## 依存管理（npm workspaces）
+
+依存追加時は、用途に応じて追加先（root / `packages/app` / `packages/test`）を明確に分離する。
+
+### 追加先の原則
+
+- 本番ランタイムで使用する依存は、root `package.json` の `dependencies` に追加する（MUST）
+- ビルド時に必要な依存は、root `package.json` の `devDependencies` に追加する（MUST）
+- アプリ本体の開発ツール依存は `packages/app` の `devDependencies` に追加する（MUST）
+- テスト・Storybook・E2E 専用依存は `packages/test` の `devDependencies` に追加する（MUST）
+
+### 判断基準
+
+| 用途                                                            | 追加先                            | 例                                                                                        |
+| --------------------------------------------------------------- | --------------------------------- | ----------------------------------------------------------------------------------------- |
+| 実行時（`npm run start` 後の本番ランタイム）に必要              | root `dependencies`               | `react`, `react-dom`, `pg`, `drizzle-orm`                                                 |
+| ビルドや型生成のために必要                                      | root `devDependencies`            | `@react-router/dev`, `vite`, `vite-tsconfig-paths`, `tsx`, `openapi-typescript`, `eslint` |
+| ローカル開発時の補助・運用ツール                                | `packages/app` `devDependencies`  | `drizzle-kit`, `@better-auth/cli`, `react-router-devtools`, `ts-node`                     |
+| テスト実行や UI 検証（Storybook/Playwright/Vitest）のために必要 | `packages/test` `devDependencies` | `vitest`, `playwright`, `storybook`                                                       |
+
+### コマンド運用
+
+実行方法の詳細は [コマンド一覧](../commands.md#ワークスペースごとの依存追加) を参照してください。
+
+### 禁止事項
+
+- 本番ランタイム依存を `packages/app` / `packages/test` に追加しない（MUST NOT）
+- テスト専用依存を root `dependencies` / root `devDependencies` に追加しない（MUST NOT）

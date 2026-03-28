@@ -4,6 +4,32 @@
 
 ## npm scripts
 
+### ワークスペースごとの依存追加
+
+依存追加先の判断基準（root / `packages/app` / `packages/test`）は、[コーディング規約の依存管理ルール](./architectures/code.md#依存管理npm-workspaces)を参照してください。
+
+```bash
+# 本番ランタイム依存（root dependencies）を追加
+npm i <package-name>
+
+# ビルド時依存（root devDependencies）を追加
+npm i -D <package-name>
+
+# アプリ開発ツール（packages/app）を追加
+npm i -D -w packages/app <package-name>
+
+# テスト・Storybook・Playwright（packages/test）を追加
+npm i -D -w packages/test <package-name>
+
+# パッケージを更新
+npm update -w packages/app <package-name>
+npm update -w packages/test <package-name>
+
+# パッケージを削除
+npm un -w packages/app <package-name>
+npm un -w packages/test <package-name>
+```
+
 ### アプリケーション
 
 | コマンド           | 説明                                                                                                                               |

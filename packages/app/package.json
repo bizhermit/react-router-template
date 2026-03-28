@@ -1,0 +1,12 @@
+{
+  "name": "web-app-template-app",
+  "private": true,
+  "version": "0.0.0",
+  "devDependencies": {
+    "@better-auth/cli": "^1.4.7",
+    "drizzle-kit": "^0.31.8",
+    "react-router-devtools": "^6.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}
