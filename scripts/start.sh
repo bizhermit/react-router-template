@@ -4,7 +4,7 @@ set -e
 
 if [ -n "${WAITFOR:-}" ]; then
   echo "[init] Waiting for DB..."
-  ./scripts/wait-for-it.sh "$WAITFOR" -t 60
+  bash ./scripts/wait-for-it.sh "$WAITFOR" -t 60
 fi
 
 if [ "${MIGRATE:-true}" = "true" ]; then
