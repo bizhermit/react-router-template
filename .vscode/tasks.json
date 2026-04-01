@@ -32,16 +32,10 @@
       "command": "npm run dev:postgres"
     },
     {
-      "label": "Start WebApp(dev)",
+      "label": "[generate] migration files",
       "group": "none",
       "type": "shell",
-      "command": "npm run dev"
-    },
-    {
-      "label": "Start WebApp",
-      "group": "none",
-      "type": "shell",
-      "command": "npm run build && npm run start"
+      "command": "npm run generate:migration"
     },
     {
       "label": "migrate",
@@ -51,7 +45,7 @@
     },
     {
       "label": "typecheck",
-      "group": "none",
+      "group": "test",
       "type": "shell",
       "command": "npm run typecheck"
     },
@@ -62,22 +56,28 @@
       "command": "npm run format"
     },
     {
-      "label": "generate:i18n types",
+      "label": "[generate] i18n types",
       "group": "none",
       "type": "shell",
       "command": "npm run generate:i18n-types"
     },
     {
-      "label": "generate:openapi types",
+      "label": "[generate] openapi types",
       "group": "none",
       "type": "shell",
       "command": "npm run generate:openapi-types"
     },
     {
       "label": "playwright",
-      "group": "none",
+      "group": "test",
       "type": "shell",
       "command": "npm run playwright"
+    },
+    {
+      "label": "no package-lock install",
+      "group": "none",
+      "type": "shell",
+      "command": "npm install --no-package-lock"
     }
   ]
 }
