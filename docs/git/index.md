@@ -1,38 +1,43 @@
-# ブランチ運用
+# Git/ブランチ運用
 
-<!-- TODO -->
+<!-- TODO プロジェクトに合ったもの -->
 
-# バッジサンプル
+## 運用ガイド
 
-## 変更必須事項 
+- Commit運用: [commit.md](./commit.md)
+- Pull Request運用: [pull-request.md](./pull-request.md)
+
+## バッジサンプル
+
+### 変更必須事項 
 
 ![must](https://img.shields.io/badge/review-must-darkred.svg)
 ```
 ![must](https://img.shields.io/badge/review-must-darkred.svg)
 ```
 
-## 指摘事項
+### 指摘事項
 
 ![nits](https://img.shields.io/badge/review-nits-darkgreen.svg)
 ```
 ![nits](https://img.shields.io/badge/review-nits-darkgreen.svg)
 ```
 
-## 変更任意事項
+### 変更任意事項
 
 ![imo-badge](https://img.shields.io/badge/review-imo-orange.svg)
 ```
 ![imo-badge](https://img.shields.io/badge/review-imo-orange.svg)
 ```
 
-## 質問事項
+### 質問事項
 
 ![ask](https://img.shields.io/badge/review-ask-blue.svg)
 ```
 ![ask](https://img.shields.io/badge/review-ask-blue.svg)
 ```
 
-## メモ
+### メモ
 
 ![badge](https://img.shields.io/badge/note-lightgray.svg)
 ```

@@ -2,6 +2,8 @@
 
 主要なものは `.vscode/tasks.json` に登録しています。
 
+Git運用（Commit / Pull Request）のルールは[Git/ブランチ運用](./git/index.md)を参照してください。
+
 ## npm scripts
 
 ### ワークスペースごとの依存追加
