@@ -10,7 +10,7 @@ log "postCreateCommand を開始します"
 
 # 依存関係インストール #
 log "依存関係をインストールします"
-npm install
+npm ci
 
 log "PostgreSQL の起動を待機します: ${DATABASE_HOST}:${POSTGRES_PORT}"
 bash ./scripts/wait-for-it.sh "$DATABASE_HOST:$POSTGRES_PORT" -t 60
