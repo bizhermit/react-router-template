@@ -1,11 +1,13 @@
 FROM node:24-bookworm-slim AS builder
 
 WORKDIR /app
+
 COPY package.json package-lock.json ./
 COPY packages/app/package.json ./packages/app/package.json
 # packages/test のスタブを作成することでテスト・Storybook 依存をインストールしない
 RUN mkdir -p packages/test && \
   echo '{"name":"web-app-template-test","private":true,"version":"0.0.0"}' > packages/test/package.json
+
 RUN npm ci --no-audit --no-fund
 
 COPY . .
@@ -16,7 +18,9 @@ RUN npm run build:scripts
 FROM node:24-bookworm-slim AS runner-dep
 
 WORKDIR /app
+
 COPY package.json package-lock.json ./
+
 RUN npm ci --omit=dev --no-audit --no-fund
 
 FROM node:24-bookworm-slim AS runner

@@ -6,12 +6,12 @@ ARG HOST_UID=1000
 ARG HOST_GID=1000
 ARG WORKSPACE_DIRS="node_modules .react-router .artifacts"
 
-RUN apt-get update -y \
-  # && apt-get upgrade -y \
-  # && apt-get install -y --no-install-recommends \
-  # sudo \
-  && apt-get -y clean \
-  && rm -rf /var/lib/apt/lists/*
+# RUN apt-get update -y \
+#   && apt-get upgrade -y \
+#   # && apt-get install -y --no-install-recommends \
+#   # sudo \
+#   && apt-get -y clean \
+#   && rm -rf /var/lib/apt/lists/*
 
 RUN groupmod -og $HOST_GID node \
   && usermod -ou $HOST_UID node
