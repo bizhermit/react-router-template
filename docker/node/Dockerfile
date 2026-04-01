@@ -1,4 +1,6 @@
-FROM node:24-bookworm-slim AS builder
+FROM node:24-bookworm-slim AS base
+
+FROM base AS builder
 
 WORKDIR /app
 COPY package.json package-lock.json ./
@@ -13,21 +15,21 @@ COPY . .
 RUN npm run build
 RUN npm run build:scripts
 
-FROM node:24-bookworm-slim AS runner-dep
+FROM base AS runner-dep
 
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev
 
-FROM node:24-bookworm-slim AS runner
+FROM base AS runner
 
 WORKDIR /app
 
-RUN apt-get update -y \
-  # && apt-get upgrade -y \
-  # && apt-get install -y --no-install-recommends bash \
-  && apt-get -y clean \
-  && rm -rf /var/lib/apt/lists/*
+# RUN apt-get update -y \
+#   && apt-get upgrade -y \
+#   # && apt-get install -y --no-install-recommends bash \
+#   && apt-get -y clean \
+#   && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /app/scripts/wait-for-it.sh ./scripts/wait-for-it.sh
 COPY --from=builder /app/scripts/start.sh ./scripts/start.sh
