@@ -1,0 +1,11 @@
+engine-strict=true
+save-exact=true
+ignore-scripts=true
+audit=true
+fund=false
+audit-level=high
+min-release-age=1
+strict-peer-deps=true
+
+# 共有値は固定です。必要がある場合はチーム合意のうえ更新してください。
+# 認証トークンなど機密情報は .npmrc にのみ記載し、このファイルには記載しないでください。

@@ -13,7 +13,13 @@
 
 1. 任意のフォルダに当リポジトリをクローンする
 2. 環境変数ファイルを作成する（参照：[環境変数](./features/env.md)）
-3. 開発コンテナ（Dev Containers）を起動する
+3. （任意）`.npmrc.example` を `.npmrc` にコピーする
+	```bash
+	cp .npmrc.example .npmrc
+	```
+	- `.npmrc` の既存設定値は固定値として扱い、原則変更しない
+	- 認証トークンなど機密情報は `.npmrc` 側にのみ追記する
+4. 開発コンテナ（Dev Containers）を起動する
 
 ## ２回目以降
 
@@ -23,19 +29,25 @@
 
 1. 任意のフォルダに当リポジトリをクローンする
 2. [Node.js](https://nodejs.org/ja/download)をインストールする
-3. 依存関係をインストールする
+3. `.npmrc.example` を `.npmrc` にコピーする
+	```bash
+	cp .npmrc.example .npmrc
+	```
+	- `.npmrc` の既存設定値は固定値として扱い、原則変更しない
+	- 認証トークンなど機密情報は `.npmrc` 側にのみ追記する
+4. 依存関係をインストールする
 	```bash
 	npm install --no-package-lock
 	```
-4. データベース（コンテナ）を起動する
+5. データベース（コンテナ）を起動する
 	```bash
 	npm run dev:postgres
 	```
-5. マイグレーションを実行する
+6. マイグレーションを実行する
 	```bash
 	npm run dev:migrate
 	```
-6. 初回データを投入する
+7. 初回データを投入する
 	```bash
 	npm run postgres:init
 	```

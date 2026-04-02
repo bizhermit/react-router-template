@@ -37,6 +37,7 @@
       "settings": {
         "files.associations": {
           ".env.*": "properties",
+          ".npmrc.*": "properties",
           "fonts.conf": "xml"
         },
         "editor.formatOnSave": true,

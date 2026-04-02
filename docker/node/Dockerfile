@@ -4,11 +4,18 @@ WORKDIR /app
 
 COPY package.json package-lock.json ./
 COPY packages/app/package.json ./packages/app/package.json
+COPY .npmrc* ./
+
 # packages/test のスタブを作成することでテスト・Storybook 依存をインストールしない
 RUN mkdir -p packages/test && \
-  echo '{"name":"web-app-template-test","private":true,"version":"0.0.0"}' > packages/test/package.json
+  echo '{"name":"web-app-template-test","private":true,"version":"0.0.0"}' > packages/test/package.json && \
+  if [ -f .npmrc ]; then \
+  cat .npmrc .npmrc.example > .npmrc.build; \
+  else \
+  cp .npmrc.example .npmrc.build; \
+  fi
 
-RUN npm ci --no-audit --no-fund
+RUN NPM_CONFIG_USERCONFIG=.npmrc.build npm ci
 
 COPY . .
 
@@ -20,8 +27,9 @@ FROM node:24-bookworm-slim AS runner-dep
 WORKDIR /app
 
 COPY package.json package-lock.json ./
+COPY --from=builder /app/.npmrc.build ./.npmrc.build
 
-RUN npm ci --omit=dev --no-audit --no-fund
+RUN NPM_CONFIG_USERCONFIG=.npmrc.build npm ci --omit=dev
 
 FROM node:24-bookworm-slim AS runner
 
