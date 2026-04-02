@@ -258,6 +258,12 @@ export default defineConfig([
     ],
     rules: {
       ...baseRules,
+      "storybook/no-uninstalled-addons": [
+        "error",
+        {
+          packageJsonLocation: "./packages/test/package.json",
+        },
+      ],
     },
   },
   { // lib/client
