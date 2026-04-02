@@ -30,6 +30,7 @@ COPY package.json package-lock.json ./
 COPY --from=builder /app/.npmrc.build ./.npmrc.build
 
 RUN NPM_CONFIG_USERCONFIG=.npmrc.build npm ci --omit=dev
+RUN NPM_CONFIG_USERCONFIG=.npmrc.build npm audit --omit=dev
 
 FROM node:24-bookworm-slim AS runner
 
