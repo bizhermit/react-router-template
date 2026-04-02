@@ -120,6 +120,12 @@
               min-height: var(--spacing-input);
               height: unset;
 
+              @media (any-hover: hover) {
+                &:hover {
+                  background: var(--color-hover);
+                }
+              }
+
               &[aria-hidden="true"] {
                 min-height: 0;
                 height: 0;

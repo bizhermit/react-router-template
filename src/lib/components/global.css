@@ -50,7 +50,7 @@
   --color-input-err-bd: #f00;
   --color-placeholder: #888;
   --color-error: #f00;
-  --color-hover: #b8e6fe;
+  --color-hover: #d8e2ef;
   --color-active: #b8e6fe;
   --spacing-input: 2rem;
   --spacing-input-pad-x: calc(var(--spacing-input) / 4);
@@ -91,7 +91,7 @@
   --color-input-err-bg: #322;
   --color-input-err-bd: #f57;
   --color-error: #f57;
-  --color-hover: #024a70;
+  --color-hover: #425060;
   --color-active: #024a70;
 }
 
