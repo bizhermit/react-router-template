@@ -1,3 +1,14 @@
+export const MONTH = {
+  en: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"] as const,
+  en_s: ["Jan.", "Feb.", "Mar.", "Apr.", "May", "Jun", "Jul.", "Aug.", "Sep.", "Oct.", "Nov.", "Dec."] as const,
+  ja: ["１月", "２月", "３月", "４月", "５月", "６月", "７月", "８月", "９月", "１０月", "１１月", "１２月"] as const,
+};
+
+export const WEEK = {
+  ja_s: ["日", "月", "火", "水", "木", "金", "土"] as const,
+  en_s: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] as const,
+};
+
 type TimeZoneOffset =
   | `+${number}:${number}`
   | `+${number}${number}`
@@ -33,14 +44,16 @@ function getMsOfDay(ms: number) {
 }
 
 function getYMD(ms: number) {
-  const { yoe, era, mp, doy } = getGregorianParts(ms);
+  const { yoe, era, mp, doy, days } = getGregorianParts(ms);
   const month = mp + (mp < 10 ? 3 : -9);
   const year = (yoe + era * 400) + (month <= 2 ? 1 : 0);
   const day = doy - Math.floor((153 * mp + 2) / 5) + 1;
+  const week = ((days + 4) % 7 + 7) % 7;
   return {
     year,
     month,
     day,
+    week,
   } as const;
 };
 
@@ -104,6 +117,7 @@ function getGregorianParts(ms: number) {
     era,
     doy,
     mp,
+    days,
   } as const;
 }
 
@@ -268,6 +282,12 @@ abstract class Timestamp {
     return this;
   }
 
+  protected getWeek() {
+    // 1970-01-01 は木曜(4)。負の値でも 0-6 に収めるため正規化する。
+    const days = Math.floor(this.ms / MS_PER_DAY);
+    return ((days + 4) % 7 + 7) % 7;
+  }
+
   protected getHour() {
     return Math.floor(this.getMsOfDay() / MS_PER_HOUR);
   }
@@ -340,7 +360,8 @@ abstract class Timestamp {
       .replace(/ss/g, pad(v.second))
       .replace(/s/g, String(v.second))
       .replace(/SSS/g, pad(v.millisecond, 3))
-      .replace(/S/g, String(v.millisecond));
+      .replace(/S/g, String(v.millisecond))
+      .replace(/W/g, String(WEEK.ja_s[v.week]));
   }
 
   public toISOString() {
@@ -451,6 +472,10 @@ export class $Date extends Timestamp {
   public setDay(day: number) {
     super.setDay(day);
     return this;
+  }
+
+  public getWeek(): number {
+    return super.getWeek();
   }
 
   public toString(pattern: string | ((parts: ReturnType<typeof getAll>) => string) = "yyyy/MM/dd") {
@@ -580,6 +605,10 @@ export class $DateTime extends Timestamp {
   public setDay(day: number) {
     super.setDay(day);
     return this;
+  }
+
+  public getWeek(): number {
+    return super.getWeek();
   }
 
   public getHour() {

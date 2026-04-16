@@ -251,6 +251,7 @@ export default function Page() {
           <li>分: {value.getMinute()}</li>
           <li>秒: {value.getSecond()}</li>
           <li>ms: {value.getMillisecond()}</li>
+          <li>曜: {value.getWeek()}</li>
           <hr />
           <li>iso: {value.toISOString()}</li>
           <li>json: {value.toJSON()}</li>
@@ -258,6 +259,7 @@ export default function Page() {
           <li>date: {value.toDateString()}</li>
           <li>time: {value.toTimeString()}</li>
           <li>offset: {value.getOffset()}</li>
+          <li>{value.toString(`yyyy年MM月dd日(W) hh時mm分ss秒`)}</li>
         </ul>
       }
     </div>
