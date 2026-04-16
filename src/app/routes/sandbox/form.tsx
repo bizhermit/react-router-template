@@ -462,8 +462,8 @@ function $date<P extends BaseProps & {
 function $month<P extends BaseProps & {
   parser?: Parser<$Month>;
   required?: Validation<Nullable<$Month>, boolean, { date: $Month; }>;
-  minDate?: Validation<$Month, $Month, { minDate: $Month; currentDate: $Month; }>;
-  maxDate?: Validation<$Month, $Month, { maxDate: $Month; currentDate: $Month; }>;
+  minMonth?: Validation<$Month, $Month, { minMonth: $Month; currentDate: $Month; }>;
+  maxMonth?: Validation<$Month, $Month, { minMonth: $Month; currentDate: $Month; }>;
   rules?: Rule<$Month>[];
 }>(props: P = {} as P) {
   return {
