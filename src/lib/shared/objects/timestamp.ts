@@ -71,8 +71,10 @@ const MS_PER_MINUTE = 60 * MS_PER_SECOND;
 const MS_PER_HOUR = 60 * MS_PER_MINUTE;
 const MS_PER_DAY = 24 * MS_PER_HOUR;
 
-const TZ = typeof process === "undefined" ? undefined : process.env.TZ?.trim() as TimeZone | TimeZoneOffset | undefined;
-const OFFSET_MS = (TZ ? parseTimezoneOffset(TZ) : new Date().getTimezoneOffset()) * MS_PER_MINUTE;
+function getOffset() {
+  const tz = typeof process === "undefined" ? undefined : process.env.TZ?.trim() as TimeZone | TimeZoneOffset | undefined;
+  return (tz ? parseTimezoneOffset(tz) : new Date().getTimezoneOffset()) * MS_PER_MINUTE;
+}
 
 function getGregorianParts(ms: number) {
   // `1970-01-01 00:00:00`からの経過ミリ秒を取得
@@ -147,20 +149,21 @@ function slice(num: number | string, len = 2) {
 
 abstract class Timestamp {
 
-  static OFFSET = OFFSET_MS;
-
+  protected offset: number;
   protected ms: number;
 
   constructor(init?: Timestamp | Date | string | number) {
+    this.offset = getOffset();
     if (init == null) {
-      this.ms = Date.now() - OFFSET_MS;
+      this.ms = Date.now() - this.offset;
     } else if (init instanceof Timestamp) {
       this.ms = init.getTime();
+      this.offset = init.getOffset();
     } else if (init instanceof Date) {
-      this.ms = init.getTime() - OFFSET_MS;
+      this.ms = init.getTime() - this.offset;
     } else if (typeof init === "string") {
       if (!init) {
-        this.ms = Date.now() - OFFSET_MS;
+        this.ms = Date.now() - this.offset;
       } else {
         const a = init.match(/^(\d{1,4})[-|/|年]?(\d{1,2}|$)[-|/|月]?(\d{1,2}|$)[日]?[\s|T]?(\d{1,2}|$)[:]?(\d{1,2}|$)[:]?(\d{1,2}|$)[.]?(\d{0,3}|$)?(.*)/);
         if (a) {
@@ -176,14 +179,14 @@ abstract class Timestamp {
             Number(a[7] || 0),
           );
           const tz = a[8];
-          const offsetDiff = tz ? parseTimezoneOffset(tz as TimeZoneOffset) * MS_PER_MINUTE - OFFSET_MS : 0;
+          const offsetDiff = tz ? parseTimezoneOffset(tz as TimeZoneOffset) * MS_PER_MINUTE - this.offset : 0;
           this.ms = days * MS_PER_DAY + time - offsetDiff;
         } else {
           // eslint-disable-next-line no-useless-catch
           try {
             const date = new Date(init);
             if (isNaN(date.getTime())) throw new Error(`Invalid date string: ${init}`);
-            this.ms = date.getTime() - OFFSET_MS;
+            this.ms = date.getTime() - this.offset;
           } catch (e) {
             throw e;
           }
@@ -195,7 +198,7 @@ abstract class Timestamp {
       }
       this.ms = init;
     } else {
-      this.ms = Date.now() - OFFSET_MS;
+      this.ms = Date.now() - this.offset;
     }
   };
 
@@ -203,8 +206,12 @@ abstract class Timestamp {
     return this.ms;
   }
 
+  public getOffset() {
+    return this.offset;
+  }
+
   protected setNow() {
-    this.ms = Date.now() - OFFSET_MS;
+    this.ms = Date.now() - this.offset;
   }
 
   protected getMsOfDay() {
@@ -314,8 +321,11 @@ abstract class Timestamp {
     return this;
   }
 
-  protected toString(pattern: string = "") {
+  protected toString(pattern: string | ((parts: ReturnType<typeof getAll>) => string) = "") {
     const v = getAll(this.ms);
+    if (typeof pattern === "function") {
+      return pattern(v);
+    }
     return pattern
       .replace(/yyyy/g, String(v.year))
       .replace(/yy/g, slice(pad(v.year)))
@@ -334,8 +344,7 @@ abstract class Timestamp {
   }
 
   public toISOString() {
-    const v = getAll(this.ms + OFFSET_MS);
-    return `${v.year}-${pad(v.month)}-${pad(v.day)}T${pad(v.hour)}:${pad(v.minute)}:${pad(v.second)}.${pad(v.millisecond, 3)}Z`;
+    return this.toString(v => `${v.year}-${pad(v.month)}-${pad(v.day)}T${pad(v.hour)}:${pad(v.minute)}:${pad(v.second)}.${pad(v.millisecond, 3)}Z`);
   }
 
   public toJSON() {
@@ -444,7 +453,7 @@ export class $Date extends Timestamp {
     return this;
   }
 
-  public toString(pattern = "yyyy/MM/dd") {
+  public toString(pattern: string | ((parts: ReturnType<typeof getAll>) => string) = "yyyy/MM/dd") {
     return super.toString(pattern);
   };
 
@@ -474,12 +483,12 @@ export class $Month extends Timestamp {
 
   constructor(init?: Timestamp | Date | string | number) {
     super(init);
-    this.setDay(1).setHour(0, 0, 0, 0);
+    this.setDay(1).removeTime();
   }
 
   public setNow() {
     super.setNow();
-    this.setDay(1).setHour(0, 0, 0, 0);
+    this.setDay(1).removeTime();
   }
 
   public getAll() {
@@ -511,7 +520,7 @@ export class $Month extends Timestamp {
     return this;
   }
 
-  public toString(pattern = "yyyy/MM") {
+  public toString(pattern: string | ((parts: ReturnType<typeof getAll>) => string) = "yyyy/MM") {
     return super.toString(pattern);
   };
 
@@ -609,7 +618,7 @@ export class $DateTime extends Timestamp {
     return this;
   }
 
-  public toString(pattern = "yyyy/MM/dd hh:mm:ss") {
+  public toString(pattern: string | ((parts: ReturnType<typeof getAll>) => string) = "yyyy/MM/dd hh:mm:ss") {
     return super.toString(pattern);
   };
 

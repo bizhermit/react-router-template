@@ -257,7 +257,7 @@ export default function Page() {
           <li>str: {value.toString()}</li>
           <li>date: {value.toDateString()}</li>
           <li>time: {value.toTimeString()}</li>
-          <li>offset: {$DateTime.OFFSET}</li>
+          <li>offset: {value.getOffset()}</li>
         </ul>
       }
     </div>
