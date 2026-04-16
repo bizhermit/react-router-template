@@ -451,6 +451,11 @@ function $date<P extends BaseProps & {
   required?: Validation<Nullable<$Date>, boolean, { date: $Date; }>;
   minDate?: Validation<$Date, $Date, { minDate: $Date; currentDate: $Date; }>;
   maxDate?: Validation<$Date, $Date, { maxDate: $Date; currentDate: $Date; }>;
+  pair?: Validation<
+    $Date,
+    { name: string; position: "before" | "after"; noSame?: boolean; },
+    { pairDate: $Date; position: "bafore" | "after"; currentDate: $Date; }
+  >;
   rules?: Rule<$Date>[];
 }>(props: P = {} as P) {
   return {
@@ -464,6 +469,11 @@ function $month<P extends BaseProps & {
   required?: Validation<Nullable<$Month>, boolean, { date: $Month; }>;
   minMonth?: Validation<$Month, $Month, { minMonth: $Month; currentDate: $Month; }>;
   maxMonth?: Validation<$Month, $Month, { minMonth: $Month; currentDate: $Month; }>;
+  pair?: Validation<
+    $Month,
+    { name: string; position: "before" | "after"; noSame?: boolean; },
+    { pairDate: $Month; position: "bafore" | "after"; currentDate: $Month; }
+  >;
   rules?: Rule<$Month>[];
 }>(props: P = {} as P) {
   return {
@@ -472,6 +482,10 @@ function $month<P extends BaseProps & {
   } as const;
 };
 
+type TimeHMString = `${number}:${number}`;
+type TimeHMSString = `${number}:${number}:${number}`;
+type TimeString = TimeHMString | TimeHMSString;
+
 function $datetime<P extends BaseProps & {
   parser?: Parser<$DateTime>;
   required?: Validation<Nullable<$DateTime>, boolean, { dateTime: $DateTime; }>;
@@ -479,6 +493,13 @@ function $datetime<P extends BaseProps & {
   maxDateTime?: Validation<$DateTime, $DateTime, { maxDateTime: $DateTime; currentDateTime: $DateTime; }>;
   minDate?: Validation<$DateTime, $Date, { minDate: $Date; currentDateTime: $DateTime; }>;
   maxDate?: Validation<$DateTime, $Date, { maxDate: $Date; currentDateTime: $DateTime; }>;
+  minTime?: Validation<TimeString, $Month, { minTime?: number; }>;
+  maxTime?: Validation<TimeString, $Month, { mmnTime?: number; }>;
+  pair?: Validation<
+    $DateTime,
+    { name: string; position: "before" | "after"; noSame?: boolean; },
+    { pairDate: $DateTime; position: "bafore" | "after"; currentDate: $DateTime; }
+  >;
   rules?: Rule<$DateTime>[];
 }>(props: P = {} as P) {
   return {
