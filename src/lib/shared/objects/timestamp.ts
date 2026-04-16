@@ -365,7 +365,8 @@ abstract class Timestamp {
   }
 
   public toISOString() {
-    return this.toString(v => `${v.year}-${pad(v.month)}-${pad(v.day)}T${pad(v.hour)}:${pad(v.minute)}:${pad(v.second)}.${pad(v.millisecond, 3)}Z`);
+    const v = getAll(this.ms + this.offset);
+    return `${v.year}-${pad(v.month)}-${pad(v.day)}T${pad(v.hour)}:${pad(v.minute)}:${pad(v.second)}.${pad(v.millisecond, 3)}Z`;
   }
 
   public toJSON() {

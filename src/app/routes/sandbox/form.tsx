@@ -260,6 +260,7 @@ export default function Page() {
           <li>time: {value.toTimeString()}</li>
           <li>offset: {value.getOffset()}</li>
           <li>{value.toString(`yyyy年MM月dd日(W) hh時mm分ss秒`)}</li>
+          <li>{JSON.stringify({ value })}</li>
         </ul>
       }
     </div>
