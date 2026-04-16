@@ -18,6 +18,7 @@ export default [
     route("/api", "routes/sandbox/api.ts"),
     route("/api/:id", "routes/sandbox/api-detail.ts"),
     route("/stream", "routes/sandbox/stream-api.ts"),
+    route("/form", "routes/sandbox/form.tsx"),
   ]),
   // system
   route("/health", "routes/health.ts"),

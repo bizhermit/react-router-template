@@ -392,6 +392,11 @@ function NavMenu() {
           sandbox/hgoe
         </Link>
       </li>
+      <li>
+        <Link to="/sandbox/form">
+          sandbox/form
+        </Link>
+      </li>
     </ul>
   );
 };
