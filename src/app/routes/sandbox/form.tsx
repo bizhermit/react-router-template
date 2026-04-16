@@ -222,6 +222,25 @@ export default function Page() {
           minus millisecond 1
         </Button>
       </div>
+      <div className="flex row gap-2">
+        <Button
+          onClick={() => {
+            value.moveFirstDay();
+            render();
+          }}
+        >
+          move first day
+        </Button>
+
+        <Button
+          onClick={() => {
+            value.moveLastDay();
+            render();
+          }}
+        >
+          move last day
+        </Button>
+      </div>
       {
         value &&
         <ul className="px-8 py-4 list-disc">

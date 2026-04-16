@@ -377,18 +377,34 @@ abstract class Timestamp {
     return this;
   }
 
+  protected moveFirstDay() {
+    this.setDay(1);
+    return this;
+  }
+
+  protected moveLastDay() {
+    this.setMonth(this.getMonth() + 1);
+    this.setDay(0);
+    return this;
+  }
+
+  protected removeTime() {
+    this.setHour(0, 0, 0, 0);
+    return this;
+  }
+
 };
 
 export class $Date extends Timestamp {
 
   constructor(init?: Timestamp | Date | string | number) {
     super(init);
-    this.setHour(0, 0, 0, 0);
+    this.removeTime();
   }
 
   public setNow() {
     super.setNow();
-    this.setHour(0, 0, 0, 0);
+    this.removeTime();
   }
 
   protected getAll() {
@@ -439,6 +455,16 @@ export class $Date extends Timestamp {
 
   public addMonth(diff: number): this {
     super.addMonth(diff);
+    return this;
+  }
+
+  public moveFirstDay(): this {
+    super.moveFirstDay();
+    return this;
+  }
+
+  public moveLastDay(): this {
+    super.moveLastDay();
     return this;
   }
 
@@ -627,6 +653,21 @@ export class $DateTime extends Timestamp {
 
   public addMillisecond(diff: number): this {
     super.addMillisecond(diff);
+    return this;
+  }
+
+  public moveFirstDay(): this {
+    super.moveFirstDay();
+    return this;
+  }
+
+  public moveLastDay(): this {
+    super.moveLastDay();
+    return this;
+  }
+
+  public removeTime(): this {
+    super.removeTime();
     return this;
   }
 
