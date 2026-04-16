@@ -68,7 +68,7 @@ export default function Page() {
         </Button>
         <Button
           onClick={() => {
-            setValue(new $DateTime(0));
+            setValue(new $DateTime(Date.now()));
           }}
         >
           set number

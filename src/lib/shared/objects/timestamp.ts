@@ -17,8 +17,8 @@ const TIME_ZONE_OFFSET = {
   "Z": 0,
   // eslint-disable-next-line @stylistic/quote-props
   "UTC": 0,
-  "Asia/Tokyo": +540,
-  "America/Los_Angeles": -480,
+  "Asia/Tokyo": -540,
+  "America/Los_Angeles": +480,
 } satisfies Partial<Record<TimeZone, number>>;
 
 function parseTimezoneOffset(tz: TimeZone | TimeZoneOffset) {
@@ -182,6 +182,7 @@ abstract class Timestamp {
           // eslint-disable-next-line no-useless-catch
           try {
             const date = new Date(init);
+            if (isNaN(date.getTime())) throw new Error(`Invalid date string: ${init}`);
             this.ms = date.getTime() - OFFSET_MS;
           } catch (e) {
             throw e;
