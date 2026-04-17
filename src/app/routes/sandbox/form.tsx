@@ -315,10 +315,10 @@ type ArgParams = {
 };
 
 type Validation<Value = unknown, ValidationValue = unknown, ValidationArgValues = {}> =
-  | ValidationValue
-  | ((params: ArgParams & { value: Nullable<Value>; }) => ValidationValue)
+  | Nullable<ValidationValue>
+  | ((params: ArgParams & { value: Nullable<Value>; }) => Nullable<ValidationValue>)
   | [
-    ValidationValue | ((params: ArgParams) => ValidationValue),
+    Nullable<ValidationValue> | ((params: ArgParams) => Nullable<ValidationValue>),
     (
       | string
       | Message
@@ -347,6 +347,19 @@ type BaseProps = {
   mode?: (params: ArgParams) => Mode;
 };
 
+function getOverwriteFunc<const P, const BP extends P>(baseProps: BP) {
+  return function <const OP extends P>(props: OP) {
+    const retProps = {
+      ...baseProps,
+      ...props,
+    } as Omit<BP, keyof OP> & OP;
+    return {
+      ...retProps,
+      overwrite: getOverwriteFunc<P, typeof retProps>(retProps),
+    } as const;
+  };
+};
+
 const strPatternCheck = {
   int: () => true,
   "h-num": () => true,
@@ -369,7 +382,7 @@ const strPatternCheck = {
 
 type StrPattern = keyof typeof strPatternCheck;
 
-function $str<P extends BaseProps & {
+type StrProps = {
   parser?: Parser<string>;
   required?: Validation<Nullable<string>, boolean>;
   length?: Validation<string, number, { length: number; currentLength: number; }>;
@@ -377,24 +390,42 @@ function $str<P extends BaseProps & {
   maxLength?: Validation<string, number, { maxLength: number; currentLength: number; }>;
   pattern?: Validation<string, StrPattern, { pattern: StrPattern; }>;
   rules?: Rule<string>[];
-}>(props: P = {} as P) {
-  return {
-    type: "str",
+};
+
+function $str<const P extends BaseProps & StrProps>(props: P = {} as P) {
+  const retProps = {
     ...props,
+    type: "str",
+    parse: function () {
+      console.log(this);
+    },
+    validate: function () {
+      console.log(this);
+    },
+  } as const;
+  return {
+    ...retProps,
+    overwrite: getOverwriteFunc<BaseProps & StrProps, typeof retProps>(retProps),
   } as const;
 };
 
-function $num<P extends BaseProps & {
+type NumProps = {
   parser?: Parser<number>;
   required?: Validation<Nullable<number>, boolean>;
   min?: Validation<number, number, { min: number; }>;
   max?: Validation<number, number, { max: number; }>;
   float?: Validation<number, number, { float: number; currentFloat: number; }>;
   rules?: Rule<number>[];
-}>(props: P = {} as P) {
-  return {
+};
+
+function $num<P extends BaseProps & NumProps>(props: P = {} as P) {
+  const retProps = {
     type: "num",
     ...props,
+  } as const;
+  return {
+    ...retProps,
+    overwrite: getOverwriteFunc<BaseProps & NumProps, typeof retProps>(retProps),
   } as const;
 };
 
@@ -404,32 +435,40 @@ type SourceItem<V> = Record<string, unknown> & {
   node?: React.ReactNode;
 };
 
+type SourceProps<V> = {
+  items: SourceItem<V>[];
+  required?: Validation<Nullable<V>, boolean>;
+  rules?: Rule<V>[];
+};
+
 function $source<
   const V,
-  P extends BaseProps & {
-    items: SourceItem<V>[];
-    required?: Validation<Nullable<V>, boolean>;
-    rules?: Rule<V>[];
-  }
+  P extends BaseProps & SourceProps<V>
 >(props: P) {
-  return {
+  const retProps = {
     type: "src",
     ...props,
   } as const;
+  return {
+    ...retProps,
+    overwrite: getOverwriteFunc<BaseProps & Omit<SourceProps<V>, "items">, typeof retProps>(retProps),
+  } as const;
+};
+
+type BoolProps<TrueValue, FalseValue> = {
+  trueValue?: TrueValue;
+  falseValue?: FalseValue;
+  parser?: Parser<TrueValue | FalseValue>;
+  required?: Validation<Nullable<TrueValue | FalseValue>, boolean | "nonFalse">;
+  rules?: Rule<TrueValue | FalseValue>[];
+  trueText?: string;
+  falseText?: string;
 };
 
 function $bool<
   const TrueValue extends boolean | number | string,
   const FalseValue extends boolean | number | string,
-  P extends BaseProps & {
-    trueValue?: TrueValue;
-    falseValue?: FalseValue;
-    parser?: Parser<TrueValue | FalseValue>;
-    required?: Validation<Nullable<TrueValue | FalseValue>, boolean | "nonFalse">;
-    rules?: Rule<TrueValue | FalseValue>[];
-    trueText?: string;
-    falseText?: string;
-  }
+  P extends BaseProps & BoolProps<TrueValue, FalseValue>
 >(props: P = { trueValue: true, falseValue: false } as P) {
   type TV = P extends undefined ? true :
     P extends { trueValue: infer T; } ? T : true;
@@ -438,15 +477,19 @@ function $bool<
   const trueValue = (props?.trueValue ?? true) as TV;
   const falseValue = (props?.falseValue ?? false) as FV;
 
-  return {
+  const retProps = {
     type: "bool",
     ...props,
     trueValue,
     falseValue,
   } as const;
+  return {
+    ...retProps,
+    overwrite: getOverwriteFunc<BaseProps & Omit<BoolProps<TrueValue, FalseValue>, "trueValue" | "falseValue">, typeof retProps>(retProps),
+  } as const;
 };
 
-function $date<P extends BaseProps & {
+type DateProps = {
   parser?: Parser<$Date>;
   required?: Validation<Nullable<$Date>, boolean, { date: $Date; }>;
   minDate?: Validation<$Date, $Date, { minDate: $Date; currentDate: $Date; }>;
@@ -457,14 +500,20 @@ function $date<P extends BaseProps & {
     { pairDate: $Date; position: "bafore" | "after"; currentDate: $Date; }
   >;
   rules?: Rule<$Date>[];
-}>(props: P = {} as P) {
-  return {
+};
+
+function $date<P extends BaseProps & DateProps>(props: P = {} as P) {
+  const retProps = {
     type: "date",
     ...props,
   } as const;
+  return {
+    ...retProps,
+    overwrite: getOverwriteFunc<BaseProps & DateProps, typeof retProps>(retProps),
+  } as const;
 };
 
-function $month<P extends BaseProps & {
+type MonthProps = {
   parser?: Parser<$Month>;
   required?: Validation<Nullable<$Month>, boolean, { date: $Month; }>;
   minMonth?: Validation<$Month, $Month, { minMonth: $Month; currentDate: $Month; }>;
@@ -475,18 +524,24 @@ function $month<P extends BaseProps & {
     { pairDate: $Month; position: "bafore" | "after"; currentDate: $Month; }
   >;
   rules?: Rule<$Month>[];
-}>(props: P = {} as P) {
-  return {
+};
+
+function $month<P extends BaseProps & MonthProps>(props: P = {} as P) {
+  const retProps = {
     type: "month",
     ...props,
   } as const;
+  return {
+    ...retProps,
+    overwrite: getOverwriteFunc<BaseProps & MonthProps, typeof retProps>(retProps),
+  };
 };
 
 type TimeHMString = `${number}:${number}`;
 type TimeHMSString = `${number}:${number}:${number}`;
 type TimeString = TimeHMString | TimeHMSString;
 
-function $datetime<P extends BaseProps & {
+type DateTimeProps = {
   parser?: Parser<$DateTime>;
   required?: Validation<Nullable<$DateTime>, boolean, { dateTime: $DateTime; }>;
   minDateTime?: Validation<$DateTime, $DateTime, { minDateTime: $DateTime; currentDateTime: $DateTime; }>;
@@ -501,55 +556,79 @@ function $datetime<P extends BaseProps & {
     { pairDate: $DateTime; position: "bafore" | "after"; currentDate: $DateTime; }
   >;
   rules?: Rule<$DateTime>[];
-}>(props: P = {} as P) {
-  return {
+};
+
+function $datetime<P extends BaseProps & DateTimeProps>(props: P = {} as P) {
+  const retProps = {
     type: "datetime",
     ...props,
   } as const;
+  return {
+    ...retProps,
+    overwrite: getOverwriteFunc<BaseProps & DateTimeProps, typeof retProps>(retProps),
+  };
 };
 
-function $file<P extends BaseProps & {
+type FileProps = {
   parser?: Parser<File>;
   required?: Validation<Nullable<File>, boolean>;
   accept?: Validation<File, string, { accept: string; currentAccept: string; }>;
   maxSize?: Validation<File, number, { maxSize: number; currentSize: number; }>;
   rules?: Rule<File>[];
-}>(props: P = {} as P) {
-  return {
+};
+
+function $file<P extends BaseProps & FileProps>(props: P = {} as P) {
+  const retProps = {
     type: "file",
     ...props,
   } as const;
+  return {
+    ...retProps,
+    overwrite: getOverwriteFunc<BaseProps & FileProps, typeof retProps>(retProps),
+  } as const;
+};
+
+type ArrayProps<Content> = {
+  prop: Content;
+  required?: Validation<Nullable<InferValue<Content>[]>, boolean>;
+  length?: Validation<InferValue<Content>[], number, { length: number; currentLength: number; }>;
+  minLength?: Validation<InferValue<Content>[], number, { minLength: number; currentLength: number; }>;
+  maxLength?: Validation<InferValue<Content>[], number, { maxLength: number; currentLength: number; }>;
+  rules?: Rule<InferValue<Content>[]>[];
 };
 
 function $array<
   const Content,
-  P extends BaseProps & {
-    prop: Content;
-    required?: Validation<Nullable<InferValue<Content>[]>, boolean>;
-    length?: Validation<InferValue<Content>[], number, { length: number; currentLength: number; }>;
-    minLength?: Validation<InferValue<Content>[], number, { minLength: number; currentLength: number; }>;
-    maxLength?: Validation<InferValue<Content>[], number, { maxLength: number; currentLength: number; }>;
-    rules?: Rule<InferValue<Content>[]>[];
-  }
+  const P extends BaseProps & ArrayProps<Content>
 >(props: P) {
-  return {
+  const retProps = {
     type: "arr",
     ...props,
   } as const;
+  return {
+    ...retProps,
+    overwrite: getOverwriteFunc<BaseProps & Omit<ArrayProps<Content>, "prop">, typeof retProps>(retProps),
+  };
+};
+
+type ObjectProps<Contents> = {
+  props: Contents;
+  required?: Validation<Nullable<InferValue<Contents>>, boolean>;
+  rules?: Rule<InferValue<Contents>>[];
 };
 
 function $object<
   const Contents,
-  P extends BaseProps & {
-    props: Contents;
-    required?: Validation<Nullable<InferValue<Contents>>, boolean>;
-    rules?: Rule<InferValue<Contents>>[];
-  }
+  P extends BaseProps & ObjectProps<Contents>
 >(props: P) {
-  return {
+  const retProps = {
     type: "obj",
     ...props,
   } as const;
+  return {
+    ...retProps,
+    overwrite: getOverwriteFunc<BaseProps & Omit<ObjectProps<Contents>, "props">, typeof retProps>(retProps),
+  };
 };
 
 const schemaObject = $object({
@@ -563,6 +642,15 @@ const schemaObject = $object({
       // required: () => true,
       // required: [() => true],
       maxLength: 10,
+    }).overwrite({
+      required: false,
+      minLength: 8,
+      maxLength: 16,
+    }).overwrite({
+      // required: true,
+      length: 16,
+      minLength: null,
+      maxLength: null,
     }),
     age: $num({
       required: true,
@@ -576,10 +664,10 @@ const schemaObject = $object({
     birth: $date({
       required: true,
     }),
-    regDate: $datetime({
-      required: true,
-    }),
-    month: $month(),
+    // regDate: $datetime({
+    //   required: true,
+    // }),
+    // month: $month(),
     flag: $bool(),
     bitFlag: $bool({
       trueValue: 1,
@@ -589,9 +677,13 @@ const schemaObject = $object({
       trueValue: "on",
       falseValue: "off",
       required: true,
+    }).overwrite({
+      required: false,
     }),
     agreement: $bool({
       required: "nonFalse",
+    }).overwrite({
+      required: false,
     }),
     roles: $array({
       prop: $str({ required: true }),
@@ -603,6 +695,8 @@ const schemaObject = $object({
         item2: $num({ required: true }),
         item3: $bool(),
       },
+    }).overwrite({
+      required: true,
     }),
     objs: $array({
       prop: $object({
@@ -613,6 +707,8 @@ const schemaObject = $object({
         },
         required: true,
       }),
+    }).overwrite({
+      required: true,
     }),
     selectStr: $source({
       items: [
@@ -628,6 +724,8 @@ const schemaObject = $object({
         { value: 1 },
         { value: 2 },
       ] as const,
+    }).overwrite({
+      required: true,
     }),
   },
 });
@@ -666,5 +764,7 @@ type InferValue<P> =
 type Infer<P> = P extends ReturnType<typeof $object> ? { [K in keyof P["props"]]: InferValue<P["props"][K]> } : InferValue<P>;
 
 type Hoge = Infer<typeof schemaObject>;
+type _Fuga = Hoge["objs"][number]["item3"];
 
-console.log(schemaObject);
+// eslint-disable-next-line no-console
+console.log(schemaObject.props.name.parse());
