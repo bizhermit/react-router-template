@@ -35,6 +35,7 @@ namespace $Schema {
     | CustomMessage
     | import("./string").StringValidationMessage
     | import("./number").NumberValidationMessage
+    | import("./boolean").BooleanValidationMessage
     ;
 
   type ParseResult<Value> = {

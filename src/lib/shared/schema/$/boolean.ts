@@ -1,6 +1,16 @@
-import { getSchemaItemPropsGenerator } from ".";
+import { getSchemaItemPropsGenerator, getValidationArray } from ".";
+
+export const SCHEMA_ITEM_TYPE_BOOLEAN = "bool";
 
 type BooleanValue = boolean | number | string;
+
+type BooleanValidationAbstractMessage = $Schema.AbstractMessage & {
+  otype: typeof SCHEMA_ITEM_TYPE_BOOLEAN;
+};
+export type BooleanValidationMessage = BooleanValidationAbstractMessage & (
+  | { code: "parse"; }
+  | { code: "required"; }
+);
 
 type BooleanOptions<
   TrueValue extends BooleanValue,
@@ -9,7 +19,7 @@ type BooleanOptions<
   trueValue?: TrueValue;
   falseValue?: FalseValue;
   parser?: $Schema.Parser<TrueValue | FalseValue>;
-  required?: $Schema.Validation<$Schema.Nullable<TrueValue | FalseValue>, boolean | "nonFalse", {}>;
+  required?: $Schema.Validation<$Schema.Nullable<TrueValue | FalseValue>, boolean | "nonFalse", undefined, BooleanValidationMessage>;
   rules?: $Schema.Rule<TrueValue | FalseValue>[];
   trueText?: string;
   falseText?: string;
@@ -34,7 +44,7 @@ export function $bool<
   const falseValue = (props?.falseValue ?? false) as FV;
 
   const fixedProps = {
-    type: "bool",
+    type: SCHEMA_ITEM_TYPE_BOOLEAN,
     trueValue,
     falseValue,
     _validators: null,
@@ -60,17 +70,71 @@ export function $bool<
       return {
         value: undefined,
         message: {
+          otype: SCHEMA_ITEM_TYPE_BOOLEAN,
           label: this.label,
           actionType: this.actionType ?? "select",
           type: "e",
           code: "parse",
-          message: "", // TODO:
         },
       };
     },
     validate: function (params) {
-      // TODO:
-      return null;
+      if (this._validators == null) {
+        this._validators = [];
+        const commonMsgParams = {
+          otype: SCHEMA_ITEM_TYPE_BOOLEAN,
+          label: this.label,
+          type: "e",
+          actionType: this.actionType || "input",
+        } as const satisfies BooleanValidationAbstractMessage;
+
+        // required
+        if (this.required != null) {
+          const [required, getRequiredMessage] = getValidationArray(this.required);
+          if (required) {
+            const getMessage: $Schema.ValidationMessageGetter<typeof getRequiredMessage> =
+              getRequiredMessage ??
+              (() => ({
+                ...commonMsgParams,
+                code: "required",
+              }));
+
+            if (typeof required === "function") {
+              this._validators.push((p) => {
+                const r = required(p);
+                if (!r) return null;
+                if (r === "nonFalse") {
+                  if (p.value === trueValue) return null;
+                  return getMessage(p);
+                }
+                if (p.value == trueValue || p.value === falseValue) return null;
+                return getMessage(p);
+              });
+            } else {
+              this._validators.push((p) => {
+                if (required === "nonFalse") {
+                  if (p.value === trueValue) return null;
+                  return getMessage(p);
+                }
+                if (p.value === trueValue || p.value === falseValue) return null;
+                return getMessage(p);
+              });
+            }
+          }
+        }
+
+        // rules
+        if (this.rules) {
+          this._validators.push(...this.rules);
+        }
+      }
+
+      let msg: $Schema.Message | null = null;
+      for (const vali of this._validators) {
+        msg = vali(params);
+        if (msg) break;
+      }
+      return msg;
     },
   } as const satisfies BooleanProps<TV, FV> & $Schema.SchemaItemInterfaceProps<TV | FV>;
 

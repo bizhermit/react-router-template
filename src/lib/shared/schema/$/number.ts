@@ -45,8 +45,8 @@ export function $num<const P extends NumberProps>(props: P = {} as P) {
       return {
         value: num,
         message: {
-          label: this.label,
           otype: SCHEMA_ITEM_TYPE_NUMBER,
+          label: this.label,
           actionType: this.actionType || "input",
           type: "e",
           code: "parse",
