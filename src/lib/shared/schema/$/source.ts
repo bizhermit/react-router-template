@@ -33,6 +33,7 @@ export function $$source<
   const fixedProps = {
     type: "src",
     items: props.items as Items,
+    _validators: null,
     parse: function (params) {
       if (this.parser) return this.parser(params);
       if (params.value == null || params.value === "") return { value: undefined };

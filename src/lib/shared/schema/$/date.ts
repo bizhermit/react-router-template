@@ -19,6 +19,7 @@ type DateProps = $Schema.SchemaItemAbstractProps & DateOptions;
 export function $date<const P extends DateProps>(props: P = {} as P) {
   const fixedProps = {
     type: "date",
+    _validators: null,
     parse: function (params) {
       if (this.parser) return this.parser(params);
       if (params.value == null || params.value === "") return { value: undefined };
@@ -65,6 +66,7 @@ type MonthProps = $Schema.SchemaItemAbstractProps & MonthOptions;
 export function $month<const P extends MonthProps>(props: P = {} as P) {
   const fixedProps = {
     type: "month",
+    _validators: null,
     parse: function (params) {
       if (this.parser) return this.parser(params);
       if (params.value == null || params.value === "") return { value: undefined };
@@ -119,6 +121,7 @@ type DateTimeProps = $Schema.SchemaItemAbstractProps & DateTimeOptions;
 export function $datetime<const P extends DateTimeProps>(props: P = {} as P) {
   const fixedProps = {
     type: "datetime",
+    _validators: null,
     parse: function (params) {
       if (this.parser) return this.parser(params);
       if (params.value == null || params.value === "") return { value: undefined };

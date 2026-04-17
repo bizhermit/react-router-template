@@ -21,6 +21,7 @@ export function $array<
   const fixedProps = {
     type: "arr",
     prop: props.prop,
+    _validators: null,
     parse: function (params) {
       const { value, message } = ((): $Schema.ParseResult<Value> => {
         if (this.parser) return this.parser(params);

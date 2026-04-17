@@ -13,6 +13,7 @@ type FileProps = $Schema.SchemaItemAbstractProps & FileOptions;
 export function $file<const P extends FileProps>(props: P = {} as P) {
   const fixedProps = {
     type: "file",
+    _validators: null,
     parse: function (params) {
       if (this.parser) return this.parser(params);
       if (params.value == null || params.value === "") return { value: undefined };

@@ -7,6 +7,8 @@ namespace $Schema {
 
   type ArgParams = {
     name: string;
+    label: string | undefined;
+    actionType: ActionType;
     values: Record<string, unknown>;
     data: Record<string, unknown>;
     isServer: boolean;
@@ -54,28 +56,46 @@ namespace $Schema {
     | ((params: ValidationArgParams<Value>) => Nullable<SettingsValue>)
     ;
 
+  type ValidationCustomMessage<
+    Value,
+    ValidationAddonValues extends Record<string, unknown> = {},
+    Msg extends AbstractMessage = Message
+  > =
+    (params: ValidationArgParams<Value> & (
+      ValidationAddonValues extends undefined ? {} : { validationValues: ValidationAddonValues; }
+    )) => (string | Message | Msg | null);
+
   type Validation<
     Value,
     SettingsValue,
-    ValidationAddonValues extends Record<string, unknown> = {}
+    ValidationAddonValues extends Record<string, unknown> | undefined = undefined,
+    Msg extends AbstractMessage = Message
   > =
     | ValidationValue<Value, SettingsValue>
     | [ValidationValue<Value, SettingsValue>, (
       | string
       | Message
-      | (
-        (params: ValidationArgParams<Value> & {
-          validationValues: ValidationAddonValues;
-        }) => (string | Message)
-      )
+      | Msg
+      | ValidationCustomMessage<Value, ValidationAddonValues, Msg>
     )?]
     ;
+
+  type ValidationResult<T> =
+    T extends string | AbstractMessage | undefined ? undefined :
+    (p: Parameters<T>[0]) => (Extract<ReturnType<T>, AbstractMessage> | null)
+    ;
+
+  type ValidationArray<T extends Validation<unknown, unknown>> =
+    T extends Array<unknown> ? [T[0], ValidationResult<T[1]>] : [T];
+
+  type ValidationMessageGetter<T> =
+    (p: Exclude<Parameters<Exclude<T, undefined>>[0], undefined>) => ReturnType<Exclude<T, undefined>>;
 
   type RuleArgParams<Value> = ArgParams & {
     value: Nullable<Value>;
   };
 
-  type Rule<Value> = (params: RuleArgParams<Value>) => (string | Message);
+  type Rule<Value> = (params: RuleArgParams<Value>) => (AbstractMessage | null);
 
   type SchemaItemAbstractProps = {
     label?: string;
@@ -87,7 +107,8 @@ namespace $Schema {
   type SchemaItemInterfaceProps<Value> = {
     type: string;
     parse: Parser<Value>;
-    validate: (params: ValidationArgParams<Value>) => (Message | null);
+    validate: (params: ValidationArgParams<Value>) => (AbstractMessage | null);
+    _validators: null | Rule<Value>[];
   };
 
   type SourceItem<const Value> = {

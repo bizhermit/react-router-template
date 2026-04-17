@@ -299,17 +299,18 @@ const schemaObject = $object({
       // // required: [() => true],
       // maxLength: 10,
       label: "名前",
-      required: [true, "input required"],
+      // required: [true, "input required"],
+      required: [true, () => "input required"],
       maxLength: 10,
     }).overwrite({
-      required: false,
+      // required: false,
       minLength: 8,
       maxLength: 16,
     }).overwrite({
       // required: true,
-      length: 16,
-      minLength: null,
-      maxLength: null,
+      // length: 16,
+      // minLength: null,
+      // maxLength: null,
     }),
     age: $num({
       required: true,
@@ -392,7 +393,8 @@ type _Fuga = typeof schemaObject["props"]["selectStr"]["items"];
 type _Piyo = typeof schemaObject["props"]["selectNum"]["items"];
 
 const dummyValues = {
-  name: "fuga",
+  // name: null,
+  name: "hogefugapiyo",
 };
 const validationArgParams = {
   data: {},
@@ -400,6 +402,8 @@ const validationArgParams = {
   name: "name",
   value: dummyValues.name,
   values: dummyValues,
+  actionType: "input",
+  label: "名前",
 } satisfies $Schema.ValidationArgParams<unknown>;
 // eslint-disable-next-line no-console
 console.log(schemaObject.props.name.validate(validationArgParams));

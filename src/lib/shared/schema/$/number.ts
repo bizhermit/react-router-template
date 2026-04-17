@@ -15,6 +15,7 @@ type NumberProps = $Schema.SchemaItemAbstractProps & NumberOptions;
 export function $num<const P extends NumberProps>(props: P = {} as P) {
   const fixedProps = {
     type: "num",
+    _validators: null,
     parse: function (params) {
       if (this.parser) return this.parser(params);
       const [num, succeeded] = parseNumber(params.value);

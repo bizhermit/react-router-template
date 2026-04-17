@@ -15,6 +15,7 @@ export function $object<
 >(props: P) {
   const fixedProps = {
     type: "obj",
+    _validators: null,
     props: props.props,
     parse: function (params) {
       if (this.parser) return this.parser(params);

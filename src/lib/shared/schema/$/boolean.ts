@@ -37,6 +37,7 @@ export function $bool<
     type: "bool",
     trueValue,
     falseValue,
+    _validators: null,
     parse: function (params) {
       if (this.parser) return this.parser(params);
       const s = String(params.value);
