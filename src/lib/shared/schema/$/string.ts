@@ -1,7 +1,7 @@
 import { getLength } from "$/shared/objects/string";
 import { getSchemaItemPropsGenerator, getValidationArray } from ".";
 
-const SCHEMA_ITEM_TYPE_STRING = "str";
+export const SCHEMA_ITEM_TYPE_STRING = "str";
 
 function isIpv4Address(str: string | null | undefined) {
   if (str == null) return false;
@@ -139,7 +139,7 @@ type StringValidation_Pattern = { pattern: StrPattern; };
 type StringValidationAbstractMessage = $Schema.AbstractMessage & {
   otype: typeof SCHEMA_ITEM_TYPE_STRING;
 };
-type StringValidationMessage = StringValidationAbstractMessage & (
+export type StringValidationMessage = StringValidationAbstractMessage & (
   | { code: "parse"; }
   | { code: "required"; }
   | ({ code: "length"; } & StringValidation_LengthParams)
@@ -177,9 +177,9 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
     validate: function (params) {
       if (this._validators == null) {
         this._validators = [];
-        const commonStrMsgParams = {
-          label: this.label,
+        const commonMsgParams = {
           otype: SCHEMA_ITEM_TYPE_STRING,
+          label: this.label,
           type: "e",
           actionType: this.actionType || "input",
         } as const satisfies StringValidationAbstractMessage;
@@ -191,7 +191,7 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
             const getMessage: $Schema.ValidationMessageGetter<typeof getRequiredMessage> =
               getRequiredMessage ??
               (() => ({
-                ...commonStrMsgParams,
+                ...commonMsgParams,
                 code: "required",
               }));
 
@@ -221,7 +221,7 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
             const getMessage: $Schema.ValidationMessageGetter<typeof getLengthMessage> =
               getLengthMessage ??
               ((p) => ({
-                ...commonStrMsgParams,
+                ...commonMsgParams,
                 code: "length",
                 length: p.validationValues.length,
                 currentLength: p.validationValues.currentLength,
@@ -266,7 +266,7 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
             const getMessage: $Schema.ValidationMessageGetter<typeof getMinLengthMessage> =
               getMinLengthMessage ??
               ((p) => ({
-                ...commonStrMsgParams,
+                ...commonMsgParams,
                 code: "minLength",
                 minLength: p.validationValues.minLength,
                 currentLength: p.validationValues.currentLength,
@@ -311,7 +311,7 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
             const getMessage: $Schema.ValidationMessageGetter<typeof getMaxLengthMessage> =
               getMaxLengthMessage ??
               ((p) => ({
-                ...commonStrMsgParams,
+                ...commonMsgParams,
                 code: "maxLength",
                 maxLength: p.validationValues.maxLength,
                 currentLength: p.validationValues.currentLength,
@@ -356,7 +356,7 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
             const getMessage: $Schema.ValidationMessageGetter<typeof getPatternMessage> =
               getPatternMessage ??
               ((p) => ({
-                ...commonStrMsgParams,
+                ...commonMsgParams,
                 code: "pattern",
                 pattern: p.validationValues.pattern,
               }));
@@ -397,7 +397,7 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
         }
       }
 
-      let msg: $Schema.AbstractMessage | null = null;
+      let msg: $Schema.Message | null = null;
       for (const vali of this._validators) {
         msg = vali(params);
         if (msg) break;

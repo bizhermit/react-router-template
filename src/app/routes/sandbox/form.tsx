@@ -13,6 +13,123 @@ import { useState } from "react";
 import { data } from "react-router";
 import type { Route } from "./+types/form";
 
+const items = [
+  { value: 0 },
+  { value: 1 },
+  { value: 2 },
+] as const;
+
+const birth = $date().overwrite({
+  required: true,
+});
+type _Birth = $Schema.Infer<typeof birth>;
+
+const schemaObject = $object({
+  props: {
+    name: $str({
+      // label: "名前",
+      // // required: false,
+      // // required: [false, "optional"],
+      // // required: true,
+      // // required: [true],
+      // required: [true, "required"],
+      // // required: () => true,
+      // // required: [() => true],
+      // maxLength: 10,
+      label: "名前",
+      // required: [true, "input required"],
+      required: [true, () => "input required"],
+      maxLength: 10,
+    }).overwrite({
+      // required: false,
+      minLength: 8,
+      maxLength: 16,
+    }).overwrite({
+      // required: true,
+      // length: 16,
+      // minLength: null,
+      // maxLength: null,
+    }),
+    age: $num({
+      required: true,
+    }),
+    // mailaddr: $str({
+    //   pattern: "email",
+    // }),
+    image: $file({
+
+    }),
+    birth: $date({
+      required: true,
+    }),
+    // regDate: $datetime({
+    //   required: true,
+    // }),
+    // month: $month(),
+    // flag: $bool(),
+    // bitFlag: $bool({
+    //   trueValue: 1,
+    //   falseValue: 0,
+    // }),
+    // codeFlag: $bool({
+    //   trueValue: "on",
+    //   falseValue: "off",
+    //   // required: true,
+    // }).overwrite({
+    //   // required: false,
+    //   required: "nonFalse",
+    //   // trueValue: "ononon",
+    // }),
+    agreement: $bool({
+      required: "nonFalse",
+    }).overwrite({
+      required: false,
+    }),
+    // roles: $array({
+    //   prop: $str({ required: true }),
+    //   required: true,
+    // }),
+    // obj: $object({
+    //   props: {
+    //     item1: $str(),
+    //     item2: $num({ required: true }),
+    //     item3: $bool(),
+    //   },
+    // }).overwrite({
+    //   required: true,
+    // }),
+    objs: $array({
+      prop: $object({
+        props: {
+          item1: $str({ required: true }),
+          item2: $num(),
+          item3: $bool(),
+        },
+        required: true,
+      }),
+    }).overwrite({
+      required: true,
+    }),
+    selectStr: $$source({
+      items: [
+        { value: "item1" },
+        { value: "item2" },
+        { value: "item3" },
+      ],
+      required: true,
+    }),
+    selectNum: $$source({
+      items: items,
+    }).overwrite({
+      required: true,
+    }),
+  },
+});
+
+type _Hoge = $Schema.Infer<typeof schemaObject>;
+type _Fuga = typeof schemaObject["props"]["selectStr"]["items"];
+type _Piyo = typeof schemaObject["props"]["selectNum"]["items"];
+
 export function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
   // eslint-disable-next-line no-console
@@ -33,6 +150,32 @@ export default function Page() {
   return (
     <div>
       form sandbox
+      <div className="flex row gap-2">
+        <Button
+          onClick={() => {
+            const dummyValues = {
+              name: null,
+              // name: "hogefugapiyo",
+            };
+            const validationArgParams = {
+              data: {},
+              isServer: true,
+              name: "name",
+              value: dummyValues.name,
+              values: dummyValues,
+              actionType: "input",
+              label: "名前",
+            } satisfies $Schema.ValidationArgParams<unknown>;
+            console.log("validate");
+            const now = performance.now();
+            const validationMessage = schemaObject.props.name.validate(validationArgParams);
+            console.log("-", performance.now() - now);
+            console.log("-", validationMessage);
+          }}
+        >
+          validate
+        </Button>
+      </div>
       <div className="flex row gap-2">
         <Button
           onClick={() => {
@@ -274,136 +417,3 @@ export default function Page() {
     </div>
   );
 };
-
-const items = [
-  { value: 0 },
-  { value: 1 },
-  { value: 2 },
-] as const;
-
-const birth = $date().overwrite({
-  required: true,
-});
-type _Birth = $Schema.Infer<typeof birth>;
-
-const schemaObject = $object({
-  props: {
-    name: $str({
-      // label: "名前",
-      // // required: false,
-      // // required: [false, "optional"],
-      // // required: true,
-      // // required: [true],
-      // required: [true, "required"],
-      // // required: () => true,
-      // // required: [() => true],
-      // maxLength: 10,
-      label: "名前",
-      // required: [true, "input required"],
-      required: [true, () => "input required"],
-      maxLength: 10,
-    }).overwrite({
-      // required: false,
-      minLength: 8,
-      maxLength: 16,
-    }).overwrite({
-      // required: true,
-      // length: 16,
-      // minLength: null,
-      // maxLength: null,
-    }),
-    age: $num({
-      required: true,
-    }),
-    // mailaddr: $str({
-    //   pattern: "email",
-    // }),
-    image: $file({
-
-    }),
-    birth: $date({
-      required: true,
-    }),
-    // regDate: $datetime({
-    //   required: true,
-    // }),
-    // month: $month(),
-    // flag: $bool(),
-    // bitFlag: $bool({
-    //   trueValue: 1,
-    //   falseValue: 0,
-    // }),
-    // codeFlag: $bool({
-    //   trueValue: "on",
-    //   falseValue: "off",
-    //   // required: true,
-    // }).overwrite({
-    //   // required: false,
-    //   required: "nonFalse",
-    //   // trueValue: "ononon",
-    // }),
-    agreement: $bool({
-      required: "nonFalse",
-    }).overwrite({
-      required: false,
-    }),
-    // roles: $array({
-    //   prop: $str({ required: true }),
-    //   required: true,
-    // }),
-    // obj: $object({
-    //   props: {
-    //     item1: $str(),
-    //     item2: $num({ required: true }),
-    //     item3: $bool(),
-    //   },
-    // }).overwrite({
-    //   required: true,
-    // }),
-    objs: $array({
-      prop: $object({
-        props: {
-          item1: $str({ required: true }),
-          item2: $num(),
-          item3: $bool(),
-        },
-        required: true,
-      }),
-    }).overwrite({
-      required: true,
-    }),
-    selectStr: $$source({
-      items: [
-        { value: "item1" },
-        { value: "item2" },
-        { value: "item3" },
-      ],
-      required: true,
-    }),
-    selectNum: $$source({
-      items: items,
-    }).overwrite({
-      required: true,
-    }),
-  },
-});
-
-type _Hoge = $Schema.Infer<typeof schemaObject>;
-type _Fuga = typeof schemaObject["props"]["selectStr"]["items"];
-type _Piyo = typeof schemaObject["props"]["selectNum"]["items"];
-
-const dummyValues = {
-  // name: null,
-  name: "hogefugapiyo",
-};
-const validationArgParams = {
-  data: {},
-  isServer: true,
-  name: "name",
-  value: dummyValues.name,
-  values: dummyValues,
-  actionType: "input",
-  label: "名前",
-} satisfies $Schema.ValidationArgParams<unknown>;
-// eslint-disable-next-line no-console
-console.log(schemaObject.props.name.validate(validationArgParams));

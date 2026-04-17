@@ -33,6 +33,8 @@ namespace $Schema {
   type Message =
     | I18nMessage
     | CustomMessage
+    | import("./string").StringValidationMessage
+    | import("./number").NumberValidationMessage
     ;
 
   type ParseResult<Value> = {
@@ -59,7 +61,7 @@ namespace $Schema {
   type ValidationCustomMessage<
     Value,
     ValidationAddonValues extends Record<string, unknown> = {},
-    Msg extends AbstractMessage = Message
+    Msg extends Message = Message
   > =
     (params: ValidationArgParams<Value> & (
       ValidationAddonValues extends undefined ? {} : { validationValues: ValidationAddonValues; }
@@ -69,7 +71,7 @@ namespace $Schema {
     Value,
     SettingsValue,
     ValidationAddonValues extends Record<string, unknown> | undefined = undefined,
-    Msg extends AbstractMessage = Message
+    Msg extends Message = Message
   > =
     | ValidationValue<Value, SettingsValue>
     | [ValidationValue<Value, SettingsValue>, (
@@ -81,8 +83,8 @@ namespace $Schema {
     ;
 
   type ValidationResult<T> =
-    T extends string | AbstractMessage | undefined ? undefined :
-    (p: Parameters<T>[0]) => (Extract<ReturnType<T>, AbstractMessage> | null)
+    T extends string | Message | undefined ? undefined :
+    (p: Parameters<T>[0]) => (Extract<ReturnType<T>, Message> | null)
     ;
 
   type ValidationArray<T extends Validation<unknown, unknown>> =
@@ -95,7 +97,7 @@ namespace $Schema {
     value: Nullable<Value>;
   };
 
-  type Rule<Value> = (params: RuleArgParams<Value>) => (AbstractMessage | null);
+  type Rule<Value> = (params: RuleArgParams<Value>) => (Message | null);
 
   type SchemaItemAbstractProps = {
     label?: string;
@@ -107,7 +109,7 @@ namespace $Schema {
   type SchemaItemInterfaceProps<Value> = {
     type: string;
     parse: Parser<Value>;
-    validate: (params: ValidationArgParams<Value>) => (AbstractMessage | null);
+    validate: (params: ValidationArgParams<Value>) => (Message | null);
     _validators: null | Rule<Value>[];
   };
 
