@@ -19,6 +19,42 @@ export function getSchemaItemPropsGenerator<
   };
 };
 
+export function optimizeValidationMessage<
+  T extends string | $Schema.Message | ((params: never) => unknown)
+>(m: T | null | undefined): $Schema.ValidationResult<T> | undefined {
+  if (m == null) return undefined;
+  type U = $Schema.ValidationResult<T>;
+  type Params = T extends (params: infer P) => unknown
+    ? P
+    : $Schema.ValidationResultArgParams<unknown, Record<string, unknown>>;
+  if (typeof m === "string") {
+    return ((params: Params) => {
+      return {
+        type: "e",
+        label: params.label,
+        actionType: params.actionType,
+        message: m,
+      } as const satisfies $Schema.Message;
+    }) as U;
+  }
+  if (typeof m === "function") {
+    const fn = m as unknown as (params: Params) => string | $Schema.Message | null;
+    return ((params: Params) => {
+      const ret = fn(params);
+      if (typeof ret === "string") {
+        return {
+          type: "e",
+          label: params.label,
+          actionType: params.actionType,
+          message: ret,
+        } as const satisfies $Schema.Message;
+      }
+      return ret;
+    }) as U;
+  }
+  return (() => m) as unknown as U;
+};
+
 export function getValidationArray<
   T extends $Schema.Validation<unknown, unknown>
 >(validation: T): $Schema.ValidationArray<T> {
@@ -26,38 +62,7 @@ export function getValidationArray<
   if (validation == null) return [undefined] as U;
   if (Array.isArray(validation)) {
     const [v, m] = validation;
-    if (m == null) return [v] as U;
-    if (typeof m === "string") {
-      return [
-        v,
-        (params: $Schema.ValidationArgParams<unknown>) => {
-          return {
-            type: "e",
-            label: params.label,
-            actionType: params.actionType,
-            message: m,
-          } as const satisfies $Schema.Message;
-        },
-      ] as U;
-    }
-    if (typeof m === "function") {
-      return [
-        v,
-        (params: $Schema.ValidationArgParams<unknown>) => {
-          const ret = m(params);
-          if (typeof ret === "string") {
-            return {
-              type: "e",
-              label: params.label,
-              actionType: params.actionType,
-              message: ret,
-            } as const satisfies $Schema.Message;
-          }
-          return ret;
-        },
-      ] as U;
-    }
-    return [v, () => m] as unknown as U;
+    return [v, optimizeValidationMessage(m)] as U;
   }
   return [validation] as U;
 };

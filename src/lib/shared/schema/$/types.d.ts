@@ -35,6 +35,7 @@ namespace $Schema {
     | CustomMessage
     | import("./string").StringValidationMessage
     | import("./number").NumberValidationMessage
+    | import("./source").SourceValidationMessage
     | import("./boolean").BooleanValidationMessage
     | import("./file").FileValidationMessage
     | import("./array").ArrayValidationMessage
@@ -62,25 +63,28 @@ namespace $Schema {
     | ((params: ValidationArgParams<Value>) => Nullable<SettingsValue>)
     ;
 
+  type ValidationResultArgParams<
+    const Value,
+    const ValidationAddonValues extends Record<string, unknown> = {}
+  > = ValidationArgParams<Value> & (
+    ValidationAddonValues extends undefined ? {} : { validationValues: ValidationAddonValues; }
+  );
+
   type ValidationCustomMessage<
-    Value,
-    ValidationAddonValues extends Record<string, unknown> = {},
-    Msg extends Message = Message
-  > =
-    (params: ValidationArgParams<Value> & (
-      ValidationAddonValues extends undefined ? {} : { validationValues: ValidationAddonValues; }
-    )) => (string | Message | Msg | null);
+    const Value,
+    const ValidationAddonValues extends Record<string, unknown> = {},
+    const Msg extends Message = Message
+  > = (params: ValidationResultArgParams<Value, ValidationAddonValues>) => (string | Message | Msg | null);
 
   type Validation<
-    Value,
-    SettingsValue,
-    ValidationAddonValues extends Record<string, unknown> | undefined = undefined,
-    Msg extends Message = Message
+    const Value,
+    const SettingsValue,
+    const ValidationAddonValues extends Record<string, unknown> | undefined = undefined,
+    const Msg extends Message = Message
   > =
     | ValidationValue<Value, SettingsValue>
     | [ValidationValue<Value, SettingsValue>, (
       | string
-      | Message
       | Msg
       | ValidationCustomMessage<Value, ValidationAddonValues, Msg>
     )?]
@@ -117,7 +121,7 @@ namespace $Schema {
     getActionType: () => ActionType;
     getCommonTypeMessageParams: () => AbstractTypeMessage;
     _validators: null | Rule<Value>[];
-  };
+  } & Record<string, unknown>;
 
   type SourceItem<const Value> = {
     value: Value;
