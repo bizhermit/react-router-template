@@ -98,7 +98,7 @@ function getAcceptChecker(accept: string) {
 
 export function $file<const P extends FileProps>(props: P = {} as P) {
   const fixedProps = {
-    type: "file",
+    type: SCHEMA_ITEM_TYPE_FILE,
     _validators: null,
     getActionType: function () {
       return this.actionType || "select";

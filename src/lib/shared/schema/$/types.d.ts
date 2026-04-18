@@ -38,6 +38,7 @@ namespace $Schema {
     | import("./boolean").BooleanValidationMessage
     | import("./file").FileValidationMessage
     | import("./array").ArrayValidationMessage
+    | import("./object").ObjectValidationMessage
     ;
 
   type ParseResult<Value> = {

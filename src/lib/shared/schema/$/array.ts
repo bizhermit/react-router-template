@@ -56,7 +56,7 @@ export function $array<
   type Value = $Schema.InferValue<Content>[];
 
   const fixedProps = {
-    type: "arr",
+    type: SCHEMA_ITEM_TYPE_ARRAY,
     prop: props.prop,
     _validators: null,
     getActionType: function () {
