@@ -36,6 +36,7 @@ namespace $Schema {
     | import("./string").StringValidationMessage
     | import("./number").NumberValidationMessage
     | import("./boolean").BooleanValidationMessage
+    | import("./file").FileValidationMessage
     ;
 
   type ParseResult<Value> = {
@@ -107,10 +108,12 @@ namespace $Schema {
     actionType?: ActionType;
   };
 
-  type SchemaItemInterfaceProps<Value> = {
+  type SchemaItemInterfaceProps<Value, AbstractTypeMessage> = {
     type: string;
     parse: Parser<Value>;
     validate: (params: ValidationArgParams<Value>) => (Message | null);
+    getActionType: () => ActionType;
+    getCommonTypeMessageParams: () => AbstractTypeMessage;
     _validators: null | Rule<Value>[];
   };
 
@@ -131,7 +134,7 @@ namespace $Schema {
       T extends "date" ? InferRequired<R> extends true ? $Date : Nullable<$Date> :
       T extends "month" ? InferRequired<R> extends true ? $Month : Nullable<$Month> :
       T extends "datetime" ? InferRequired<R> extends true ? $DateTime : Nullable<$DateTime> :
-      T extends "file" ? InferRequired<R> extends true ? File : Nullable<File> :
+      T extends "file" ? InferRequired<R> extends true ? File | string : Nullable<File | string> :
       T extends "arr" ? P extends { prop: infer Prop; } ? (InferRequired<R> extends true ? InferValue<Prop>[] : Nullable<InferValue<Prop>[]>) : never :
       T extends "obj" ? (InferRequired<R> extends true ? Infer<P> : Nullable<Infer<P>>) :
       never

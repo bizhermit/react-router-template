@@ -168,6 +168,17 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
   const fixedProps = {
     type: SCHEMA_ITEM_TYPE_STRING,
     _validators: null,
+    getActionType: function () {
+      return this.actionType || "input";
+    },
+    getCommonTypeMessageParams: function () {
+      return {
+        otype: SCHEMA_ITEM_TYPE_STRING,
+        label: this.label,
+        type: "e",
+        actionType: this.getActionType(),
+      } as const;
+    },
     parse: function (params) {
       if (this.parser) return this.parser(params);
       if (params.value == null || params.value === "") return { value: undefined };
@@ -177,12 +188,7 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
     validate: function (params) {
       if (this._validators == null) {
         this._validators = [];
-        const commonMsgParams = {
-          otype: SCHEMA_ITEM_TYPE_STRING,
-          label: this.label,
-          type: "e",
-          actionType: this.actionType || "input",
-        } as const satisfies StringValidationAbstractMessage;
+        const commonMsgParams = this.getCommonTypeMessageParams();
 
         // required
         if (this.required != null) {
@@ -404,7 +410,7 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
       }
       return msg;
     },
-  } as const satisfies StringProps & $Schema.SchemaItemInterfaceProps<string>;
+  } as const satisfies StringProps & $Schema.SchemaItemInterfaceProps<string, StringValidationAbstractMessage>;
 
   return getSchemaItemPropsGenerator<typeof fixedProps, StringProps, P>(fixedProps, props)({});
 };

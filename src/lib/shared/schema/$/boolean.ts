@@ -48,6 +48,17 @@ export function $bool<
     trueValue,
     falseValue,
     _validators: null,
+    getActionType: function () {
+      return this.actionType || "select";
+    },
+    getCommonTypeMessageParams: function () {
+      return {
+        otype: SCHEMA_ITEM_TYPE_BOOLEAN,
+        label: this.label,
+        actionType: this.getActionType(),
+        type: "e",
+      };
+    },
     parse: function (params) {
       if (this.parser) return this.parser(params);
       const s = String(params.value);
@@ -70,10 +81,7 @@ export function $bool<
       return {
         value: undefined,
         message: {
-          otype: SCHEMA_ITEM_TYPE_BOOLEAN,
-          label: this.label,
-          actionType: this.actionType ?? "select",
-          type: "e",
+          ...this.getCommonTypeMessageParams(),
           code: "parse",
         },
       };
@@ -81,12 +89,7 @@ export function $bool<
     validate: function (params) {
       if (this._validators == null) {
         this._validators = [];
-        const commonMsgParams = {
-          otype: SCHEMA_ITEM_TYPE_BOOLEAN,
-          label: this.label,
-          type: "e",
-          actionType: this.actionType || "input",
-        } as const satisfies BooleanValidationAbstractMessage;
+        const commonMsgParams = this.getCommonTypeMessageParams();
 
         // required
         if (this.required != null) {
@@ -136,7 +139,10 @@ export function $bool<
       }
       return msg;
     },
-  } as const satisfies BooleanProps<TV, FV> & $Schema.SchemaItemInterfaceProps<TV | FV>;
+  } as const satisfies BooleanProps<TV, FV> & $Schema.SchemaItemInterfaceProps<
+    TV | FV,
+    BooleanValidationAbstractMessage
+  >;
 
   return getSchemaItemPropsGenerator<typeof fixedProps, BooleanProps<TV, FV>, P>(fixedProps, props)({});
 };

@@ -38,6 +38,17 @@ export function $num<const P extends NumberProps>(props: P = {} as P) {
   const fixedProps = {
     type: SCHEMA_ITEM_TYPE_NUMBER,
     _validators: null,
+    getActionType: function () {
+      return this.actionType || "input";
+    },
+    getCommonTypeMessageParams: function () {
+      return {
+        otype: SCHEMA_ITEM_TYPE_NUMBER,
+        label: this.label,
+        type: "e",
+        actionType: this.getActionType(),
+      } as const;
+    },
     parse: function (params) {
       if (this.parser) return this.parser(params);
       const [num, succeeded] = parseNumber(params.value);
@@ -45,10 +56,7 @@ export function $num<const P extends NumberProps>(props: P = {} as P) {
       return {
         value: num,
         message: {
-          otype: SCHEMA_ITEM_TYPE_NUMBER,
-          label: this.label,
-          actionType: this.actionType || "input",
-          type: "e",
+          ...this.getCommonTypeMessageParams(),
           code: "parse",
         },
       };
@@ -56,12 +64,7 @@ export function $num<const P extends NumberProps>(props: P = {} as P) {
     validate: function (params) {
       if (this._validators == null) {
         this._validators = [];
-        const commonMsgParams = {
-          otype: SCHEMA_ITEM_TYPE_NUMBER,
-          label: this.label,
-          type: "e",
-          actionType: this.actionType || "input",
-        } as const satisfies NumberValidationAbstractMessage;
+        const commonMsgParams = this.getCommonTypeMessageParams();
 
         // required
         if (this.required != null) {
@@ -229,7 +232,7 @@ export function $num<const P extends NumberProps>(props: P = {} as P) {
       }
       return msg;
     },
-  } as const satisfies NumberProps & $Schema.SchemaItemInterfaceProps<number>;
+  } as const satisfies NumberProps & $Schema.SchemaItemInterfaceProps<number, NumberValidationAbstractMessage>;
 
   return getSchemaItemPropsGenerator<typeof fixedProps, NumberProps, P>(fixedProps, props)({});
 };
