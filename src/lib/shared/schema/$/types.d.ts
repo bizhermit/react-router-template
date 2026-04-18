@@ -101,6 +101,13 @@ namespace $Schema {
   type ValidationArray<T extends Validation<unknown, unknown>> =
     T extends Array<unknown> ? [T[0], ValidationResult<T[1]>] : [T];
 
+  type ValidationArrayAsArray<T extends Validation<never, unknown | Array<unknown>>> =
+    T extends ((params: never) => unknown) ? [T] :
+    T extends Array<unknown> ? (
+      T[0] extends ((params: never) => unknown) ? [T[0]] :
+      [T[0], ValidationResult<Exclude<T[1], T[0]>>]
+    ) : [undefined];
+
   type ValidationMessageGetter<T> =
     (p: Exclude<Parameters<Exclude<T, undefined>>[0], undefined>) => ReturnType<Exclude<T, undefined>>;
 

@@ -78,6 +78,24 @@ function getAll(ms: number) {
   } as const;
 };
 
+function compareTimestampMs(before: Timestamp, after: Timestamp) {
+  return before.getTime() - after.getTime();
+};
+
+function compareTimestampDate(before: Timestamp, after: Timestamp) {
+  return Math.floor(before.getTime() / MS_PER_DAY) - Math.floor(after.getTime() / MS_PER_DAY);
+};
+
+function compareTimestampMonth(before: Timestamp, after: Timestamp) {
+  const beforeYmd = getYMD(before.getTime());
+  const afterYmd = getYMD(after.getTime());
+  return (beforeYmd.year * 12 + beforeYmd.month) - (afterYmd.year * 12 + afterYmd.month);
+};
+
+function compareTimestampTime(before: Timestamp, after: Timestamp) {
+  return getMsOfDay(before.getTime()) - getMsOfDay(after.getTime());
+};
+
 /** 時間単位 */
 const MS_PER_SECOND = 1000;
 const MS_PER_MINUTE = 60 * MS_PER_SECOND;
@@ -503,6 +521,18 @@ export class $Date extends Timestamp {
     return this;
   }
 
+  public isBefore(after: Timestamp) {
+    return compareTimestampDate(this, after) < 0;
+  }
+
+  public isAfter(before: Timestamp) {
+    return compareTimestampDate(this, before) > 0;
+  }
+
+  public isEqual(same: Timestamp) {
+    return compareTimestampDate(this, same) === 0;
+  }
+
 };
 
 export class $Month extends Timestamp {
@@ -563,6 +593,18 @@ export class $Month extends Timestamp {
   public addDay(diff: number): this {
     super.addDay(diff);
     return this;
+  }
+
+  public isBefore(after: Timestamp) {
+    return compareTimestampMonth(this, after) < 0;
+  }
+
+  public isAfter(before: Timestamp) {
+    return compareTimestampMonth(this, before) > 0;
+  }
+
+  public isEqual(same: Timestamp) {
+    return compareTimestampMonth(this, same) === 0;
   }
 
 };
@@ -708,6 +750,42 @@ export class $DateTime extends Timestamp {
   public removeTime(): this {
     super.removeTime();
     return this;
+  }
+
+  public isBefore(after: Timestamp) {
+    return compareTimestampMs(this, after) < 0;
+  }
+
+  public isAfter(before: Timestamp) {
+    return compareTimestampMs(this, before) > 0;
+  }
+
+  public isEqual(same: Timestamp) {
+    return compareTimestampMs(this, same) === 0;
+  };
+
+  public isBeforeDate(after: Timestamp) {
+    return compareTimestampDate(this, after) < 0;
+  }
+
+  public isAfterDate(before: Timestamp) {
+    return compareTimestampDate(this, before) > 0;
+  }
+
+  public isEqualDate(same: Timestamp) {
+    return compareTimestampDate(this, same) === 0;
+  }
+
+  public isBeforeTime(after: Timestamp) {
+    return compareTimestampTime(this, after) < 0;
+  }
+
+  public isAfterTime(before: Timestamp) {
+    return compareTimestampTime(this, before) > 0;
+  }
+
+  public isEqualTime(same: Timestamp) {
+    return compareTimestampTime(this, same) === 0;
   }
 
 };

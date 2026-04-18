@@ -66,3 +66,21 @@ export function getValidationArray<
   }
   return [validation] as U;
 };
+
+export function getValidationArrayAsArray<
+  T extends $Schema.Validation<never, unknown | Array<unknown>> = $Schema.Validation<unknown, Array<unknown>>
+>(validation: T): $Schema.ValidationArrayAsArray<T> {
+  type U = $Schema.ValidationArrayAsArray<T>;
+  if (validation == null) return [undefined] as U;
+  if (typeof validation === "function") return [validation] as U;
+  if (Array.isArray(validation)) {
+    const [v, m] = validation;
+    if (Array.isArray(v) || typeof v === "function") {
+      return [v, optimizeValidationMessage(
+        m as string | $Schema.Message | ((params: never) => unknown) | undefined
+      )] as unknown as U;
+    }
+    return [validation] as U;
+  }
+  throw new Error(`validation value is not array type`);
+};

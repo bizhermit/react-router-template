@@ -50,6 +50,31 @@ export function getRelativeName(baseName: string, relativeName: string) {
   return `${relativeBaseName}.${name}`.replace(/^\.|\.(?=\[)/g, "");
 };
 
+export function getValue<V>(
+  data: Record<string, unknown>,
+  name: string,
+  relativeName?: string
+): [vlaue: V | null | undefined, hasProperty: boolean] {
+  let has = false;
+  const names = splitName(relativeName ? getRelativeName(name, relativeName) : name);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let v: any = data;
+  for (const n of names) {
+    if (v == null) return [undefined, false];
+    const r = getArrayIndex(n);
+    if (r) {
+      let i = Number(r[1]);
+      if (isNaN(i)) i = 0;
+      has = i in v;
+      v = v[i];
+      continue;
+    }
+    has = n in v;
+    v = v[n];
+  }
+  return [v, has];
+}
+
 type Item = {
   /** プロパティ名 */
   name: string;
@@ -94,25 +119,8 @@ export class ProxyData {
   public _get<V>(
     name: string,
     relativeName?: string
-  ): [vlaue: V | null | undefined, hasProperty: boolean] {
-    let has = false;
-    const names = splitName(relativeName ? getRelativeName(name, relativeName) : name);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let v: any = this.data;
-    for (const n of names) {
-      if (v == null) return [undefined, false];
-      const r = getArrayIndex(n);
-      if (r) {
-        let i = Number(r[1]);
-        if (isNaN(i)) i = 0;
-        has = i in v;
-        v = v[i];
-        continue;
-      }
-      has = n in v;
-      v = v[n];
-    }
-    return [v, has];
+  ) {
+    return getValue<V>(this.data, name, relativeName);
   };
 
   public get<V>(name: string, relativeName?: string): V | null | undefined {
