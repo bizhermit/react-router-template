@@ -37,6 +37,9 @@ namespace $Schema {
     | import("./number").NumberValidationMessage
     | import("./source").SourceValidationMessage
     | import("./boolean").BooleanValidationMessage
+    | import("./date").DateValidationMessage
+    | import("./date").MonthValidationMessage
+    | import("./date").DateTimeValidationMessage
     | import("./file").FileValidationMessage
     | import("./array").ArrayValidationMessage
     | import("./object").ObjectValidationMessage
