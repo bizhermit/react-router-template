@@ -63,17 +63,25 @@ type SplitDateOptions = {
 
 type SplitDateProps = $Schema.SchemaItemAbstractProps & SplitDateOptions;
 
-function splitDate<const P extends DateProps>(base: {
-  getThis: () => ReturnType<typeof $date<P>>;
+type DateSplitBaseProps = Pick<
+  DateProps & $Schema.SchemaItemInterfaceProps<$Date, DateValidationAbstractMessage>,
+  "required" | "minDate" | "maxDate" | "getActionType"
+>;
+
+function splitDate<const Base extends DateSplitBaseProps>(base: {
+  getThis: () => Base;
   isValidMin: (params: { value: number; validationValue: $Date; }) => [boolean, number];
   isValidMax: (params: { value: number; validationValue: $Date; }) => [boolean, number];
 }) {
   return function <const SP extends SplitDateProps>(splitProps: SP = {} as SP) {
-    type Required = $Schema.ValidationArray<SP["required"]>[0] extends boolean ? SP["required"] : P["required"];
+    type Required = $Schema.ValidationArray<SP["required"]>[0] extends boolean
+      ? SP["required"]
+      : $Schema.ValidationArray<Base["required"]>;
+
     return {
       ...splitProps,
-      required: splitProps.required as Required,
       type: SCHEMA_ITEM_TYPE_SPLIT_DATE,
+      required: splitProps.required as Required,
       _validators: null,
       getActionType: function () {
         return this.actionType || base.getThis().getActionType();
@@ -639,24 +647,37 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
       }
       return msg;
     },
-    getSplitYear: function <const SP extends SplitDateProps>(splitProps: SP = {} as SP) {
+    getSplitYear: function <const This extends DateSplitBaseProps, const SP extends SplitDateProps>(
+      this: This,
+      splitProps: SP = {} as SP,
+    ) {
       const getBase = () => this;
-      return splitDate<P>({
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        getThis: getBase as any,
+      return splitDate<This>({
+        getThis: getBase,
         isValidMin: ({ value, validationValue }) => {
-          return [validationValue.getYear() <= value, validationValue.getYear()];
+          return [
+            validationValue.getYear() <= value,
+            validationValue.getYear(),
+          ];
         },
         isValidMax: ({ value, validationValue }) => {
-          return [value <= validationValue.getYear(), validationValue.getYear()];
+          return [
+            value <= validationValue.getYear(),
+            validationValue.getYear(),
+          ];
         },
       })<SP>(splitProps);
     },
-    getSplitMonth: function <const SP extends SplitDateProps>(splitProps: SP = {} as SP) {
+    getSplitMonth: function <
+      const This extends DateSplitBaseProps,
+      const SP extends SplitDateProps
+    >(
+      this: This,
+      splitProps: SP = {} as SP,
+    ) {
       const getBase = () => this;
-      return splitDate<P>({
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        getThis: getBase as any,
+      return splitDate<This>({
+        getThis: getBase,
         isValidMin: ({ value }) => {
           // NOTE: 最小値および年の値によって変動するため、最小日付と比較を行わない
           return [1 <= value, 1];
@@ -667,11 +688,16 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
         },
       })<SP>(splitProps);
     },
-    getSplitDay: function <const SP extends SplitDateProps>(splitProps: SP = {} as SP) {
+    getSplitDay: function <
+      const This extends DateSplitBaseProps,
+      const SP extends SplitDateProps
+    >(
+      this: This,
+      splitProps: SP = {} as SP,
+    ) {
       const getBase = () => this;
-      return splitDate<P>({
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        getThis: getBase as any,
+      return splitDate<This>({
+        getThis: getBase,
         isValidMin: ({ value }) => {
           // NOTE: 最小値および年月の値によって変動するため、最小日付と比較を行わない
           return [1 <= value, 1];

@@ -19,15 +19,20 @@ const items = [
   { value: 2 },
 ] as const;
 
-const birth = $date().overwrite({
-  required: true,
+const birth = $date({
+  // required: true,
   maxDate: new $Date("2026-12-12"),
+}).overwrite({
+  required: true,
+  // maxDate: new $Date("2026-12-12"),
 });
 const birth_year = birth.getSplitYear({
   // required: true,
-  required: ["inherit"],
+  required: false,
+  // required: "inherit",
 });
 type _Birth = $Schema.Infer<typeof birth>;
+type __BirthYear = typeof birth_year;
 type _BirthYear = $Schema.Infer<typeof birth_year>;
 
 const schemaObject = $object({
