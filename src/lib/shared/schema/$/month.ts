@@ -37,13 +37,13 @@ type MonthOptions = {
 
 type MonthProps = $Schema.SchemaItemAbstractProps & MonthOptions;
 
-const SCHEMA_ITEM_TYPE_SPLIT_DATE = `${SCHEMA_ITEM_TYPE_MONTH}-s`;
+const SCHEMA_ITEM_TYPE_SPLIT_MONTH = `${SCHEMA_ITEM_TYPE_MONTH}-s`;
 
 type SplitMonthValidation_MinParams = { min: number; };
 type SplitMonthValidation_MaxParams = { max: number; };
 
 export type SplitMonthValidationAbstractMessage = $Schema.AbstractMessage & {
-  otype: typeof SCHEMA_ITEM_TYPE_SPLIT_DATE;
+  otype: typeof SCHEMA_ITEM_TYPE_SPLIT_MONTH;
 };
 export type SplitMonthValidationMessage = SplitMonthValidationAbstractMessage & (
   | { code: "parse"; }
@@ -79,7 +79,7 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
 
     return {
       ...splitProps,
-      type: SCHEMA_ITEM_TYPE_SPLIT_DATE,
+      type: SCHEMA_ITEM_TYPE_SPLIT_MONTH,
       required: splitProps.required as Required,
       _validators: null,
       getActionType: function () {
@@ -87,7 +87,7 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
       },
       getCommonTypeMessageParams: function () {
         return {
-          otype: SCHEMA_ITEM_TYPE_SPLIT_DATE,
+          otype: SCHEMA_ITEM_TYPE_SPLIT_MONTH,
           label: this.label,
           type: "e",
           actionType: this.getActionType(),
