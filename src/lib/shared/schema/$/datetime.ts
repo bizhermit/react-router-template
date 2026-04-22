@@ -9,13 +9,13 @@ type TimeString = TimeHMString | TimeHMSString;
 
 type DateTimePair = { name: string; position: "before" | "after"; noSame?: boolean; };
 
-type DateTimeValidation_MinDateTime = { minDateTime: $DateTime; };
-type DateTimeValidation_MaxDateTime = { maxDateTime: $DateTime; };
-type DateTimeValidation_MinDate = { minDate: $Date; };
-type DateTimeValidation_MaxDate = { maxDate: $Date; };
-type DateTimeValidation_MinTime = { minTime: TimeString; };
-type DateTimeValidation_MaxTime = { maxTime: TimeString; };
-type DateTimeValidation_Pair = Omit<Required<DateTimePair>, "name"> & { pairName: string; pairDateTime: $DateTime; };
+type DateTimeValidation_MinDateTimeParams = { minDateTime: $DateTime; };
+type DateTimeValidation_MaxDateTimeParams = { maxDateTime: $DateTime; };
+type DateTimeValidation_MinDateParams = { minDate: $Date; };
+type DateTimeValidation_MaxDateParams = { maxDate: $Date; };
+type DateTimeValidation_MinTimeParams = { minTime: TimeString; };
+type DateTimeValidation_MaxTimeParams = { maxTime: TimeString; };
+type DateTimeValidation_PairParams = Omit<Required<DateTimePair>, "name"> & { pairName: string; pairDateTime: $DateTime; };
 
 type DateTimeValidationAbstractMessage = $Schema.AbstractMessage & {
   otype: typeof SCHEMA_ITEM_TYPE_DATETIME;
@@ -23,28 +23,28 @@ type DateTimeValidationAbstractMessage = $Schema.AbstractMessage & {
 export type DateTimeValidationMessage = DateTimeValidationAbstractMessage & (
   | { code: "parse"; }
   | { code: "required"; }
-  | ({ code: "minDateTime"; } & DateTimeValidation_MinDateTime)
-  | ({ code: "maxDateTime"; } & DateTimeValidation_MaxDateTime)
-  | ({ code: "minDate"; } & DateTimeValidation_MinDate)
-  | ({ code: "maxDate"; } & DateTimeValidation_MaxDate)
-  | ({ code: "minTime"; } & DateTimeValidation_MinTime)
-  | ({ code: "maxTime"; } & DateTimeValidation_MaxTime)
-  | ({ code: "pair"; } & DateTimeValidation_Pair)
+  | ({ code: "minDateTime"; } & DateTimeValidation_MinDateTimeParams)
+  | ({ code: "maxDateTime"; } & DateTimeValidation_MaxDateTimeParams)
+  | ({ code: "minDate"; } & DateTimeValidation_MinDateParams)
+  | ({ code: "maxDate"; } & DateTimeValidation_MaxDateParams)
+  | ({ code: "minTime"; } & DateTimeValidation_MinTimeParams)
+  | ({ code: "maxTime"; } & DateTimeValidation_MaxTimeParams)
+  | ({ code: "pair"; } & DateTimeValidation_PairParams)
 );
 
 type DateTimeOptions = {
   parser?: $Schema.Parser<$DateTime>;
   required?: $Schema.Validation<$Schema.Nullable<$DateTime>, boolean, undefined, DateTimeValidationMessage>;
-  minDateTime?: $Schema.Validation<$DateTime, $DateTime, DateTimeValidation_MinDateTime>;
-  maxDateTime?: $Schema.Validation<$DateTime, $DateTime, DateTimeValidation_MaxDateTime>;
-  minDate?: $Schema.Validation<$DateTime, $DateTime, DateTimeValidation_MinDate>;
-  maxDate?: $Schema.Validation<$DateTime, $DateTime, DateTimeValidation_MaxDate>;
-  minTime?: $Schema.Validation<TimeString, $DateTime, DateTimeValidation_MinTime>;
-  maxTime?: $Schema.Validation<TimeString, $DateTime, DateTimeValidation_MaxTime>;
+  minDateTime?: $Schema.Validation<$DateTime, $DateTime, DateTimeValidation_MinDateTimeParams>;
+  maxDateTime?: $Schema.Validation<$DateTime, $DateTime, DateTimeValidation_MaxDateTimeParams>;
+  minDate?: $Schema.Validation<$DateTime, $DateTime, DateTimeValidation_MinDateParams>;
+  maxDate?: $Schema.Validation<$DateTime, $DateTime, DateTimeValidation_MaxDateParams>;
+  minTime?: $Schema.Validation<TimeString, $DateTime, DateTimeValidation_MinTimeParams>;
+  maxTime?: $Schema.Validation<TimeString, $DateTime, DateTimeValidation_MaxTimeParams>;
   pair?: $Schema.Validation<
     $DateTime,
     DateTimePair | DateTimePair[],
-    DateTimeValidation_Pair,
+    DateTimeValidation_PairParams,
     DateTimeValidationMessage
   >;
   rules?: $Schema.Rule<$DateTime>[];
