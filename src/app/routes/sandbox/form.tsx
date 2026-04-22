@@ -21,8 +21,14 @@ const items = [
 
 const birth = $date().overwrite({
   required: true,
+  maxDate: new $Date("2026-12-12"),
+});
+const birth_year = birth.getSplitYear({
+  // required: true,
+  required: ["inherit"],
 });
 type _Birth = $Schema.Infer<typeof birth>;
+type _BirthYear = $Schema.Infer<typeof birth_year>;
 
 const schemaObject = $object({
   props: {
@@ -61,6 +67,11 @@ const schemaObject = $object({
     }),
     birth: $date({
       required: true,
+    }),
+    year: birth.getSplitYear({
+      // required: true,
+      // required: "inherit",
+      // required: false,
     }),
     // regDate: $datetime({
     //   required: true,
@@ -156,19 +167,23 @@ export default function Page() {
             const dummyValues = {
               name: null,
               // name: "hogefugapiyo",
+              year: 2027,
+              // year: null,
             };
             const validationArgParams = {
               data: {},
               isServer: true,
               name: "name",
-              value: dummyValues.name,
+              // value: dummyValues.name,
+              value: dummyValues.year,
               values: dummyValues,
               actionType: "input",
               label: "名前",
             } satisfies $Schema.ValidationArgParams<unknown>;
             console.log("validate");
             const now = performance.now();
-            const validationMessage = schemaObject.props.name.validate(validationArgParams);
+            // const validationMessage = schemaObject.props.name.validate(validationArgParams);
+            const validationMessage = schemaObject.props.year.validate(validationArgParams);
             console.log("-", performance.now() - now);
             console.log("-", validationMessage);
           }}

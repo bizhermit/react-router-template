@@ -57,14 +57,14 @@ export function optimizeValidationMessage<
 
 export function getValidationArray<
   T extends $Schema.Validation<unknown, unknown>
->(validation: T): $Schema.ValidationArray<T> {
+>(validation: T, initValue?: $Schema.ValidationArray<T>[0]): $Schema.ValidationArray<T> {
   type U = $Schema.ValidationArray<T>;
-  if (validation == null) return [undefined] as U;
+  if (validation == null) return [initValue] as U;
   if (Array.isArray(validation)) {
     const [v, m] = validation;
-    return [v, optimizeValidationMessage(m)] as U;
+    return [v ?? initValue, optimizeValidationMessage(m)] as U;
   }
-  return [validation] as U;
+  return [validation ?? initValue] as U;
 };
 
 export function getValidationArrayAsArray<

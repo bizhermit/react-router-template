@@ -7,7 +7,7 @@ type NumberValidation_MinParams = { min: number; };
 type NumberValidation_MaxParams = { max: number; };
 type NumberValidation_FloatParams = { float: number; currentFloat: number; };
 
-type NumberValidationAbstractMessage = $Schema.AbstractMessage & {
+export type NumberValidationAbstractMessage = $Schema.AbstractMessage & {
   otype: typeof SCHEMA_ITEM_TYPE_NUMBER;
 };
 export type NumberValidationMessage = NumberValidationAbstractMessage & (

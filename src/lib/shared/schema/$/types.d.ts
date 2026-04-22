@@ -38,8 +38,9 @@ namespace $Schema {
     | import("./source").SourceValidationMessage
     | import("./boolean").BooleanValidationMessage
     | import("./date").DateValidationMessage
-    | import("./date").MonthValidationMessage
-    | import("./date").DateTimeValidationMessage
+    | import("./date").SplitDateValidationMessage
+    | import("./month").MonthValidationMessage
+    | import("./datetime").DateTimeValidationMessage
     | import("./file").FileValidationMessage
     | import("./array").ArrayValidationMessage
     | import("./object").ObjectValidationMessage
@@ -61,9 +62,9 @@ namespace $Schema {
     value: Nullable<Value>;
   };
 
-  type ValidationValue<Value, SettingsValue> =
+  type ValidationValue<SettingsValue> =
     | Nullable<SettingsValue>
-    | ((params: ValidationArgParams<Value>) => Nullable<SettingsValue>)
+    | ((params: ArgParams) => Nullable<SettingsValue>)
     ;
 
   type ValidationResultArgParams<
@@ -85,8 +86,8 @@ namespace $Schema {
     const ValidationAddonValues extends Record<string, unknown> | undefined = undefined,
     const Msg extends Message = Message
   > =
-    | ValidationValue<Value, SettingsValue>
-    | [ValidationValue<Value, SettingsValue>, (
+    | ValidationValue<SettingsValue>
+    | [ValidationValue<SettingsValue>, (
       | string
       | Msg
       | ValidationCustomMessage<Value, ValidationAddonValues, Msg>
@@ -141,6 +142,10 @@ namespace $Schema {
 
   type InferRequired<R> = R extends Array<unknown> ? R[0] : R;
 
+  type $Date = import("../../objects/timestamp").$Date;
+  type $Month = import("../../objects/timestamp").$Month;
+  type $DateTime = import("../../objects/timestamp").$DateTime;
+
   type InferValue<P> =
     P extends { type: infer T; required?: infer R; } ? (
       T extends "str" ? InferRequired<R> extends true ? string : Nullable<string> :
@@ -148,8 +153,11 @@ namespace $Schema {
       T extends "bool" ? P extends { trueValue: infer TV; falseValue: infer FV; } ? InferRequired<R> extends true | "nonFalse" ? (TV | FV) : Nullable<(TV | FV)> : InferRequired<R> extends true | "nonFalse" ? boolean : Nullable<boolean> :
       T extends "src" ? P extends { items: readonly { value: infer V; }[]; } ? InferRequired<R> extends true ? V : Nullable<V> : never :
       T extends "date" ? InferRequired<R> extends true ? $Date : Nullable<$Date> :
+      T extends "date-s" ? InferRequired<R> extends true ? number : Nullable<number> :
       T extends "month" ? InferRequired<R> extends true ? $Month : Nullable<$Month> :
+      T extends "month-s" ? InferRequired<R> extends true ? number : Nullable<number> :
       T extends "datetime" ? InferRequired<R> extends true ? $DateTime : Nullable<$DateTime> :
+      T extends "datetime-s" ? InferRequired<R> extends true ? number : Nullable<number> :
       T extends "file" ? InferRequired<R> extends true ? File | string : Nullable<File | string> :
       T extends "arr" ? P extends { prop: infer Prop; } ? (InferRequired<R> extends true ? InferValue<Prop>[] : Nullable<InferValue<Prop>[]>) : never :
       T extends "obj" ? (InferRequired<R> extends true ? Infer<P> : Nullable<Infer<P>>) :
