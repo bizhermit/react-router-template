@@ -63,12 +63,12 @@ type SplitDateOptions = {
 
 type SplitDateProps = $Schema.SchemaItemAbstractProps & SplitDateOptions;
 
-type DateSplitBaseProps = Pick<
+type SplitDateBaseProps = Pick<
   DateProps & $Schema.SchemaItemInterfaceProps<$Date, DateValidationAbstractMessage>,
   "required" | "minDate" | "maxDate" | "getActionType"
 >;
 
-function splitDate<const Base extends DateSplitBaseProps>(base: {
+function splitDate<const Base extends SplitDateBaseProps>(base: {
   getThis: () => Base;
   isValidMin: (params: { value: number; validationValue: $Date; }) => [boolean, number];
   isValidMax: (params: { value: number; validationValue: $Date; }) => [boolean, number];
@@ -647,7 +647,10 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
       }
       return msg;
     },
-    getSplitYear: function <const This extends DateSplitBaseProps, const SP extends SplitDateProps>(
+    getSplitYear: function <
+      const This extends SplitDateBaseProps,
+      const SP extends SplitDateProps
+    >(
       this: This,
       splitProps: SP = {} as SP,
     ) {
@@ -669,7 +672,7 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
       })<SP>(splitProps);
     },
     getSplitMonth: function <
-      const This extends DateSplitBaseProps,
+      const This extends SplitDateBaseProps,
       const SP extends SplitDateProps
     >(
       this: This,
@@ -689,7 +692,7 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
       })<SP>(splitProps);
     },
     getSplitDay: function <
-      const This extends DateSplitBaseProps,
+      const This extends SplitDateBaseProps,
       const SP extends SplitDateProps
     >(
       this: This,

@@ -40,6 +40,7 @@ namespace $Schema {
     | import("./date").DateValidationMessage
     | import("./date").SplitDateValidationMessage
     | import("./month").MonthValidationMessage
+    | import("./month").SplitMonthValidationMessage
     | import("./datetime").DateTimeValidationMessage
     | import("./file").FileValidationMessage
     | import("./array").ArrayValidationMessage
