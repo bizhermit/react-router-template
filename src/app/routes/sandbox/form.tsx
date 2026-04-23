@@ -172,8 +172,9 @@ export default function Page() {
             const dummyValues = {
               name: null,
               // name: "hogefugapiyo",
-              year: 2027,
+              year: "2027",
               // year: null,
+              hoge: 132,
             };
             const validationArgParams = {
               data: {},
@@ -186,13 +187,14 @@ export default function Page() {
             console.log("validate");
             const now = performance.now();
             // const validationMessage = schemaObject.props.name.validate(validationArgParams);
-            const validationMessage = schemaObject.props.year.validate(
-              // value: dummyValues.name,
-              dummyValues.year,
-              validationArgParams
-            );
+            // const validationMessage = schemaObject.props.year.validate(
+            //   // value: dummyValues.name,
+            //   dummyValues.year,
+            //   validationArgParams
+            // );
+            console.log(schemaObject.parseWithChildren(dummyValues, { data: {}, isServer: false, values: dummyValues }));
             console.log("-", performance.now() - now);
-            console.log("-", validationMessage);
+            // console.log("-", validationMessage);
           }}
         >
           validate

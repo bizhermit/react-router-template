@@ -1,4 +1,5 @@
 import { getSchemaItemPropsGenerator, getValidationArray } from ".";
+import { SCHEMA_ITEM_TYPE_ARRAY } from "./array";
 
 export const SCHEMA_ITEM_TYPE_OBJECT = "obj";
 
@@ -10,7 +11,7 @@ export type ObjectValidationMessage = ObjectValidationAbstractMessage & (
   | { code: "required"; }
 );
 
-type ObjectOptions<Contents> = {
+type ObjectOptions<Contents extends Record<string, $Schema.SchemaItemInterfaceProps<unknown>>> = {
   props: Contents;
   parser?: $Schema.Parser<$Schema.InferValue<Contents>>;
   required?: $Schema.Validation<
@@ -22,10 +23,14 @@ type ObjectOptions<Contents> = {
   rules?: $Schema.Rule<$Schema.InferValue<Contents>>[];
 };
 
-type ObjectProps<Contents> = $Schema.SchemaItemAbstractProps & ObjectOptions<Contents>;
+type ObjectProps<Contents extends Record<string, $Schema.SchemaItemInterfaceProps<unknown>>> =
+  $Schema.SchemaItemAbstractProps & ObjectOptions<Contents>;
+
+type Struct = Record<string, unknown>;
 
 export function $object<
-  const Contents,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const Contents extends Record<string, $Schema.SchemaItemInterfaceProps<any>>,
   const P extends ObjectProps<Contents>
 >(props: P) {
   const fixedProps = {
@@ -39,6 +44,54 @@ export function $object<
       if (this.parser) return this.parser(value, params);
       if (value == null || value === "") return { value: undefined };
       return { value: value as $Schema.InferValue<Contents> };
+    },
+    parseWithChildren: function (value: unknown, params: $Schema.ParseArgParams): {
+      value: $Schema.Nullable<$Schema.InferValue<Contents>>;
+      messages: $Schema.Message[];
+    } {
+      const parsed = this.parse(value, params) as $Schema.ParseResult<Struct>;
+      const messages: $Schema.Message[] = [];
+      if (parsed.message) messages.push(parsed.message);
+
+      if (parsed.value != null) {
+        const prefixName = params.name ? `${params.name}.` : "";
+
+        Object.entries(parsed.value).forEach(([key, val]) => {
+          const name = `${prefixName}${key}`;
+
+          const prop = this.props[key];
+          console.log(prop, name);
+          if (prop == null) {
+            messages.push({
+              type: "w",
+              label: this.label,
+              message: `remove not accept value: ${name}`,
+            });
+            delete parsed.value![key];
+            return;
+          }
+          if (
+            prop.type === SCHEMA_ITEM_TYPE_ARRAY ||
+            prop.type === SCHEMA_ITEM_TYPE_OBJECT
+          ) {
+            const parsedItem = (prop as ReturnType<typeof $object>).parseWithChildren(val, {
+              ...params,
+              name,
+            });
+            parsed.value![key] = parsedItem.value;
+            if (parsedItem.messages.length > 0) messages.push(...parsedItem.messages);
+            return;
+          }
+          const parsedItem = prop.parse(val, {
+            ...params,
+            name,
+          });
+          parsed.value![key] = parsedItem.value;
+          if (parsedItem.message) messages.push(parsedItem.message);
+        });
+      }
+
+      return { value: parsed.value as $Schema.Nullable<$Schema.InferValue<Contents>>, messages };
     },
     validate: function (value, params) {
       if (this._validators == null) {

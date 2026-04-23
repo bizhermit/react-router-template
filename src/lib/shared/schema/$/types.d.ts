@@ -59,14 +59,12 @@ namespace $Schema {
     message?: Message | null;
   };
 
-  type ParseArgParams = ArgParams & SchemaItemArgParams;
+  type ParseArgParams = ArgParams & { name?: string; };
 
   type Parser<Value> =
     (value: unknown, params: ParseArgParams) => ParseResult<Value>;
 
-  type ValidationArgParams = ArgParams & SchemaItemArgParams & {
-    name?: string;
-  };
+  type ValidationArgParams = AddonArgParams;
 
   type ValidationValue<SettingsValue> =
     | Nullable<SettingsValue>

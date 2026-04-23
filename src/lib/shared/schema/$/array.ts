@@ -1,4 +1,5 @@
 import { getSchemaItemPropsGenerator, getValidationArray } from ".";
+import { SCHEMA_ITEM_TYPE_OBJECT } from "./object";
 
 export const SCHEMA_ITEM_TYPE_ARRAY = "arr";
 
@@ -17,7 +18,7 @@ export type ArrayValidationMessage = ArrayValidationAbstractMessage & (
   | ({ code: "maxLength"; } & ArrayValidation_MaxLengthParams)
 );
 
-type ArrayOptions<Content> = {
+type ArrayOptions<Content extends $Schema.SchemaItemInterfaceProps<unknown>> = {
   prop: Content;
   parser?: $Schema.Parser<$Schema.InferValue<Content>[]>;
   required?: $Schema.Validation<
@@ -47,10 +48,12 @@ type ArrayOptions<Content> = {
   rules?: $Schema.Rule<$Schema.InferValue<Content>[]>[];
 };
 
-type ArrayProps<Content> = $Schema.SchemaItemAbstractProps & ArrayOptions<Content>;
+type ArrayProps<Content extends $Schema.SchemaItemInterfaceProps<unknown>> =
+  $Schema.SchemaItemAbstractProps & ArrayOptions<Content>;
 
 export function $array<
-  const Content,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const Content extends $Schema.SchemaItemInterfaceProps<any>,
   const P extends ArrayProps<Content>
 >(props: P) {
   type Value = $Schema.InferValue<Content>[];
@@ -69,6 +72,42 @@ export function $array<
         return { value: value as Value };
       }
       return { value: [value] as Value };
+    },
+    parseWithChildren: function (value: unknown, params: $Schema.ParseArgParams): {
+      value: $Schema.Nullable<Value>;
+      messages: $Schema.Message[];
+    } {
+      const parsed = this.parse(value, params);
+      const messages: $Schema.Message[] = [];
+      if (parsed.message) messages.push(parsed.message);
+
+      if (parsed.value != null) {
+        const prefixName = params.name || "";
+
+        for (let i = 0, il = parsed.value.length; i < il; i++) {
+          const itemValue = parsed.value[i];
+          const name = `${prefixName}[${i}]`;
+          if (
+            this.prop.type === SCHEMA_ITEM_TYPE_ARRAY ||
+            this.prop.type === SCHEMA_ITEM_TYPE_OBJECT
+          ) {
+            const parsedItem = (this.prop as unknown as ReturnType<typeof $array>).parseWithChildren(itemValue, {
+              ...params,
+              name,
+            });
+            parsed.value[i] = parsedItem.value as Value[number];
+            if (parsedItem.messages.length > 0) messages.push(...parsedItem.messages);
+            continue;
+          }
+          const parsedItem = this.prop.parse(itemValue, {
+            ...params,
+            name,
+          });
+          parsed.value[i] = parsedItem.value as Value[number];
+          if (parsedItem.message) messages.push(parsedItem.message);
+        }
+      }
+      return { value: parsed.value, messages };
     },
     validate: function (value, params) {
       if (this._validators == null) {
