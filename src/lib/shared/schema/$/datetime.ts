@@ -681,6 +681,7 @@ export function $datetime<const P extends DateTimeProps>(props: P = {} as P) {
           }
         }
 
+        // minDate
         if (this.minDate) {
           const [minDate, getMinDateMessage] = getValidationArray(this.minDate);
           if (minDate != null) {
@@ -720,6 +721,7 @@ export function $datetime<const P extends DateTimeProps>(props: P = {} as P) {
           }
         }
 
+        // maxDate
         if (this.maxDate) {
           const [maxDate, getMaxDateMessage] = getValidationArray(this.maxDate);
           if (maxDate != null) {
@@ -759,9 +761,85 @@ export function $datetime<const P extends DateTimeProps>(props: P = {} as P) {
           }
         }
 
-        // TODO:
         // minTime
+        if (this.minTime) {
+          const [minTime, getMinTimeMessage] = getValidationArray(this.minTime);
+          if (minTime != null) {
+            const getMessage: $Schema.ValidationMessageGetter<typeof getMinTimeMessage> =
+              getMinTimeMessage ??
+              ((p) => ({
+                ...commonMsgParams,
+                code: "minTime",
+                ...p,
+              }));
+
+            if (typeof minTime === "function") {
+              this._validators.push((p) => {
+                if (p.value == null) return null;
+                const m = minTime(p);
+                if (m == null) return null;
+                if (p.value.isBeforeTime(m)) {
+                  return getMessage({
+                    ...p,
+                    minTime: m,
+                  });
+                }
+                return null;
+              });
+            } else {
+              this._validators.push((p) => {
+                if (p.value == null) return null;
+                if (p.value.isBeforeTime(minTime)) {
+                  return getMessage({
+                    ...p,
+                    minTime,
+                  });
+                }
+                return null;
+              });
+            }
+          }
+        }
+
         // maxTime
+        if (this.maxTime) {
+          const [maxTime, getMaxTimeMessage] = getValidationArray(this.maxTime);
+          if (maxTime != null) {
+            const getMessage: $Schema.ValidationMessageGetter<typeof getMaxTimeMessage> =
+              getMaxTimeMessage ??
+              ((p) => ({
+                ...commonMsgParams,
+                code: "maxTime",
+                ...p,
+              }));
+
+            if (typeof maxTime === "function") {
+              this._validators.push((p) => {
+                if (p.value == null) return null;
+                const m = maxTime(p);
+                if (m == null) return null;
+                if (p.value.isAfterTime(m)) {
+                  return getMessage({
+                    ...p,
+                    maxTime: m,
+                  });
+                }
+                return null;
+              });
+            } else {
+              this._validators.push((p) => {
+                if (p.value == null) return null;
+                if (p.value.isAfterTime(maxTime)) {
+                  return getMessage({
+                    ...p,
+                    maxTime,
+                  });
+                }
+                return null;
+              });
+            }
+          }
+        }
 
         // pair
         if (this.pairs) {
