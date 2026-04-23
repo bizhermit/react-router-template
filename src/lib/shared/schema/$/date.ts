@@ -80,6 +80,7 @@ function splitDate<const Base extends SplitDateBaseProps>(base: {
             actionType: this.getActionType(),
             otype: SCHEMA_ITEM_TYPE_SPLIT_DATE,
             code: "parse",
+            name: params.name,
           }],
         };
       },
@@ -102,6 +103,7 @@ function splitDate<const Base extends SplitDateBaseProps>(base: {
               code: "required",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             if (typeof required === "function") {
@@ -169,6 +171,7 @@ function splitDate<const Base extends SplitDateBaseProps>(base: {
               code: "min",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             if (typeof min === "function") {
@@ -266,6 +269,7 @@ function splitDate<const Base extends SplitDateBaseProps>(base: {
               code: "max",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             if (typeof max === "function") {
@@ -400,6 +404,7 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
             actionType: this.getActionType(),
             otype: SCHEMA_ITEM_TYPE_DATE,
             code: "parse",
+            name: params.name,
           }],
         };
       }
@@ -424,6 +429,7 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
               code: "required",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             if (typeof required === "function") {
@@ -454,6 +460,7 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
               code: "minDate",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             if (typeof minDate === "function") {
@@ -497,6 +504,7 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
               code: "maxDate",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             if (typeof maxDate === "function") {
@@ -540,6 +548,7 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
               code: "pair",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             if (typeof pairs === "function") {

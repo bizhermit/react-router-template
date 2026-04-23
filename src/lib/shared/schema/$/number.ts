@@ -38,6 +38,7 @@ export function $num<const P extends NumberProps>(props: P = {} as P) {
           actionType: this.getActionType(),
           otype: SCHEMA_ITEM_TYPE_NUMBER,
           code: "parse",
+          name: params.name,
         }],
       };
     },
@@ -61,6 +62,7 @@ export function $num<const P extends NumberProps>(props: P = {} as P) {
               code: "required",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             if (typeof required === "function") {
@@ -91,6 +93,7 @@ export function $num<const P extends NumberProps>(props: P = {} as P) {
               code: "min",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             if (typeof min === "function") {
@@ -129,6 +132,7 @@ export function $num<const P extends NumberProps>(props: P = {} as P) {
               code: "max",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             if (typeof max === "function") {
@@ -167,6 +171,7 @@ export function $num<const P extends NumberProps>(props: P = {} as P) {
               code: "float",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             if (typeof float === "function") {

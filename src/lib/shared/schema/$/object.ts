@@ -62,6 +62,7 @@ export function $object<
               type: "w",
               label: this.label,
               message: `remove not accept value: ${name}`,
+              name,
             });
             delete (structValue as Struct)[key];
             return;
@@ -97,6 +98,7 @@ export function $object<
               code: "required",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             if (typeof required === "function") {

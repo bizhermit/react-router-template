@@ -77,6 +77,7 @@ export function $bool<
           actionType: this.getActionType(),
           otype: SCHEMA_ITEM_TYPE_BOOLEAN,
           code: "parse",
+          name: params.name,
         }],
       };
     },
@@ -100,6 +101,7 @@ export function $bool<
               code: "required",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             if (typeof required === "function") {

@@ -92,6 +92,7 @@ export function $array<
               code: "required",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             if (typeof required === "function") {
@@ -122,6 +123,7 @@ export function $array<
               code: "length",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             if (typeof length === "function") {
@@ -163,6 +165,7 @@ export function $array<
               code: "minLength",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             if (typeof minLength === "function") {
@@ -204,6 +207,7 @@ export function $array<
               code: "maxLength",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             if (typeof maxLength === "function") {

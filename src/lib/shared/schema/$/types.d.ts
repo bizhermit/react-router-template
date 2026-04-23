@@ -19,6 +19,7 @@ namespace $Schema {
   type AbstractMessage = {
     type: "e" | "w" | "i";
     label: string | undefined;
+    name: string | undefined;
   };
 
   type I18nMessage<K extends I18nTextKey = I18nTextKey> = AbstractMessage & {

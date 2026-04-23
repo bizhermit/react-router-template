@@ -65,6 +65,7 @@ export function $$source<
           actionType: this.getActionType(),
           otype: SCHEMA_ITEM_TYPE_SOURCE,
           code: "parse",
+          name: params.name,
         }],
       };
     },
@@ -88,6 +89,7 @@ export function $$source<
               code: "required",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             if (typeof required === "function") {
@@ -110,12 +112,13 @@ export function $$source<
         }
 
         // notFound
-        const getSourceMessage = optimizeValidationMessage(this.notFoundMessage) ??
-          ((p) => ({
-            ...commonMsgParams,
-            code: "notFound",
-            ...p,
-          }));
+        const getSourceMessage = optimizeValidationMessage(this.notFoundMessage) ?? ((p) => ({
+          ...commonMsgParams,
+          code: "notFound",
+          label: p.label,
+          params: p.params,
+          name: p.name,
+        }));
 
         this._validators.push((p) => {
           if (p.value == null || p.value === "") return null;

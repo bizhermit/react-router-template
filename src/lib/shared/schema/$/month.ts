@@ -107,6 +107,7 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
             actionType: this.getActionType(),
             otype: SCHEMA_ITEM_TYPE_SPLIT_MONTH,
             code: "parse",
+            name: params.name,
           }],
         };
       },
@@ -129,6 +130,7 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
               code: "required",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             if (typeof required === "function") {
@@ -196,6 +198,7 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
               code: "min",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             if (typeof min === "function") {
@@ -293,6 +296,7 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
               code: "max",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             if (typeof max === "function") {
@@ -427,6 +431,7 @@ export function $month<const P extends MonthProps>(props: P = {} as P) {
             actionType: this.getActionType(),
             otype: SCHEMA_ITEM_TYPE_MONTH,
             code: "parse",
+            name: params.name,
           }],
         };
       }
@@ -451,6 +456,7 @@ export function $month<const P extends MonthProps>(props: P = {} as P) {
               code: "required",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             if (typeof required === "function") {
@@ -481,6 +487,7 @@ export function $month<const P extends MonthProps>(props: P = {} as P) {
               code: "minMonth",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             if (typeof minMonth === "function") {
@@ -524,6 +531,7 @@ export function $month<const P extends MonthProps>(props: P = {} as P) {
               code: "maxMonth",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             if (typeof maxMonth === "function") {
@@ -567,6 +575,7 @@ export function $month<const P extends MonthProps>(props: P = {} as P) {
               code: "pair",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             if (typeof pairs === "function") {

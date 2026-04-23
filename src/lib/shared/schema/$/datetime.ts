@@ -89,6 +89,7 @@ function splitDateTime<const Base extends SplitDateTimeBaseProps>(base: {
             actionType: this.getActionType(),
             otype: SCHEMA_ITEM_TYPE_SPLIT_DATETIME,
             code: "parse",
+            name: params.name,
           }],
         };
       },
@@ -111,6 +112,7 @@ function splitDateTime<const Base extends SplitDateTimeBaseProps>(base: {
               code: "required",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             if (typeof required === "function") {
@@ -178,6 +180,7 @@ function splitDateTime<const Base extends SplitDateTimeBaseProps>(base: {
               code: "min",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             const getValidationDateTimeGetter = (p: $Schema.RuleArgParams<number>) => {
@@ -310,6 +313,7 @@ function splitDateTime<const Base extends SplitDateTimeBaseProps>(base: {
               code: "max",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             const getValidationDateTimeGetter = (p: $Schema.RuleArgParams<number>) => {
@@ -482,6 +486,7 @@ export function $datetime<const P extends DateTimeProps>(props: P = {} as P) {
             actionType: this.getActionType(),
             otype: SCHEMA_ITEM_TYPE_DATETIME,
             code: "parse",
+            name: params.name,
           }],
         };
       }
@@ -506,6 +511,7 @@ export function $datetime<const P extends DateTimeProps>(props: P = {} as P) {
               code: "required",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             if (typeof required === "function") {
@@ -536,6 +542,7 @@ export function $datetime<const P extends DateTimeProps>(props: P = {} as P) {
               code: "minDateTime",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             if (typeof minDateTime === "function") {
@@ -579,6 +586,7 @@ export function $datetime<const P extends DateTimeProps>(props: P = {} as P) {
               code: "maxDateTime",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             if (typeof maxDateTime === "function") {
@@ -622,6 +630,7 @@ export function $datetime<const P extends DateTimeProps>(props: P = {} as P) {
               code: "minDate",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             if (typeof minDate === "function") {
@@ -665,6 +674,7 @@ export function $datetime<const P extends DateTimeProps>(props: P = {} as P) {
               code: "maxDate",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             if (typeof maxDate === "function") {
@@ -708,6 +718,7 @@ export function $datetime<const P extends DateTimeProps>(props: P = {} as P) {
               code: "minTime",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             if (typeof minTime === "function") {
@@ -751,6 +762,7 @@ export function $datetime<const P extends DateTimeProps>(props: P = {} as P) {
               code: "maxTime",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             if (typeof maxTime === "function") {
@@ -794,6 +806,7 @@ export function $datetime<const P extends DateTimeProps>(props: P = {} as P) {
               code: "pair",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             if (typeof pairs === "function") {

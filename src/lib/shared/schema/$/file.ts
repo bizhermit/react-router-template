@@ -141,6 +141,7 @@ export function $file<const P extends FileProps>(props: P = {} as P) {
           actionType: this.getActionType(),
           otype: SCHEMA_ITEM_TYPE_FILE,
           code: "parse",
+          name: params.name,
         }],
       };
     },
@@ -164,6 +165,7 @@ export function $file<const P extends FileProps>(props: P = {} as P) {
               code: "required",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             if (typeof required === "function") {
@@ -194,6 +196,7 @@ export function $file<const P extends FileProps>(props: P = {} as P) {
               code: "accept",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             if (typeof accept === "function") {
@@ -241,6 +244,7 @@ export function $file<const P extends FileProps>(props: P = {} as P) {
               code: "maxSize",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             if (typeof maxSize === "function") {

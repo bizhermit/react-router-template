@@ -180,6 +180,7 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
               code: "required",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             if (typeof required === "function") {
@@ -211,6 +212,7 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
               code: "length",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             if (typeof length === "function") {
@@ -254,6 +256,7 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
               code: "minLength",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             if (typeof minLength === "function") {
@@ -297,6 +300,7 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
               code: "maxLength",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             if (typeof maxLength === "function") {
@@ -341,6 +345,7 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
               code: "pattern",
               label: p.label,
               params: p.params,
+              name: p.name,
             }));
 
             if (typeof pattern === "function") {
