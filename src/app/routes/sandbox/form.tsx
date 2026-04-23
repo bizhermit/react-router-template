@@ -4,10 +4,10 @@ import { $Date, $DateTime } from "$/shared/objects/timestamp";
 import { $array } from "$/shared/schema/$/array";
 import { $bool } from "$/shared/schema/$/boolean";
 import { $date } from "$/shared/schema/$/date";
+import { $enum } from "$/shared/schema/$/enum";
 import { $file } from "$/shared/schema/$/file";
 import { $num } from "$/shared/schema/$/number";
 import { $object } from "$/shared/schema/$/object";
-import { $$source } from "$/shared/schema/$/source";
 import { $str } from "$/shared/schema/$/string";
 import { useState } from "react";
 import { data } from "react-router";
@@ -126,12 +126,12 @@ const schemaObject = $object({
           item2: $num(),
           item3: $bool(),
         },
-        required: true,
+        // required: true,
       }),
     }).overwrite({
       required: true,
     }),
-    selectStr: $$source({
+    selectStr: $enum({
       items: [
         { value: "item1" },
         { value: "item2" },
@@ -139,7 +139,7 @@ const schemaObject = $object({
       ],
       required: true,
     }),
-    selectNum: $$source({
+    selectNum: $enum({
       items: items,
     }).overwrite({
       required: true,

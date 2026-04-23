@@ -33,7 +33,7 @@ type SourceOptions<Value> = {
 
 type SourceProps<Value> = $Schema.SchemaItemAbstractProps & SourceOptions<Value>;
 
-export function $$source<
+export function $enum<
   const Value,
   const P extends SourceProps<Value>
 >(props: P) {

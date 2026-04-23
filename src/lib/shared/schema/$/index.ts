@@ -33,6 +33,7 @@ export function optimizeValidationMessage<
         type: "e",
         label: params.label,
         message: m,
+        name: params.name,
       } as const satisfies $Schema.Message;
     }) as U;
   }
@@ -45,6 +46,7 @@ export function optimizeValidationMessage<
           type: "e",
           label: params.label,
           message: ret,
+          name: params.name,
         } as const satisfies $Schema.Message;
       }
       return ret;

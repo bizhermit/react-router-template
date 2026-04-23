@@ -10,11 +10,16 @@ export type ObjectValidationMessage = ObjectValidationAbstractMessage & (
   | { code: "required"; }
 );
 
+type ObjectValue<Contents extends Record<string, $Schema.SchemaItemInterfaceProps<unknown>>> = $Schema.Infer<{
+  type: typeof SCHEMA_ITEM_TYPE_OBJECT;
+  props: Contents;
+}>;
+
 type ObjectOptions<Contents extends Record<string, $Schema.SchemaItemInterfaceProps<unknown>>> = {
   props: Contents;
-  parser?: $Schema.Parser<$Schema.Infer<Contents>>;
+  parser?: $Schema.Parser<ObjectValue<Contents>>;
   required?: $Schema.ValidationItem<boolean, null | undefined>;
-  rules?: $Schema.Rule<$Schema.Infer<Contents>>[];
+  rules?: $Schema.Rule<ObjectValue<Contents>>[];
 };
 
 type ObjectProps<Contents extends Record<string, $Schema.SchemaItemInterfaceProps<unknown>>> =
@@ -27,7 +32,7 @@ export function $object<
   const Contents extends Record<string, $Schema.SchemaItemInterfaceProps<any>>,
   const P extends ObjectProps<Contents>
 >(props: P) {
-  type Value = $Schema.Infer<Contents>;
+  type Value = ObjectValue<P["props"]>;
 
   const fixedProps = {
     type: SCHEMA_ITEM_TYPE_OBJECT,
