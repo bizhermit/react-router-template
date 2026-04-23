@@ -1,6 +1,6 @@
 import { getValue } from "$/shared/objects/data";
 import { parseNumber } from "$/shared/objects/numeric";
-import { $Date, $DateTime, $Time } from "$/shared/objects/timestamp";
+import { $Clock, $Date, $DateTime } from "$/shared/objects/timestamp";
 import { getSchemaItemPropsGenerator, getValidationArray, getValidationArrayAsArray } from ".";
 
 export const SCHEMA_ITEM_TYPE_DATETIME = "datetime";
@@ -16,8 +16,8 @@ type DateTimeValidation_MinDateTimeParams = { minDateTime: $DateTime; };
 type DateTimeValidation_MaxDateTimeParams = { maxDateTime: $DateTime; };
 type DateTimeValidation_MinDateParams = { minDate: $Date; };
 type DateTimeValidation_MaxDateParams = { maxDate: $Date; };
-type DateTimeValidation_MinTimeParams = { minTime: $Time; };
-type DateTimeValidation_MaxTimeParams = { maxTime: $Time; };
+type DateTimeValidation_MinTimeParams = { minTime: $Clock; };
+type DateTimeValidation_MaxTimeParams = { maxTime: $Clock; };
 type DateTimeValidation_PairParams = Omit<Required<DateTimePair>, "name"> & { pairName: string; pairDateTime: $DateTime; };
 
 type DateTimeValidationAbstractMessage = $Schema.AbstractMessage & {
@@ -53,8 +53,8 @@ type DateTimeOptions = {
   >;
   minDate?: $Schema.Validation<$DateTime, $Date, DateTimeValidation_MinDateParams, DateTimeValidationMessage>;
   maxDate?: $Schema.Validation<$DateTime, $Date, DateTimeValidation_MaxDateParams, DateTimeValidationMessage>;
-  minTime?: $Schema.Validation<$DateTime, $Time, DateTimeValidation_MinTimeParams, DateTimeValidationMessage>;
-  maxTime?: $Schema.Validation<$DateTime, $Time, DateTimeValidation_MaxTimeParams, DateTimeValidationMessage>;
+  minTime?: $Schema.Validation<$DateTime, $Clock, DateTimeValidation_MinTimeParams, DateTimeValidationMessage>;
+  maxTime?: $Schema.Validation<$DateTime, $Clock, DateTimeValidation_MaxTimeParams, DateTimeValidationMessage>;
   pairs?: $Schema.Validation<
     $DateTime,
     DateTimePair | DateTimePair[],
@@ -102,13 +102,13 @@ function splitDateTime<const Base extends SplitDateTimeBaseProps>(base: {
     value: number;
     validationDateTime: () => ($DateTime | null);
     validationDate: () => ($Date | null);
-    validationTime: () => ($Time | null);
+    validationTime: () => ($Clock | null);
   }) => [boolean, number];
   isValidMax: (params: {
     value: number;
     validationDateTime: () => ($DateTime | null);
     validationDate: () => ($Date | null);
-    validationTime: () => ($Time | null);
+    validationTime: () => ($Clock | null);
   }) => [boolean, number];
 }) {
   return function <const SP extends SplitDateTimeProps>(splitProps: SP = {} as SP) {

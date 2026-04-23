@@ -78,6 +78,10 @@ function getAll(ms: number) {
   } as const;
 };
 
+type TimeComparable = {
+  getTime: () => number;
+};
+
 function compareTimestampMs(before: Timestamp, after: Timestamp) {
   return before.getTime() - after.getTime();
 };
@@ -92,7 +96,7 @@ function compareTimestampMonth(before: Timestamp, after: Timestamp) {
   return (beforeYmd.year * 12 + beforeYmd.month) - (afterYmd.year * 12 + afterYmd.month);
 };
 
-function compareTimestampTime(before: Timestamp, after: Timestamp) {
+function compareTimestampTime(before: TimeComparable, after: TimeComparable) {
   return getMsOfDay(before.getTime()) - getMsOfDay(after.getTime());
 };
 
@@ -199,6 +203,21 @@ function parseTimeToMs(time: string) {
   }
 
   return timeToMs(hour, minute, second, millisecond) * sign;
+}
+
+function getDurationHMS(ms: number) {
+  const absMs = Math.abs(ms);
+  return {
+    sign: ms < 0 ? -1 : 1,
+    hour: Math.floor(absMs / MS_PER_HOUR),
+    minute: Math.floor((absMs % MS_PER_HOUR) / MS_PER_MINUTE),
+    second: Math.floor((absMs % MS_PER_MINUTE) / MS_PER_SECOND),
+    millisecond: absMs % MS_PER_SECOND,
+  } as const;
+}
+
+function normalizeClockMs(ms: number) {
+  return ((ms % MS_PER_DAY) + MS_PER_DAY) % MS_PER_DAY;
 }
 
 function pad(num: number | string, maxLen: number = 2) {
@@ -481,6 +500,10 @@ export class $Date extends Timestamp {
     this.removeTime();
   }
 
+  public clone() {
+    return new $Date(this);
+  }
+
   public setNow() {
     super.setNow();
     this.removeTime();
@@ -584,6 +607,10 @@ export class $Month extends Timestamp {
     this.setDay(1).removeTime();
   }
 
+  public clone() {
+    return new $Month(this);
+  }
+
   public setNow() {
     super.setNow();
     this.setDay(1).removeTime();
@@ -655,6 +682,10 @@ export class $DateTime extends Timestamp {
 
   constructor(init?: Timestamp | Date | string | number) {
     super(init);
+  }
+
+  public clone() {
+    return new $DateTime(this);
   }
 
   public setNow() {
@@ -732,7 +763,7 @@ export class $DateTime extends Timestamp {
     return this;
   }
 
-  public setTime(time: $Time | number) {
+  public setTime(time: $Clock | number) {
     if (typeof time === "number") {
       if (isNaN(time)) {
         throw new Error("Invalid time number");
@@ -842,15 +873,15 @@ export class $DateTime extends Timestamp {
     return compareTimestampMonth(this, same) === 0;
   }
 
-  public isBeforeTime(after: Timestamp) {
+  public isBeforeTime(after: Timestamp | $Clock) {
     return compareTimestampTime(this, after) < 0;
   }
 
-  public isAfterTime(before: Timestamp) {
+  public isAfterTime(before: Timestamp | $Clock) {
     return compareTimestampTime(this, before) > 0;
   }
 
-  public isEqualTime(same: Timestamp) {
+  public isEqualTime(same: Timestamp | $Clock) {
     return compareTimestampTime(this, same) === 0;
   }
 
@@ -860,29 +891,42 @@ export class $Time {
 
   private ms: number;
 
+  protected static parseInputToMs(time: $Time | Timestamp | Date | string | number) {
+    if (time instanceof $Time) {
+      return time.getTime();
+    }
+    if (time instanceof Timestamp) {
+      return getMsOfDay(time.getTime());
+    }
+    if (time instanceof Date) {
+      return getMsOfDay(time.getTime() - getOffset());
+    }
+    if (typeof time === "string") {
+      const parsed = parseTimeToMs(time);
+      if (parsed == null) {
+        throw new Error(`Invalid time string: ${time}`);
+      }
+      return parsed;
+    }
+    if (typeof time === "number") {
+      if (isNaN(time)) {
+        throw new Error(`Invalid time number: ${time}`);
+      }
+      return time;
+    }
+    throw new Error("Invalid time value");
+  }
+
   constructor(init?: $Time | Timestamp | Date | string | number) {
     if (init == null) {
       this.ms = 0;
-    } else if (init instanceof $Time) {
-      this.ms = init.getTime();
-    } else if (init instanceof Timestamp) {
-      this.ms = getMsOfDay(init.getTime());
-    } else if (init instanceof Date) {
-      this.ms = getMsOfDay(init.getTime() - getOffset());
-    } else if (typeof init === "string") {
-      const parsed = parseTimeToMs(init);
-      if (parsed == null) {
-        throw new Error(`Invalid time string: ${init}`);
-      }
-      this.ms = parsed;
-    } else if (typeof init === "number") {
-      if (isNaN(init)) {
-        throw new Error(`Invalid time number: ${init}`);
-      }
-      this.ms = init;
     } else {
-      this.ms = 0;
+      this.ms = $Time.parseInputToMs(init);
     }
+  }
+
+  public clone() {
+    return new $Time(this);
   }
 
   public getTime() {
@@ -895,19 +939,22 @@ export class $Time {
       minute: this.getMinute(),
       second: this.getSecond(),
       millisecond: this.getMillisecond(),
+      minus: this.isMinus(),
     } as const;
   }
 
-  public setTime(ms: number) {
-    if (isNaN(ms)) {
-      throw new Error(`Invalid time number: ${ms}`);
-    }
-    this.ms = ms;
+  public setTime(time: $Time | Timestamp | Date | string | number) {
+    this.ms = $Time.parseInputToMs(time);
+    return this;
+  }
+
+  public setNow() {
+    this.ms = getMsOfDay(Date.now() - getOffset());
     return this;
   }
 
   public getHour() {
-    return Math.floor(this.ms / MS_PER_HOUR);
+    return getDurationHMS(this.ms).hour;
   }
 
   public setHour(hour: number, minute?: number, second?: number, millisecond?: number) {
@@ -920,74 +967,97 @@ export class $Time {
   }
 
   public getMinute(includeHigherUnit: boolean = false) {
+    const v = getDurationHMS(this.ms);
     if (!includeHigherUnit) {
-      return Math.floor((this.ms % MS_PER_HOUR) / MS_PER_MINUTE);
+      return v.minute;
     }
-    const sign = this.isMinus() ? -1 : 1;
-    const v = getHMS(Math.abs(this.ms));
-    return (v.hour * 60 + v.minute) * sign;
+    return v.hour * 60 + v.minute;
+  }
+
+  public getTotalMinutes() {
+    return this.getMinute(true);
   }
 
   public setMinute(minute: number, second?: number, millisecond?: number) {
-    const current = getHMS(this.ms);
+    const current = getDurationHMS(this.ms);
     const s = second ?? current.second;
     const ms = millisecond ?? current.millisecond;
-    this.ms = timeToMs(current.hour, minute, s, ms);
+    this.ms = timeToMs(current.hour, minute, s, ms) * current.sign;
     return this;
   }
 
   public getSecond(includeHigherUnit: boolean = false) {
+    const v = getDurationHMS(this.ms);
     if (!includeHigherUnit) {
-      return Math.floor((this.ms % MS_PER_MINUTE) / MS_PER_SECOND);
+      return v.second;
     }
-    const sign = this.isMinus() ? -1 : 1;
-    const v = getHMS(Math.abs(this.ms));
-    return (v.hour * 3600 + v.minute * 60 + v.second) * sign;
+    return v.hour * 3600 + v.minute * 60 + v.second;
+  }
+
+  public getTotalSeconds() {
+    return this.getSecond(true);
   }
 
   public setSecond(second: number, millisecond?: number) {
-    const current = getHMS(this.ms);
+    const current = getDurationHMS(this.ms);
     const ms = millisecond ?? current.millisecond;
-    this.ms = timeToMs(current.hour, current.minute, second, ms);
+    this.ms = timeToMs(current.hour, current.minute, second, ms) * current.sign;
     return this;
   }
 
   public getMillisecond(includeHigherUnit: boolean = false) {
+    const v = getDurationHMS(this.ms);
     if (!includeHigherUnit) {
-      return this.ms % MS_PER_SECOND;
+      return v.millisecond;
     }
-    return this.ms;
+    return this.ms < 0 ? -this.ms : this.ms;
+  }
+
+  public getTotalMilliseconds() {
+    return this.getMillisecond(true);
   }
 
   public setMillisecond(millisecond: number) {
-    const current = getHMS(this.ms);
-    this.ms = timeToMs(current.hour, current.minute, current.second, millisecond);
+    const current = getDurationHMS(this.ms);
+    this.ms = timeToMs(current.hour, current.minute, current.second, millisecond) * current.sign;
     return this;
   }
 
   public addHour(diff: number) {
-    this.setHour(this.getHour() + diff);
+    this.ms += diff * MS_PER_HOUR;
     return this;
   }
 
   public addMinute(diff: number) {
-    this.setMinute(this.getMinute() + diff);
+    this.ms += diff * MS_PER_MINUTE;
     return this;
   }
 
   public addSecond(diff: number) {
-    this.setSecond(this.getSecond() + diff);
+    this.ms += diff * MS_PER_SECOND;
     return this;
   }
 
   public addMillisecond(diff: number) {
-    this.setMillisecond(this.getMillisecond() + diff);
+    this.ms += diff;
     return this;
   }
 
   public clear() {
     this.ms = 0;
     return this;
+  }
+
+  public isBeforeDuration(after: $Time) {
+    return this.getTime() < after.getTime();
+  }
+
+  public isAfterDuration(before: $Time) {
+    return this.getTime() > before.getTime();
+  }
+
+  public isEqualDuration(same: $Time) {
+    return this.getTime() === same.getTime();
   }
 
   public isMinus() {
@@ -1022,6 +1092,86 @@ export class $Time {
 
   public toJSON() {
     return this.toString();
+  }
+
+};
+
+export class $Clock extends $Time {
+
+  constructor(init?: $Time | Timestamp | Date | string | number) {
+    super(init);
+    this.normalize();
+  }
+
+  public clone() {
+    return new $Clock(this);
+  }
+
+  private normalize() {
+    super.setTime(normalizeClockMs(this.getTime()));
+    return this;
+  }
+
+  public setTime(time: $Time | Timestamp | Date | string | number) {
+    super.setTime(time);
+    return this.normalize();
+  }
+
+  public setNow() {
+    super.setNow();
+    return this.normalize();
+  }
+
+  public setHour(hour: number, minute?: number, second?: number, millisecond?: number) {
+    super.setHour(hour, minute, second, millisecond);
+    return this.normalize();
+  }
+
+  public setMinute(minute: number, second?: number, millisecond?: number) {
+    super.setMinute(minute, second, millisecond);
+    return this.normalize();
+  }
+
+  public setSecond(second: number, millisecond?: number) {
+    super.setSecond(second, millisecond);
+    return this.normalize();
+  }
+
+  public setMillisecond(millisecond: number) {
+    super.setMillisecond(millisecond);
+    return this.normalize();
+  }
+
+  public addHour(diff: number) {
+    super.addHour(diff);
+    return this.normalize();
+  }
+
+  public addMinute(diff: number) {
+    super.addMinute(diff);
+    return this.normalize();
+  }
+
+  public addSecond(diff: number) {
+    super.addSecond(diff);
+    return this.normalize();
+  }
+
+  public addMillisecond(diff: number) {
+    super.addMillisecond(diff);
+    return this.normalize();
+  }
+
+  public isBefore(after: $Clock | Timestamp) {
+    return compareTimestampTime(this, after) < 0;
+  }
+
+  public isAfter(before: $Clock | Timestamp) {
+    return compareTimestampTime(this, before) > 0;
+  }
+
+  public isEqual(same: $Clock | Timestamp) {
+    return compareTimestampTime(this, same) === 0;
   }
 
 };
