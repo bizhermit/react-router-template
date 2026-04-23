@@ -21,29 +21,21 @@ export type ArrayValidationMessage = ArrayValidationAbstractMessage & (
 type ArrayOptions<Content extends $Schema.SchemaItemInterfaceProps<unknown>> = {
   prop: Content;
   parser?: $Schema.Parser<$Schema.InferValue<Content>[]>;
-  required?: $Schema.Validation<
-    $Schema.Nullable<$Schema.InferValue<Content>[]>,
-    boolean,
-    undefined,
-    ArrayValidationMessage
-  >;
-  length?: $Schema.Validation<
-    $Schema.InferValue<Content>[],
+  required?: $Schema.ValidationItem<boolean, null | undefined>;
+  length?: $Schema.ValidationItem<
     number,
-    ArrayValidation_LengthParams,
-    ArrayValidationMessage
-  >;
-  minLength?: $Schema.Validation<
     $Schema.InferValue<Content>[],
-    number,
-    ArrayValidation_MinLengthParams,
-    ArrayValidationMessage
+    { length: number; currentLength: number; }
   >;
-  maxLength?: $Schema.Validation<
-    $Schema.InferValue<Content>[],
+  minLength?: $Schema.ValidationItem<
     number,
-    ArrayValidation_MaxLengthParams,
-    ArrayValidationMessage
+    $Schema.InferValue<Content>[],
+    { minLength: number; currentLength: number; }
+  >;
+  maxLength?: $Schema.ValidationItem<
+    number,
+    $Schema.InferValue<Content>[],
+    { maxLength: number; currentLength: number; }
   >;
   rules?: $Schema.Rule<$Schema.InferValue<Content>[]>[];
 };
@@ -125,26 +117,25 @@ export function $array<
         if (this.required != null) {
           const [required, getRequiredMessage] = getValidationArray(this.required);
           if (required) {
-            const getMessage: $Schema.ValidationMessageGetter<typeof getRequiredMessage> =
-              getRequiredMessage ??
-              ((p) => ({
-                ...commonMsgParams,
-                code: "required",
-                ...p,
-              }));
+            const getMessage = getRequiredMessage ?? ((p) => ({
+              ...commonMsgParams,
+              code: "required",
+              label: p.label,
+              params: p.params,
+            }));
 
             if (typeof required === "function") {
               this._validators.push((p) => {
                 if (!required(p)) return null;
                 if (p.value == null) {
-                  return getMessage(p);
+                  return getMessage(p as $Schema.ValidationResultArgParams);
                 }
                 return null;
               });
             } else {
               this._validators.push((p) => {
                 if (p.value == null) {
-                  return getMessage(p);
+                  return getMessage(p as $Schema.ValidationResultArgParams);
                 }
                 return null;
               });
@@ -156,13 +147,12 @@ export function $array<
         if (this.length != null) {
           const [length, getLengthMessage] = getValidationArray(this.length);
           if (length != null) {
-            const getMessage: $Schema.ValidationMessageGetter<typeof getLengthMessage> =
-              getLengthMessage ??
-              ((p) => ({
-                ...commonMsgParams,
-                code: "length",
-                ...p,
-              }));
+            const getMessage = getLengthMessage ?? ((p) => ({
+              ...commonMsgParams,
+              code: "length",
+              label: p.label,
+              params: p.params,
+            }));
 
             if (typeof length === "function") {
               this._validators.push((p) => {
@@ -171,9 +161,11 @@ export function $array<
                 if (len == null) return null;
                 if (p.value.length === len) return null;
                 return getMessage({
-                  ...p,
-                  length: len,
-                  currentLength: p.value.length,
+                  ...p as $Schema.RuleArgParamsAsValidation<Value>,
+                  params: {
+                    length: len,
+                    currentLength: p.value.length,
+                  },
                 });
               });
             } else {
@@ -181,9 +173,11 @@ export function $array<
                 if (p.value == null) return null;
                 if (p.value.length === length) return null;
                 return getMessage({
-                  ...p,
-                  length,
-                  currentLength: p.value.length,
+                  ...p as $Schema.RuleArgParamsAsValidation<Value>,
+                  params: {
+                    length,
+                    currentLength: p.value.length,
+                  },
                 });
               });
             }
@@ -194,13 +188,12 @@ export function $array<
         if (this.minLength != null) {
           const [minLength, getMinLengthMessage] = getValidationArray(this.minLength);
           if (minLength != null) {
-            const getMessage: $Schema.ValidationMessageGetter<typeof getMinLengthMessage> =
-              getMinLengthMessage ??
-              ((p) => ({
-                ...commonMsgParams,
-                code: "minLength",
-                ...p,
-              }));
+            const getMessage = getMinLengthMessage ?? ((p) => ({
+              ...commonMsgParams,
+              code: "minLength",
+              label: p.label,
+              params: p.params,
+            }));
 
             if (typeof minLength === "function") {
               this._validators.push((p) => {
@@ -209,9 +202,11 @@ export function $array<
                 if (minLen == null) return null;
                 if (minLen <= p.value.length) return null;
                 return getMessage({
-                  ...p,
-                  minLength: minLen,
-                  currentLength: p.value.length,
+                  ...p as $Schema.RuleArgParamsAsValidation<Value>,
+                  params: {
+                    minLength: minLen,
+                    currentLength: p.value.length,
+                  },
                 });
               });
             } else {
@@ -219,9 +214,11 @@ export function $array<
                 if (p.value == null) return null;
                 if (minLength <= p.value.length) return null;
                 return getMessage({
-                  ...p,
-                  minLength,
-                  currentLength: p.value.length,
+                  ...p as $Schema.RuleArgParamsAsValidation<Value>,
+                  params: {
+                    minLength,
+                    currentLength: p.value.length,
+                  },
                 });
               });
             }
@@ -232,13 +229,12 @@ export function $array<
         if (this.maxLength != null) {
           const [maxLength, getMaxLengthMessage] = getValidationArray(this.maxLength);
           if (maxLength != null) {
-            const getMessage: $Schema.ValidationMessageGetter<typeof getMaxLengthMessage> =
-              getMaxLengthMessage ??
-              ((p) => ({
-                ...commonMsgParams,
-                code: "maxLength",
-                ...p,
-              }));
+            const getMessage = getMaxLengthMessage ?? ((p) => ({
+              ...commonMsgParams,
+              code: "maxLength",
+              label: p.label,
+              params: p.params,
+            }));
 
             if (typeof maxLength === "function") {
               this._validators.push((p) => {
@@ -247,9 +243,11 @@ export function $array<
                 if (maxLen == null) return null;
                 if (p.value.length <= maxLen) return null;
                 return getMessage({
-                  ...p,
-                  maxLength: maxLen,
-                  currentLength: p.value.length,
+                  ...p as $Schema.RuleArgParamsAsValidation<Value>,
+                  params: {
+                    maxLength: maxLen,
+                    currentLength: p.value.length,
+                  },
                 });
               });
             } else {
@@ -257,9 +255,11 @@ export function $array<
                 if (p.value == null) return null;
                 if (p.value.length <= maxLength) return null;
                 return getMessage({
-                  ...p,
-                  maxLength: maxLength,
-                  currentLength: p.value.length,
+                  ...p as $Schema.RuleArgParamsAsValidation<Value>,
+                  params: {
+                    maxLength: maxLength,
+                    currentLength: p.value.length,
+                  },
                 });
               });
             }

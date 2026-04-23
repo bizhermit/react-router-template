@@ -12,31 +12,15 @@ type DatePair = {
   basis?: "date" | "month";
 };
 
-type DateValidation_MinDateParams = { minDate: $Date; };
-type DateValidation_MaxDateParams = { maxDate: $Date; };
-type DateValidation_PairParams = Omit<Required<DatePair>, "name"> & { pairName: string; pairDate: $Date; };
-
-type DateValidationAbstractMessage = $Schema.AbstractMessage & {
-  otype: typeof SCHEMA_ITEM_TYPE_DATE;
-};
-export type DateValidationMessage = DateValidationAbstractMessage & (
-  | { code: "parse"; }
-  | { code: "required"; }
-  | ({ code: "minDate"; } & DateValidation_MinDateParams)
-  | ({ code: "maxDate"; } & DateValidation_MaxDateParams)
-  | ({ code: "pair"; } & DateValidation_PairParams)
-);
-
 type DateOptions = {
   parser?: $Schema.Parser<$Date>;
-  required?: $Schema.Validation<$Schema.Nullable<$Date>, boolean, undefined, DateValidationMessage>;
-  minDate?: $Schema.Validation<$Date, $Date, DateValidation_MinDateParams, DateValidationMessage>;
-  maxDate?: $Schema.Validation<$Date, $Date, DateValidation_MaxDateParams, DateValidationMessage>;
-  pairs?: $Schema.Validation<
-    $Date,
+  required?: $Schema.ValidationItem<boolean, null | undefined>;
+  minDate?: $Schema.ValidationItem<$Date, $Date, { minDate: $Date; }>;
+  maxDate?: $Schema.ValidationItem<$Date, $Date, { maxDate: $Date; }>;
+  pairs?: $Schema.ValidationItem<
     DatePair | DatePair[],
-    DateValidation_PairParams,
-    DateValidationMessage
+    $Date,
+    Omit<Required<DatePair>, "name"> & { pairName: string; pairDate: $Date; }
   >;
   rules?: $Schema.Rule<$Date>[];
 };
@@ -45,24 +29,11 @@ type DateProps = $Schema.SchemaItemAbstractProps & DateOptions;
 
 const SCHEMA_ITEM_TYPE_SPLIT_DATE = `${SCHEMA_ITEM_TYPE_DATE}-s`;
 
-type SplitDateValidation_MinParams = { min: number; };
-type SplitDateValidation_MaxParams = { max: number; };
-
-export type SplitDateValidationAbstractMessage = $Schema.AbstractMessage & {
-  otype: typeof SCHEMA_ITEM_TYPE_SPLIT_DATE;
-};
-export type SplitDateValidationMessage = SplitDateValidationAbstractMessage & (
-  | { code: "parse"; }
-  | { code: "required"; }
-  | ({ code: "min"; } | SplitDateValidation_MinParams)
-  | ({ code: "max"; } | SplitDateValidation_MaxParams)
-);
-
 type SplitDateOptions = {
   parser?: $Schema.Parser<number>;
-  required?: $Schema.Validation<$Schema.Nullable<number>, boolean | "inherit", undefined, SplitDateValidationMessage>;
-  min?: $Schema.Validation<number, number | "inherit", SplitDateValidation_MinParams, SplitDateValidationMessage>;
-  max?: $Schema.Validation<number, number | "inherit", SplitDateValidation_MaxParams, SplitDateValidationMessage>;
+  required?: $Schema.ValidationItem<boolean | "inherit", null | undefined>;
+  min?: $Schema.ValidationItem<number | "inherit", number, { min: number; }>;
+  max?: $Schema.ValidationItem<number | "inherit", number, { max: number; }>;
   rules?: $Schema.Rule<number>[];
 };
 
@@ -126,13 +97,12 @@ function splitDate<const Base extends SplitDateBaseProps>(base: {
           // required
           const [required, getRequiredMessage] = getValidationArray(this.required, "inherit");
           if (required) {
-            const getMessage: $Schema.ValidationMessageGetter<typeof getRequiredMessage> =
-              getRequiredMessage ??
-              ((p) => ({
-                ...commonMsgParams,
-                code: "required",
-                ...p,
-              }));
+            const getMessage = getRequiredMessage ?? ((p) => ({
+              ...commonMsgParams,
+              code: "required",
+              label: p.label,
+              params: p.params,
+            }));
 
             if (typeof required === "function") {
               this._validators.push((p) => {
@@ -144,18 +114,18 @@ function splitDate<const Base extends SplitDateBaseProps>(base: {
                     if (typeof baseRequired === "function") {
                       if (!baseRequired(p)) return null;
                       if (p.value == null) {
-                        return getMessage(p);
+                        return getMessage(p as $Schema.ValidationResultArgParams);
                       }
                     } else {
                       if (p.value == null) {
-                        return getMessage(p);
+                        return getMessage(p as $Schema.ValidationResultArgParams);
                       }
                     }
                   }
                   return null;
                 }
                 if (p.value == null) {
-                  return getMessage(p);
+                  return getMessage(p as $Schema.ValidationResultArgParams);
                 }
                 return null;
               });
@@ -167,14 +137,14 @@ function splitDate<const Base extends SplitDateBaseProps>(base: {
                     this._validators.push((p) => {
                       if (!baseRequired(p)) return null;
                       if (p.value == null) {
-                        return getMessage(p);
+                        return getMessage(p as $Schema.ValidationResultArgParams);
                       }
                       return null;
                     });
                   } else {
                     this._validators.push((p) => {
                       if (p.value == null) {
-                        return getMessage(p);
+                        return getMessage(p as $Schema.ValidationResultArgParams);
                       }
                       return null;
                     });
@@ -183,7 +153,7 @@ function splitDate<const Base extends SplitDateBaseProps>(base: {
               } else {
                 this._validators.push((p) => {
                   if (p.value == null) {
-                    return getMessage(p);
+                    return getMessage(p as $Schema.ValidationResultArgParams);
                   }
                   return null;
                 });
@@ -194,13 +164,12 @@ function splitDate<const Base extends SplitDateBaseProps>(base: {
           // min
           const [min, getMinMessage] = getValidationArray(this.min, "inherit");
           if (min != null) {
-            const getMessage: $Schema.ValidationMessageGetter<typeof getMinMessage> =
-              getMinMessage ??
-              ((p) => ({
-                ...commonMsgParams,
-                code: "min",
-                ...p,
-              }));
+            const getMessage = getMinMessage ?? ((p) => ({
+              ...commonMsgParams,
+              code: "min",
+              label: p.label,
+              params: p.params,
+            }));
 
             if (typeof min === "function") {
               this._validators.push((p) => {
@@ -216,15 +185,19 @@ function splitDate<const Base extends SplitDateBaseProps>(base: {
                       const ret = base.isValidMin({ value: p.value, validationDate: baseM });
                       if (ret[0]) return null;
                       return getMessage({
-                        ...p,
-                        min: ret[1],
+                        ...p as $Schema.RuleArgParamsAsValidation<number>,
+                        params: {
+                          min: ret[1],
+                        },
                       });
                     } else {
                       const ret = base.isValidMin({ value: p.value, validationDate: baseMin });
                       if (ret[0]) return null;
                       return getMessage({
-                        ...p,
-                        min: ret[1],
+                        ...p as $Schema.RuleArgParamsAsValidation<number>,
+                        params: {
+                          min: ret[1],
+                        },
                       });
                     }
                   }
@@ -232,8 +205,10 @@ function splitDate<const Base extends SplitDateBaseProps>(base: {
                 }
                 if (m <= p.value) return null;
                 return getMessage({
-                  ...p,
-                  min: m,
+                  ...p as $Schema.RuleArgParamsAsValidation<number>,
+                  params: {
+                    min: m,
+                  },
                 });
               });
             } else {
@@ -248,8 +223,10 @@ function splitDate<const Base extends SplitDateBaseProps>(base: {
                       const ret = base.isValidMin({ value: p.value, validationDate: baseM });
                       if (ret[0]) return null;
                       return getMessage({
-                        ...p,
-                        min: ret[1],
+                        ...p as $Schema.RuleArgParamsAsValidation<number>,
+                        params: {
+                          min: ret[1],
+                        },
                       });
                     });
                   } else {
@@ -258,8 +235,10 @@ function splitDate<const Base extends SplitDateBaseProps>(base: {
                       const ret = base.isValidMin({ value: p.value, validationDate: baseMin });
                       if (ret[0]) return null;
                       return getMessage({
-                        ...p,
-                        min: ret[1],
+                        ...p as $Schema.RuleArgParamsAsValidation<number>,
+                        params: {
+                          min: ret[1],
+                        },
                       });
                     });
                   }
@@ -269,8 +248,10 @@ function splitDate<const Base extends SplitDateBaseProps>(base: {
                   if (p.value == null) return null;
                   if (min <= p.value) return null;
                   return getMessage({
-                    ...p,
-                    min,
+                    ...p as $Schema.RuleArgParamsAsValidation<number>,
+                    params: {
+                      min,
+                    },
                   });
                 });
               }
@@ -280,13 +261,12 @@ function splitDate<const Base extends SplitDateBaseProps>(base: {
           // max
           const [max, getMaxMessage] = getValidationArray(this.max, "inherit");
           if (max != null) {
-            const getMessage: $Schema.ValidationMessageGetter<typeof getMaxMessage> =
-              getMaxMessage ??
-              ((p) => ({
-                ...commonMsgParams,
-                code: "max",
-                ...p,
-              }));
+            const getMessage = getMaxMessage ?? ((p) => ({
+              ...commonMsgParams,
+              code: "max",
+              label: p.label,
+              params: p.params,
+            }));
 
             if (typeof max === "function") {
               this._validators.push((p) => {
@@ -302,15 +282,19 @@ function splitDate<const Base extends SplitDateBaseProps>(base: {
                       const ret = base.isValidMax({ value: p.value, validationDate: baseM });
                       if (ret[0]) return null;
                       return getMessage({
-                        ...p,
-                        max: ret[1],
+                        ...p as $Schema.RuleArgParamsAsValidation<number>,
+                        params: {
+                          max: ret[1],
+                        },
                       });
                     } else {
                       const ret = base.isValidMax({ value: p.value, validationDate: baseMax });
                       if (ret[0]) return null;
                       return getMessage({
-                        ...p,
-                        max: ret[1],
+                        ...p as $Schema.RuleArgParamsAsValidation<number>,
+                        params: {
+                          max: ret[1],
+                        },
                       });
                     }
                   }
@@ -318,8 +302,10 @@ function splitDate<const Base extends SplitDateBaseProps>(base: {
                 }
                 if (p.value <= m) return null;
                 return getMessage({
-                  ...p,
-                  max: m,
+                  ...p as $Schema.RuleArgParamsAsValidation<number>,
+                  params: {
+                    max: m,
+                  },
                 });
               });
             } else {
@@ -334,8 +320,10 @@ function splitDate<const Base extends SplitDateBaseProps>(base: {
                       const ret = base.isValidMax({ value: p.value, validationDate: baseM });
                       if (ret[0]) return null;
                       return getMessage({
-                        ...p,
-                        max: ret[1],
+                        ...p as $Schema.RuleArgParamsAsValidation<number>,
+                        params: {
+                          max: ret[1],
+                        },
                       });
                     });
                   } else {
@@ -344,8 +332,10 @@ function splitDate<const Base extends SplitDateBaseProps>(base: {
                       const ret = base.isValidMax({ value: p.value, validationDate: baseMax });
                       if (ret[0]) return null;
                       return getMessage({
-                        ...p,
-                        max: ret[1],
+                        ...p as $Schema.RuleArgParamsAsValidation<number>,
+                        params: {
+                          max: ret[1],
+                        },
                       });
                     });
                   }
@@ -355,8 +345,10 @@ function splitDate<const Base extends SplitDateBaseProps>(base: {
                   if (p.value == null) return null;
                   if (p.value <= max) return null;
                   return getMessage({
-                    ...p,
-                    max,
+                    ...p as $Schema.RuleArgParamsAsValidation<number>,
+                    params: {
+                      max,
+                    },
                   });
                 });
               }
@@ -428,26 +420,25 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
         if (this.required != null) {
           const [required, getRequiredMessage] = getValidationArray(this.required);
           if (required) {
-            const getMessage: $Schema.ValidationMessageGetter<typeof getRequiredMessage> =
-              getRequiredMessage ??
-              ((p) => ({
-                ...commonMsgParams,
-                code: "required",
-                ...p,
-              }));
+            const getMessage = getRequiredMessage ?? ((p) => ({
+              ...commonMsgParams,
+              code: "required",
+              label: p.label,
+              params: p.params,
+            }));
 
             if (typeof required === "function") {
               this._validators.push((p) => {
                 if (!required(p)) return null;
                 if (p.value == null) {
-                  return getMessage(p);
+                  return getMessage(p as $Schema.ValidationResultArgParams);
                 }
                 return null;
               });
             } else {
               this._validators.push((p) => {
                 if (p.value == null) {
-                  return getMessage(p);
+                  return getMessage(p as $Schema.ValidationResultArgParams);
                 }
                 return null;
               });
@@ -459,13 +450,12 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
         if (this.minDate) {
           const [minDate, getMinDateMessage] = getValidationArray(this.minDate);
           if (minDate != null) {
-            const getMessage: $Schema.ValidationMessageGetter<typeof getMinDateMessage> =
-              getMinDateMessage ??
-              ((p) => ({
-                ...commonMsgParams,
-                code: "minDate",
-                ...p,
-              }));
+            const getMessage = getMinDateMessage ?? ((p) => ({
+              ...commonMsgParams,
+              code: "minDate",
+              label: p.label,
+              params: p.params,
+            }));
 
             if (typeof minDate === "function") {
               this._validators.push((p) => {
@@ -474,8 +464,10 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
                 if (m == null) return null;
                 if (p.value.isBefore(m)) {
                   return getMessage({
-                    ...p,
-                    minDate: m,
+                    ...p as $Schema.RuleArgParamsAsValidation<$Date>,
+                    params: {
+                      minDate: m,
+                    },
                   });
                 }
                 return null;
@@ -485,8 +477,10 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
                 if (p.value == null) return null;
                 if (p.value.isBefore(minDate)) {
                   return getMessage({
-                    ...p,
-                    minDate,
+                    ...p as $Schema.RuleArgParamsAsValidation<$Date>,
+                    params: {
+                      minDate,
+                    },
                   });
                 }
                 return null;
@@ -499,13 +493,12 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
         if (this.maxDate) {
           const [maxDate, getMaxDateMessage] = getValidationArray(this.maxDate);
           if (maxDate != null) {
-            const getMessage: $Schema.ValidationMessageGetter<typeof getMaxDateMessage> =
-              getMaxDateMessage ??
-              ((p) => ({
-                ...commonMsgParams,
-                code: "maxDate",
-                ...p,
-              }));
+            const getMessage = getMaxDateMessage ?? ((p) => ({
+              ...commonMsgParams,
+              code: "maxDate",
+              label: p.label,
+              params: p.params,
+            }));
 
             if (typeof maxDate === "function") {
               this._validators.push((p) => {
@@ -514,8 +507,10 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
                 if (m == null) return null;
                 if (p.value.isAfter(m)) {
                   return getMessage({
-                    ...p,
-                    maxDate: m,
+                    ...p as $Schema.RuleArgParamsAsValidation<$Date>,
+                    params: {
+                      maxDate: m,
+                    },
                   });
                 }
                 return null;
@@ -525,8 +520,10 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
                 if (p.value == null) return null;
                 if (p.value.isAfter(maxDate)) {
                   return getMessage({
-                    ...p,
-                    maxDate,
+                    ...p as $Schema.RuleArgParamsAsValidation<$Date>,
+                    params: {
+                      maxDate,
+                    },
                   });
                 }
                 return null;
@@ -539,13 +536,12 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
         if (this.pairs) {
           const [pairs, getPairsMessage] = getValidationArrayAsArray(this.pairs);
           if (pairs) {
-            const getMessage: $Schema.ValidationMessageGetter<typeof getPairsMessage> =
-              getPairsMessage ??
-              ((p) => ({
-                ...commonMsgParams,
-                code: "pair",
-                ...p,
-              }));
+            const getMessage = getPairsMessage ?? ((p) => ({
+              ...commonMsgParams,
+              code: "pair",
+              label: p.label,
+              params: p.params,
+            }));
 
             if (typeof pairs === "function") {
               this._validators.push((p) => {
@@ -575,12 +571,14 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
                       }
                     }
                     return getMessage({
-                      ...p,
-                      pairName: pair.name,
-                      position: pair.position,
-                      disallowSame: pair.disallowSame ?? false,
-                      pairDate,
-                      basis: pair.basis || "date",
+                      ...p as $Schema.RuleArgParamsAsValidation<$Date>,
+                      params: {
+                        pairName: pair.name,
+                        position: pair.position,
+                        disallowSame: pair.disallowSame ?? false,
+                        pairDate,
+                        basis: pair.basis || "date",
+                      },
                     });
                   } catch {
                     // ignore
@@ -615,12 +613,14 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
                       }
                     }
                     return getMessage({
-                      ...p,
-                      pairName: pair.name,
-                      position: pair.position,
-                      disallowSame: pair.disallowSame ?? false,
-                      pairDate,
-                      basis: pair.basis || "date",
+                      ...p as $Schema.RuleArgParamsAsValidation<$Date>,
+                      params: {
+                        pairName: pair.name,
+                        position: pair.position,
+                        disallowSame: pair.disallowSame ?? false,
+                        pairDate,
+                        basis: pair.basis || "date",
+                      },
                     });
                   } catch {
                     // ignore

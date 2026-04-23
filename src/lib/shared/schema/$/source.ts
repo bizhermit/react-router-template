@@ -22,12 +22,9 @@ type RemoveSourceArrayNoise<T> = T extends infer U & SourceArrayNoise
 type SourceOptions<Value> = {
   parser?: $Schema.Parser<Value>;
   items: $Schema.SourceItem<Value>[] | readonly $Schema.SourceItem<Value>[];
-  required?: $Schema.Validation<$Schema.Nullable<Value>, boolean, undefined, SourceValidationMessage>;
-  notFoundMessage?:
-  | string
-  | $Schema.Message
-  | $Schema.ValidationCustomMessage<
-    Value,
+  required?: $Schema.ValidationItem<boolean, null | undefined>;
+  notFoundMessage?: $Schema.ValidationCustomMessage<
+    unknown,
     { items: $Schema.SourceItem<Value>[] | readonly $Schema.SourceItem<Value>[]; },
     $Schema.Message
   >;
@@ -94,26 +91,25 @@ export function $$source<
         if (this.required != null) {
           const [required, getRequiredMessage] = getValidationArray(this.required);
           if (required) {
-            const getMessage: $Schema.ValidationMessageGetter<typeof getRequiredMessage> =
-              getRequiredMessage ??
-              ((p) => ({
-                ...commonMsgParams,
-                code: "required",
-                ...p,
-              }));
+            const getMessage = getRequiredMessage ?? ((p) => ({
+              ...commonMsgParams,
+              code: "required",
+              label: p.label,
+              params: p.params,
+            }));
 
             if (typeof required === "function") {
               this._validators.push((p) => {
                 if (!required(p)) return null;
                 if (p.value == null) {
-                  return getMessage(p);
+                  return getMessage(p as $Schema.ValidationResultArgParams);
                 }
                 return null;
               });
             } else {
               this._validators.push((p) => {
                 if (p.value == null) {
-                  return getMessage(p);
+                  return getMessage(p as $Schema.ValidationResultArgParams);
                 }
                 return null;
               });
@@ -134,8 +130,10 @@ export function $$source<
           const item = this.find(p.value);
           if (item) return null;
           return getSourceMessage({
-            ...p,
-            items: this.items,
+            ...p as $Schema.ValidationResultArgParams<unknown>,
+            params: {
+              items: this.items,
+            },
           });
         });
 

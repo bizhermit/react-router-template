@@ -14,12 +14,7 @@ export type ObjectValidationMessage = ObjectValidationAbstractMessage & (
 type ObjectOptions<Contents extends Record<string, $Schema.SchemaItemInterfaceProps<unknown>>> = {
   props: Contents;
   parser?: $Schema.Parser<$Schema.InferValue<Contents>>;
-  required?: $Schema.Validation<
-    $Schema.Nullable<$Schema.InferValue<Contents>>,
-    boolean,
-    undefined,
-    ObjectValidationMessage
-  >;
+  required?: $Schema.ValidationItem<boolean, null | undefined>;
   rules?: $Schema.Rule<$Schema.InferValue<Contents>>[];
 };
 
@@ -107,13 +102,12 @@ export function $object<
         if (this.required != null) {
           const [required, getRequiredMessage] = getValidationArray(this.required);
           if (required) {
-            const getMessage: $Schema.ValidationMessageGetter<typeof getRequiredMessage> =
-              getRequiredMessage ??
-              ((p) => ({
-                ...commonMsgParams,
-                code: "required",
-                ...p,
-              }));
+            const getMessage = getRequiredMessage ?? ((p) => ({
+              ...commonMsgParams,
+              code: "required",
+              label: p.label,
+              params: p.params,
+            }));
 
             if (typeof required === "function") {
               this._validators.push((p) => {

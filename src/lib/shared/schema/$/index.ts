@@ -26,13 +26,12 @@ export function optimizeValidationMessage<
   type U = $Schema.ValidationResult<T>;
   type Params = T extends (params: infer P) => unknown
     ? P
-    : $Schema.ValidationResultArgParams<unknown, Record<string, unknown>>;
+    : $Schema.ValidationResultArgParams<Record<string, unknown>>;
   if (typeof m === "string") {
     return ((params: Params) => {
       return {
         type: "e",
         label: params.label,
-        actionType: params.actionType,
         message: m,
       } as const satisfies $Schema.Message;
     }) as U;
@@ -45,7 +44,6 @@ export function optimizeValidationMessage<
         return {
           type: "e",
           label: params.label,
-          actionType: params.actionType,
           message: ret,
         } as const satisfies $Schema.Message;
       }
@@ -56,7 +54,7 @@ export function optimizeValidationMessage<
 };
 
 export function getValidationArray<
-  T extends $Schema.Validation<unknown, unknown>
+  T extends $Schema.ValidationItem<unknown, unknown>
 >(validation: T, initValue?: $Schema.ValidationArray<T>[0]): $Schema.ValidationArray<T> {
   type U = $Schema.ValidationArray<T>;
   if (validation == null) return [initValue] as U;
@@ -68,7 +66,7 @@ export function getValidationArray<
 };
 
 export function getValidationArrayAsArray<
-  T extends $Schema.Validation<never, unknown | Array<unknown>> = $Schema.Validation<unknown, Array<unknown>>
+  T extends $Schema.ValidationItem<unknown | Array<unknown>, never> = $Schema.ValidationItem<Array<unknown>, unknown>
 >(validation: T): $Schema.ValidationArrayAsArray<T> {
   type U = $Schema.ValidationArrayAsArray<T>;
   if (validation == null) return [undefined] as U;
@@ -83,4 +81,8 @@ export function getValidationArrayAsArray<
     return [validation] as U;
   }
   throw new Error(`validation value is not array type`);
+};
+
+export function pickMessageParams() {
+
 };

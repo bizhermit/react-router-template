@@ -20,9 +20,9 @@ export type FileValidationMessage = FileValidationAbstractMessage & (
 
 type FileOptions = {
   parser?: $Schema.Parser<FileValue>;
-  required?: $Schema.Validation<$Schema.Nullable<FileValue>, boolean, undefined, FileValidationMessage>;
-  accept?: $Schema.Validation<FileValue, string, FileValidation_Accept, FileValidationMessage>;
-  maxSize?: $Schema.Validation<FileValue, number, FileValidation_MaxSize, FileValidationMessage>;
+  required?: $Schema.ValidationItem<boolean, null | undefined>;
+  accept?: $Schema.ValidationItem<string, File, { accept: string; currentFileType: string; currentFileName: string; }>;
+  maxSize?: $Schema.ValidationItem<number, File, { maxSize: number; currentSize: number; }>;
   rules?: $Schema.Rule<FileValue>[];
 };
 
@@ -159,26 +159,25 @@ export function $file<const P extends FileProps>(props: P = {} as P) {
         if (this.required) {
           const [required, getRequiredMessage] = getValidationArray(this.required);
           if (required) {
-            const getMessage: $Schema.ValidationMessageGetter<typeof getRequiredMessage> =
-              getRequiredMessage ??
-              ((p) => ({
-                ...commonMsgParams,
-                code: "required",
-                ...p,
-              }));
+            const getMessage = getRequiredMessage ?? ((p) => ({
+              ...commonMsgParams,
+              code: "required",
+              label: p.label,
+              params: p.params,
+            }));
 
             if (typeof required === "function") {
               this._validators.push((p) => {
                 if (!required(p)) return null;
                 if (isEmpty(p.value)) {
-                  return getMessage(p);
+                  return getMessage(p as $Schema.ValidationResultArgParams);
                 }
                 return null;
               });
             } else {
               this._validators.push((p) => {
                 if (isEmpty(p.value)) {
-                  return getMessage(p);
+                  return getMessage(p as $Schema.ValidationResultArgParams);
                 }
                 return null;
               });
@@ -190,13 +189,12 @@ export function $file<const P extends FileProps>(props: P = {} as P) {
         if (this.accept) {
           const [accept, getAcceptMessage] = getValidationArray(this.accept);
           if (accept) {
-            const getMessage: $Schema.ValidationMessageGetter<typeof getAcceptMessage> =
-              getAcceptMessage ??
-              ((p) => ({
-                ...commonMsgParams,
-                code: "accept",
-                ...p,
-              }));
+            const getMessage = getAcceptMessage ?? ((p) => ({
+              ...commonMsgParams,
+              code: "accept",
+              label: p.label,
+              params: p.params,
+            }));
 
             if (typeof accept === "function") {
               this._validators.push((p) => {
@@ -207,10 +205,12 @@ export function $file<const P extends FileProps>(props: P = {} as P) {
                 const ctx = getAcceptChecker(ac);
                 if (ctx.check(p.value)) return null;
                 return getMessage({
-                  ...p,
-                  accept: ctx.accept,
-                  currentFileType: p.value.type,
-                  currentFileName: p.value.name,
+                  ...p as $Schema.ValidationResultArgParams<File>,
+                  params: {
+                    accept: ctx.accept,
+                    currentFileType: p.value.type,
+                    currentFileName: p.value.name,
+                  },
                 });
               });
             } else {
@@ -220,10 +220,12 @@ export function $file<const P extends FileProps>(props: P = {} as P) {
                 if (!isFile(p.value)) return null;
                 if (ctx.check(p.value)) return null;
                 return getMessage({
-                  ...p,
-                  accept: ctx.accept,
-                  currentFileType: p.value.type,
-                  currentFileName: p.value.name,
+                  ...p as $Schema.ValidationResultArgParams<File>,
+                  params: {
+                    accept: ctx.accept,
+                    currentFileType: p.value.type,
+                    currentFileName: p.value.name,
+                  },
                 });
               });
             }
@@ -234,13 +236,12 @@ export function $file<const P extends FileProps>(props: P = {} as P) {
         if (this.maxSize != null) {
           const [maxSize, getMaxSizeMessage] = getValidationArray(this.maxSize);
           if (maxSize != null) {
-            const getMessage: $Schema.ValidationMessageGetter<typeof getMaxSizeMessage> =
-              getMaxSizeMessage ??
-              ((p) => ({
-                ...commonMsgParams,
-                code: "maxSize",
-                ...p,
-              }));
+            const getMessage = getMaxSizeMessage ?? ((p) => ({
+              ...commonMsgParams,
+              code: "maxSize",
+              label: p.label,
+              params: p.params,
+            }));
 
             if (typeof maxSize === "function") {
               this._validators.push((p) => {
@@ -250,9 +251,11 @@ export function $file<const P extends FileProps>(props: P = {} as P) {
                 if (m == null) return null;
                 if (p.value.size <= m) return null;
                 return getMessage({
-                  ...p,
-                  maxSize: m,
-                  currentSize: p.value.size,
+                  ...p as $Schema.ValidationResultArgParams<File>,
+                  params: {
+                    maxSize: m,
+                    currentSize: p.value.size,
+                  },
                 });
               });
             } else {
@@ -261,15 +264,18 @@ export function $file<const P extends FileProps>(props: P = {} as P) {
                 if (!isFile(p.value)) return null;
                 if (p.value.size <= maxSize) return null;
                 return getMessage({
-                  ...p,
-                  maxSize,
-                  currentSize: p.value.size,
+                  ...p as $Schema.ValidationResultArgParams<File>,
+                  params: {
+                    maxSize,
+                    currentSize: p.value.size,
+                  },
                 });
               });
             }
           }
         }
 
+        // rules
         if (this.rules) {
           this._validators.push(...this.rules);
         }

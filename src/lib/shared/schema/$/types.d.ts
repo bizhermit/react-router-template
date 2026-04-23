@@ -5,7 +5,7 @@ namespace $Schema {
   type Mode = "enabled" | "disabled" | "readonly" | "hidden";
   type ActionType = "input" | "select" | "set";
 
-  type ArgParams = {
+  type InjectParams = {
     values: Record<string, unknown>;
     data: Record<string, unknown>;
     isServer: boolean;
@@ -16,42 +16,35 @@ namespace $Schema {
     actionType: ActionType;
   };
 
-  type AddonArgParams = ArgParams & SchemaItemArgParams & {
-    name?: string;
-  };
-
   type AbstractMessage = {
     type: "e" | "w" | "i";
     label: string | undefined;
-    actionType?: ActionType;
   };
 
   type I18nMessage<K extends I18nTextKey = I18nTextKey> = AbstractMessage & {
     key: K;
+    code?: string;
     params?: Omit<I18nReplaceParams<K>, "label">;
+    otype?: never;
   };
 
   type CustomMessage = AbstractMessage & {
     code?: string;
     message: string;
+    otype?: never;
   };
+
+  type ValidationMessage<
+    Params extends Record<string, unknown> = {}
+  > = AbstractMessage & {
+    code: string;
+    otype: string;
+  } & ParamsField<Params>;
 
   type Message =
     | I18nMessage
     | CustomMessage
-    | import("./string").StringValidationMessage
-    | import("./number").NumberValidationMessage
-    | import("./source").SourceValidationMessage
-    | import("./boolean").BooleanValidationMessage
-    | import("./date").DateValidationMessage
-    | import("./date").SplitDateValidationMessage
-    | import("./month").MonthValidationMessage
-    | import("./month").SplitMonthValidationMessage
-    | import("./datetime").DateTimeValidationMessage
-    | import("./datetime").SplitDateTimeValidationMessage
-    | import("./file").FileValidationMessage
-    | import("./array").ArrayValidationMessage
-    | import("./object").ObjectValidationMessage
+    | ValidationMessage
     ;
 
   type ParseResult<Value> = {
@@ -59,72 +52,84 @@ namespace $Schema {
     message?: Message | null;
   };
 
-  type ParseArgParams = ArgParams & { name?: string; };
+  type ParseArgParams = InjectParams & { name?: string; };
 
   type Parser<Value> =
     (value: unknown, params: ParseArgParams) => ParseResult<Value>;
 
-  type ValidationArgParams = AddonArgParams & { name?: string; };
+  type ValidationArgParams = InjectParams & { name?: string; };
 
   type ValidationValue<SettingsValue> =
     | Nullable<SettingsValue>
-    | ((params: AddonArgParams) => Nullable<SettingsValue>)
+    | ((params: InjectParams) => Nullable<SettingsValue>)
     ;
 
+  type ParamsField<Params extends Record<string, unknown>> = keyof Params extends never
+    ? { params?: Params; } // キー0個なら任意
+    : { params: Params; }; // キー1個以上なら必須
+
   type ValidationResultArgParams<
-    const Value,
-    const ValidationAddonValues extends Record<string, unknown> = {}
-  > = ValidationArgParams<Value> & (
-    ValidationAddonValues extends undefined ? {} : ValidationAddonValues
-  );
+    const Value = null | undefined,
+    const Params extends Record<string, unknown> = {}
+  > =
+    & ValidationArgParams
+    & SchemaItemArgParams
+    & { value: Value; }
+    & ParamsField<Params>
+    ;
 
   type ValidationCustomMessage<
     const Value,
-    const ValidationAddonValues extends Record<string, unknown> = {},
-    const Msg extends Message = Message
-  > = (params: ValidationResultArgParams<Value, ValidationAddonValues>) => (string | Message | Msg | null);
-
-  type Validation<
-    const Value,
-    const SettingsValue,
-    const ValidationAddonValues extends Record<string, unknown> | undefined = undefined,
+    const Params extends Record<string, unknown> = {},
     const Msg extends Message = Message
   > =
+    | string
+    | I18nMessage
+    | CustomMessage
+    | ((params: ValidationResultArgParams<Value, Params>) => (string | Message | Msg | null));
+
+  type ValidationItem<
+    const SettingsValue,
+    const ResultArgValue,
+    const UsedParams extends Record<string, unknown> = {}
+  > =
     | ValidationValue<SettingsValue>
-    | [ValidationValue<SettingsValue>, (
-      | string
-      | Msg
-      | ValidationCustomMessage<Value, ValidationAddonValues, Msg>
-    )?]
+    | [
+      ValidationValue<SettingsValue>,
+      ValidationCustomMessage<ResultArgValue, UsedParams, ValidationMessage<UsedParams>>?
+    ]
     ;
 
   type ValidationResult<T> =
-    T extends string | Message | undefined ? undefined :
-    (p: Parameters<T>[0]) => (Extract<ReturnType<T>, Message> | null)
+    T extends string | I18nMessage | CustomMessage | undefined ? undefined :
+    (p: Parameters<T>[0]) => (Exclude<ReturnType<T>, string | I18nMessage | CustomMessage> | null)
     ;
 
-  type ValidationArray<T extends Validation<unknown, unknown>> =
+  type ValidationArray<T extends ValidationItem<unknown, unknown>> =
     T extends Array<unknown> ? [T[0], ValidationResult<T[1]>] : [T];
 
-  type ValidationArrayAsArray<T extends Validation<never, unknown | Array<unknown>>> =
+  type ValidationArrayAsArray<T extends ValidationItem<unknown | Array<unknown>, never>> =
     T extends ((params: never) => unknown) ? [T] :
     T extends Array<unknown> ? (
       T[0] extends ((params: never) => unknown) ? [T[0]] :
       [T[0], ValidationResult<Exclude<T[1], T[0]>>]
     ) : [undefined];
 
-  type ValidationMessageGetter<T> =
-    (p: Exclude<Parameters<Exclude<T, undefined>>[0], undefined>) => ReturnType<Exclude<T, undefined>>;
+  type RuleArgParamsAsValidation<Value> = InjectParams & SchemaItemArgParams & {
+    value: Value;
+    name?: string | undefined;
+  };
 
-  type RuleArgParams<Value> = AddonArgParams & {
+  type RuleArgParams<Value> = InjectParams & SchemaItemArgParams & {
     value: Nullable<Value>;
+    name?: string | undefined;
   };
 
   type Rule<Value> = (params: RuleArgParams<Value>) => (Message | null);
 
   type SchemaItemAbstractProps = Partial<SchemaItemArgParams> & {
     refs?: string[];
-    mode?: (params: AddonArgParams) => Mode;
+    mode?: (params: InjectParams) => Mode;
   };
 
   type SchemaItemInterfaceProps<Value> = {

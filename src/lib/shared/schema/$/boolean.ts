@@ -18,7 +18,7 @@ type BooleanOptions<
   trueValue?: TrueValue;
   falseValue?: FalseValue;
   parser?: $Schema.Parser<TrueValue | FalseValue>;
-  required?: $Schema.Validation<$Schema.Nullable<TrueValue | FalseValue>, boolean | "nonFalse", undefined, BooleanValidationMessage>;
+  required?: $Schema.ValidationItem<boolean | "nonFalse", $Schema.Nullable<FalseValue>>;
   rules?: $Schema.Rule<TrueValue | FalseValue>[];
   trueText?: string;
   falseText?: string;
@@ -95,13 +95,12 @@ export function $bool<
         if (this.required != null) {
           const [required, getRequiredMessage] = getValidationArray(this.required);
           if (required) {
-            const getMessage: $Schema.ValidationMessageGetter<typeof getRequiredMessage> =
-              getRequiredMessage ??
-              ((p) => ({
-                ...commonMsgParams,
-                code: "required",
-                ...p,
-              }));
+            const getMessage = getRequiredMessage ?? ((p) => ({
+              ...commonMsgParams,
+              code: "required",
+              label: p.label,
+              params: p.params,
+            }));
 
             if (typeof required === "function") {
               this._validators.push((p) => {
@@ -109,19 +108,19 @@ export function $bool<
                 if (!r) return null;
                 if (r === "nonFalse") {
                   if (p.value === trueValue) return null;
-                  return getMessage(p);
+                  return getMessage(p as $Schema.ValidationResultArgParams<$Schema.Nullable<FV>>);
                 }
                 if (p.value == trueValue || p.value === falseValue) return null;
-                return getMessage(p);
+                return getMessage(p as $Schema.ValidationResultArgParams<$Schema.Nullable<FV>>);
               });
             } else {
               this._validators.push((p) => {
                 if (required === "nonFalse") {
                   if (p.value === trueValue) return null;
-                  return getMessage(p);
+                  return getMessage(p as $Schema.ValidationResultArgParams<$Schema.Nullable<FV>>);
                 }
                 if (p.value === trueValue || p.value === falseValue) return null;
-                return getMessage(p);
+                return getMessage(p as $Schema.ValidationResultArgParams<$Schema.Nullable<FV>>);
               });
             }
           }

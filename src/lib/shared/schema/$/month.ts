@@ -28,14 +28,13 @@ export type MonthValidationMessage = MonthValidationAbstractMessage & (
 
 type MonthOptions = {
   parser?: $Schema.Parser<$Month>;
-  required?: $Schema.Validation<$Schema.Nullable<$Month>, boolean, undefined, MonthValidationMessage>;
-  minMonth?: $Schema.Validation<$Month, $Month, MonthValidation_MinMonthParams, MonthValidationMessage>;
-  maxMonth?: $Schema.Validation<$Month, $Month, MonthValidation_MaxMonthParams, MonthValidationMessage>;
-  pairs?: $Schema.Validation<
-    $Month,
+  required?: $Schema.ValidationItem<boolean, null | undefined>;
+  minMonth?: $Schema.ValidationItem<$Month, $Month, { minMonth: $Month; }>;
+  maxMonth?: $Schema.ValidationItem<$Month, $Month, { maxMonth: $Month; }>;
+  pairs?: $Schema.ValidationItem<
     MonthPair | MonthPair[],
-    MonthValidation_PairParams,
-    MonthValidationMessage
+    $Month,
+    Omit<Required<MonthPair>, "name"> & { pairName: string; pairMonth: $Month; }
   >;
   rules?: $Schema.Rule<$Month>[];
 };
@@ -59,9 +58,9 @@ export type SplitMonthValidationMessage = SplitMonthValidationAbstractMessage & 
 
 type SplitMonthOptions = {
   parser?: $Schema.Parser<number>;
-  required?: $Schema.Validation<$Schema.Nullable<number>, boolean | "inherit", undefined, SplitMonthValidationMessage>;
-  min?: $Schema.Validation<number, number | "inherit", SplitMonthValidation_MinParams, SplitMonthValidationMessage>;
-  max?: $Schema.Validation<number, number | "inherit", SplitMonthValidation_MaxParams, SplitMonthValidationMessage>;
+  required?: $Schema.ValidationItem<boolean | "inherit", null | undefined>;
+  min?: $Schema.ValidationItem<number | "inherit", number, { min: number; }>;
+  max?: $Schema.ValidationItem<number | "inherit", number, { max: number; }>;
   rules?: $Schema.Rule<number>[];
 };
 
@@ -125,13 +124,12 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
           // required
           const [required, getRequiredMessage] = getValidationArray(this.required, "inherit");
           if (required) {
-            const getMessage: $Schema.ValidationMessageGetter<typeof getRequiredMessage> =
-              getRequiredMessage ??
-              ((p) => ({
-                ...commonMsgParams,
-                code: "required",
-                ...p,
-              }));
+            const getMessage = getRequiredMessage ?? ((p) => ({
+              ...commonMsgParams,
+              code: "required",
+              label: p.label,
+              params: p.params,
+            }));
 
             if (typeof required === "function") {
               this._validators.push((p) => {
@@ -143,18 +141,18 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
                     if (typeof baseRequired === "function") {
                       if (!baseRequired(p)) return null;
                       if (p.value == null) {
-                        return getMessage(p);
+                        return getMessage(p as $Schema.ValidationResultArgParams);
                       }
                     } else {
                       if (p.value == null) {
-                        return getMessage(p);
+                        return getMessage(p as $Schema.ValidationResultArgParams);
                       }
                     }
                   }
                   return null;
                 }
                 if (p.value == null) {
-                  return getMessage(p);
+                  return getMessage(p as $Schema.ValidationResultArgParams);
                 }
                 return null;
               });
@@ -166,14 +164,14 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
                     this._validators.push((p) => {
                       if (!baseRequired(p)) return null;
                       if (p.value == null) {
-                        return getMessage(p);
+                        return getMessage(p as $Schema.ValidationResultArgParams);
                       }
                       return null;
                     });
                   } else {
                     this._validators.push((p) => {
                       if (p.value == null) {
-                        return getMessage(p);
+                        return getMessage(p as $Schema.ValidationResultArgParams);
                       }
                       return null;
                     });
@@ -182,7 +180,7 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
               } else {
                 this._validators.push((p) => {
                   if (p.value == null) {
-                    return getMessage(p);
+                    return getMessage(p as $Schema.ValidationResultArgParams);
                   }
                   return null;
                 });
@@ -193,13 +191,12 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
           // min
           const [min, getMinMessage] = getValidationArray(this.min, "inherit");
           if (min != null) {
-            const getMessage: $Schema.ValidationMessageGetter<typeof getMinMessage> =
-              getMinMessage ??
-              ((p) => ({
-                ...commonMsgParams,
-                code: "min",
-                ...p,
-              }));
+            const getMessage = getMinMessage ?? ((p) => ({
+              ...commonMsgParams,
+              code: "min",
+              label: p.label,
+              params: p.params,
+            }));
 
             if (typeof min === "function") {
               this._validators.push((p) => {
@@ -215,15 +212,19 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
                       const ret = base.isValidMin({ value: p.value, validationMonth: baseM });
                       if (ret[0]) return null;
                       return getMessage({
-                        ...p,
-                        min: ret[1],
+                        ...p as $Schema.ValidationResultArgParams<number>,
+                        params: {
+                          min: ret[1],
+                        },
                       });
                     } else {
                       const ret = base.isValidMin({ value: p.value, validationMonth: baseMin });
                       if (ret[0]) return null;
                       return getMessage({
-                        ...p,
-                        min: ret[1],
+                        ...p as $Schema.ValidationResultArgParams<number>,
+                        params: {
+                          min: ret[1],
+                        },
                       });
                     }
                   }
@@ -231,8 +232,10 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
                 }
                 if (m <= p.value) return null;
                 return getMessage({
-                  ...p,
-                  min: m,
+                  ...p as $Schema.ValidationResultArgParams<number>,
+                  params: {
+                    min: m,
+                  },
                 });
               });
             } else {
@@ -247,8 +250,10 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
                       const ret = base.isValidMin({ value: p.value, validationMonth: baseM });
                       if (ret[0]) return null;
                       return getMessage({
-                        ...p,
-                        min: ret[1],
+                        ...p as $Schema.ValidationResultArgParams<number>,
+                        params: {
+                          min: ret[1],
+                        },
                       });
                     });
                   } else {
@@ -257,8 +262,10 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
                       const ret = base.isValidMin({ value: p.value, validationMonth: baseMin });
                       if (ret[0]) return null;
                       return getMessage({
-                        ...p,
-                        min: ret[1],
+                        ...p as $Schema.ValidationResultArgParams<number>,
+                        params: {
+                          min: ret[1],
+                        },
                       });
                     });
                   }
@@ -268,8 +275,10 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
                   if (p.value == null) return null;
                   if (min <= p.value) return null;
                   return getMessage({
-                    ...p,
-                    min,
+                    ...p as $Schema.ValidationResultArgParams<number>,
+                    params: {
+                      min,
+                    },
                   });
                 });
               }
@@ -279,13 +288,12 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
           // max
           const [max, getMaxMessage] = getValidationArray(this.max, "inherit");
           if (max != null) {
-            const getMessage: $Schema.ValidationMessageGetter<typeof getMaxMessage> =
-              getMaxMessage ??
-              ((p) => ({
-                ...commonMsgParams,
-                code: "max",
-                ...p,
-              }));
+            const getMessage = getMaxMessage ?? ((p) => ({
+              ...commonMsgParams,
+              code: "max",
+              label: p.label,
+              params: p.params,
+            }));
 
             if (typeof max === "function") {
               this._validators.push((p) => {
@@ -301,15 +309,19 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
                       const ret = base.isValidMax({ value: p.value, validationMonth: baseM });
                       if (ret[0]) return null;
                       return getMessage({
-                        ...p,
-                        max: ret[1],
+                        ...p as $Schema.ValidationResultArgParams<number>,
+                        params: {
+                          max: ret[1],
+                        },
                       });
                     } else {
                       const ret = base.isValidMax({ value: p.value, validationMonth: baseMax });
                       if (ret[0]) return null;
                       return getMessage({
-                        ...p,
-                        max: ret[1],
+                        ...p as $Schema.ValidationResultArgParams<number>,
+                        params: {
+                          max: ret[1],
+                        },
                       });
                     }
                   }
@@ -317,8 +329,10 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
                 }
                 if (p.value <= m) return null;
                 return getMessage({
-                  ...p,
-                  max: m,
+                  ...p as $Schema.ValidationResultArgParams<number>,
+                  params: {
+                    max: m,
+                  },
                 });
               });
             } else {
@@ -333,8 +347,10 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
                       const ret = base.isValidMax({ value: p.value, validationMonth: baseM });
                       if (ret[0]) return null;
                       return getMessage({
-                        ...p,
-                        max: ret[1],
+                        ...p as $Schema.ValidationResultArgParams<number>,
+                        params: {
+                          max: ret[1],
+                        },
                       });
                     });
                   } else {
@@ -343,8 +359,10 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
                       const ret = base.isValidMax({ value: p.value, validationMonth: baseMax });
                       if (ret[0]) return null;
                       return getMessage({
-                        ...p,
-                        max: ret[1],
+                        ...p as $Schema.ValidationResultArgParams<number>,
+                        params: {
+                          max: ret[1],
+                        },
                       });
                     });
                   }
@@ -354,8 +372,10 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
                   if (p.value == null) return null;
                   if (p.value <= max) return null;
                   return getMessage({
-                    ...p,
-                    max,
+                    ...p as $Schema.ValidationResultArgParams<number>,
+                    params: {
+                      max,
+                    },
                   });
                 });
               }
@@ -427,26 +447,25 @@ export function $month<const P extends MonthProps>(props: P = {} as P) {
         if (this.required != null) {
           const [required, getRequiredMessage] = getValidationArray(this.required);
           if (required) {
-            const getMessage: $Schema.ValidationMessageGetter<typeof getRequiredMessage> =
-              getRequiredMessage ??
-              ((p) => ({
-                ...commonMsgParams,
-                code: "required",
-                ...p,
-              }));
+            const getMessage = getRequiredMessage ?? ((p) => ({
+              ...commonMsgParams,
+              code: "required",
+              label: p.label,
+              params: p.params,
+            }));
 
             if (typeof required === "function") {
               this._validators.push((p) => {
                 if (!required(p)) return null;
                 if (p.value == null) {
-                  return getMessage(p);
+                  return getMessage(p as $Schema.ValidationResultArgParams);
                 }
                 return null;
               });
             } else {
               this._validators.push((p) => {
                 if (p.value == null) {
-                  return getMessage(p);
+                  return getMessage(p as $Schema.ValidationResultArgParams);
                 }
                 return null;
               });
@@ -458,13 +477,12 @@ export function $month<const P extends MonthProps>(props: P = {} as P) {
         if (this.minMonth) {
           const [minMonth, getMinMonthMessage] = getValidationArray(this.minMonth);
           if (minMonth != null) {
-            const getMessage: $Schema.ValidationMessageGetter<typeof getMinMonthMessage> =
-              getMinMonthMessage ??
-              ((p) => ({
-                ...commonMsgParams,
-                code: "minMonth",
-                ...p,
-              }));
+            const getMessage = getMinMonthMessage ?? ((p) => ({
+              ...commonMsgParams,
+              code: "minMonth",
+              label: p.label,
+              params: p.params,
+            }));
 
             if (typeof minMonth === "function") {
               this._validators.push((p) => {
@@ -473,8 +491,10 @@ export function $month<const P extends MonthProps>(props: P = {} as P) {
                 if (m == null) return null;
                 if (p.value.isBefore(m)) {
                   return getMessage({
-                    ...p,
-                    minMonth: m,
+                    ...p as $Schema.ValidationResultArgParams<$Month>,
+                    params: {
+                      minMonth: m,
+                    },
                   });
                 }
                 return null;
@@ -484,8 +504,10 @@ export function $month<const P extends MonthProps>(props: P = {} as P) {
                 if (p.value == null) return null;
                 if (p.value.isBefore(minMonth)) {
                   return getMessage({
-                    ...p,
-                    minMonth,
+                    ...p as $Schema.ValidationResultArgParams<$Month>,
+                    params: {
+                      minMonth,
+                    },
                   });
                 }
                 return null;
@@ -498,13 +520,12 @@ export function $month<const P extends MonthProps>(props: P = {} as P) {
         if (this.maxMonth) {
           const [maxMonth, getMaxMonthMessage] = getValidationArray(this.maxMonth);
           if (maxMonth != null) {
-            const getMessage: $Schema.ValidationMessageGetter<typeof getMaxMonthMessage> =
-              getMaxMonthMessage ??
-              ((p) => ({
-                ...commonMsgParams,
-                code: "maxMonth",
-                ...p,
-              }));
+            const getMessage = getMaxMonthMessage ?? ((p) => ({
+              ...commonMsgParams,
+              code: "maxMonth",
+              label: p.label,
+              params: p.params,
+            }));
 
             if (typeof maxMonth === "function") {
               this._validators.push((p) => {
@@ -513,8 +534,10 @@ export function $month<const P extends MonthProps>(props: P = {} as P) {
                 if (m == null) return null;
                 if (p.value.isAfter(m)) {
                   return getMessage({
-                    ...p,
-                    maxMonth: m,
+                    ...p as $Schema.ValidationResultArgParams<$Month>,
+                    params: {
+                      maxMonth: m,
+                    },
                   });
                 }
                 return null;
@@ -524,8 +547,10 @@ export function $month<const P extends MonthProps>(props: P = {} as P) {
                 if (p.value == null) return null;
                 if (p.value.isAfter(maxMonth)) {
                   return getMessage({
-                    ...p,
-                    maxMonth,
+                    ...p as $Schema.ValidationResultArgParams<$Month>,
+                    params: {
+                      maxMonth,
+                    },
                   });
                 }
                 return null;
@@ -538,13 +563,12 @@ export function $month<const P extends MonthProps>(props: P = {} as P) {
         if (this.pairs) {
           const [pairs, getPairsMessage] = getValidationArrayAsArray(this.pairs);
           if (pairs) {
-            const getMessage: $Schema.ValidationMessageGetter<typeof getPairsMessage> =
-              getPairsMessage ??
-              ((p) => ({
-                ...commonMsgParams,
-                code: "pair",
-                ...p,
-              }));
+            const getMessage = getPairsMessage ?? ((p) => ({
+              ...commonMsgParams,
+              code: "pair",
+              label: p.label,
+              params: p.params,
+            }));
 
             if (typeof pairs === "function") {
               this._validators.push((p) => {
@@ -565,11 +589,13 @@ export function $month<const P extends MonthProps>(props: P = {} as P) {
                       if (p.value.isAfter(pairMonth)) continue;
                     }
                     return getMessage({
-                      ...p,
-                      pairName: pair.name,
-                      position: pair.position,
-                      disallowSame: pair.disallowSame ?? false,
-                      pairMonth,
+                      ...p as $Schema.ValidationResultArgParams<$Month>,
+                      params: {
+                        pairName: pair.name,
+                        position: pair.position,
+                        disallowSame: pair.disallowSame ?? false,
+                        pairMonth,
+                      },
                     });
                   } catch {
                     // ignore
@@ -594,11 +620,13 @@ export function $month<const P extends MonthProps>(props: P = {} as P) {
                       if (p.value.isAfter(pairMonth)) continue;
                     }
                     return getMessage({
-                      ...p,
-                      pairName: pair.name,
-                      position: pair.position,
-                      disallowSame: pair.disallowSame ?? false,
-                      pairMonth,
+                      ...p as $Schema.ValidationResultArgParams<$Month>,
+                      params: {
+                        pairName: pair.name,
+                        position: pair.position,
+                        disallowSame: pair.disallowSame ?? false,
+                        pairMonth,
+                      },
                     });
                   } catch {
                     // ignore

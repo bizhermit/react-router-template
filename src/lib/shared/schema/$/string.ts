@@ -131,35 +131,19 @@ const STR_PATTERN_TEST = {
 
 type StrPattern = keyof typeof STR_PATTERN_TEST;
 
-type StringValidation_LengthParams = { length: number; currentLength: number; };
-type StringValidation_MinLengthParams = { minLength: number; currentLength: number; };
-type StringValidation_MaxLengthParams = { maxLength: number; currentLength: number; };
-type StringValidation_Pattern = { pattern: StrPattern; };
-
-export type StringValidationMessage = $Schema.AbstractMessage & {
-  otype: typeof SCHEMA_ITEM_TYPE_STRING;
-} & (
-    | { code: "parse"; }
-    | { code: "required"; }
-    | ({ code: "length"; } & StringValidation_LengthParams)
-    | ({ code: "minLength"; } & StringValidation_MinLengthParams)
-    | ({ code: "maxLength"; } & StringValidation_MaxLengthParams)
-    | ({ code: "pattern"; } & StringValidation_Pattern)
-  );
-
 type StringOptions = {
   parser?: $Schema.Parser<string>;
-  required?: $Schema.Validation<$Schema.Nullable<string>, boolean, undefined, StringValidationMessage>;
-  length?: $Schema.Validation<string, number, StringValidation_LengthParams, StringValidationMessage>;
-  minLength?: $Schema.Validation<string, number, StringValidation_MinLengthParams, StringValidationMessage>;
-  maxLength?: $Schema.Validation<string, number, StringValidation_MaxLengthParams, StringValidationMessage>;
-  pattern?: $Schema.Validation<string, StrPattern, StringValidation_Pattern, StringValidationMessage>;
+  required?: $Schema.ValidationItem<boolean, null | undefined>;
+  length?: $Schema.ValidationItem<number, string, { length: number; currentLength: number; }>;
+  minLength?: $Schema.ValidationItem<number, string, { minLength: number; currentLength: number; }>;
+  maxLength?: $Schema.ValidationItem<number, string, { maxLength: number; currentLength: number; }>;
+  pattern?: $Schema.ValidationItem<StrPattern, string, { pattern: StrPattern; }>;
   rules?: $Schema.Rule<string>[];
 };
 
 type StringProps = $Schema.SchemaItemAbstractProps & StringOptions;
 
-function isEmpty(value: $Schema.Nullable<string>) {
+function isEmpty(value: $Schema.Nullable<string>): value is (null | undefined) {
   return value == null || value === "";
 };
 
@@ -191,26 +175,25 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
         if (this.required != null) {
           const [required, getRequiredMessage] = getValidationArray(this.required);
           if (required) {
-            const getMessage: $Schema.ValidationMessageGetter<typeof getRequiredMessage> =
-              getRequiredMessage ??
-              ((p) => ({
-                ...commonMsgParams,
-                code: "required",
-                ...p,
-              }));
+            const getMessage = getRequiredMessage ?? ((p) => ({
+              ...commonMsgParams,
+              code: "required",
+              label: p.label,
+              params: p.params,
+            }));
 
             if (typeof required === "function") {
               this._validators.push((p) => {
                 if (!required(p)) return null;
                 if (isEmpty(p.value)) {
-                  return getMessage(p);
+                  return getMessage(p as $Schema.RuleArgParamsAsValidation<null | undefined>);
                 }
                 return null;
               });
             } else {
               this._validators.push((p) => {
                 if (isEmpty(p.value)) {
-                  return getMessage(p);
+                  return getMessage(p as $Schema.RuleArgParamsAsValidation<null | undefined>);
                 }
                 return null;
               });
@@ -221,14 +204,14 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
         // length
         if (this.length != null) {
           const [length, getLengthMessage] = getValidationArray(this.length);
+
           if (length != null) {
-            const getMessage: $Schema.ValidationMessageGetter<typeof getLengthMessage> =
-              getLengthMessage ??
-              ((p) => ({
-                ...commonMsgParams,
-                code: "length",
-                ...p,
-              }));
+            const getMessage = getLengthMessage ?? ((p) => ({
+              ...commonMsgParams,
+              code: "length",
+              label: p.label,
+              params: p.params,
+            }));
 
             if (typeof length === "function") {
               this._validators.push((p) => {
@@ -238,9 +221,11 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
                 const cur = getLength(p.value);
                 if (cur === len) return null;
                 return getMessage({
-                  ...p,
-                  length: len,
-                  currentLength: cur,
+                  ...p as $Schema.RuleArgParamsAsValidation<string>,
+                  params: {
+                    length: len,
+                    currentLength: cur,
+                  },
                 });
               });
             } else {
@@ -249,9 +234,11 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
                 const cur = getLength(p.value);
                 if (cur === length) return null;
                 return getMessage({
-                  ...p,
-                  length,
-                  currentLength: cur,
+                  ...p as $Schema.RuleArgParamsAsValidation<string>,
+                  params: {
+                    length,
+                    currentLength: cur,
+                  },
                 });
               });
             }
@@ -262,13 +249,12 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
         if (this.minLength != null) {
           const [minLength, getMinLengthMessage] = getValidationArray(this.minLength);
           if (minLength != null) {
-            const getMessage: $Schema.ValidationMessageGetter<typeof getMinLengthMessage> =
-              getMinLengthMessage ??
-              ((p) => ({
-                ...commonMsgParams,
-                code: "minLength",
-                ...p,
-              }));
+            const getMessage = getMinLengthMessage ?? ((p) => ({
+              ...commonMsgParams,
+              code: "minLength",
+              label: p.label,
+              params: p.params,
+            }));
 
             if (typeof minLength === "function") {
               this._validators.push((p) => {
@@ -278,9 +264,11 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
                 const cur = getLength(p.value);
                 if (minLen <= cur) return null;
                 return getMessage({
-                  ...p,
-                  minLength: minLen,
-                  currentLength: cur,
+                  ...p as $Schema.RuleArgParamsAsValidation<string>,
+                  params: {
+                    minLength: minLen,
+                    currentLength: cur,
+                  },
                 });
               });
             } else {
@@ -289,9 +277,11 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
                 const cur = getLength(p.value);
                 if (minLength <= cur) return null;
                 return getMessage({
-                  ...p,
-                  minLength,
-                  currentLength: cur,
+                  ...p as $Schema.RuleArgParamsAsValidation<string>,
+                  params: {
+                    minLength,
+                    currentLength: cur,
+                  },
                 });
               });
             }
@@ -302,13 +292,12 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
         if (this.maxLength != null) {
           const [maxLength, getMaxLengthMessage] = getValidationArray(this.maxLength);
           if (maxLength != null) {
-            const getMessage: $Schema.ValidationMessageGetter<typeof getMaxLengthMessage> =
-              getMaxLengthMessage ??
-              ((p) => ({
-                ...commonMsgParams,
-                code: "maxLength",
-                ...p,
-              }));
+            const getMessage = getMaxLengthMessage ?? ((p) => ({
+              ...commonMsgParams,
+              code: "maxLength",
+              label: p.label,
+              params: p.params,
+            }));
 
             if (typeof maxLength === "function") {
               this._validators.push((p) => {
@@ -318,9 +307,11 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
                 const cur = getLength(p.value);
                 if (cur <= maxLen) return null;
                 return getMessage({
-                  ...p,
-                  maxLength: maxLen,
-                  currentLength: cur,
+                  ...p as $Schema.RuleArgParamsAsValidation<string>,
+                  params: {
+                    maxLength: maxLen,
+                    currentLength: cur,
+                  },
                 });
               });
             } else {
@@ -329,9 +320,11 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
                 const cur = getLength(p.value);
                 if (cur <= maxLength) return null;
                 return getMessage({
-                  ...p,
-                  maxLength: maxLength,
-                  currentLength: cur,
+                  ...p as $Schema.RuleArgParamsAsValidation<string>,
+                  params: {
+                    maxLength: maxLength,
+                    currentLength: cur,
+                  },
                 });
               });
             }
@@ -341,14 +334,14 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
         // pattern
         if (this.pattern != null) {
           const [pattern, getPatternMessage] = getValidationArray(this.pattern);
+
           if (pattern != null) {
-            const getMessage: $Schema.ValidationMessageGetter<typeof getPatternMessage> =
-              getPatternMessage ??
-              ((p) => ({
-                ...commonMsgParams,
-                code: "pattern",
-                ...p,
-              }));
+            const getMessage = getPatternMessage ?? ((p) => ({
+              ...commonMsgParams,
+              code: "pattern",
+              label: p.label,
+              params: p.params,
+            }));
 
             if (typeof pattern === "function") {
               this._validators.push((p) => {
@@ -358,8 +351,10 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
                 const test = STR_PATTERN_TEST[ptn];
                 if (test(p.value)) return null;
                 return getMessage({
-                  ...p,
-                  pattern: ptn,
+                  ...p as $Schema.RuleArgParamsAsValidation<string>,
+                  params: {
+                    pattern: ptn,
+                  },
                 });
               });
             } else {
@@ -368,8 +363,10 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
                 if (isEmpty(p.value)) return null;
                 if (test(p.value)) return null;
                 return getMessage({
-                  ...p,
-                  pattern,
+                  ...p as $Schema.RuleArgParamsAsValidation<string>,
+                  params: {
+                    pattern,
+                  },
                 });
               });
             }

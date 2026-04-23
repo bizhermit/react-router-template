@@ -56,7 +56,10 @@ const schemaObject = $object({
       minLength: 8,
       maxLength: 16,
     }).overwrite({
-      // required: true,
+      required: true,
+      length: [10, ({ value, params: { currentLength, length } }) => {
+        return null;
+      }],
       // length: 16,
       // minLength: null,
       // maxLength: null,
@@ -176,23 +179,19 @@ export default function Page() {
               // year: null,
               hoge: 132,
             };
-            const validationArgParams = {
-              data: {},
-              isServer: true,
-              name: "name",
-              values: dummyValues,
-              actionType: "input",
-              label: "名前",
-            } satisfies $Schema.ValidationArgParams;
-            console.log("validate");
+            console.log("--------");
             const now = performance.now();
-            // const validationMessage = schemaObject.props.name.validate(validationArgParams);
-            // const validationMessage = schemaObject.props.year.validate(
-            //   // value: dummyValues.name,
-            //   dummyValues.year,
-            //   validationArgParams
-            // );
-            console.log(schemaObject.parseWithChildren(dummyValues, { data: {}, isServer: false, values: dummyValues }));
+            const params: $Schema.InjectParams = {
+              data: {},
+              isServer: false,
+              values: dummyValues,
+            };
+            const parsed = schemaObject.parseWithChildren(
+              dummyValues,
+              params
+            );
+            console.log(parsed);
+            console.log(schemaObject.validateWithChildren(parsed.value, params));
             console.log("-", performance.now() - now);
             // console.log("-", validationMessage);
           }}

@@ -3,26 +3,12 @@ import { getSchemaItemPropsGenerator, getValidationArray } from ".";
 
 export const SCHEMA_ITEM_TYPE_NUMBER = "num";
 
-type NumberValidation_MinParams = { min: number; };
-type NumberValidation_MaxParams = { max: number; };
-type NumberValidation_FloatParams = { float: number; currentFloat: number; };
-
-export type NumberValidationMessage = $Schema.AbstractMessage & {
-  otype: typeof SCHEMA_ITEM_TYPE_NUMBER;
-} & (
-    | { code: "parse"; }
-    | { code: "required"; }
-    | ({ code: "min"; } & NumberValidation_MinParams)
-    | ({ code: "max"; } & NumberValidation_MaxParams)
-    | ({ code: "float"; } & NumberValidation_FloatParams)
-  );
-
 type NumberOptions = {
   parser?: $Schema.Parser<number>;
-  required?: $Schema.Validation<$Schema.Nullable<number>, boolean, undefined, NumberValidationMessage>;
-  min?: $Schema.Validation<number, number, NumberValidation_MinParams, NumberValidationMessage>;
-  max?: $Schema.Validation<number, number, NumberValidation_MaxParams, NumberValidationMessage>;
-  float?: $Schema.Validation<number, number, NumberValidation_FloatParams, NumberValidationMessage>;
+  required?: $Schema.ValidationItem<boolean, null | undefined>;
+  min?: $Schema.ValidationItem<number, number, { min: number; }>;
+  max?: $Schema.ValidationItem<number, number, { max: number; }>;
+  float?: $Schema.ValidationItem<number, number, { float: number; currentFloat: number; }>;
   rules?: $Schema.Rule<number>[];
 };
 
@@ -70,26 +56,25 @@ export function $num<const P extends NumberProps>(props: P = {} as P) {
         if (this.required != null) {
           const [required, getRequiredMessage] = getValidationArray(this.required);
           if (required) {
-            const getMessage: $Schema.ValidationMessageGetter<typeof getRequiredMessage> =
-              getRequiredMessage ??
-              ((p) => ({
-                ...commonMsgParams,
-                code: "required",
-                ...p,
-              }));
+            const getMessage = getRequiredMessage ?? ((p) => ({
+              ...commonMsgParams,
+              code: "required",
+              label: p.label,
+              params: p.params,
+            }));
 
             if (typeof required === "function") {
               this._validators.push((p) => {
                 if (!required(p)) return null;
                 if (p.value == null) {
-                  return getMessage(p);
+                  return getMessage(p as $Schema.RuleArgParamsAsValidation<null | undefined>);
                 }
                 return null;
               });
             } else {
               this._validators.push((p) => {
                 if (p.value == null) {
-                  return getMessage(p);
+                  return getMessage(p as $Schema.RuleArgParamsAsValidation<null | undefined>);
                 }
                 return null;
               });
@@ -101,13 +86,12 @@ export function $num<const P extends NumberProps>(props: P = {} as P) {
         if (this.min != null) {
           const [min, getMinMessage] = getValidationArray(this.min);
           if (min != null) {
-            const getMessage: $Schema.ValidationMessageGetter<typeof getMinMessage> =
-              getMinMessage ??
-              ((p) => ({
-                ...commonMsgParams,
-                code: "min",
-                ...p,
-              }));
+            const getMessage = getMinMessage ?? ((p) => ({
+              ...commonMsgParams,
+              code: "min",
+              label: p.label,
+              params: p.params,
+            }));
 
             if (typeof min === "function") {
               this._validators.push((p) => {
@@ -115,8 +99,10 @@ export function $num<const P extends NumberProps>(props: P = {} as P) {
                 const m = min(p);
                 if (m == null || m <= p.value) return null;
                 return getMessage({
-                  ...p,
-                  min: m,
+                  ...p as $Schema.RuleArgParamsAsValidation<number>,
+                  params: {
+                    min: m,
+                  },
                 });
               });
             } else {
@@ -124,8 +110,10 @@ export function $num<const P extends NumberProps>(props: P = {} as P) {
                 if (p.value == null) return null;
                 if (min <= p.value) return null;
                 return getMessage({
-                  ...p,
-                  min,
+                  ...p as $Schema.RuleArgParamsAsValidation<number>,
+                  params: {
+                    min,
+                  },
                 });
               });
             }
@@ -136,13 +124,12 @@ export function $num<const P extends NumberProps>(props: P = {} as P) {
         if (this.max != null) {
           const [max, getMaxMessage] = getValidationArray(this.max);
           if (max != null) {
-            const getMessage: $Schema.ValidationMessageGetter<typeof getMaxMessage> =
-              getMaxMessage ??
-              ((p) => ({
-                ...commonMsgParams,
-                code: "max",
-                ...p,
-              }));
+            const getMessage = getMaxMessage ?? ((p) => ({
+              ...commonMsgParams,
+              code: "max",
+              label: p.label,
+              params: p.params,
+            }));
 
             if (typeof max === "function") {
               this._validators.push((p) => {
@@ -150,8 +137,10 @@ export function $num<const P extends NumberProps>(props: P = {} as P) {
                 const m = max(p);
                 if (m == null || p.value <= m) return null;
                 return getMessage({
-                  ...p,
-                  max: m,
+                  ...p as $Schema.RuleArgParamsAsValidation<number>,
+                  params: {
+                    max: m,
+                  },
                 });
               });
             } else {
@@ -159,8 +148,10 @@ export function $num<const P extends NumberProps>(props: P = {} as P) {
                 if (p.value == null) return null;
                 if (p.value <= max) return null;
                 return getMessage({
-                  ...p,
-                  max,
+                  ...p as $Schema.RuleArgParamsAsValidation<number>,
+                  params: {
+                    max,
+                  },
                 });
               });
             }
@@ -171,13 +162,12 @@ export function $num<const P extends NumberProps>(props: P = {} as P) {
         if (this.float != null) {
           const [float, getFloatMessage] = getValidationArray(this.float);
           if (float != null) {
-            const getMessage: $Schema.ValidationMessageGetter<typeof getFloatMessage> =
-              getFloatMessage ??
-              ((p) => ({
-                ...commonMsgParams,
-                code: "float",
-                ...p,
-              }));
+            const getMessage = getFloatMessage ?? ((p) => ({
+              ...commonMsgParams,
+              code: "float",
+              label: p.label,
+              params: p.params,
+            }));
 
             if (typeof float === "function") {
               this._validators.push((p) => {
@@ -187,9 +177,11 @@ export function $num<const P extends NumberProps>(props: P = {} as P) {
                 const cur = getFloatPosition(p.value);
                 if (cur <= f) return null;
                 return getMessage({
-                  ...p,
-                  float: f,
-                  currentFloat: cur,
+                  ...p as $Schema.RuleArgParamsAsValidation<number>,
+                  params: {
+                    float: f,
+                    currentFloat: cur,
+                  },
                 });
               });
             } else {
@@ -198,9 +190,11 @@ export function $num<const P extends NumberProps>(props: P = {} as P) {
                 const cur = getFloatPosition(p.value);
                 if (cur <= float) return null;
                 return getMessage({
-                  ...p,
-                  float,
-                  currentFloat: cur,
+                  ...p as $Schema.RuleArgParamsAsValidation<number>,
+                  params: {
+                    float,
+                    currentFloat: cur,
+                  },
                 });
               });
             }
