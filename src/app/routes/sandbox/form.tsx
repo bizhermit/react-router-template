@@ -148,8 +148,9 @@ const schemaObject = $object({
 });
 
 type _Hoge = $Schema.Infer<typeof schemaObject>;
-type _Fuga = typeof schemaObject["props"]["selectStr"]["items"];
-type _Piyo = typeof schemaObject["props"]["selectNum"]["items"];
+type _Fuga = $Schema.Infer<typeof schemaObject, true>;
+// type _Fuga = typeof schemaObject["props"]["selectStr"]["items"];
+// type _Piyo = typeof schemaObject["props"]["selectNum"]["items"];
 
 export function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
