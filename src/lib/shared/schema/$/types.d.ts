@@ -22,12 +22,16 @@ namespace $Schema {
     name: string | undefined;
   };
 
-  type I18nMessage<K extends I18nTextKey = I18nTextKey> = AbstractMessage & {
-    key: K;
-    code?: string;
-    params?: Omit<I18nReplaceParams<K>, "label">;
-    otype?: never;
+  type I18nMessageMap = {
+    [K in I18nTextKey]: AbstractMessage & {
+      key: K;
+      code?: string;
+      params?: Omit<I18nReplaceParams<K>, "label">;
+      otype?: never;
+    };
   };
+
+  type I18nMessage<K extends I18nTextKey = I18nTextKey> = I18nMessageMap[K];
 
   type CustomMessage = AbstractMessage & {
     code?: string;

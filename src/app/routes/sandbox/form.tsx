@@ -156,6 +156,17 @@ const parsed1 = birth.parse(3124).value;
 const parsed2 = schemaObject.parse({ hoge: 1 }).value;
 const parsed3 = schemaObject.parse({ hoge: 1 }).value;
 
+const msg: $Schema.I18nMessage = {
+  key: "maxStrLength" as const,
+  label: "名前",
+  type: "e",
+  name: "name",
+  code: "maxLength",
+  params: {
+    maxLength: 10,
+  },
+};
+
 export function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
   // eslint-disable-next-line no-console
