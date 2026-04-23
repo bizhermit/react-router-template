@@ -171,6 +171,36 @@ function daysFromCivil(y: number, m: number, d: number) {
   return era * 146097 + doe - 719468;
 }
 
+function parseTimeToMs(time: string) {
+  const value = time.trim();
+  if (!value) return 0;
+
+  let ctx = value.match(/^(\+|-|)(\d{2}|$)(\d{2}|$)(\d{2}|$)(\d{3}|$)$/);
+  if (!ctx) {
+    ctx = value.match(/^(\+|-|)(\d+)?(?::|時|$)(\d+)?(?::|分|$)(\d+)?(?:\.|秒|$)(\d+)?(?:.*|$)$/);
+  }
+  if (!ctx) {
+    return null;
+  }
+
+  const sign = ctx[1] === "-" ? -1 : 1;
+  const hour = Number(ctx[2] ?? "0");
+  const minute = Number(ctx[3] ?? "0");
+  const second = Number(ctx[4] ?? "0");
+  const millisecond = Number(ctx[5] ?? "0");
+
+  if (
+    Number.isNaN(hour) ||
+    Number.isNaN(minute) ||
+    Number.isNaN(second) ||
+    Number.isNaN(millisecond)
+  ) {
+    return null;
+  }
+
+  return timeToMs(hour, minute, second, millisecond) * sign;
+}
+
 function pad(num: number | string, maxLen: number = 2) {
   return String(num).padStart(maxLen, "0");
 }
@@ -816,8 +846,161 @@ export class $DateTime extends Timestamp {
 
 export class $Time {
 
-  constructor() {
+  private ms: number;
 
+  constructor(init?: $Time | Timestamp | Date | string | number) {
+    if (init == null) {
+      this.ms = 0;
+    } else if (init instanceof $Time) {
+      this.ms = init.getTime();
+    } else if (init instanceof Timestamp) {
+      this.ms = getMsOfDay(init.getTime());
+    } else if (init instanceof Date) {
+      this.ms = getMsOfDay(init.getTime() - getOffset());
+    } else if (typeof init === "string") {
+      const parsed = parseTimeToMs(init);
+      if (parsed == null) {
+        throw new Error(`Invalid time string: ${init}`);
+      }
+      this.ms = parsed;
+    } else if (typeof init === "number") {
+      if (isNaN(init)) {
+        throw new Error(`Invalid time number: ${init}`);
+      }
+      this.ms = init;
+    } else {
+      this.ms = 0;
+    }
+  }
+
+  public getTime() {
+    return this.ms;
+  }
+
+  public setTime(ms: number) {
+    if (isNaN(ms)) {
+      throw new Error(`Invalid time number: ${ms}`);
+    }
+    this.ms = ms;
+    return this;
+  }
+
+  public getHour() {
+    return Math.floor(this.ms / MS_PER_HOUR);
+  }
+
+  public setHour(hour: number, minute?: number, second?: number, millisecond?: number) {
+    const current = getHMS(this.ms);
+    const m = minute ?? current.minute;
+    const s = second ?? current.second;
+    const ms = millisecond ?? current.millisecond;
+    this.ms = timeToMs(hour, m, s, ms);
+    return this;
+  }
+
+  public getMinute(includeHigherUnit: boolean = false) {
+    if (!includeHigherUnit) {
+      return Math.floor((this.ms % MS_PER_HOUR) / MS_PER_MINUTE);
+    }
+    const sign = this.isMinus() ? -1 : 1;
+    const v = getHMS(Math.abs(this.ms));
+    return (v.hour * 60 + v.minute) * sign;
+  }
+
+  public setMinute(minute: number, second?: number, millisecond?: number) {
+    const current = getHMS(this.ms);
+    const s = second ?? current.second;
+    const ms = millisecond ?? current.millisecond;
+    this.ms = timeToMs(current.hour, minute, s, ms);
+    return this;
+  }
+
+  public getSecond(includeHigherUnit: boolean = false) {
+    if (!includeHigherUnit) {
+      return Math.floor((this.ms % MS_PER_MINUTE) / MS_PER_SECOND);
+    }
+    const sign = this.isMinus() ? -1 : 1;
+    const v = getHMS(Math.abs(this.ms));
+    return (v.hour * 3600 + v.minute * 60 + v.second) * sign;
+  }
+
+  public setSecond(second: number, millisecond?: number) {
+    const current = getHMS(this.ms);
+    const ms = millisecond ?? current.millisecond;
+    this.ms = timeToMs(current.hour, current.minute, second, ms);
+    return this;
+  }
+
+  public getMillisecond(includeHigherUnit: boolean = false) {
+    if (!includeHigherUnit) {
+      return this.ms % MS_PER_SECOND;
+    }
+    return this.ms;
+  }
+
+  public setMillisecond(millisecond: number) {
+    const current = getHMS(this.ms);
+    this.ms = timeToMs(current.hour, current.minute, current.second, millisecond);
+    return this;
+  }
+
+  public addHour(diff: number) {
+    this.setHour(this.getHour() + diff);
+    return this;
+  }
+
+  public addMinute(diff: number) {
+    this.setMinute(this.getMinute() + diff);
+    return this;
+  }
+
+  public addSecond(diff: number) {
+    this.setSecond(this.getSecond() + diff);
+    return this;
+  }
+
+  public addMillisecond(diff: number) {
+    this.setMillisecond(this.getMillisecond() + diff);
+    return this;
+  }
+
+  public clear() {
+    this.ms = 0;
+    return this;
+  }
+
+  public isMinus() {
+    return this.ms < 0;
+  }
+
+  public toString(
+    pattern: string | ((parts: { sign: "" | "-"; hour: number; minute: number; second: number; millisecond: number; }) => string) = "hh:mm:ss.SSS"
+  ) {
+    const sign = this.ms < 0 ? "-" : "";
+    const absMs = Math.abs(this.ms);
+    const v = {
+      sign,
+      hour: Math.floor(absMs / MS_PER_HOUR),
+      minute: Math.floor((absMs % MS_PER_HOUR) / MS_PER_MINUTE),
+      second: Math.floor((absMs % MS_PER_MINUTE) / MS_PER_SECOND),
+      millisecond: absMs % MS_PER_SECOND,
+    } as const;
+    if (typeof pattern === "function") {
+      return pattern(v);
+    }
+    return `${sign}${pattern
+      .replace(/hh/g, pad(v.hour))
+      .replace(/h/g, String(v.hour))
+      .replace(/mm/g, pad(v.minute))
+      .replace(/m/g, String(v.minute))
+      .replace(/ss/g, pad(v.second))
+      .replace(/s/g, String(v.second))
+      .replace(/SSS/g, pad(v.millisecond, 3))
+      .replace(/S/g, String(v.millisecond))}`;
+  }
+
+  public toJSON() {
+    return this.toString();
   }
 
 };
