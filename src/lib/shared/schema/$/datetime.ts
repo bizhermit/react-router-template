@@ -893,19 +893,21 @@ export function $datetime<const P extends DateTimeProps>(props: P = {} as P) {
       const getBase = () => this;
       return splitDateTime<This>({
         getThis: getBase,
-        isValidMin: () => {
-          // return [
-          //   validationValue.getYear() <= value,
-          //   validationValue.getYear(),
-          // ];
-          return [true, -1]; // TODO:
+        isValidMin: ({ value, getValidationDateTime, getValidationDate }) => {
+          let min = getValidationDateTime()?.getYear();
+          const d = getValidationDate();
+          if (min == null) min = d?.getYear();
+          else if (d) min = Math.max(d.getYear());
+          if (min == null) return [true, -1];
+          return [min <= value, min];
         },
-        isValidMax: () => {
-          // return [
-          //   value <= validationValue.getYear(),
-          //   validationValue.getYear(),
-          // ];
-          return [true, -1]; // TODO:
+        isValidMax: ({ value, getValidationDateTime, getValidationDate }) => {
+          let max = getValidationDateTime()?.getYear();
+          const d = getValidationDate();
+          if (max == null) max = d?.getYear();
+          else if (d) max = Math.min(d.getYear());
+          if (max == null) return [true, -1];
+          return [value <= max, max];
         },
       })<SP>(splitProps);
     },
@@ -924,7 +926,7 @@ export function $datetime<const P extends DateTimeProps>(props: P = {} as P) {
           return [1 <= value, 1];
         },
         isValidMax: ({ value }) => {
-          // NOTE: 最小値および年の値によって変動するため、最大日付と比較を行わない
+          // NOTE: 最大値および年の値によって変動するため、最大日付と比較を行わない
           return [value <= 12, 12];
         },
       })<SP>(splitProps);
@@ -944,8 +946,66 @@ export function $datetime<const P extends DateTimeProps>(props: P = {} as P) {
           return [1 <= value, 1];
         },
         isValidMax: ({ value }) => {
-          // NOTE: 最小値および年月の値によって変動するため、最大日付と比較を行わない
+          // NOTE: 最大値および年月の値によって変動するため、最大日付と比較を行わない
           return [value <= 31, 31];
+        },
+      })<SP>(splitProps);
+    },
+    getSplitHour: function <
+      const This extends SplitDateTimeBaseProps,
+      const SP extends SplitDateTimeProps
+    >(
+      this: This,
+      splitProps: SP = {} as SP,
+    ) {
+      const getBase = () => this;
+      return splitDateTime<This>({
+        getThis: getBase,
+        isValidMin: ({ value, getValidationTime }) => {
+          const hour = getValidationTime()?.getHour();
+          if (hour == null) return [true, -1];
+          return [hour <= value, hour];
+        },
+        isValidMax: ({ value, getValidationTime }) => {
+          const hour = getValidationTime()?.getHour();
+          if (hour == null) return [true, -1];
+          return [value <= hour, hour];
+        },
+      })<SP>(splitProps);
+    },
+    getSplitMinute: function <
+      const This extends SplitDateTimeBaseProps,
+      const SP extends SplitDateTimeProps
+    >(
+      this: This,
+      splitProps: SP = {} as SP,
+    ) {
+      const getBase = () => this;
+      return splitDateTime<This>({
+        getThis: getBase,
+        isValidMin: ({ value }) => {
+          return [0 <= value, 0];
+        },
+        isValidMax: ({ value }) => {
+          return [value <= 59, 59];
+        },
+      })<SP>(splitProps);
+    },
+    getSplitSecond: function <
+      const This extends SplitDateTimeBaseProps,
+      const SP extends SplitDateTimeProps
+    >(
+      this: This,
+      splitProps: SP = {} as SP,
+    ) {
+      const getBase = () => this;
+      return splitDateTime<This>({
+        getThis: getBase,
+        isValidMin: ({ value }) => {
+          return [0 <= value, 0];
+        },
+        isValidMax: ({ value }) => {
+          return [value <= 59, 59];
         },
       })<SP>(splitProps);
     },

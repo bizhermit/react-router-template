@@ -677,7 +677,7 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
           return [1 <= value, 1];
         },
         isValidMax: ({ value }) => {
-          // NOTE: 最小値および年の値によって変動するため、最大日付と比較を行わない
+          // NOTE: 最大値および年の値によって変動するため、最大日付と比較を行わない
           return [value <= 12, 12];
         },
       })<SP>(splitProps);
@@ -697,7 +697,7 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
           return [1 <= value, 1];
         },
         isValidMax: ({ value }) => {
-          // NOTE: 最小値および年月の値によって変動するため、最大日付と比較を行わない
+          // NOTE: 最大値および年月の値によって変動するため、最大日付と比較を行わない
           return [value <= 31, 31];
         },
       })<SP>(splitProps);
