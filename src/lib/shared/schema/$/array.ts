@@ -85,13 +85,14 @@ export function $array<
         const prefixName = params.name || "";
 
         for (let i = 0, il = parsed.value.length; i < il; i++) {
-          const itemValue = parsed.value[i];
+          const val = parsed.value[i];
           const name = `${prefixName}[${i}]`;
+
           if (
             this.prop.type === SCHEMA_ITEM_TYPE_ARRAY ||
             this.prop.type === SCHEMA_ITEM_TYPE_OBJECT
           ) {
-            const parsedItem = (this.prop as unknown as ReturnType<typeof $array>).parseWithChildren(itemValue, {
+            const parsedItem = (this.prop as unknown as ReturnType<typeof $array>).parseWithChildren(val, {
               ...params,
               name,
             });
@@ -99,7 +100,7 @@ export function $array<
             if (parsedItem.messages.length > 0) messages.push(...parsedItem.messages);
             continue;
           }
-          const parsedItem = this.prop.parse(itemValue, {
+          const parsedItem = this.prop.parse(val, {
             ...params,
             name,
           });
@@ -284,6 +285,38 @@ export function $array<
         if (msg) break;
       }
       return msg;
+    },
+    validateWithChildren: function (value: $Schema.Nullable<Value>, params: $Schema.ValidationArgParams) {
+      const messages: $Schema.Message[] = [];
+
+      const msg = this.validate(value, params);
+      if (msg) messages.push(msg);
+
+      if (value != null) {
+        const prefixName = params.name || "";
+
+        for (let i = 0, il = value.length; i < il; i++) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const val = value[i] as any;
+          const name = `${prefixName}[${i}]`;
+
+          if (
+            this.prop.type === SCHEMA_ITEM_TYPE_ARRAY ||
+            this.prop.type === SCHEMA_ITEM_TYPE_OBJECT
+          ) {
+            const msgs = (this.prop as unknown as ReturnType<typeof $array>).validateWithChildren(val, {
+              ...params,
+              name,
+            });
+            if (msgs.length > 0) messages.push(...msgs);
+            continue;
+          }
+          const msg = this.prop.validate(val, { ...params, name });
+          if (msg) messages.push(msg);
+        }
+      }
+
+      return messages;
     },
   } as const satisfies ArrayProps<Content> & $Schema.SchemaItemInterfaceProps<Value>;
 

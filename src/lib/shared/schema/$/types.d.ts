@@ -64,7 +64,7 @@ namespace $Schema {
   type Parser<Value> =
     (value: unknown, params: ParseArgParams) => ParseResult<Value>;
 
-  type ValidationArgParams = AddonArgParams;
+  type ValidationArgParams = AddonArgParams & { name?: string; };
 
   type ValidationValue<SettingsValue> =
     | Nullable<SettingsValue>

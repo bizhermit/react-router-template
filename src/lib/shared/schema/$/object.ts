@@ -60,7 +60,6 @@ export function $object<
           const name = `${prefixName}${key}`;
 
           const prop = this.props[key];
-          console.log(prop, name);
           if (prop == null) {
             messages.push({
               type: "w",
@@ -154,6 +153,39 @@ export function $object<
         if (msg) break;
       }
       return msg;
+    },
+    validateWithChildren: function (
+      value: $Schema.Nullable<$Schema.InferValue<Contents>>,
+      params: $Schema.ValidationArgParams
+    ) {
+      const messages: $Schema.Message[] = [];
+
+      const msg = this.validate(value, params);
+      if (msg) messages.push(msg);
+
+      if (value != null) {
+        const prefixName = params.name ? `${params.name}.` : "";
+        Object.entries(this.props).forEach(([key, prop]) => {
+          const name = `${prefixName}${key}`;
+          const val = value[key];
+
+          if (
+            prop.type === SCHEMA_ITEM_TYPE_ARRAY ||
+            prop.type === SCHEMA_ITEM_TYPE_OBJECT
+          ) {
+            const msgs = (prop as ReturnType<typeof $object>).validateWithChildren(val, {
+              ...params,
+              name,
+            });
+            if (msgs.length > 0) messages.push(...msgs);
+            return;
+          }
+          const msg = prop.validate(val, { ...params, name });
+          if (msg) messages.push(msg);
+        });
+      }
+
+      return messages;
     },
   } as const satisfies ObjectProps<Contents> & $Schema.SchemaItemInterfaceProps<$Schema.InferValue<Contents>>;
 
