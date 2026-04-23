@@ -101,13 +101,13 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
         if (succeeded) return { value: num };
         return {
           value: num,
-          message: {
+          messages: [{
             type: "e",
             label: this.label,
             actionType: this.getActionType(),
             otype: SCHEMA_ITEM_TYPE_SPLIT_MONTH,
             code: "parse",
-          },
+          }],
         };
       },
       validate: function (value, params) {
@@ -388,7 +388,6 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
           }
         }
 
-        let msg: $Schema.Message | null = null;
         const ruleArg = {
           ...params,
           label: this.label,
@@ -397,10 +396,10 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
         } as const satisfies $Schema.RuleArgParams<number>;
 
         for (const vali of this._validators) {
-          msg = vali(ruleArg);
-          if (msg) break;
+          const msg = vali(ruleArg);
+          if (msg) return [msg];
         }
-        return msg;
+        return [];
       },
     } as const satisfies SplitMonthProps & $Schema.SchemaItemInterfaceProps<number>;
   };
@@ -422,13 +421,13 @@ export function $month<const P extends MonthProps>(props: P = {} as P) {
       } catch {
         return {
           value: null,
-          message: {
+          messages: [{
             type: "e",
             label: this.label,
             actionType: this.getActionType(),
             otype: SCHEMA_ITEM_TYPE_MONTH,
             code: "parse",
-          },
+          }],
         };
       }
     },
@@ -645,7 +644,6 @@ export function $month<const P extends MonthProps>(props: P = {} as P) {
         }
       }
 
-      let msg: $Schema.Message | null = null;
       const ruleArg = {
         ...params,
         label: this.label,
@@ -654,10 +652,10 @@ export function $month<const P extends MonthProps>(props: P = {} as P) {
       } as const satisfies $Schema.RuleArgParams<$Month>;
 
       for (const vali of this._validators) {
-        msg = vali(ruleArg);
-        if (msg) break;
+        const msg = vali(ruleArg);
+        if (msg) return [msg];
       }
-      return msg;
+      return [];
     },
     getSplitYear: function <
       const This extends SplitMonthBaseProps,

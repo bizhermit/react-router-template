@@ -74,13 +74,13 @@ function splitDate<const Base extends SplitDateBaseProps>(base: {
         if (succeeded) return { value: num };
         return {
           value: num,
-          message: {
+          messages: [{
             type: "e",
             label: this.label,
             actionType: this.getActionType(),
             otype: SCHEMA_ITEM_TYPE_SPLIT_DATE,
             code: "parse",
-          },
+          }],
         };
       },
       validate: function (value, params) {
@@ -361,7 +361,6 @@ function splitDate<const Base extends SplitDateBaseProps>(base: {
           }
         }
 
-        let msg: $Schema.Message | null = null;
         const ruleArg = {
           ...params,
           label: this.label,
@@ -370,10 +369,10 @@ function splitDate<const Base extends SplitDateBaseProps>(base: {
         } as const satisfies $Schema.RuleArgParams<number>;
 
         for (const vali of this._validators) {
-          msg = vali(ruleArg);
-          if (msg) break;
+          const msg = vali(ruleArg);
+          if (msg) return [msg];
         }
-        return msg;
+        return [];
       },
     } as const satisfies SplitDateProps & $Schema.SchemaItemInterfaceProps<number>;
   };
@@ -395,13 +394,13 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
       } catch {
         return {
           value: null,
-          message: {
+          messages: [{
             type: "e",
             label: this.label,
             actionType: this.getActionType(),
             otype: SCHEMA_ITEM_TYPE_DATE,
             code: "parse",
-          },
+          }],
         };
       }
     },
@@ -639,7 +638,6 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
         }
       }
 
-      let msg: $Schema.Message | null = null;
       const ruleArg = {
         ...params,
         label: this.label,
@@ -648,10 +646,10 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
       } as const satisfies $Schema.RuleArgParams<$Date>;
 
       for (const vali of this._validators) {
-        msg = vali(ruleArg);
-        if (msg) break;
+        const msg = vali(ruleArg);
+        if (msg) return [msg];
       }
-      return msg;
+      return [];
     },
     getSplitYear: function <
       const This extends SplitDateBaseProps,

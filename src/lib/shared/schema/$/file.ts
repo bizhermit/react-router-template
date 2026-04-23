@@ -135,13 +135,13 @@ export function $file<const P extends FileProps>(props: P = {} as P) {
 
       return {
         value: undefined,
-        message: {
+        messages: [{
           type: "e",
           label: this.label,
           actionType: this.getActionType(),
           otype: SCHEMA_ITEM_TYPE_FILE,
           code: "parse",
-        },
+        }],
       };
     },
     validate: function (value, params) {
@@ -281,7 +281,6 @@ export function $file<const P extends FileProps>(props: P = {} as P) {
         }
       }
 
-      let msg: $Schema.Message | null = null;
       const ruleArg = {
         ...params,
         label: this.label,
@@ -290,10 +289,10 @@ export function $file<const P extends FileProps>(props: P = {} as P) {
       } as const satisfies $Schema.RuleArgParams<FileValue>;
 
       for (const vali of this._validators) {
-        msg = vali(ruleArg);
-        if (msg) break;
+        const msg = vali(ruleArg);
+        if (msg) return [msg];
       }
-      return msg;
+      return [];
     },
   } as const satisfies FileProps & $Schema.SchemaItemInterfaceProps<FileValue>;
 

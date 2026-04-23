@@ -32,13 +32,13 @@ export function $num<const P extends NumberProps>(props: P = {} as P) {
       if (succeeded) return { value: num };
       return {
         value: num,
-        message: {
+        messages: [{
           type: "e",
           label: this.label,
           actionType: this.getActionType(),
           otype: SCHEMA_ITEM_TYPE_NUMBER,
           code: "parse",
-        },
+        }],
       };
     },
     validate: function (value, params) {
@@ -207,19 +207,18 @@ export function $num<const P extends NumberProps>(props: P = {} as P) {
         }
       }
 
-      let msg: $Schema.Message | null = null;
       const ruleArg = {
         ...params,
         label: this.label,
         actionType: this.getActionType(),
         value,
       } as const satisfies $Schema.RuleArgParams<number>;
-      for (const vali of this._validators) {
-        msg = vali(ruleArg);
-        if (msg) break;
-      }
 
-      return msg;
+      for (const vali of this._validators) {
+        const msg = vali(ruleArg);
+        if (msg) return [msg];
+      }
+      return [];
     },
   } as const satisfies NumberProps & $Schema.SchemaItemInterfaceProps<number>;
 

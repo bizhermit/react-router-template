@@ -1,5 +1,4 @@
 import { getSchemaItemPropsGenerator, getValidationArray } from ".";
-import { SCHEMA_ITEM_TYPE_ARRAY } from "./array";
 
 export const SCHEMA_ITEM_TYPE_OBJECT = "obj";
 
@@ -38,22 +37,23 @@ export function $object<
       return this.actionType || "set";
     },
     parse: function (value, params) {
-      if (this.parser) return this.parser(value, params);
-      if (value == null || value === "") return { value: undefined };
-      return { value: value as Value };
-    },
-    parseWithChildren: function (value: unknown, params: $Schema.ParseArgParams): {
-      value: Value;
-      messages: $Schema.Message[];
-    } {
-      const parsed = this.parse(value, params) as $Schema.ParseResult<Struct>;
+      let structValue: $Schema.Nullable<Struct> = undefined;
       const messages: $Schema.Message[] = [];
-      if (parsed.message) messages.push(parsed.message);
 
-      if (parsed.value != null) {
+      if (this.parser) {
+        const parsed = this.parser(value, params);
+        structValue = parsed.value;
+        if (parsed.messages) messages.push(...parsed.messages);
+      } else {
+        if (value != null && value !== "") {
+          structValue = value as Struct;
+        }
+      }
+
+      if (structValue != null) {
         const prefixName = params.name ? `${params.name}.` : "";
 
-        Object.entries(parsed.value).forEach(([key, val]) => {
+        Object.entries(structValue).forEach(([key, val]) => {
           const name = `${prefixName}${key}`;
 
           const prop = this.props[key];
@@ -63,31 +63,19 @@ export function $object<
               label: this.label,
               message: `remove not accept value: ${name}`,
             });
-            delete parsed.value![key];
+            delete (structValue as Struct)[key];
             return;
           }
-          if (
-            prop.type === SCHEMA_ITEM_TYPE_ARRAY ||
-            prop.type === SCHEMA_ITEM_TYPE_OBJECT
-          ) {
-            const parsedItem = (prop as $Schema.SchemaItemInterfacePropsWithChildren<unknown>).parseWithChildren(
-              val,
-              { ...params, name }
-            );
-            parsed.value![key] = parsedItem.value;
-            if (parsedItem.messages.length > 0) messages.push(...parsedItem.messages);
-            return;
-          }
+
           const parsedItem = prop.parse(val, {
             ...params,
             name,
           });
-          parsed.value![key] = parsedItem.value;
-          if (parsedItem.message) messages.push(parsedItem.message);
+          (structValue as Struct)[key] = parsedItem.value;
+          if (parsedItem.messages) messages.push(...parsedItem.messages);
         });
       }
-
-      return { value: parsed.value as Value, messages };
+      return { value: structValue as Value, messages };
     },
     validate: function (value, params) {
       if (this._validators == null) {
@@ -136,7 +124,7 @@ export function $object<
         }
       }
 
-      let msg: $Schema.Message | null = null;
+      const messages: $Schema.Message[] = [];
       const ruleArg = {
         ...params,
         label: this.label,
@@ -145,19 +133,12 @@ export function $object<
       } as const satisfies $Schema.RuleArgParams<Value>;
 
       for (const vali of this._validators) {
-        msg = vali(ruleArg);
-        if (msg) break;
+        const msg = vali(ruleArg);
+        if (msg) {
+          messages.push(msg);
+          break;
+        }
       }
-      return msg;
-    },
-    validateWithChildren: function (
-      value: Value,
-      params: $Schema.ValidationArgParams
-    ) {
-      const messages: $Schema.Message[] = [];
-
-      const msg = this.validate(value, params);
-      if (msg) messages.push(msg);
 
       if (value != null) {
         const prefixName = params.name ? `${params.name}.` : "";
@@ -166,25 +147,14 @@ export function $object<
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const val = (value as Struct)[key] as any;
 
-          if (
-            prop.type === SCHEMA_ITEM_TYPE_ARRAY ||
-            prop.type === SCHEMA_ITEM_TYPE_OBJECT
-          ) {
-            const msgs = (prop as $Schema.SchemaItemInterfacePropsWithChildren<unknown>).validateWithChildren(
-              val,
-              { ...params, name }
-            );
-            if (msgs.length > 0) messages.push(...msgs);
-            return;
-          }
-          const msg = prop.validate(val, { ...params, name });
-          if (msg) messages.push(msg);
+          const msgs = prop.validate(val, { ...params, name });
+          if (msgs.length > 0) messages.push(...msgs);
         });
       }
 
       return messages;
     },
-  } as const satisfies ObjectProps<Contents> & $Schema.SchemaItemInterfacePropsWithChildren<Value>;
+  } as const satisfies ObjectProps<Contents> & $Schema.SchemaItemInterfaceProps<Value>;
 
   return getSchemaItemPropsGenerator<typeof fixedProps, ObjectProps<Contents>, P>(fixedProps, props)({});
 };

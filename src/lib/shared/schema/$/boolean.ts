@@ -71,13 +71,13 @@ export function $bool<
       }
       return {
         value: undefined,
-        message: {
+        messages: [{
           type: "e",
           label: this.label,
           actionType: this.getActionType(),
           otype: SCHEMA_ITEM_TYPE_BOOLEAN,
           code: "parse",
-        },
+        }],
       };
     },
     validate: function (value, params) {
@@ -132,7 +132,6 @@ export function $bool<
         }
       }
 
-      let msg: $Schema.Message | null = null;
       const ruleArg = {
         ...params,
         label: this.label,
@@ -141,10 +140,10 @@ export function $bool<
       } as const satisfies $Schema.RuleArgParams<TV | FV>;
 
       for (const vali of this._validators) {
-        msg = vali(ruleArg);
-        if (msg) break;
+        const msg = vali(ruleArg);
+        if (msg) return [msg];
       }
-      return msg;
+      return [];
     },
   } as const satisfies BooleanProps<TV, FV> & $Schema.SchemaItemInterfaceProps<TV | FV>;
 

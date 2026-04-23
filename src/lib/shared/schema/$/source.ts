@@ -46,14 +46,6 @@ export function $$source<
     getActionType: function () {
       return this.actionType || "set";
     },
-    getCommonTypeMessageParams: function () {
-      return {
-        otype: SCHEMA_ITEM_TYPE_SOURCE,
-        label: this.label,
-        type: "e",
-        actionType: this.getActionType(),
-      } as const;
-    },
     find: function (value: unknown) {
       if (value == null || value === "") return undefined;
       const v = String(value);
@@ -67,13 +59,13 @@ export function $$source<
       if (item) return { value: item.value };
       return {
         value: value as Value,
-        message: {
+        messages: [{
           type: "e",
           label: this.label,
           actionType: this.getActionType(),
           otype: SCHEMA_ITEM_TYPE_SOURCE,
           code: "parse",
-        },
+        }],
       };
     },
     validate: function (value, params) {
@@ -143,7 +135,6 @@ export function $$source<
         }
       }
 
-      let msg: $Schema.Message | null = null;
       const ruleArg = {
         ...params,
         label: this.label,
@@ -152,10 +143,10 @@ export function $$source<
       } as const satisfies $Schema.RuleArgParams<Value>;
 
       for (const vali of this._validators) {
-        msg = vali(ruleArg);
-        if (msg) break;
+        const msg = vali(ruleArg);
+        if (msg) return [msg];
       }
-      return msg;
+      return [];
     },
   } as const satisfies Omit<SourceProps<Value>, "items"> & $Schema.SchemaItemInterfaceProps<Value> & {
     items: Items;

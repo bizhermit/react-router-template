@@ -153,7 +153,7 @@ type _Fuga = $Schema.Infer<typeof schemaObject, true>;
 // type _Piyo = typeof schemaObject["props"]["selectNum"]["items"];
 const parsed1 = birth.parse(3124, { data: {}, isServer: true, values: {} }).value;
 const parsed2 = schemaObject.parse({ hoge: 1 }, { data: {}, isServer: true, values: {} }).value;
-const parsed3 = schemaObject.parseWithChildren({ hoge: 1 }, { data: {}, isServer: true, values: {} }).value;
+const parsed3 = schemaObject.parse({ hoge: 1 }, { data: {}, isServer: true, values: {} }).value;
 
 export function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
@@ -192,12 +192,12 @@ export default function Page() {
               isServer: false,
               values: dummyValues,
             };
-            const parsed = schemaObject.parseWithChildren(
+            const parsed = schemaObject.parse(
               dummyValues,
               params
             );
             console.log(parsed);
-            console.log(schemaObject.validateWithChildren(parsed.value, params));
+            console.log(schemaObject.validate(parsed.value, params));
             console.log("-", performance.now() - now);
             // console.log("-", validationMessage);
           }}

@@ -49,7 +49,7 @@ namespace $Schema {
 
   type ParseResult<Value> = {
     value: Nullable<Value>;
-    message?: Message | null;
+    messages?: Message[];
   };
 
   type ParseArgParams = InjectParams & { name?: string; };
@@ -135,21 +135,10 @@ namespace $Schema {
   type SchemaItemInterfaceProps<Value> = {
     type: string;
     parse: Parser<Value>;
-    validate: (value: Nullable<Value>, params: ValidationArgParams) => (Message | null);
+    validate: (value: Nullable<Value>, params: ValidationArgParams) => Message[];
     getActionType: () => ActionType;
     _validators: null | Rule<Value>[];
   } & Record<string, unknown>;
-
-  type SchemaItemInterfacePropsWithChildren<Value> = SchemaItemInterfaceProps<Value> & {
-    parseWithChildren: (
-      value: unknown,
-      params: ParseArgParams
-    ) => { value: Nullable<Value>; messages: $Schema.Message[]; };
-    validateWithChildren: (
-      value: Value,
-      params: ValidationArgParams
-    ) => $Schema.Message[];
-  };
 
   type SourceItem<const Value> = {
     value: Value;

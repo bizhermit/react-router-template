@@ -379,7 +379,6 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
         }
       }
 
-      let msg: $Schema.Message | null = null;
       const ruleArg = {
         ...params,
         label: this.label,
@@ -388,10 +387,10 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
       } as const satisfies $Schema.RuleArgParams<string>;
 
       for (const vali of this._validators) {
-        msg = vali(ruleArg);
-        if (msg) break;
+        const msg = vali(ruleArg);
+        if (msg) return [msg];
       }
-      return msg;
+      return [];
     },
   } as const satisfies StringProps & $Schema.SchemaItemInterfaceProps<string>;
 
