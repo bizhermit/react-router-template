@@ -732,6 +732,18 @@ export class $DateTime extends Timestamp {
     return this;
   }
 
+  public setTime(time: $Time | number) {
+    if (typeof time === "number") {
+      if (isNaN(time)) {
+        throw new Error("Invalid time number");
+      }
+      this.ms = time;
+      return this;
+    }
+    this.setHour(time.getHour(), time.getMinute(), time.getSecond(), time.getMillisecond());
+    return this;
+  }
+
   public toString(pattern: string | ((parts: ReturnType<typeof getAll>) => string) = "yyyy/MM/dd hh:mm:ss") {
     return super.toString(pattern);
   };
@@ -875,6 +887,15 @@ export class $Time {
 
   public getTime() {
     return this.ms;
+  }
+
+  public getAll() {
+    return {
+      hour: this.getHour(),
+      minute: this.getMinute(),
+      second: this.getSecond(),
+      millisecond: this.getMillisecond(),
+    } as const;
   }
 
   public setTime(ms: number) {
