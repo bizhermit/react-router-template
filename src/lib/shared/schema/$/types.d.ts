@@ -140,6 +140,17 @@ namespace $Schema {
     _validators: null | Rule<Value>[];
   } & Record<string, unknown>;
 
+  type SchemaItemInterfacePropsWithChildren<Value> = SchemaItemInterfaceProps<Value> & {
+    parseWithChildren: (
+      value: unknown,
+      params: ParseArgParams
+    ) => { value: Nullable<Value>; messages: $Schema.Message[]; };
+    validateWithChildren: (
+      value: Value,
+      params: ValidationArgParams
+    ) => $Schema.Message[];
+  };
+
   type SourceItem<const Value> = {
     value: Value;
     text?: string;

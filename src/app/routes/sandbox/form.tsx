@@ -151,6 +151,9 @@ type _Hoge = $Schema.Infer<typeof schemaObject>;
 type _Fuga = $Schema.Infer<typeof schemaObject, true>;
 // type _Fuga = typeof schemaObject["props"]["selectStr"]["items"];
 // type _Piyo = typeof schemaObject["props"]["selectNum"]["items"];
+const parsed1 = birth.parse(3124, { data: {}, isServer: true, values: {} }).value;
+const parsed2 = schemaObject.parse({ hoge: 1 }, { data: {}, isServer: true, values: {} }).value;
+const parsed3 = schemaObject.parseWithChildren({ hoge: 1 }, { data: {}, isServer: true, values: {} }).value;
 
 export function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);

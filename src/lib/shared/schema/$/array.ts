@@ -50,10 +50,7 @@ export function $array<
       }
       return { value: [value] as Value };
     },
-    parseWithChildren: function (value: unknown, params: $Schema.ParseArgParams): {
-      value: $Schema.Nullable<Value>;
-      messages: $Schema.Message[];
-    } {
+    parseWithChildren: function (value, params) {
       const parsed = this.parse(value, params);
       const messages: $Schema.Message[] = [];
       if (parsed.message) messages.push(parsed.message);
@@ -69,10 +66,10 @@ export function $array<
             this.prop.type === SCHEMA_ITEM_TYPE_ARRAY ||
             this.prop.type === SCHEMA_ITEM_TYPE_OBJECT
           ) {
-            const parsedItem = (this.prop as unknown as ReturnType<typeof $array>).parseWithChildren(val, {
-              ...params,
-              name,
-            });
+            const parsedItem = (this.prop as $Schema.SchemaItemInterfacePropsWithChildren<unknown>).parseWithChildren(
+              val,
+              { ...params, name }
+            );
             parsed.value[i] = parsedItem.value as Value[number];
             if (parsedItem.messages.length > 0) messages.push(...parsedItem.messages);
             continue;
@@ -271,7 +268,7 @@ export function $array<
       }
       return msg;
     },
-    validateWithChildren: function (value: $Schema.Nullable<Value>, params: $Schema.ValidationArgParams) {
+    validateWithChildren: function (value, params) {
       const messages: $Schema.Message[] = [];
 
       const msg = this.validate(value, params);
@@ -289,10 +286,10 @@ export function $array<
             this.prop.type === SCHEMA_ITEM_TYPE_ARRAY ||
             this.prop.type === SCHEMA_ITEM_TYPE_OBJECT
           ) {
-            const msgs = (this.prop as unknown as ReturnType<typeof $array>).validateWithChildren(val, {
-              ...params,
-              name,
-            });
+            const msgs = (this.prop as $Schema.SchemaItemInterfacePropsWithChildren<unknown>).validateWithChildren(
+              val,
+              { ...params, name }
+            );
             if (msgs.length > 0) messages.push(...msgs);
             continue;
           }
@@ -303,7 +300,7 @@ export function $array<
 
       return messages;
     },
-  } as const satisfies ArrayProps<Content> & $Schema.SchemaItemInterfaceProps<Value>;
+  } as const satisfies ArrayProps<Content> & $Schema.SchemaItemInterfacePropsWithChildren<Value>;
 
   return getSchemaItemPropsGenerator<typeof fixedProps, ArrayProps<Content>, P>(fixedProps, props)({});
 };
