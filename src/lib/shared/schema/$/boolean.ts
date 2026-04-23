@@ -4,13 +4,12 @@ export const SCHEMA_ITEM_TYPE_BOOLEAN = "bool";
 
 type BooleanValue = boolean | number | string;
 
-type BooleanValidationAbstractMessage = $Schema.AbstractMessage & {
+export type BooleanValidationMessage = $Schema.AbstractMessage & {
   otype: typeof SCHEMA_ITEM_TYPE_BOOLEAN;
-};
-export type BooleanValidationMessage = BooleanValidationAbstractMessage & (
-  | { code: "parse"; }
-  | { code: "required"; }
-);
+} & (
+    | { code: "parse"; }
+    | { code: "required"; }
+  );
 
 type BooleanOptions<
   TrueValue extends BooleanValue,
@@ -51,24 +50,16 @@ export function $bool<
     getActionType: function () {
       return this.actionType || "select";
     },
-    getCommonTypeMessageParams: function () {
-      return {
-        otype: SCHEMA_ITEM_TYPE_BOOLEAN,
-        label: this.label,
-        actionType: this.getActionType(),
-        type: "e",
-      };
-    },
-    parse: function (params) {
-      if (this.parser) return this.parser(params);
-      const s = String(params.value);
+    parse: function (value, params) {
+      if (this.parser) return this.parser(value, params);
+      const s = String(value);
       if (s === String(trueValue)) {
         return { value: trueValue };
       }
       if (s === String(falseValue)) {
         return { value: falseValue };
       }
-      if (params.value == null || params.value === "") {
+      if (value == null || value === "") {
         return { value: undefined };
       }
       const ls = s.toLowerCase();
@@ -81,15 +72,24 @@ export function $bool<
       return {
         value: undefined,
         message: {
-          ...this.getCommonTypeMessageParams(),
+          type: "e",
+          label: this.label,
+          actionType: this.getActionType(),
+          otype: SCHEMA_ITEM_TYPE_BOOLEAN,
           code: "parse",
         },
       };
     },
-    validate: function (params) {
+    validate: function (value, params) {
       if (this._validators == null) {
         this._validators = [];
-        const commonMsgParams = this.getCommonTypeMessageParams();
+        const commonMsgParams = {
+          otype: SCHEMA_ITEM_TYPE_BOOLEAN,
+          type: "e",
+        } as const satisfies {
+          otype: string;
+          type: $Schema.AbstractMessage["type"];
+        };
 
         // required
         if (this.required != null) {
@@ -97,9 +97,10 @@ export function $bool<
           if (required) {
             const getMessage: $Schema.ValidationMessageGetter<typeof getRequiredMessage> =
               getRequiredMessage ??
-              (() => ({
+              ((p) => ({
                 ...commonMsgParams,
                 code: "required",
+                ...p,
               }));
 
             if (typeof required === "function") {
@@ -133,16 +134,20 @@ export function $bool<
       }
 
       let msg: $Schema.Message | null = null;
+      const ruleArg = {
+        ...params,
+        label: this.label,
+        actionType: this.getActionType(),
+        value,
+      } as const satisfies $Schema.RuleArgParams<TV | FV>;
+
       for (const vali of this._validators) {
-        msg = vali(params);
+        msg = vali(ruleArg);
         if (msg) break;
       }
       return msg;
     },
-  } as const satisfies BooleanProps<TV, FV> & $Schema.SchemaItemInterfaceProps<
-    TV | FV,
-    BooleanValidationAbstractMessage
-  >;
+  } as const satisfies BooleanProps<TV, FV> & $Schema.SchemaItemInterfaceProps<TV | FV>;
 
   return getSchemaItemPropsGenerator<typeof fixedProps, BooleanProps<TV, FV>, P>(fixedProps, props)({});
 };

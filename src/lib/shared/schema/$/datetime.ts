@@ -92,7 +92,7 @@ type SplitDateTimeOptions = {
 type SplitDateTimeProps = $Schema.SchemaItemAbstractProps & SplitDateTimeOptions;
 
 type SplitDateTimeBaseProps = Pick<
-  DateTimeProps & $Schema.SchemaItemInterfaceProps<$Date, DateTimeValidationAbstractMessage>,
+  DateTimeProps & $Schema.SchemaItemInterfaceProps<$Date>,
   "required" | "minDateTime" | "maxDateTime" | "minDate" | "maxDate" | "minTime" | "maxTime" | "getActionType"
 >;
 
@@ -124,39 +124,41 @@ function splitDateTime<const Base extends SplitDateTimeBaseProps>(base: {
       getActionType: function () {
         return this.actionType || base.getThis().getActionType();
       },
-      getCommonTypeMessageParams: function () {
-        return {
-          otype: SCHEMA_ITEM_TYPE_SPLIT_DATETIME,
-          label: this.label,
-          type: "e",
-          actionType: this.getActionType(),
-        } as const;
-      },
-      parse: function (params) {
-        if (this.parser) return this.parser(params);
-        const [num, succeeded] = parseNumber(params.value);
+      parse: function (value, params) {
+        if (this.parser) return this.parser(value, params);
+        const [num, succeeded] = parseNumber(value);
         if (succeeded) return { value: num };
         return {
           value: num,
           message: {
-            ...this.getCommonTypeMessageParams(),
+            type: "e",
+            label: this.label,
+            actionType: this.getActionType(),
+            otype: SCHEMA_ITEM_TYPE_SPLIT_DATETIME,
             code: "parse",
           },
         };
       },
-      validate: function (params) {
+      validate: function (value, params) {
         if (this._validators == null) {
           this._validators = [];
-          const commonMsgParams = this.getCommonTypeMessageParams();
+          const commonMsgParams = {
+            otype: SCHEMA_ITEM_TYPE_SPLIT_DATETIME,
+            type: "e",
+          } as const satisfies {
+            otype: string;
+            type: $Schema.AbstractMessage["type"];
+          };
 
           // required
           const [required, getRequiredMessage] = getValidationArray(this.required, "inherit");
           if (required) {
             const getMessage: $Schema.ValidationMessageGetter<typeof getRequiredMessage> =
               getRequiredMessage ??
-              (() => ({
+              ((p) => ({
                 ...commonMsgParams,
                 code: "required",
+                ...p,
               }));
 
             if (typeof required === "function") {
@@ -469,16 +471,20 @@ function splitDateTime<const Base extends SplitDateTimeBaseProps>(base: {
         }
 
         let msg: $Schema.Message | null = null;
+        const ruleArg = {
+          ...params,
+          label: this.label,
+          actionType: this.getActionType(),
+          value,
+        } as const satisfies $Schema.RuleArgParams<number>;
+
         for (const vali of this._validators) {
-          msg = vali(params);
+          msg = vali(ruleArg);
           if (msg) break;
         }
         return msg;
       },
-    } as const satisfies SplitDateTimeProps & $Schema.SchemaItemInterfaceProps<
-      number,
-      SplitDateTimeValidationAbstractMessage
-    >;
+    } as const satisfies SplitDateTimeProps & $Schema.SchemaItemInterfaceProps<number>;
   };
 };
 
@@ -489,37 +495,38 @@ export function $datetime<const P extends DateTimeProps>(props: P = {} as P) {
     getActionType: function () {
       return this.actionType || "select";
     },
-    getCommonTypeMessageParams: function () {
-      return {
-        otype: SCHEMA_ITEM_TYPE_DATETIME,
-        label: this.label,
-        type: "e",
-        actionType: this.getActionType(),
-      } as const;
-    },
     getTimeBasis: function () {
       return this.timeBasis || "minute";
     },
-    parse: function (params) {
-      if (this.parser) return this.parser(params);
-      if (params.value == null || params.value === "") return { value: undefined };
+    parse: function (value, params) {
+      if (this.parser) return this.parser(value, params);
+      if (value == null || value === "") return { value: undefined };
       try {
-        const value = new $DateTime(params.value as string);
-        return { value };
+        const datetime = new $DateTime(value as string);
+        return { value: datetime };
       } catch {
         return {
           value: null,
           message: {
-            ...this.getCommonTypeMessageParams(),
+            type: "e",
+            label: this.label,
+            actionType: this.getActionType(),
+            otype: SCHEMA_ITEM_TYPE_DATETIME,
             code: "parse",
           },
         };
       }
     },
-    validate: function (params) {
+    validate: function (value, params) {
       if (this._validators == null) {
         this._validators = [];
-        const commonMsgParams = this.getCommonTypeMessageParams();
+        const commonMsgParams = {
+          otype: SCHEMA_ITEM_TYPE_DATETIME,
+          type: "e",
+        } as const satisfies {
+          otype: string;
+          type: $Schema.AbstractMessage["type"];
+        };
 
         // required
         if (this.required != null) {
@@ -527,9 +534,10 @@ export function $datetime<const P extends DateTimeProps>(props: P = {} as P) {
           if (required) {
             const getMessage: $Schema.ValidationMessageGetter<typeof getRequiredMessage> =
               getRequiredMessage ??
-              (() => ({
+              ((p) => ({
                 ...commonMsgParams,
                 code: "required",
+                ...p,
               }));
 
             if (typeof required === "function") {
@@ -877,8 +885,15 @@ export function $datetime<const P extends DateTimeProps>(props: P = {} as P) {
       }
 
       let msg: $Schema.Message | null = null;
+      const ruleArg = {
+        ...params,
+        label: this.label,
+        actionType: this.getActionType(),
+        value,
+      } as const satisfies $Schema.RuleArgParams<$DateTime>;
+
       for (const vali of this._validators) {
-        msg = vali(params);
+        msg = vali(ruleArg);
         if (msg) break;
       }
       return msg;
@@ -1009,7 +1024,7 @@ export function $datetime<const P extends DateTimeProps>(props: P = {} as P) {
         },
       })<SP>(splitProps);
     },
-  } as const satisfies DateTimeProps & $Schema.SchemaItemInterfaceProps<$DateTime, DateTimeValidationAbstractMessage>;
+  } as const satisfies DateTimeProps & $Schema.SchemaItemInterfaceProps<$DateTime>;
 
   return getSchemaItemPropsGenerator<typeof fixedProps, DateTimeProps, P>(fixedProps, props)({});
 };

@@ -7,16 +7,15 @@ type NumberValidation_MinParams = { min: number; };
 type NumberValidation_MaxParams = { max: number; };
 type NumberValidation_FloatParams = { float: number; currentFloat: number; };
 
-export type NumberValidationAbstractMessage = $Schema.AbstractMessage & {
+export type NumberValidationMessage = $Schema.AbstractMessage & {
   otype: typeof SCHEMA_ITEM_TYPE_NUMBER;
-};
-export type NumberValidationMessage = NumberValidationAbstractMessage & (
-  | { code: "parse"; }
-  | { code: "required"; }
-  | ({ code: "min"; } & NumberValidation_MinParams)
-  | ({ code: "max"; } & NumberValidation_MaxParams)
-  | ({ code: "float"; } & NumberValidation_FloatParams)
-);
+} & (
+    | { code: "parse"; }
+    | { code: "required"; }
+    | ({ code: "min"; } & NumberValidation_MinParams)
+    | ({ code: "max"; } & NumberValidation_MaxParams)
+    | ({ code: "float"; } & NumberValidation_FloatParams)
+  );
 
 type NumberOptions = {
   parser?: $Schema.Parser<number>;
@@ -41,30 +40,31 @@ export function $num<const P extends NumberProps>(props: P = {} as P) {
     getActionType: function () {
       return this.actionType || "input";
     },
-    getCommonTypeMessageParams: function () {
-      return {
-        otype: SCHEMA_ITEM_TYPE_NUMBER,
-        label: this.label,
-        type: "e",
-        actionType: this.getActionType(),
-      } as const;
-    },
-    parse: function (params) {
-      if (this.parser) return this.parser(params);
-      const [num, succeeded] = parseNumber(params.value);
+    parse: function (value, params) {
+      if (this.parser) return this.parser(value, params);
+      const [num, succeeded] = parseNumber(value);
       if (succeeded) return { value: num };
       return {
         value: num,
         message: {
-          ...this.getCommonTypeMessageParams(),
+          type: "e",
+          label: this.label,
+          actionType: this.getActionType(),
+          otype: SCHEMA_ITEM_TYPE_NUMBER,
           code: "parse",
         },
       };
     },
-    validate: function (params) {
+    validate: function (value, params) {
       if (this._validators == null) {
         this._validators = [];
-        const commonMsgParams = this.getCommonTypeMessageParams();
+        const commonMsgParams = {
+          otype: SCHEMA_ITEM_TYPE_NUMBER,
+          type: "e",
+        } as const satisfies {
+          otype: string;
+          type: $Schema.AbstractMessage["type"];
+        };
 
         // required
         if (this.required != null) {
@@ -72,9 +72,10 @@ export function $num<const P extends NumberProps>(props: P = {} as P) {
           if (required) {
             const getMessage: $Schema.ValidationMessageGetter<typeof getRequiredMessage> =
               getRequiredMessage ??
-              (() => ({
+              ((p) => ({
                 ...commonMsgParams,
                 code: "required",
+                ...p,
               }));
 
             if (typeof required === "function") {
@@ -213,13 +214,20 @@ export function $num<const P extends NumberProps>(props: P = {} as P) {
       }
 
       let msg: $Schema.Message | null = null;
+      const ruleArg = {
+        ...params,
+        label: this.label,
+        actionType: this.getActionType(),
+        value,
+      } as const satisfies $Schema.RuleArgParams<number>;
       for (const vali of this._validators) {
-        msg = vali(params);
+        msg = vali(ruleArg);
         if (msg) break;
       }
+
       return msg;
     },
-  } as const satisfies NumberProps & $Schema.SchemaItemInterfaceProps<number, NumberValidationAbstractMessage>;
+  } as const satisfies NumberProps & $Schema.SchemaItemInterfaceProps<number>;
 
   return getSchemaItemPropsGenerator<typeof fixedProps, NumberProps, P>(fixedProps, props)({});
 };

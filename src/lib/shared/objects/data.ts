@@ -25,7 +25,7 @@ export function getArrayIndexOrName(name: string) {
  * @param name
  * @returns
  */
-export function splitName(name: string) {
+export function splitName(name: string = "") {
   return name.split(/\.|(\[\d*\])/).filter(s => s);
 };
 
@@ -35,7 +35,7 @@ export function splitName(name: string) {
  * @param relativeName
  * @returns
  */
-export function getRelativeName(baseName: string, relativeName: string) {
+export function getRelativeName(baseName: string | undefined, relativeName: string) {
   const relative = relativeName.match(/^(\.+)(.*)/);
   if (!relative) return relativeName;
   const name = relative[2];
@@ -52,7 +52,7 @@ export function getRelativeName(baseName: string, relativeName: string) {
 
 export function getValue<V>(
   data: Record<string, unknown>,
-  name: string,
+  name: string | undefined,
   relativeName?: string
 ): [vlaue: V | null | undefined, hasProperty: boolean] {
   let has = false;

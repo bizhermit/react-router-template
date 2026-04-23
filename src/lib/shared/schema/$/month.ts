@@ -68,7 +68,7 @@ type SplitMonthOptions = {
 type SplitMonthProps = $Schema.SchemaItemAbstractProps & SplitMonthOptions;
 
 type SplitMonthBaseProps = Pick<
-  MonthProps & $Schema.SchemaItemInterfaceProps<$Month, MonthValidationAbstractMessage>,
+  MonthProps & $Schema.SchemaItemInterfaceProps<$Month>,
   "required" | "minMonth" | "maxMonth" | "getActionType"
 >;
 
@@ -96,39 +96,41 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
       getActionType: function () {
         return this.actionType || base.getThis().getActionType();
       },
-      getCommonTypeMessageParams: function () {
-        return {
-          otype: SCHEMA_ITEM_TYPE_SPLIT_MONTH,
-          label: this.label,
-          type: "e",
-          actionType: this.getActionType(),
-        } as const;
-      },
-      parse: function (params) {
-        if (this.parser) return this.parser(params);
-        const [num, succeeded] = parseNumber(params.value);
+      parse: function (value, params) {
+        if (this.parser) return this.parser(value, params);
+        const [num, succeeded] = parseNumber(value);
         if (succeeded) return { value: num };
         return {
           value: num,
           message: {
-            ...this.getCommonTypeMessageParams(),
+            type: "e",
+            label: this.label,
+            actionType: this.getActionType(),
+            otype: SCHEMA_ITEM_TYPE_SPLIT_MONTH,
             code: "parse",
           },
         };
       },
-      validate: function (params) {
+      validate: function (value, params) {
         if (this._validators == null) {
           this._validators = [];
-          const commonMsgParams = this.getCommonTypeMessageParams();
+          const commonMsgParams = {
+            otype: SCHEMA_ITEM_TYPE_SPLIT_MONTH,
+            type: "e",
+          } as const satisfies {
+            otype: string;
+            type: $Schema.AbstractMessage["type"];
+          };
 
           // required
           const [required, getRequiredMessage] = getValidationArray(this.required, "inherit");
           if (required) {
             const getMessage: $Schema.ValidationMessageGetter<typeof getRequiredMessage> =
               getRequiredMessage ??
-              (() => ({
+              ((p) => ({
                 ...commonMsgParams,
                 code: "required",
+                ...p,
               }));
 
             if (typeof required === "function") {
@@ -367,16 +369,20 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
         }
 
         let msg: $Schema.Message | null = null;
+        const ruleArg = {
+          ...params,
+          label: this.label,
+          actionType: this.getActionType(),
+          value,
+        } as const satisfies $Schema.RuleArgParams<number>;
+
         for (const vali of this._validators) {
-          msg = vali(params);
+          msg = vali(ruleArg);
           if (msg) break;
         }
         return msg;
       },
-    } as const satisfies SplitMonthProps & $Schema.SchemaItemInterfaceProps<
-      number,
-      SplitMonthValidationAbstractMessage
-    >;
+    } as const satisfies SplitMonthProps & $Schema.SchemaItemInterfaceProps<number>;
   };
 };
 
@@ -387,34 +393,35 @@ export function $month<const P extends MonthProps>(props: P = {} as P) {
     getActionType: function () {
       return this.actionType || "select";
     },
-    getCommonTypeMessageParams: function () {
-      return {
-        otype: SCHEMA_ITEM_TYPE_MONTH,
-        label: this.label,
-        type: "e",
-        actionType: this.getActionType(),
-      } as const;
-    },
-    parse: function (params) {
-      if (this.parser) return this.parser(params);
-      if (params.value == null || params.value === "") return { value: undefined };
+    parse: function (value, params) {
+      if (this.parser) return this.parser(value, params);
+      if (value == null || value === "") return { value: undefined };
       try {
-        const value = new $Month(params.value as string);
-        return { value };
+        const month = new $Month(value as string);
+        return { value: month };
       } catch {
         return {
           value: null,
           message: {
-            ...this.getCommonTypeMessageParams(),
+            type: "e",
+            label: this.label,
+            actionType: this.getActionType(),
+            otype: SCHEMA_ITEM_TYPE_MONTH,
             code: "parse",
           },
         };
       }
     },
-    validate: function (params) {
+    validate: function (value, params) {
       if (this._validators == null) {
         this._validators = [];
-        const commonMsgParams = this.getCommonTypeMessageParams();
+        const commonMsgParams = {
+          otype: SCHEMA_ITEM_TYPE_MONTH,
+          type: "e",
+        } as const satisfies {
+          otype: string;
+          type: $Schema.AbstractMessage["type"];
+        };
 
         // required
         if (this.required != null) {
@@ -422,9 +429,10 @@ export function $month<const P extends MonthProps>(props: P = {} as P) {
           if (required) {
             const getMessage: $Schema.ValidationMessageGetter<typeof getRequiredMessage> =
               getRequiredMessage ??
-              (() => ({
+              ((p) => ({
                 ...commonMsgParams,
                 code: "required",
+                ...p,
               }));
 
             if (typeof required === "function") {
@@ -610,8 +618,15 @@ export function $month<const P extends MonthProps>(props: P = {} as P) {
       }
 
       let msg: $Schema.Message | null = null;
+      const ruleArg = {
+        ...params,
+        label: this.label,
+        actionType: this.getActionType(),
+        value,
+      } as const satisfies $Schema.RuleArgParams<$Month>;
+
       for (const vali of this._validators) {
-        msg = vali(params);
+        msg = vali(ruleArg);
         if (msg) break;
       }
       return msg;
@@ -660,7 +675,7 @@ export function $month<const P extends MonthProps>(props: P = {} as P) {
         },
       })<SP>(splitProps);
     },
-  } as const satisfies MonthProps & $Schema.SchemaItemInterfaceProps<$Month, MonthValidationAbstractMessage>;
+  } as const satisfies MonthProps & $Schema.SchemaItemInterfaceProps<$Month>;
 
   return getSchemaItemPropsGenerator<typeof fixedProps, MonthProps, P>(fixedProps, props)({});
 };

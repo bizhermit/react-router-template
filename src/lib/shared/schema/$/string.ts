@@ -136,17 +136,16 @@ type StringValidation_MinLengthParams = { minLength: number; currentLength: numb
 type StringValidation_MaxLengthParams = { maxLength: number; currentLength: number; };
 type StringValidation_Pattern = { pattern: StrPattern; };
 
-type StringValidationAbstractMessage = $Schema.AbstractMessage & {
+export type StringValidationMessage = $Schema.AbstractMessage & {
   otype: typeof SCHEMA_ITEM_TYPE_STRING;
-};
-export type StringValidationMessage = StringValidationAbstractMessage & (
-  | { code: "parse"; }
-  | { code: "required"; }
-  | ({ code: "length"; } & StringValidation_LengthParams)
-  | ({ code: "minLength"; } & StringValidation_MinLengthParams)
-  | ({ code: "maxLength"; } & StringValidation_MaxLengthParams)
-  | ({ code: "pattern"; } & StringValidation_Pattern)
-);
+} & (
+    | { code: "parse"; }
+    | { code: "required"; }
+    | ({ code: "length"; } & StringValidation_LengthParams)
+    | ({ code: "minLength"; } & StringValidation_MinLengthParams)
+    | ({ code: "maxLength"; } & StringValidation_MaxLengthParams)
+    | ({ code: "pattern"; } & StringValidation_Pattern)
+  );
 
 type StringOptions = {
   parser?: $Schema.Parser<string>;
@@ -171,24 +170,22 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
     getActionType: function () {
       return this.actionType || "input";
     },
-    getCommonTypeMessageParams: function () {
-      return {
-        otype: SCHEMA_ITEM_TYPE_STRING,
-        label: this.label,
-        type: "e",
-        actionType: this.getActionType(),
-      } as const;
+    parse: function (value, params) {
+      if (this.parser) return this.parser(value, params);
+      if (value == null || value === "") return { value: undefined };
+      if (typeof value === "string") return { value };
+      return { value: String(value) };
     },
-    parse: function (params) {
-      if (this.parser) return this.parser(params);
-      if (params.value == null || params.value === "") return { value: undefined };
-      if (typeof params.value === "string") return { value: params.value };
-      return { value: String(params.value) };
-    },
-    validate: function (params) {
+    validate: function (value, params) {
       if (this._validators == null) {
         this._validators = [];
-        const commonMsgParams = this.getCommonTypeMessageParams();
+        const commonMsgParams = {
+          otype: SCHEMA_ITEM_TYPE_STRING,
+          type: "e",
+        } as const satisfies {
+          otype: string;
+          type: $Schema.AbstractMessage["type"];
+        };
 
         // required
         if (this.required != null) {
@@ -196,9 +193,10 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
           if (required) {
             const getMessage: $Schema.ValidationMessageGetter<typeof getRequiredMessage> =
               getRequiredMessage ??
-              (() => ({
+              ((p) => ({
                 ...commonMsgParams,
                 code: "required",
+                ...p,
               }));
 
             if (typeof required === "function") {
@@ -385,13 +383,20 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
       }
 
       let msg: $Schema.Message | null = null;
+      const ruleArg = {
+        ...params,
+        label: this.label,
+        actionType: this.getActionType(),
+        value,
+      } as const satisfies $Schema.RuleArgParams<string>;
+
       for (const vali of this._validators) {
-        msg = vali(params);
+        msg = vali(ruleArg);
         if (msg) break;
       }
       return msg;
     },
-  } as const satisfies StringProps & $Schema.SchemaItemInterfaceProps<string, StringValidationAbstractMessage>;
+  } as const satisfies StringProps & $Schema.SchemaItemInterfaceProps<string>;
 
   return getSchemaItemPropsGenerator<typeof fixedProps, StringProps, P>(fixedProps, props)({});
 };

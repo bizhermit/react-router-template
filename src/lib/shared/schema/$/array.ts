@@ -62,26 +62,24 @@ export function $array<
     getActionType: function () {
       return this.actionType || "set";
     },
-    getCommonTypeMessageParams: function () {
-      return {
-        otype: SCHEMA_ITEM_TYPE_ARRAY,
-        label: this.label,
-        type: "e",
-        actionType: this.getActionType(),
-      } as const;
-    },
-    parse: function (params) {
-      if (this.parser) return this.parser(params);
-      if (params.value == null || params.value === "") return { value: undefined };
-      if (Array.isArray(params.value)) {
-        return { value: params.value as Value };
+    parse: function (value, params) {
+      if (this.parser) return this.parser(value, params);
+      if (value == null || value === "") return { value: undefined };
+      if (Array.isArray(value)) {
+        return { value: value as Value };
       }
-      return { value: [params.value] as Value };
+      return { value: [value] as Value };
     },
-    validate: function (params) {
+    validate: function (value, params) {
       if (this._validators == null) {
         this._validators = [];
-        const commonMsgParams = this.getCommonTypeMessageParams();
+        const commonMsgParams = {
+          otype: SCHEMA_ITEM_TYPE_ARRAY,
+          type: "e",
+        } as const satisfies {
+          otype: string;
+          type: $Schema.AbstractMessage["type"];
+        };
 
         // required
         if (this.required != null) {
@@ -89,9 +87,10 @@ export function $array<
           if (required) {
             const getMessage: $Schema.ValidationMessageGetter<typeof getRequiredMessage> =
               getRequiredMessage ??
-              (() => ({
+              ((p) => ({
                 ...commonMsgParams,
                 code: "required",
+                ...p,
               }));
 
             if (typeof required === "function") {
@@ -234,13 +233,20 @@ export function $array<
       }
 
       let msg: $Schema.Message | null = null;
+      const ruleArg = {
+        ...params,
+        label: this.label,
+        actionType: this.getActionType(),
+        value,
+      } as const satisfies $Schema.RuleArgParams<Value>;
+
       for (const vali of this._validators) {
-        msg = vali(params);
+        msg = vali(ruleArg);
         if (msg) break;
       }
       return msg;
     },
-  } as const satisfies ArrayProps<Content> & $Schema.SchemaItemInterfaceProps<Value, ArrayValidationAbstractMessage>;
+  } as const satisfies ArrayProps<Content> & $Schema.SchemaItemInterfaceProps<Value>;
 
   return getSchemaItemPropsGenerator<typeof fixedProps, ArrayProps<Content>, P>(fixedProps, props)({});
 };

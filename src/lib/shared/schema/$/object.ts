@@ -35,23 +35,21 @@ export function $object<
     getActionType: function () {
       return this.actionType || "set";
     },
-    getCommonTypeMessageParams: function () {
-      return {
-        otype: SCHEMA_ITEM_TYPE_OBJECT,
-        label: this.label,
-        actionType: this.getActionType(),
-        type: "e",
-      };
+    parse: function (value, params) {
+      if (this.parser) return this.parser(value, params);
+      if (value == null || value === "") return { value: undefined };
+      return { value: value as $Schema.InferValue<Contents> };
     },
-    parse: function (params) {
-      if (this.parser) return this.parser(params);
-      if (params.value == null || params.value === "") return { value: undefined };
-      return { value: params.value as $Schema.InferValue<Contents> };
-    },
-    validate: function (params) {
+    validate: function (value, params) {
       if (this._validators == null) {
         this._validators = [];
-        const commonMsgParams = this.getCommonTypeMessageParams();
+        const commonMsgParams = {
+          otype: SCHEMA_ITEM_TYPE_OBJECT,
+          type: "e",
+        } as const satisfies {
+          otype: string;
+          type: $Schema.AbstractMessage["type"];
+        };
 
         // required
         if (this.required != null) {
@@ -59,9 +57,10 @@ export function $object<
           if (required) {
             const getMessage: $Schema.ValidationMessageGetter<typeof getRequiredMessage> =
               getRequiredMessage ??
-              (() => ({
+              ((p) => ({
                 ...commonMsgParams,
                 code: "required",
+                ...p,
               }));
 
             if (typeof required === "function") {
@@ -90,16 +89,20 @@ export function $object<
       }
 
       let msg: $Schema.Message | null = null;
+      const ruleArg = {
+        ...params,
+        label: this.label,
+        actionType: this.getActionType(),
+        value,
+      } as const satisfies $Schema.RuleArgParams<$Schema.InferValue<Contents>>;
+
       for (const vali of this._validators) {
-        msg = vali(params);
+        msg = vali(ruleArg);
         if (msg) break;
       }
       return msg;
     },
-  } as const satisfies ObjectProps<Contents> & $Schema.SchemaItemInterfaceProps<
-    $Schema.InferValue<Contents>,
-    ObjectValidationAbstractMessage
-  >;
+  } as const satisfies ObjectProps<Contents> & $Schema.SchemaItemInterfaceProps<$Schema.InferValue<Contents>>;
 
   return getSchemaItemPropsGenerator<typeof fixedProps, ObjectProps<Contents>, P>(fixedProps, props)({});
 };

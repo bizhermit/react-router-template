@@ -64,22 +64,31 @@ export function $$source<
         return String(item.value) === v;
       });
     },
-    parse: function (params) {
-      if (this.parser) return this.parser(params);
-      const item = this.find(params.value);
+    parse: function (value, params) {
+      if (this.parser) return this.parser(value, params);
+      const item = this.find(value);
       if (item) return { value: item.value };
       return {
-        value: params.value as Value,
+        value: value as Value,
         message: {
-          ...this.getCommonTypeMessageParams(),
+          type: "e",
+          label: this.label,
+          actionType: this.getActionType(),
+          otype: SCHEMA_ITEM_TYPE_SOURCE,
           code: "parse",
         },
       };
     },
-    validate: function (params) {
+    validate: function (value, params) {
       if (this._validators == null) {
         this._validators = [];
-        const commonMsgParams = this.getCommonTypeMessageParams();
+        const commonMsgParams = {
+          otype: SCHEMA_ITEM_TYPE_SOURCE,
+          type: "e",
+        } as const satisfies {
+          otype: string;
+          type: $Schema.AbstractMessage["type"];
+        };
 
         // required
         if (this.required != null) {
@@ -87,9 +96,10 @@ export function $$source<
           if (required) {
             const getMessage: $Schema.ValidationMessageGetter<typeof getRequiredMessage> =
               getRequiredMessage ??
-              (() => ({
+              ((p) => ({
                 ...commonMsgParams,
                 code: "required",
+                ...p,
               }));
 
             if (typeof required === "function") {
@@ -136,13 +146,20 @@ export function $$source<
       }
 
       let msg: $Schema.Message | null = null;
+      const ruleArg = {
+        ...params,
+        label: this.label,
+        actionType: this.getActionType(),
+        value,
+      } as const satisfies $Schema.RuleArgParams<Value>;
+
       for (const vali of this._validators) {
-        msg = vali(params);
+        msg = vali(ruleArg);
         if (msg) break;
       }
       return msg;
     },
-  } as const satisfies Omit<SourceProps<Value>, "items"> & $Schema.SchemaItemInterfaceProps<Value, SourceValidationAbstractMessage> & {
+  } as const satisfies Omit<SourceProps<Value>, "items"> & $Schema.SchemaItemInterfaceProps<Value> & {
     items: Items;
     find: (value: unknown) => $Schema.SourceItem<Value> | undefined;
   };

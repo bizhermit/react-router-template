@@ -6,12 +6,18 @@ namespace $Schema {
   type ActionType = "input" | "select" | "set";
 
   type ArgParams = {
-    name: string;
-    label: string | undefined;
-    actionType: ActionType;
     values: Record<string, unknown>;
     data: Record<string, unknown>;
     isServer: boolean;
+  };
+
+  type SchemaItemArgParams = {
+    label: string | undefined;
+    actionType: ActionType;
+  };
+
+  type AddonArgParams = ArgParams & SchemaItemArgParams & {
+    name?: string;
   };
 
   type AbstractMessage = {
@@ -53,20 +59,18 @@ namespace $Schema {
     message?: Message | null;
   };
 
-  type ParseArgParams = ArgParams & {
-    value: unknown;
-  };
+  type ParseArgParams = ArgParams & SchemaItemArgParams;
 
   type Parser<Value> =
-    (params: ParseArgParams) => ParseResult<Value>;
+    (value: unknown, params: ParseArgParams) => ParseResult<Value>;
 
-  type ValidationArgParams<Value> = ArgParams & {
-    value: Nullable<Value>;
+  type ValidationArgParams = ArgParams & SchemaItemArgParams & {
+    name?: string;
   };
 
   type ValidationValue<SettingsValue> =
     | Nullable<SettingsValue>
-    | ((params: ArgParams) => Nullable<SettingsValue>)
+    | ((params: AddonArgParams) => Nullable<SettingsValue>)
     ;
 
   type ValidationResultArgParams<
@@ -114,25 +118,22 @@ namespace $Schema {
   type ValidationMessageGetter<T> =
     (p: Exclude<Parameters<Exclude<T, undefined>>[0], undefined>) => ReturnType<Exclude<T, undefined>>;
 
-  type RuleArgParams<Value> = ArgParams & {
+  type RuleArgParams<Value> = AddonArgParams & {
     value: Nullable<Value>;
   };
 
   type Rule<Value> = (params: RuleArgParams<Value>) => (Message | null);
 
-  type SchemaItemAbstractProps = {
-    label?: string;
+  type SchemaItemAbstractProps = Partial<SchemaItemArgParams> & {
     refs?: string[];
-    mode?: (params: ArgParams) => Mode;
-    actionType?: ActionType;
+    mode?: (params: AddonArgParams) => Mode;
   };
 
-  type SchemaItemInterfaceProps<Value, AbstractTypeMessage> = {
+  type SchemaItemInterfaceProps<Value> = {
     type: string;
     parse: Parser<Value>;
-    validate: (params: ValidationArgParams<Value>) => (Message | null);
+    validate: (value: Nullable<Value>, params: ValidationArgParams) => (Message | null);
     getActionType: () => ActionType;
-    getCommonTypeMessageParams: () => AbstractTypeMessage;
     _validators: null | Rule<Value>[];
   } & Record<string, unknown>;
 

@@ -179,16 +179,18 @@ export default function Page() {
               data: {},
               isServer: true,
               name: "name",
-              // value: dummyValues.name,
-              value: dummyValues.year,
               values: dummyValues,
               actionType: "input",
               label: "名前",
-            } satisfies $Schema.ValidationArgParams<unknown>;
+            } satisfies $Schema.ValidationArgParams;
             console.log("validate");
             const now = performance.now();
             // const validationMessage = schemaObject.props.name.validate(validationArgParams);
-            const validationMessage = schemaObject.props.year.validate(validationArgParams);
+            const validationMessage = schemaObject.props.year.validate(
+              // value: dummyValues.name,
+              dummyValues.year,
+              validationArgParams
+            );
             console.log("-", performance.now() - now);
             console.log("-", validationMessage);
           }}

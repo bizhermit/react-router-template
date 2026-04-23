@@ -103,70 +103,57 @@ export function $file<const P extends FileProps>(props: P = {} as P) {
     getActionType: function () {
       return this.actionType || "select";
     },
-    getCommonTypeMessageParams: function () {
-      return {
-        otype: SCHEMA_ITEM_TYPE_FILE,
-        label: this.label,
-        actionType: this.getActionType(),
-        type: "e",
-      };
-    },
-    parse: function (params) {
-      if (this.parser) return this.parser(params);
-      if (params.value == null) return { value: params.value };
+    parse: function (value, params) {
+      if (this.parser) return this.parser(value, params);
+      if (value == null) return { value };
 
-      if (params.value instanceof File) {
-        if (params.value.size === 0) return { value: undefined };
-        return { value: params.value };
+      if (value instanceof File) {
+        if (value.size === 0) return { value: undefined };
+        return { value };
       }
 
-      if (params.value instanceof Blob) {
+      if (value instanceof Blob) {
         try {
-          if (params.value.size === 0) return { value: undefined };
-          return { value: convertBlobToFile(params.value, "") };
+          if (value.size === 0) return { value: undefined };
+          return { value: convertBlobToFile(value, "") };
         } catch {
-          return {
-            value: undefined,
-            message: {
-              ...this.getCommonTypeMessageParams(),
-              code: "parse",
-            },
-          };
+          // fallback
         }
-      }
-
-      if (typeof params.value === "string") {
-        if (params.value === "") {
+      } else if (typeof value === "string") {
+        if (value === "") {
           return { value: undefined };
         }
-        if (params.value.match(/^(https?|file):\/\//)) {
-          return { value: params.value };
+        if (value.match(/^(https?|file):\/\//)) {
+          return { value };
         }
         try {
-          return { value: convertBase64ToFile(params.value, "") };
+          return { value: convertBase64ToFile(value, "") };
         } catch {
-          return {
-            value: undefined,
-            message: {
-              ...this.getCommonTypeMessageParams(),
-              code: "parse",
-            },
-          };
+          // fallback
         }
       }
 
       return {
         value: undefined,
         message: {
-          ...this.getCommonTypeMessageParams(),
+          type: "e",
+          label: this.label,
+          actionType: this.getActionType(),
+          otype: SCHEMA_ITEM_TYPE_FILE,
           code: "parse",
         },
       };
     },
-    validate: function (params) {
+    validate: function (value, params) {
       if (this._validators == null) {
         this._validators = [];
-        const commonMsgParams = this.getCommonTypeMessageParams();
+        const commonMsgParams = {
+          otype: SCHEMA_ITEM_TYPE_FILE,
+          type: "e",
+        } as const satisfies {
+          otype: string;
+          type: $Schema.AbstractMessage["type"];
+        };
 
         // required
         if (this.required) {
@@ -174,9 +161,10 @@ export function $file<const P extends FileProps>(props: P = {} as P) {
           if (required) {
             const getMessage: $Schema.ValidationMessageGetter<typeof getRequiredMessage> =
               getRequiredMessage ??
-              (() => ({
+              ((p) => ({
                 ...commonMsgParams,
                 code: "required",
+                ...p,
               }));
 
             if (typeof required === "function") {
@@ -288,13 +276,20 @@ export function $file<const P extends FileProps>(props: P = {} as P) {
       }
 
       let msg: $Schema.Message | null = null;
+      const ruleArg = {
+        ...params,
+        label: this.label,
+        actionType: this.getActionType(),
+        value,
+      } as const satisfies $Schema.RuleArgParams<FileValue>;
+
       for (const vali of this._validators) {
-        msg = vali(params);
+        msg = vali(ruleArg);
         if (msg) break;
       }
       return msg;
     },
-  } as const satisfies FileProps & $Schema.SchemaItemInterfaceProps<FileValue, FileValidationAbstractMessage>;
+  } as const satisfies FileProps & $Schema.SchemaItemInterfaceProps<FileValue>;
 
   return getSchemaItemPropsGenerator<typeof fixedProps, FileProps, P>(fixedProps, props)({});
 };

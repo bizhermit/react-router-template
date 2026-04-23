@@ -69,7 +69,7 @@ type SplitDateOptions = {
 type SplitDateProps = $Schema.SchemaItemAbstractProps & SplitDateOptions;
 
 type SplitDateBaseProps = Pick<
-  DateProps & $Schema.SchemaItemInterfaceProps<$Date, DateValidationAbstractMessage>,
+  DateProps & $Schema.SchemaItemInterfaceProps<$Date>,
   "required" | "minDate" | "maxDate" | "getActionType"
 >;
 
@@ -97,39 +97,41 @@ function splitDate<const Base extends SplitDateBaseProps>(base: {
       getActionType: function () {
         return this.actionType || base.getThis().getActionType();
       },
-      getCommonTypeMessageParams: function () {
-        return {
-          otype: SCHEMA_ITEM_TYPE_SPLIT_DATE,
-          label: this.label,
-          type: "e",
-          actionType: this.getActionType(),
-        } as const;
-      },
-      parse: function (params) {
-        if (this.parser) return this.parser(params);
-        const [num, succeeded] = parseNumber(params.value);
+      parse: function (value, params) {
+        if (this.parser) return this.parser(value, params);
+        const [num, succeeded] = parseNumber(value);
         if (succeeded) return { value: num };
         return {
           value: num,
           message: {
-            ...this.getCommonTypeMessageParams(),
+            type: "e",
+            label: this.label,
+            actionType: this.getActionType(),
+            otype: SCHEMA_ITEM_TYPE_SPLIT_DATE,
             code: "parse",
           },
         };
       },
-      validate: function (params) {
+      validate: function (value, params) {
         if (this._validators == null) {
           this._validators = [];
-          const commonMsgParams = this.getCommonTypeMessageParams();
+          const commonMsgParams = {
+            otype: SCHEMA_ITEM_TYPE_SPLIT_DATE,
+            type: "e",
+          } as const satisfies {
+            otype: string;
+            type: $Schema.AbstractMessage["type"];
+          };
 
           // required
           const [required, getRequiredMessage] = getValidationArray(this.required, "inherit");
           if (required) {
             const getMessage: $Schema.ValidationMessageGetter<typeof getRequiredMessage> =
               getRequiredMessage ??
-              (() => ({
+              ((p) => ({
                 ...commonMsgParams,
                 code: "required",
+                ...p,
               }));
 
             if (typeof required === "function") {
@@ -368,16 +370,20 @@ function splitDate<const Base extends SplitDateBaseProps>(base: {
         }
 
         let msg: $Schema.Message | null = null;
+        const ruleArg = {
+          ...params,
+          label: this.label,
+          actionType: this.getActionType(),
+          value,
+        } as const satisfies $Schema.RuleArgParams<number>;
+
         for (const vali of this._validators) {
-          msg = vali(params);
+          msg = vali(ruleArg);
           if (msg) break;
         }
         return msg;
       },
-    } as const satisfies SplitDateProps & $Schema.SchemaItemInterfaceProps<
-      number,
-      SplitDateValidationAbstractMessage
-    >;
+    } as const satisfies SplitDateProps & $Schema.SchemaItemInterfaceProps<number>;
   };
 };
 
@@ -388,34 +394,35 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
     getActionType: function () {
       return this.actionType || "select";
     },
-    getCommonTypeMessageParams: function () {
-      return {
-        otype: SCHEMA_ITEM_TYPE_DATE,
-        label: this.label,
-        type: "e",
-        actionType: this.getActionType(),
-      } as const;
-    },
-    parse: function (params) {
-      if (this.parser) return this.parser(params);
-      if (params.value == null || params.value === "") return { value: undefined };
+    parse: function (value, params) {
+      if (this.parser) return this.parser(value, params);
+      if (value == null || value === "") return { value: undefined };
       try {
-        const value = new $Date(params.value as string);
-        return { value };
+        const date = new $Date(value as string);
+        return { value: date };
       } catch {
         return {
           value: null,
           message: {
-            ...this.getCommonTypeMessageParams(),
+            type: "e",
+            label: this.label,
+            actionType: this.getActionType(),
+            otype: SCHEMA_ITEM_TYPE_DATE,
             code: "parse",
           },
         };
       }
     },
-    validate: function (params) {
+    validate: function (value, params) {
       if (this._validators == null) {
         this._validators = [];
-        const commonMsgParams = this.getCommonTypeMessageParams();
+        const commonMsgParams = {
+          otype: SCHEMA_ITEM_TYPE_DATE,
+          type: "e",
+        } as const satisfies {
+          otype: string;
+          type: $Schema.AbstractMessage["type"];
+        };
 
         // required
         if (this.required != null) {
@@ -423,9 +430,10 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
           if (required) {
             const getMessage: $Schema.ValidationMessageGetter<typeof getRequiredMessage> =
               getRequiredMessage ??
-              (() => ({
+              ((p) => ({
                 ...commonMsgParams,
                 code: "required",
+                ...p,
               }));
 
             if (typeof required === "function") {
@@ -632,8 +640,15 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
       }
 
       let msg: $Schema.Message | null = null;
+      const ruleArg = {
+        ...params,
+        label: this.label,
+        actionType: this.getActionType(),
+        value,
+      } as const satisfies $Schema.RuleArgParams<$Date>;
+
       for (const vali of this._validators) {
-        msg = vali(params);
+        msg = vali(ruleArg);
         if (msg) break;
       }
       return msg;
@@ -702,7 +717,7 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
         },
       })<SP>(splitProps);
     },
-  } as const satisfies DateProps & $Schema.SchemaItemInterfaceProps<$Date, DateValidationAbstractMessage>;
+  } as const satisfies DateProps & $Schema.SchemaItemInterfaceProps<$Date>;
 
   return getSchemaItemPropsGenerator<typeof fixedProps, DateProps, P>(fixedProps, props)({});
 };
