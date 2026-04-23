@@ -5,10 +5,10 @@ export const SCHEMA_ITEM_TYPE_NUMBER = "num";
 
 type NumberOptions = {
   parser?: $Schema.Parser<number>;
-  required?: $Schema.ValidationItem<boolean, null | undefined>;
-  min?: $Schema.ValidationItem<number, number, { min: number; }>;
-  max?: $Schema.ValidationItem<number, number, { max: number; }>;
-  float?: $Schema.ValidationItem<number, number, { float: number; currentFloat: number; }>;
+  required?: $Schema.Validation<boolean, null | undefined>;
+  min?: $Schema.Validation<number, number, { min: number; }>;
+  max?: $Schema.Validation<number, number, { max: number; }>;
+  float?: $Schema.Validation<number, number, { float: number; currentFloat: number; }>;
   rules?: $Schema.Rule<number>[];
 };
 

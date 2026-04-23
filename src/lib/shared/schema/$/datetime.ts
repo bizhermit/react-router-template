@@ -15,14 +15,14 @@ type DateTimePair = {
 type DateTimeOptions = {
   parser?: $Schema.Parser<$DateTime>;
   timeBasis?: "minute" | "hour" | "second";
-  required?: $Schema.ValidationItem<boolean, null | undefined>;
-  minDateTime?: $Schema.ValidationItem<$DateTime, $DateTime, { minDateTime: $DateTime; }>;
-  maxDateTime?: $Schema.ValidationItem<$DateTime, $DateTime, { maxDateTime: $DateTime; }>;
-  minDate?: $Schema.ValidationItem<$Date, $DateTime, { minDate: $Date; }>;
-  maxDate?: $Schema.ValidationItem<$Date, $DateTime, { maxDate: $Date; }>;
-  minTime?: $Schema.ValidationItem<$Clock, $DateTime, { minTime: $Clock; }>;
-  maxTime?: $Schema.ValidationItem<$Clock, $DateTime, { maxTime: $Clock; }>;
-  pairs?: $Schema.ValidationItem<
+  required?: $Schema.Validation<boolean, null | undefined>;
+  minDateTime?: $Schema.Validation<$DateTime, $DateTime, { minDateTime: $DateTime; }>;
+  maxDateTime?: $Schema.Validation<$DateTime, $DateTime, { maxDateTime: $DateTime; }>;
+  minDate?: $Schema.Validation<$Date, $DateTime, { minDate: $Date; }>;
+  maxDate?: $Schema.Validation<$Date, $DateTime, { maxDate: $Date; }>;
+  minTime?: $Schema.Validation<$Clock, $DateTime, { minTime: $Clock; }>;
+  maxTime?: $Schema.Validation<$Clock, $DateTime, { maxTime: $Clock; }>;
+  pairs?: $Schema.Validation<
     DateTimePair | DateTimePair[],
     $DateTime,
     Omit<Required<DateTimePair>, "name"> & { pairName: string; pairDateTime: $DateTime; }
@@ -36,9 +36,9 @@ export type SplitDateTimePart = "Y" | "M" | "D" | "h" | "m" | "s";
 
 type SplitDateTimeOptions = {
   parser?: $Schema.Parser<number>;
-  required?: $Schema.ValidationItem<boolean | "inherit", null | undefined>;
-  min?: $Schema.ValidationItem<number | "inherit", number, { min: number; }>;
-  max?: $Schema.ValidationItem<number | "inherit", number, { max: number; }>;
+  required?: $Schema.Validation<boolean | "inherit", null | undefined>;
+  min?: $Schema.Validation<number | "inherit", number, { min: number; }>;
+  max?: $Schema.Validation<number | "inherit", number, { max: number; }>;
   rules?: $Schema.Rule<number>[];
 };
 

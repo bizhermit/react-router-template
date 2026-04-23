@@ -20,9 +20,9 @@ export type FileValidationMessage = FileValidationAbstractMessage & (
 
 type FileOptions = {
   parser?: $Schema.Parser<FileValue>;
-  required?: $Schema.ValidationItem<boolean, null | undefined>;
-  accept?: $Schema.ValidationItem<string, File, { accept: string; currentFileType: string; currentFileName: string; }>;
-  maxSize?: $Schema.ValidationItem<number, File, { maxSize: number; currentSize: number; }>;
+  required?: $Schema.Validation<boolean, null | undefined>;
+  accept?: $Schema.Validation<string, File, { accept: string; currentFileType: string; currentFileName: string; }>;
+  maxSize?: $Schema.Validation<number, File, { maxSize: number; currentSize: number; }>;
   rules?: $Schema.Rule<FileValue>[];
 };
 

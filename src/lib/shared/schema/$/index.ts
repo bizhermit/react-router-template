@@ -58,7 +58,7 @@ export function optimizeValidationMessage<
 };
 
 export function getValidationArray<
-  T extends $Schema.ValidationItem<unknown, unknown>
+  T extends $Schema.Validation<unknown, unknown>
 >(validation: T, initValue?: $Schema.ValidationArray<T>[0]): $Schema.ValidationArray<T> {
   type U = $Schema.ValidationArray<T>;
   if (validation == null) return [initValue] as U;
@@ -70,7 +70,7 @@ export function getValidationArray<
 };
 
 export function getValidationArrayAsArray<
-  T extends $Schema.ValidationItem<unknown | Array<unknown>, never> = $Schema.ValidationItem<Array<unknown>, unknown>
+  T extends $Schema.Validation<unknown | Array<unknown>, never> = $Schema.Validation<Array<unknown>, unknown>
 >(validation: T): $Schema.ValidationArrayAsArray<T> {
   type U = $Schema.ValidationArrayAsArray<T>;
   if (validation == null) return [undefined] as U;

@@ -5,18 +5,18 @@ export const SCHEMA_ITEM_TYPE_ARRAY = "arr";
 type ArrayOptions<Content extends $Schema.SchemaItemInterfaceProps<unknown>> = {
   prop: Content;
   parser?: $Schema.Parser<$Schema.InferValue<Content>[]>;
-  required?: $Schema.ValidationItem<boolean, null | undefined>;
-  length?: $Schema.ValidationItem<
+  required?: $Schema.Validation<boolean, null | undefined>;
+  length?: $Schema.Validation<
     number,
     $Schema.InferValue<Content>[],
     { length: number; currentLength: number; }
   >;
-  minLength?: $Schema.ValidationItem<
+  minLength?: $Schema.Validation<
     number,
     $Schema.InferValue<Content>[],
     { minLength: number; currentLength: number; }
   >;
-  maxLength?: $Schema.ValidationItem<
+  maxLength?: $Schema.Validation<
     number,
     $Schema.InferValue<Content>[],
     { maxLength: number; currentLength: number; }

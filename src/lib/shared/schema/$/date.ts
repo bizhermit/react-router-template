@@ -14,10 +14,10 @@ type DatePair = {
 
 type DateOptions = {
   parser?: $Schema.Parser<$Date>;
-  required?: $Schema.ValidationItem<boolean, null | undefined>;
-  minDate?: $Schema.ValidationItem<$Date, $Date, { minDate: $Date; }>;
-  maxDate?: $Schema.ValidationItem<$Date, $Date, { maxDate: $Date; }>;
-  pairs?: $Schema.ValidationItem<
+  required?: $Schema.Validation<boolean, null | undefined>;
+  minDate?: $Schema.Validation<$Date, $Date, { minDate: $Date; }>;
+  maxDate?: $Schema.Validation<$Date, $Date, { maxDate: $Date; }>;
+  pairs?: $Schema.Validation<
     DatePair | DatePair[],
     $Date,
     Omit<Required<DatePair>, "name"> & { pairName: string; pairDate: $Date; }
@@ -31,9 +31,9 @@ export type SplitDatePart = "Y" | "M" | "D";
 
 type SplitDateOptions = {
   parser?: $Schema.Parser<number>;
-  required?: $Schema.ValidationItem<boolean | "inherit", null | undefined>;
-  min?: $Schema.ValidationItem<number | "inherit", number, { min: number; }>;
-  max?: $Schema.ValidationItem<number | "inherit", number, { max: number; }>;
+  required?: $Schema.Validation<boolean | "inherit", null | undefined>;
+  min?: $Schema.Validation<number | "inherit", number, { min: number; }>;
+  max?: $Schema.Validation<number | "inherit", number, { max: number; }>;
   rules?: $Schema.Rule<number>[];
 };
 

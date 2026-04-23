@@ -28,10 +28,10 @@ export type MonthValidationMessage = MonthValidationAbstractMessage & (
 
 type MonthOptions = {
   parser?: $Schema.Parser<$Month>;
-  required?: $Schema.ValidationItem<boolean, null | undefined>;
-  minMonth?: $Schema.ValidationItem<$Month, $Month, { minMonth: $Month; }>;
-  maxMonth?: $Schema.ValidationItem<$Month, $Month, { maxMonth: $Month; }>;
-  pairs?: $Schema.ValidationItem<
+  required?: $Schema.Validation<boolean, null | undefined>;
+  minMonth?: $Schema.Validation<$Month, $Month, { minMonth: $Month; }>;
+  maxMonth?: $Schema.Validation<$Month, $Month, { maxMonth: $Month; }>;
+  pairs?: $Schema.Validation<
     MonthPair | MonthPair[],
     $Month,
     Omit<Required<MonthPair>, "name"> & { pairName: string; pairMonth: $Month; }
@@ -45,9 +45,9 @@ export type SplitMonthPart = "Y" | "M";
 
 type SplitMonthOptions = {
   parser?: $Schema.Parser<number>;
-  required?: $Schema.ValidationItem<boolean | "inherit", null | undefined>;
-  min?: $Schema.ValidationItem<number | "inherit", number, { min: number; }>;
-  max?: $Schema.ValidationItem<number | "inherit", number, { max: number; }>;
+  required?: $Schema.Validation<boolean | "inherit", null | undefined>;
+  min?: $Schema.Validation<number | "inherit", number, { min: number; }>;
+  max?: $Schema.Validation<number | "inherit", number, { max: number; }>;
   rules?: $Schema.Rule<number>[];
 };
 

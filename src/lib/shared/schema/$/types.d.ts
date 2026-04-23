@@ -93,7 +93,7 @@ namespace $Schema {
     | CustomMessage
     | ((params: ValidationResultArgParams<Value, Params>) => (string | Message | Msg | null));
 
-  type ValidationItem<
+  type Validation<
     const SettingsValue,
     const ResultArgValue,
     const UsedParams extends Record<string, unknown> = {}
@@ -110,10 +110,10 @@ namespace $Schema {
     (p: Parameters<T>[0]) => (Exclude<ReturnType<T>, string | I18nMessage | CustomMessage> | null)
     ;
 
-  type ValidationArray<T extends ValidationItem<unknown, unknown>> =
+  type ValidationArray<T extends Validation<unknown, unknown>> =
     T extends Array<unknown> ? [T[0], ValidationResult<T[1]>] : [T];
 
-  type ValidationArrayAsArray<T extends ValidationItem<unknown | Array<unknown>, never>> =
+  type ValidationArrayAsArray<T extends Validation<unknown | Array<unknown>, never>> =
     T extends ((params: never) => unknown) ? [T] :
     T extends Array<unknown> ? (
       T[0] extends ((params: never) => unknown) ? [T[0]] :

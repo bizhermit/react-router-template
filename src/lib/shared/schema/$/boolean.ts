@@ -18,7 +18,7 @@ type BooleanOptions<
   trueValue?: TrueValue;
   falseValue?: FalseValue;
   parser?: $Schema.Parser<TrueValue | FalseValue>;
-  required?: $Schema.ValidationItem<boolean | "nonFalse", $Schema.Nullable<FalseValue>>;
+  required?: $Schema.Validation<boolean | "nonFalse", $Schema.Nullable<FalseValue>>;
   rules?: $Schema.Rule<TrueValue | FalseValue>[];
   trueText?: string;
   falseText?: string;

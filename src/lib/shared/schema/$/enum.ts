@@ -22,7 +22,7 @@ type RemoveSourceArrayNoise<T> = T extends infer U & SourceArrayNoise
 type SourceOptions<Value> = {
   parser?: $Schema.Parser<Value>;
   items: $Schema.SourceItem<Value>[] | readonly $Schema.SourceItem<Value>[];
-  required?: $Schema.ValidationItem<boolean, null | undefined>;
+  required?: $Schema.Validation<boolean, null | undefined>;
   notFoundMessage?: $Schema.ValidationCustomMessage<
     unknown,
     { items: $Schema.SourceItem<Value>[] | readonly $Schema.SourceItem<Value>[]; },

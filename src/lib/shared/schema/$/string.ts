@@ -133,11 +133,11 @@ type StrPattern = keyof typeof STR_PATTERN_TEST;
 
 type StringOptions = {
   parser?: $Schema.Parser<string>;
-  required?: $Schema.ValidationItem<boolean, null | undefined>;
-  length?: $Schema.ValidationItem<number, string, { length: number; currentLength: number; }>;
-  minLength?: $Schema.ValidationItem<number, string, { minLength: number; currentLength: number; }>;
-  maxLength?: $Schema.ValidationItem<number, string, { maxLength: number; currentLength: number; }>;
-  pattern?: $Schema.ValidationItem<StrPattern, string, { pattern: StrPattern; }>;
+  required?: $Schema.Validation<boolean, null | undefined>;
+  length?: $Schema.Validation<number, string, { length: number; currentLength: number; }>;
+  minLength?: $Schema.Validation<number, string, { minLength: number; currentLength: number; }>;
+  maxLength?: $Schema.Validation<number, string, { maxLength: number; currentLength: number; }>;
+  pattern?: $Schema.Validation<StrPattern, string, { pattern: StrPattern; }>;
   rules?: $Schema.Rule<string>[];
 };
 

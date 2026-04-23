@@ -18,7 +18,7 @@ type ObjectValue<Contents extends Record<string, $Schema.SchemaItemInterfaceProp
 type ObjectOptions<Contents extends Record<string, $Schema.SchemaItemInterfaceProps<unknown>>> = {
   props: Contents;
   parser?: $Schema.Parser<ObjectValue<Contents>>;
-  required?: $Schema.ValidationItem<boolean, null | undefined>;
+  required?: $Schema.Validation<boolean, null | undefined>;
   rules?: $Schema.Rule<ObjectValue<Contents>>[];
 };
 
