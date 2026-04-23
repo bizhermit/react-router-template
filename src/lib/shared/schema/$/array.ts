@@ -3,21 +3,6 @@ import { SCHEMA_ITEM_TYPE_OBJECT } from "./object";
 
 export const SCHEMA_ITEM_TYPE_ARRAY = "arr";
 
-type ArrayValidation_LengthParams = { length: number; currentLength: number; };
-type ArrayValidation_MinLengthParams = { minLength: number; currentLength: number; };
-type ArrayValidation_MaxLengthParams = { maxLength: number; currentLength: number; };
-
-type ArrayValidationAbstractMessage = $Schema.AbstractMessage & {
-  otype: typeof SCHEMA_ITEM_TYPE_ARRAY;
-};
-export type ArrayValidationMessage = ArrayValidationAbstractMessage & (
-  | { code: "parse"; }
-  | { code: "required"; }
-  | ({ code: "length"; } & ArrayValidation_LengthParams)
-  | ({ code: "minLength"; } & ArrayValidation_MinLengthParams)
-  | ({ code: "maxLength"; } & ArrayValidation_MaxLengthParams)
-);
-
 type ArrayOptions<Content extends $Schema.SchemaItemInterfaceProps<unknown>> = {
   prop: Content;
   parser?: $Schema.Parser<$Schema.InferValue<Content>[]>;

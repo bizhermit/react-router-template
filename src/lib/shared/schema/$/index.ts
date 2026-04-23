@@ -82,7 +82,3 @@ export function getValidationArrayAsArray<
   }
   throw new Error(`validation value is not array type`);
 };
-
-export function pickMessageParams() {
-
-};

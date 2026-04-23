@@ -104,10 +104,12 @@ const schemaObject = $object({
     }).overwrite({
       required: false,
     }),
-    // roles: $array({
-    //   prop: $str({ required: true }),
-    //   required: true,
-    // }),
+    roles: $array({
+      prop: $str({
+        required: true,
+      }),
+      required: true,
+    }),
     // obj: $object({
     //   props: {
     //     item1: $str(),
