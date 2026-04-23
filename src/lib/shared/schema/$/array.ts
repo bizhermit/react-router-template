@@ -122,8 +122,7 @@ export function $array<
               ((p) => ({
                 ...commonMsgParams,
                 code: "length",
-                length: p.validationValues.length,
-                currentLength: p.validationValues.currentLength,
+                ...p,
               }));
 
             if (typeof length === "function") {
@@ -134,10 +133,8 @@ export function $array<
                 if (p.value.length === len) return null;
                 return getMessage({
                   ...p,
-                  validationValues: {
-                    length: len,
-                    currentLength: p.value.length,
-                  },
+                  length: len,
+                  currentLength: p.value.length,
                 });
               });
             } else {
@@ -146,10 +143,8 @@ export function $array<
                 if (p.value.length === length) return null;
                 return getMessage({
                   ...p,
-                  validationValues: {
-                    length,
-                    currentLength: p.value.length,
-                  },
+                  length,
+                  currentLength: p.value.length,
                 });
               });
             }
@@ -165,8 +160,7 @@ export function $array<
               ((p) => ({
                 ...commonMsgParams,
                 code: "minLength",
-                minLength: p.validationValues.minLength,
-                currentLength: p.validationValues.currentLength,
+                ...p,
               }));
 
             if (typeof minLength === "function") {
@@ -177,10 +171,8 @@ export function $array<
                 if (minLen <= p.value.length) return null;
                 return getMessage({
                   ...p,
-                  validationValues: {
-                    minLength: minLen,
-                    currentLength: p.value.length,
-                  },
+                  minLength: minLen,
+                  currentLength: p.value.length,
                 });
               });
             } else {
@@ -189,10 +181,8 @@ export function $array<
                 if (minLength <= p.value.length) return null;
                 return getMessage({
                   ...p,
-                  validationValues: {
-                    minLength,
-                    currentLength: p.value.length,
-                  },
+                  minLength,
+                  currentLength: p.value.length,
                 });
               });
             }
@@ -208,8 +198,7 @@ export function $array<
               ((p) => ({
                 ...commonMsgParams,
                 code: "maxLength",
-                maxLength: p.validationValues.maxLength,
-                currentLength: p.validationValues.currentLength,
+                ...p,
               }));
 
             if (typeof maxLength === "function") {
@@ -220,10 +209,8 @@ export function $array<
                 if (p.value.length <= maxLen) return null;
                 return getMessage({
                   ...p,
-                  validationValues: {
-                    maxLength: maxLen,
-                    currentLength: p.value.length,
-                  },
+                  maxLength: maxLen,
+                  currentLength: p.value.length,
                 });
               });
             } else {
@@ -232,10 +219,8 @@ export function $array<
                 if (p.value.length <= maxLength) return null;
                 return getMessage({
                   ...p,
-                  validationValues: {
-                    maxLength: maxLength,
-                    currentLength: p.value.length,
-                  },
+                  maxLength: maxLength,
+                  currentLength: p.value.length,
                 });
               });
             }

@@ -42,6 +42,7 @@ namespace $Schema {
     | import("./month").MonthValidationMessage
     | import("./month").SplitMonthValidationMessage
     | import("./datetime").DateTimeValidationMessage
+    | import("./datetime").SplitDateTimeValidationMessage
     | import("./file").FileValidationMessage
     | import("./array").ArrayValidationMessage
     | import("./object").ObjectValidationMessage
@@ -72,7 +73,7 @@ namespace $Schema {
     const Value,
     const ValidationAddonValues extends Record<string, unknown> = {}
   > = ValidationArgParams<Value> & (
-    ValidationAddonValues extends undefined ? {} : { validationValues: ValidationAddonValues; }
+    ValidationAddonValues extends undefined ? {} : ValidationAddonValues
   );
 
   type ValidationCustomMessage<

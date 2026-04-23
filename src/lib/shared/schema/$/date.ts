@@ -5,7 +5,12 @@ import { getSchemaItemPropsGenerator, getValidationArray, getValidationArrayAsAr
 
 export const SCHEMA_ITEM_TYPE_DATE = "date";
 
-type DatePair = { name: string; position: "before" | "after"; noSame?: boolean; };
+type DatePair = {
+  name: string;
+  position: "before" | "after";
+  disallowSame?: boolean;
+  basis?: "date" | "month";
+};
 
 type DateValidation_MinDateParams = { minDate: $Date; };
 type DateValidation_MaxDateParams = { maxDate: $Date; };
@@ -70,8 +75,14 @@ type SplitDateBaseProps = Pick<
 
 function splitDate<const Base extends SplitDateBaseProps>(base: {
   getThis: () => Base;
-  isValidMin: (params: { value: number; validationValue: $Date; }) => [boolean, number];
-  isValidMax: (params: { value: number; validationValue: $Date; }) => [boolean, number];
+  isValidMin: (params: {
+    value: number;
+    validationDate: $Date;
+  }) => [boolean, number];
+  isValidMax: (params: {
+    value: number;
+    validationDate: $Date;
+  }) => [boolean, number];
 }) {
   return function <const SP extends SplitDateProps>(splitProps: SP = {} as SP) {
     type Required = $Schema.ValidationArray<SP["required"]>[0] extends boolean
@@ -186,7 +197,7 @@ function splitDate<const Base extends SplitDateBaseProps>(base: {
               ((p) => ({
                 ...commonMsgParams,
                 code: "min",
-                min: p.validationValues.min,
+                ...p,
               }));
 
             if (typeof min === "function") {
@@ -201,23 +212,19 @@ function splitDate<const Base extends SplitDateBaseProps>(base: {
                       if (p.value == null) return null;
                       const m = baseMin(p);
                       if (m == null) return null;
-                      const ret = base.isValidMin({ value: p.value, validationValue: m });
+                      const ret = base.isValidMin({ value: p.value, validationDate: m });
                       if (ret[0]) return null;
                       return getMessage({
                         ...p,
-                        validationValues: {
-                          min: ret[1],
-                        },
+                        min: ret[1],
                       });
                     } else {
                       if (p.value == null) return null;
-                      const ret = base.isValidMin({ value: p.value, validationValue: baseMin });
+                      const ret = base.isValidMin({ value: p.value, validationDate: baseMin });
                       if (ret[0]) return null;
                       return getMessage({
                         ...p,
-                        validationValues: {
-                          min: ret[1],
-                        },
+                        min: ret[1],
                       });
                     }
                   }
@@ -226,9 +233,7 @@ function splitDate<const Base extends SplitDateBaseProps>(base: {
                 if (m <= p.value) return null;
                 return getMessage({
                   ...p,
-                  validationValues: {
-                    min: m,
-                  },
+                  min: m,
                 });
               });
             } else {
@@ -240,25 +245,21 @@ function splitDate<const Base extends SplitDateBaseProps>(base: {
                       if (p.value == null) return null;
                       const m = baseMin(p);
                       if (m == null) return null;
-                      const ret = base.isValidMin({ value: p.value, validationValue: m });
+                      const ret = base.isValidMin({ value: p.value, validationDate: m });
                       if (ret[0]) return null;
                       return getMessage({
                         ...p,
-                        validationValues: {
-                          min: ret[1],
-                        },
+                        min: ret[1],
                       });
                     });
                   } else {
                     this._validators.push((p) => {
                       if (p.value == null) return null;
-                      const ret = base.isValidMin({ value: p.value, validationValue: baseMin });
+                      const ret = base.isValidMin({ value: p.value, validationDate: baseMin });
                       if (ret[0]) return null;
                       return getMessage({
                         ...p,
-                        validationValues: {
-                          min: ret[1],
-                        },
+                        min: ret[1],
                       });
                     });
                   }
@@ -269,9 +270,7 @@ function splitDate<const Base extends SplitDateBaseProps>(base: {
                   if (min <= p.value) return null;
                   return getMessage({
                     ...p,
-                    validationValues: {
-                      min,
-                    },
+                    min,
                   });
                 });
               }
@@ -286,7 +285,7 @@ function splitDate<const Base extends SplitDateBaseProps>(base: {
               ((p) => ({
                 ...commonMsgParams,
                 code: "max",
-                max: p.validationValues.max,
+                ...p,
               }));
 
             if (typeof max === "function") {
@@ -301,23 +300,19 @@ function splitDate<const Base extends SplitDateBaseProps>(base: {
                       if (p.value == null) return null;
                       const m = baseMax(p);
                       if (m == null) return null;
-                      const ret = base.isValidMax({ value: p.value, validationValue: m });
+                      const ret = base.isValidMax({ value: p.value, validationDate: m });
                       if (ret[0]) return null;
                       return getMessage({
                         ...p,
-                        validationValues: {
-                          max: ret[1],
-                        },
+                        max: ret[1],
                       });
                     } else {
                       if (p.value == null) return null;
-                      const ret = base.isValidMax({ value: p.value, validationValue: baseMax });
+                      const ret = base.isValidMax({ value: p.value, validationDate: baseMax });
                       if (ret[0]) return null;
                       return getMessage({
                         ...p,
-                        validationValues: {
-                          max: ret[1],
-                        },
+                        max: ret[1],
                       });
                     }
                   }
@@ -326,9 +321,7 @@ function splitDate<const Base extends SplitDateBaseProps>(base: {
                 if (p.value <= m) return null;
                 return getMessage({
                   ...p,
-                  validationValues: {
-                    max: m,
-                  },
+                  max: m,
                 });
               });
             } else {
@@ -340,25 +333,21 @@ function splitDate<const Base extends SplitDateBaseProps>(base: {
                       if (p.value == null) return null;
                       const m = baseMax(p);
                       if (m == null) return null;
-                      const ret = base.isValidMax({ value: p.value, validationValue: m });
+                      const ret = base.isValidMax({ value: p.value, validationDate: m });
                       if (ret[0]) return null;
                       return getMessage({
                         ...p,
-                        validationValues: {
-                          max: ret[1],
-                        },
+                        max: ret[1],
                       });
                     });
                   } else {
                     this._validators.push((p) => {
                       if (p.value == null) return null;
-                      const ret = base.isValidMax({ value: p.value, validationValue: baseMax });
+                      const ret = base.isValidMax({ value: p.value, validationDate: baseMax });
                       if (ret[0]) return null;
                       return getMessage({
                         ...p,
-                        validationValues: {
-                          max: ret[1],
-                        },
+                        max: ret[1],
                       });
                     });
                   }
@@ -369,9 +358,7 @@ function splitDate<const Base extends SplitDateBaseProps>(base: {
                   if (p.value <= max) return null;
                   return getMessage({
                     ...p,
-                    validationValues: {
-                      max,
-                    },
+                    max,
                   });
                 });
               }
@@ -464,6 +451,7 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
           }
         }
 
+        // minDate
         if (this.minDate) {
           const [minDate, getMinDateMessage] = getValidationArray(this.minDate);
           if (minDate != null) {
@@ -472,7 +460,7 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
               ((p) => ({
                 ...commonMsgParams,
                 code: "minDate",
-                minDate: p.validationValues.minDate,
+                ...p,
               }));
 
             if (typeof minDate === "function") {
@@ -483,9 +471,7 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
                 if (p.value.isBefore(m)) {
                   return getMessage({
                     ...p,
-                    validationValues: {
-                      minDate: m,
-                    },
+                    minDate: m,
                   });
                 }
                 return null;
@@ -496,9 +482,7 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
                 if (p.value.isBefore(minDate)) {
                   return getMessage({
                     ...p,
-                    validationValues: {
-                      minDate,
-                    },
+                    minDate,
                   });
                 }
                 return null;
@@ -507,6 +491,7 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
           }
         }
 
+        // maxDate
         if (this.maxDate) {
           const [maxDate, getMaxDateMessage] = getValidationArray(this.maxDate);
           if (maxDate != null) {
@@ -515,7 +500,7 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
               ((p) => ({
                 ...commonMsgParams,
                 code: "maxDate",
-                maxDate: p.validationValues.maxDate,
+                ...p,
               }));
 
             if (typeof maxDate === "function") {
@@ -526,9 +511,7 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
                 if (p.value.isAfter(m)) {
                   return getMessage({
                     ...p,
-                    validationValues: {
-                      maxDate: m,
-                    },
+                    maxDate: m,
                   });
                 }
                 return null;
@@ -539,9 +522,7 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
                 if (p.value.isAfter(maxDate)) {
                   return getMessage({
                     ...p,
-                    validationValues: {
-                      maxDate,
-                    },
+                    maxDate,
                   });
                 }
                 return null;
@@ -559,10 +540,7 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
               ((p) => ({
                 ...commonMsgParams,
                 code: "pair",
-                pairName: p.validationValues.pairName,
-                pairDate: p.validationValues.pairDate,
-                position: p.validationValues.position,
-                noSame: p.validationValues.noSame ?? false,
+                ...p,
               }));
 
             if (typeof pairs === "function") {
@@ -577,20 +555,28 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
                   if (!pairValue) continue;
                   try {
                     const pairDate = new $Date(pairValue as string);
-                    if (!pair.noSame && p.value.isEqual(pairDate)) continue;
-                    if (pair.position === "after") {
-                      if (p.value.isBefore(pairDate)) continue;
+                    if (pair.basis === "month") {
+                      if (!pair.disallowSame && p.value.isEqualYearMonth(pairDate)) continue;
+                      if (pair.position === "after") {
+                        if (p.value.isBeforeYearMonth(pairDate)) continue;
+                      } else {
+                        if (p.value.isAfterYearMonth(pairDate)) continue;
+                      }
                     } else {
-                      if (p.value.isAfter(pairDate)) continue;
+                      if (!pair.disallowSame && p.value.isEqual(pairDate)) continue;
+                      if (pair.position === "after") {
+                        if (p.value.isBefore(pairDate)) continue;
+                      } else {
+                        if (p.value.isAfter(pairDate)) continue;
+                      }
                     }
                     return getMessage({
                       ...p,
-                      validationValues: {
-                        pairName: pair.name,
-                        position: pair.position,
-                        noSame: pair.noSame ?? false,
-                        pairDate,
-                      },
+                      pairName: pair.name,
+                      position: pair.position,
+                      disallowSame: pair.disallowSame ?? false,
+                      pairDate,
+                      basis: pair.basis || "date",
                     });
                   } catch {
                     // ignore
@@ -608,20 +594,29 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
                   if (!pairValue) continue;
                   try {
                     const pairDate = new $Date(pairValue as string);
-                    if (!pair.noSame && p.value.isEqual(pairDate)) continue;
-                    if (pair.position === "after") {
-                      if (p.value.isBefore(pairDate)) continue;
+
+                    if (pair.basis === "month") {
+                      if (!pair.disallowSame && p.value.isEqualYearMonth(pairDate)) continue;
+                      if (pair.position === "after") {
+                        if (p.value.isBeforeYearMonth(pairDate)) continue;
+                      } else {
+                        if (p.value.isAfterYearMonth(pairDate)) continue;
+                      }
                     } else {
-                      if (p.value.isAfter(pairDate)) continue;
+                      if (!pair.disallowSame && p.value.isEqual(pairDate)) continue;
+                      if (pair.position === "after") {
+                        if (p.value.isBefore(pairDate)) continue;
+                      } else {
+                        if (p.value.isAfter(pairDate)) continue;
+                      }
                     }
                     return getMessage({
                       ...p,
-                      validationValues: {
-                        pairName: pair.name,
-                        position: pair.position,
-                        noSame: pair.noSame ?? false,
-                        pairDate,
-                      },
+                      pairName: pair.name,
+                      position: pair.position,
+                      disallowSame: pair.disallowSame ?? false,
+                      pairDate,
+                      basis: pair.basis || "date",
                     });
                   } catch {
                     // ignore
@@ -657,13 +652,13 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
       const getBase = () => this;
       return splitDate<This>({
         getThis: getBase,
-        isValidMin: ({ value, validationValue }) => {
+        isValidMin: ({ value, validationDate: validationValue }) => {
           return [
             validationValue.getYear() <= value,
             validationValue.getYear(),
           ];
         },
-        isValidMax: ({ value, validationValue }) => {
+        isValidMax: ({ value, validationDate: validationValue }) => {
           return [
             value <= validationValue.getYear(),
             validationValue.getYear(),

@@ -229,8 +229,7 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
               ((p) => ({
                 ...commonMsgParams,
                 code: "length",
-                length: p.validationValues.length,
-                currentLength: p.validationValues.currentLength,
+                ...p,
               }));
 
             if (typeof length === "function") {
@@ -242,10 +241,8 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
                 if (cur === len) return null;
                 return getMessage({
                   ...p,
-                  validationValues: {
-                    length: len,
-                    currentLength: cur,
-                  },
+                  length: len,
+                  currentLength: cur,
                 });
               });
             } else {
@@ -255,10 +252,8 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
                 if (cur === length) return null;
                 return getMessage({
                   ...p,
-                  validationValues: {
-                    length,
-                    currentLength: cur,
-                  },
+                  length,
+                  currentLength: cur,
                 });
               });
             }
@@ -274,8 +269,7 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
               ((p) => ({
                 ...commonMsgParams,
                 code: "minLength",
-                minLength: p.validationValues.minLength,
-                currentLength: p.validationValues.currentLength,
+                ...p,
               }));
 
             if (typeof minLength === "function") {
@@ -287,10 +281,8 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
                 if (minLen <= cur) return null;
                 return getMessage({
                   ...p,
-                  validationValues: {
-                    minLength: minLen,
-                    currentLength: cur,
-                  },
+                  minLength: minLen,
+                  currentLength: cur,
                 });
               });
             } else {
@@ -300,10 +292,8 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
                 if (minLength <= cur) return null;
                 return getMessage({
                   ...p,
-                  validationValues: {
-                    minLength,
-                    currentLength: cur,
-                  },
+                  minLength,
+                  currentLength: cur,
                 });
               });
             }
@@ -319,8 +309,7 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
               ((p) => ({
                 ...commonMsgParams,
                 code: "maxLength",
-                maxLength: p.validationValues.maxLength,
-                currentLength: p.validationValues.currentLength,
+                ...p,
               }));
 
             if (typeof maxLength === "function") {
@@ -332,10 +321,8 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
                 if (cur <= maxLen) return null;
                 return getMessage({
                   ...p,
-                  validationValues: {
-                    maxLength: maxLen,
-                    currentLength: cur,
-                  },
+                  maxLength: maxLen,
+                  currentLength: cur,
                 });
               });
             } else {
@@ -345,10 +332,8 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
                 if (cur <= maxLength) return null;
                 return getMessage({
                   ...p,
-                  validationValues: {
-                    maxLength: maxLength,
-                    currentLength: cur,
-                  },
+                  maxLength: maxLength,
+                  currentLength: cur,
                 });
               });
             }
@@ -364,7 +349,7 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
               ((p) => ({
                 ...commonMsgParams,
                 code: "pattern",
-                pattern: p.validationValues.pattern,
+                ...p,
               }));
 
             if (typeof pattern === "function") {
@@ -376,9 +361,7 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
                 if (test(p.value)) return null;
                 return getMessage({
                   ...p,
-                  validationValues: {
-                    pattern: ptn,
-                  },
+                  pattern: ptn,
                 });
               });
             } else {
@@ -388,9 +371,7 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
                 if (test(p.value)) return null;
                 return getMessage({
                   ...p,
-                  validationValues: {
-                    pattern,
-                  },
+                  pattern,
                 });
               });
             }

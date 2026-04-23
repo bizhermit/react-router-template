@@ -533,6 +533,18 @@ export class $Date extends Timestamp {
     return compareTimestampDate(this, same) === 0;
   }
 
+  public isBeforeYearMonth(after: Timestamp) {
+    return compareTimestampMonth(this, after) < 0;
+  }
+
+  public isAfterYearMonth(before: Timestamp) {
+    return compareTimestampMonth(this, before) > 0;
+  }
+
+  public isEqualYearMonth(same: Timestamp) {
+    return compareTimestampMonth(this, same) === 0;
+  }
+
 };
 
 export class $Month extends Timestamp {
@@ -776,6 +788,18 @@ export class $DateTime extends Timestamp {
     return compareTimestampDate(this, same) === 0;
   }
 
+  public isBeforeYearMonth(after: Timestamp) {
+    return compareTimestampMonth(this, after) < 0;
+  }
+
+  public isAfterYearMonth(before: Timestamp) {
+    return compareTimestampMonth(this, before) > 0;
+  }
+
+  public isEqualYearMonth(same: Timestamp) {
+    return compareTimestampMonth(this, same) === 0;
+  }
+
   public isBeforeTime(after: Timestamp) {
     return compareTimestampTime(this, after) < 0;
   }
@@ -786,6 +810,14 @@ export class $DateTime extends Timestamp {
 
   public isEqualTime(same: Timestamp) {
     return compareTimestampTime(this, same) === 0;
+  }
+
+};
+
+export class $Time {
+
+  constructor() {
+
   }
 
 };

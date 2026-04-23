@@ -113,9 +113,10 @@ export function $$source<
 
         // notFound
         const getSourceMessage = optimizeValidationMessage(this.notFoundMessage) ??
-          (() => ({
+          ((p) => ({
             ...commonMsgParams,
             code: "notFound",
+            ...p,
           }));
 
         this._validators.push((p) => {
@@ -124,9 +125,7 @@ export function $$source<
           if (item) return null;
           return getSourceMessage({
             ...p,
-            validationValues: {
-              items: this.items,
-            },
+            items: this.items,
           });
         });
 

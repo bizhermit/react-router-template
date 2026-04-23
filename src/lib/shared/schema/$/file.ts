@@ -207,9 +207,7 @@ export function $file<const P extends FileProps>(props: P = {} as P) {
               ((p) => ({
                 ...commonMsgParams,
                 code: "accept",
-                accept: p.validationValues.accept,
-                currentFileType: p.validationValues.currentFileType,
-                currentFileName: p.validationValues.currentFileName,
+                ...p,
               }));
 
             if (typeof accept === "function") {
@@ -222,11 +220,9 @@ export function $file<const P extends FileProps>(props: P = {} as P) {
                 if (ctx.check(p.value)) return null;
                 return getMessage({
                   ...p,
-                  validationValues: {
-                    accept: ctx.accept,
-                    currentFileType: p.value.type,
-                    currentFileName: p.value.name,
-                  },
+                  accept: ctx.accept,
+                  currentFileType: p.value.type,
+                  currentFileName: p.value.name,
                 });
               });
             } else {
@@ -237,11 +233,9 @@ export function $file<const P extends FileProps>(props: P = {} as P) {
                 if (ctx.check(p.value)) return null;
                 return getMessage({
                   ...p,
-                  validationValues: {
-                    accept: ctx.accept,
-                    currentFileType: p.value.type,
-                    currentFileName: p.value.name,
-                  },
+                  accept: ctx.accept,
+                  currentFileType: p.value.type,
+                  currentFileName: p.value.name,
                 });
               });
             }
@@ -257,8 +251,7 @@ export function $file<const P extends FileProps>(props: P = {} as P) {
               ((p) => ({
                 ...commonMsgParams,
                 code: "maxSize",
-                maxSize: p.validationValues.maxSize,
-                currentSize: p.validationValues.currentSize,
+                ...p,
               }));
 
             if (typeof maxSize === "function") {
@@ -270,10 +263,8 @@ export function $file<const P extends FileProps>(props: P = {} as P) {
                 if (p.value.size <= m) return null;
                 return getMessage({
                   ...p,
-                  validationValues: {
-                    maxSize: m,
-                    currentSize: p.value.size,
-                  },
+                  maxSize: m,
+                  currentSize: p.value.size,
                 });
               });
             } else {
@@ -283,10 +274,8 @@ export function $file<const P extends FileProps>(props: P = {} as P) {
                 if (p.value.size <= maxSize) return null;
                 return getMessage({
                   ...p,
-                  validationValues: {
-                    maxSize,
-                    currentSize: p.value.size,
-                  },
+                  maxSize,
+                  currentSize: p.value.size,
                 });
               });
             }

@@ -105,7 +105,7 @@ export function $num<const P extends NumberProps>(props: P = {} as P) {
               ((p) => ({
                 ...commonMsgParams,
                 code: "min",
-                min: p.validationValues.min,
+                ...p,
               }));
 
             if (typeof min === "function") {
@@ -115,9 +115,7 @@ export function $num<const P extends NumberProps>(props: P = {} as P) {
                 if (m == null || m <= p.value) return null;
                 return getMessage({
                   ...p,
-                  validationValues: {
-                    min: m,
-                  },
+                  min: m,
                 });
               });
             } else {
@@ -126,9 +124,7 @@ export function $num<const P extends NumberProps>(props: P = {} as P) {
                 if (min <= p.value) return null;
                 return getMessage({
                   ...p,
-                  validationValues: {
-                    min,
-                  },
+                  min,
                 });
               });
             }
@@ -144,7 +140,7 @@ export function $num<const P extends NumberProps>(props: P = {} as P) {
               ((p) => ({
                 ...commonMsgParams,
                 code: "max",
-                max: p.validationValues.max,
+                ...p,
               }));
 
             if (typeof max === "function") {
@@ -154,9 +150,7 @@ export function $num<const P extends NumberProps>(props: P = {} as P) {
                 if (m == null || p.value <= m) return null;
                 return getMessage({
                   ...p,
-                  validationValues: {
-                    max: m,
-                  },
+                  max: m,
                 });
               });
             } else {
@@ -165,9 +159,7 @@ export function $num<const P extends NumberProps>(props: P = {} as P) {
                 if (p.value <= max) return null;
                 return getMessage({
                   ...p,
-                  validationValues: {
-                    max,
-                  },
+                  max,
                 });
               });
             }
@@ -183,8 +175,7 @@ export function $num<const P extends NumberProps>(props: P = {} as P) {
               ((p) => ({
                 ...commonMsgParams,
                 code: "float",
-                float: p.validationValues.float,
-                currentFloat: p.validationValues.currentFloat,
+                ...p,
               }));
 
             if (typeof float === "function") {
@@ -196,10 +187,8 @@ export function $num<const P extends NumberProps>(props: P = {} as P) {
                 if (cur <= f) return null;
                 return getMessage({
                   ...p,
-                  validationValues: {
-                    float: f,
-                    currentFloat: cur,
-                  },
+                  float: f,
+                  currentFloat: cur,
                 });
               });
             } else {
@@ -209,10 +198,8 @@ export function $num<const P extends NumberProps>(props: P = {} as P) {
                 if (cur <= float) return null;
                 return getMessage({
                   ...p,
-                  validationValues: {
-                    float,
-                    currentFloat: cur,
-                  },
+                  float,
+                  currentFloat: cur,
                 });
               });
             }

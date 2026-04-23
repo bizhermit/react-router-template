@@ -1,10 +1,15 @@
+import { getValue } from "$/shared/objects/data";
 import { parseNumber } from "$/shared/objects/numeric";
 import { $Month } from "$/shared/objects/timestamp";
-import { getSchemaItemPropsGenerator, getValidationArray } from ".";
+import { getSchemaItemPropsGenerator, getValidationArray, getValidationArrayAsArray } from ".";
 
 export const SCHEMA_ITEM_TYPE_MONTH = "month";
 
-type MonthPair = { name: string; position: "before" | "after"; noSame?: boolean; };
+type MonthPair = {
+  name: string;
+  position: "before" | "after";
+  disallowSame?: boolean;
+};
 
 type MonthValidation_MinMonthParams = { minMonth: $Month; };
 type MonthValidation_MaxMonthParams = { maxMonth: $Month; };
@@ -26,7 +31,7 @@ type MonthOptions = {
   required?: $Schema.Validation<$Schema.Nullable<$Month>, boolean, undefined, MonthValidationMessage>;
   minMonth?: $Schema.Validation<$Month, $Month, MonthValidation_MinMonthParams, MonthValidationMessage>;
   maxMonth?: $Schema.Validation<$Month, $Month, MonthValidation_MaxMonthParams, MonthValidationMessage>;
-  pair?: $Schema.Validation<
+  pairs?: $Schema.Validation<
     $Month,
     MonthPair | MonthPair[],
     MonthValidation_PairParams,
@@ -69,8 +74,14 @@ type SplitMonthBaseProps = Pick<
 
 function splitMonth<const Base extends SplitMonthBaseProps>(base: {
   getThis: () => Base;
-  isValidMin: (params: { value: number; validationValue: $Month; }) => [boolean, number];
-  isValidMax: (params: { value: number; validationValue: $Month; }) => [boolean, number];
+  isValidMin: (params: {
+    value: number;
+    validationMonth: $Month;
+  }) => [boolean, number];
+  isValidMax: (params: {
+    value: number;
+    validationMonth: $Month;
+  }) => [boolean, number];
 }) {
   return function <const SP extends SplitMonthProps>(splitProps: SP = {} as SP) {
     type Required = $Schema.ValidationArray<SP["required"]>[0] extends boolean
@@ -185,7 +196,7 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
               ((p) => ({
                 ...commonMsgParams,
                 code: "min",
-                min: p.validationValues.min,
+                ...p,
               }));
 
             if (typeof min === "function") {
@@ -200,23 +211,19 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
                       if (p.value == null) return null;
                       const m = baseMin(p);
                       if (m == null) return null;
-                      const ret = base.isValidMin({ value: p.value, validationValue: m });
+                      const ret = base.isValidMin({ value: p.value, validationMonth: m });
                       if (ret[0]) return null;
                       return getMessage({
                         ...p,
-                        validationValues: {
-                          min: ret[1],
-                        },
+                        min: ret[1],
                       });
                     } else {
                       if (p.value == null) return null;
-                      const ret = base.isValidMin({ value: p.value, validationValue: baseMin });
+                      const ret = base.isValidMin({ value: p.value, validationMonth: baseMin });
                       if (ret[0]) return null;
                       return getMessage({
                         ...p,
-                        validationValues: {
-                          min: ret[1],
-                        },
+                        min: ret[1],
                       });
                     }
                   }
@@ -225,9 +232,7 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
                 if (m <= p.value) return null;
                 return getMessage({
                   ...p,
-                  validationValues: {
-                    min: m,
-                  },
+                  min: m,
                 });
               });
             } else {
@@ -239,25 +244,21 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
                       if (p.value == null) return null;
                       const m = baseMin(p);
                       if (m == null) return null;
-                      const ret = base.isValidMin({ value: p.value, validationValue: m });
+                      const ret = base.isValidMin({ value: p.value, validationMonth: m });
                       if (ret[0]) return null;
                       return getMessage({
                         ...p,
-                        validationValues: {
-                          min: ret[1],
-                        },
+                        min: ret[1],
                       });
                     });
                   } else {
                     this._validators.push((p) => {
                       if (p.value == null) return null;
-                      const ret = base.isValidMin({ value: p.value, validationValue: baseMin });
+                      const ret = base.isValidMin({ value: p.value, validationMonth: baseMin });
                       if (ret[0]) return null;
                       return getMessage({
                         ...p,
-                        validationValues: {
-                          min: ret[1],
-                        },
+                        min: ret[1],
                       });
                     });
                   }
@@ -268,9 +269,7 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
                   if (min <= p.value) return null;
                   return getMessage({
                     ...p,
-                    validationValues: {
-                      min,
-                    },
+                    min,
                   });
                 });
               }
@@ -285,7 +284,7 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
               ((p) => ({
                 ...commonMsgParams,
                 code: "max",
-                max: p.validationValues.max,
+                ...p,
               }));
 
             if (typeof max === "function") {
@@ -300,23 +299,19 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
                       if (p.value == null) return null;
                       const m = baseMax(p);
                       if (m == null) return null;
-                      const ret = base.isValidMax({ value: p.value, validationValue: m });
+                      const ret = base.isValidMax({ value: p.value, validationMonth: m });
                       if (ret[0]) return null;
                       return getMessage({
                         ...p,
-                        validationValues: {
-                          max: ret[1],
-                        },
+                        max: ret[1],
                       });
                     } else {
                       if (p.value == null) return null;
-                      const ret = base.isValidMax({ value: p.value, validationValue: baseMax });
+                      const ret = base.isValidMax({ value: p.value, validationMonth: baseMax });
                       if (ret[0]) return null;
                       return getMessage({
                         ...p,
-                        validationValues: {
-                          max: ret[1],
-                        },
+                        max: ret[1],
                       });
                     }
                   }
@@ -325,9 +320,7 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
                 if (p.value <= m) return null;
                 return getMessage({
                   ...p,
-                  validationValues: {
-                    max: m,
-                  },
+                  max: m,
                 });
               });
             } else {
@@ -339,25 +332,21 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
                       if (p.value == null) return null;
                       const m = baseMax(p);
                       if (m == null) return null;
-                      const ret = base.isValidMax({ value: p.value, validationValue: m });
+                      const ret = base.isValidMax({ value: p.value, validationMonth: m });
                       if (ret[0]) return null;
                       return getMessage({
                         ...p,
-                        validationValues: {
-                          max: ret[1],
-                        },
+                        max: ret[1],
                       });
                     });
                   } else {
                     this._validators.push((p) => {
                       if (p.value == null) return null;
-                      const ret = base.isValidMax({ value: p.value, validationValue: baseMax });
+                      const ret = base.isValidMax({ value: p.value, validationMonth: baseMax });
                       if (ret[0]) return null;
                       return getMessage({
                         ...p,
-                        validationValues: {
-                          max: ret[1],
-                        },
+                        max: ret[1],
                       });
                     });
                   }
@@ -368,9 +357,7 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
                   if (p.value <= max) return null;
                   return getMessage({
                     ...p,
-                    validationValues: {
-                      max,
-                    },
+                    max,
                   });
                 });
               }
@@ -463,7 +450,162 @@ export function $month<const P extends MonthProps>(props: P = {} as P) {
           }
         }
 
-        // TODO:
+        // minMonth
+        if (this.minMonth) {
+          const [minMonth, getMinMonthMessage] = getValidationArray(this.minMonth);
+          if (minMonth != null) {
+            const getMessage: $Schema.ValidationMessageGetter<typeof getMinMonthMessage> =
+              getMinMonthMessage ??
+              ((p) => ({
+                ...commonMsgParams,
+                code: "minMonth",
+                ...p,
+              }));
+
+            if (typeof minMonth === "function") {
+              this._validators.push((p) => {
+                if (p.value == null) return null;
+                const m = minMonth(p);
+                if (m == null) return null;
+                if (p.value.isBefore(m)) {
+                  return getMessage({
+                    ...p,
+                    minMonth: m,
+                  });
+                }
+                return null;
+              });
+            } else {
+              this._validators.push((p) => {
+                if (p.value == null) return null;
+                if (p.value.isBefore(minMonth)) {
+                  return getMessage({
+                    ...p,
+                    minMonth,
+                  });
+                }
+                return null;
+              });
+            }
+          }
+        }
+
+        // maxMonth
+        if (this.maxMonth) {
+          const [maxMonth, getMaxMonthMessage] = getValidationArray(this.maxMonth);
+          if (maxMonth != null) {
+            const getMessage: $Schema.ValidationMessageGetter<typeof getMaxMonthMessage> =
+              getMaxMonthMessage ??
+              ((p) => ({
+                ...commonMsgParams,
+                code: "maxMonth",
+                ...p,
+              }));
+
+            if (typeof maxMonth === "function") {
+              this._validators.push((p) => {
+                if (p.value == null) return null;
+                const m = maxMonth(p);
+                if (m == null) return null;
+                if (p.value.isAfter(m)) {
+                  return getMessage({
+                    ...p,
+                    maxMonth: m,
+                  });
+                }
+                return null;
+              });
+            } else {
+              this._validators.push((p) => {
+                if (p.value == null) return null;
+                if (p.value.isAfter(maxMonth)) {
+                  return getMessage({
+                    ...p,
+                    maxMonth,
+                  });
+                }
+                return null;
+              });
+            }
+          }
+        }
+
+        // pair
+        if (this.pairs) {
+          const [pairs, getPairsMessage] = getValidationArrayAsArray(this.pairs);
+          if (pairs) {
+            const getMessage: $Schema.ValidationMessageGetter<typeof getPairsMessage> =
+              getPairsMessage ??
+              ((p) => ({
+                ...commonMsgParams,
+                code: "pair",
+                ...p,
+              }));
+
+            if (typeof pairs === "function") {
+              this._validators.push((p) => {
+                if (p.value == null) return null;
+                let ps = pairs(p);
+                if (ps == null) return null;
+                if (!Array.isArray(ps)) ps = [ps];
+                if (ps == null || ps.length === 0) return null;
+                for (const pair of ps) {
+                  const pairValue = getValue(p.values, p.name, pair.name)[0];
+                  if (!pairValue) continue;
+                  try {
+                    const pairMonth = new $Month(pairValue as string);
+                    if (!pair.disallowSame && p.value.isEqual(pairMonth)) continue;
+                    if (pair.position === "after") {
+                      if (p.value.isBefore(pairMonth)) continue;
+                    } else {
+                      if (p.value.isAfter(pairMonth)) continue;
+                    }
+                    return getMessage({
+                      ...p,
+                      pairName: pair.name,
+                      position: pair.position,
+                      disallowSame: pair.disallowSame ?? false,
+                      pairMonth,
+                    });
+                  } catch {
+                    // ignore
+                    continue;
+                  }
+                }
+                return null;
+              });
+            } else {
+              const ps = Array.isArray(pairs) ? pairs : [pairs];
+              this._validators.push((p) => {
+                if (p.value == null) return null;
+                for (const pair of ps) {
+                  const pairValue = getValue(p.values, p.name, pair.name)[0];
+                  if (!pairValue) continue;
+                  try {
+                    const pairMonth = new $Month(pairValue as string);
+                    if (!pair.disallowSame && p.value.isEqual(pairMonth)) continue;
+                    if (pair.position === "after") {
+                      if (p.value.isBefore(pairMonth)) continue;
+                    } else {
+                      if (p.value.isAfter(pairMonth)) continue;
+                    }
+                    return getMessage({
+                      ...p,
+                      pairName: pair.name,
+                      position: pair.position,
+                      disallowSame: pair.disallowSame ?? false,
+                      pairMonth,
+                    });
+                  } catch {
+                    // ignore
+                    continue;
+                  }
+                }
+                return null;
+              });
+            }
+          }
+        }
 
         // rules
         if (this.rules) {
@@ -488,13 +630,13 @@ export function $month<const P extends MonthProps>(props: P = {} as P) {
       const getBase = () => this;
       return splitMonth<This>({
         getThis: getBase,
-        isValidMin: ({ value, validationValue }) => {
+        isValidMin: ({ value, validationMonth: validationValue }) => {
           return [
             validationValue.getYear() <= value,
             validationValue.getYear(),
           ];
         },
-        isValidMax: ({ value, validationValue }) => {
+        isValidMax: ({ value, validationMonth: validationValue }) => {
           return [
             value <= validationValue.getYear(),
             validationValue.getYear(),
