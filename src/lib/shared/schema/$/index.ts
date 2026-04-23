@@ -1,3 +1,5 @@
+import type { SCHEMA_ITEM_TYPE_OBJECT } from "./object";
+
 export function getSchemaItemPropsGenerator<
   const FixedProps extends Record<string, unknown>,
   const Props,
@@ -91,4 +93,38 @@ export function getEmptyInjectParams() {
     isServer: typeof window === "undefined",
     values: {},
   } as const satisfies $Schema.InjectParams;
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function parseWithSchema<const S extends $Schema.SchemaItemInterfaceProps<any> & {
+  type: typeof SCHEMA_ITEM_TYPE_OBJECT;
+  props: unknown;
+}>(params: {
+  schema: S;
+  values: Record<string, unknown> | null | undefined;
+  data?: Record<string, unknown> | null | undefined;
+  isServer?: boolean;
+}) {
+  const injectParams = {
+    values: params.values ?? {},
+    data: params.data ?? {},
+    isServer: params.isServer ?? typeof window === "undefined",
+  } as const satisfies $Schema.InjectParams;
+
+  const parsed = params.schema.parse(params.values, injectParams);
+  const msgs = params.schema.validate(parsed.value, injectParams);
+  const hasError = parsed.messages?.some(msg => msg.type === "e") || msgs.some(msg => msg.type === "e");
+
+  if (hasError) {
+    return {
+      ok: false,
+      values: parsed.value as $Schema.Infer<typeof params.schema>,
+      messages: [...parsed.messages ?? [], ...msgs],
+    } as const;
+  }
+  return {
+    ok: true,
+    values: parsed.value as $Schema.Infer<typeof params.schema, true>,
+    messages: [...parsed.messages ?? [], ...msgs],
+  } as const;
 };

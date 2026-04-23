@@ -1,6 +1,7 @@
 import { Button } from "$/components/elements/button/button";
 import { useRender } from "$/shared/hooks/render";
 import { $Date, $DateTime } from "$/shared/objects/timestamp";
+import { parseWithSchema } from "$/shared/schema/$";
 import { $array } from "$/shared/schema/$/array";
 import { $bool } from "$/shared/schema/$/boolean";
 import { $date } from "$/shared/schema/$/date";
@@ -56,7 +57,7 @@ const schemaObject = $object({
       minLength: 8,
       maxLength: 16,
     }).overwrite({
-      required: true,
+      required: false,
       length: [10, ({ value, params: { currentLength, length } }) => {
         return null;
       }],
@@ -187,17 +188,34 @@ export default function Page() {
             };
             console.log("--------");
             const now = performance.now();
-            const params: $Schema.InjectParams = {
-              data: {},
-              isServer: false,
-              values: dummyValues,
-            };
-            const parsed = schemaObject.parse(
-              dummyValues,
-              params
-            );
-            console.log(parsed);
-            console.log(schemaObject.validate(parsed.value, params));
+            // const params: $Schema.InjectParams = {
+            //   data: {},
+            //   isServer: false,
+            //   values: dummyValues,
+            // };
+            // const parsed = schemaObject.parse(
+            //   dummyValues,
+            //   params
+            // );
+            // console.log(parsed);
+            // const submission = schemaObject.validate(parsed.value, params);
+            // console.log(submission.reduce((prev, msg) => {
+            //   prev[msg.name || "_root"] = msg;
+            //   return prev;
+            // }, {} as Record<string, $Schema.Message>));
+            const submission = parseWithSchema({
+              schema: schemaObject,
+              values: {
+                name: "",
+                age: 100,
+              },
+            });
+            if (submission.ok) {
+              submission.values.name;
+            } else {
+              submission.values.name;
+            }
+            console.log();
             console.log("-", performance.now() - now);
             // console.log("-", validationMessage);
           }}
