@@ -29,12 +29,12 @@ const birth = $date({
 });
 const birth_year = birth.getSplitYear({
   // required: true,
-  required: false,
+  // required: false,
   // required: "inherit",
 });
 type _Birth = $Schema.Infer<typeof birth>;
 type __BirthYear = typeof birth_year;
-type _BirthYear = $Schema.Infer<typeof birth_year>;
+type _BirthYear = $Schema.Infer<typeof birth_year, true>;
 
 const schemaObject = $object({
   props: {

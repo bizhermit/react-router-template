@@ -32,7 +32,7 @@ type DateTimeOptions = {
 
 type DateTimeProps = $Schema.SchemaItemAbstractProps & DateTimeOptions;
 
-const SCHEMA_ITEM_TYPE_SPLIT_DATETIME = `${SCHEMA_ITEM_TYPE_DATETIME}-s`;
+export type SplitDateTimePart = "Y" | "M" | "D" | "h" | "m" | "s";
 
 type SplitDateTimeOptions = {
   parser?: $Schema.Parser<number>;
@@ -49,7 +49,7 @@ type SplitDateTimeBaseProps = Pick<
   "required" | "minDateTime" | "maxDateTime" | "minDate" | "maxDate" | "minTime" | "maxTime" | "getActionType"
 >;
 
-function splitDateTime<const Base extends SplitDateTimeBaseProps>(base: {
+function splitDateTime<const Base extends SplitDateTimeBaseProps>(key: SplitDateTimePart, base: {
   getThis: () => Base;
   isValidMin: (params: {
     value: number;
@@ -69,9 +69,10 @@ function splitDateTime<const Base extends SplitDateTimeBaseProps>(base: {
       ? SP["required"]
       : $Schema.ValidationArray<Base["required"]>;
 
+    const type = `${SCHEMA_ITEM_TYPE_DATETIME}-${key}` as const;
     return {
       ...splitProps,
-      type: SCHEMA_ITEM_TYPE_SPLIT_DATETIME,
+      type,
       required: splitProps.required as Required,
       _validators: null,
       getActionType: function () {
@@ -87,7 +88,7 @@ function splitDateTime<const Base extends SplitDateTimeBaseProps>(base: {
             type: "e",
             label: this.label,
             actionType: this.getActionType(),
-            otype: SCHEMA_ITEM_TYPE_SPLIT_DATETIME,
+            otype: type,
             code: "parse",
             name: params.name,
           }],
@@ -97,7 +98,7 @@ function splitDateTime<const Base extends SplitDateTimeBaseProps>(base: {
         if (this._validators == null) {
           this._validators = [];
           const commonMsgParams = {
-            otype: SCHEMA_ITEM_TYPE_SPLIT_DATETIME,
+            otype: type,
             type: "e",
           } as const satisfies {
             otype: string;
@@ -907,7 +908,7 @@ export function $datetime<const P extends DateTimeProps>(props: P = {} as P) {
       splitProps: SP = {} as SP,
     ) {
       const getBase = () => this;
-      return splitDateTime<This>({
+      return splitDateTime<This>("Y", {
         getThis: getBase,
         isValidMin: ({ value, getValidationDateTime, getValidationDate }) => {
           let min = getValidationDateTime()?.getYear();
@@ -935,7 +936,7 @@ export function $datetime<const P extends DateTimeProps>(props: P = {} as P) {
       splitProps: SP = {} as SP,
     ) {
       const getBase = () => this;
-      return splitDateTime<This>({
+      return splitDateTime<This>("M", {
         getThis: getBase,
         isValidMin: ({ value }) => {
           // NOTE: 最小値および年の値によって変動するため、最小日付と比較を行わない
@@ -955,7 +956,7 @@ export function $datetime<const P extends DateTimeProps>(props: P = {} as P) {
       splitProps: SP = {} as SP,
     ) {
       const getBase = () => this;
-      return splitDateTime<This>({
+      return splitDateTime<This>("D", {
         getThis: getBase,
         isValidMin: ({ value }) => {
           // NOTE: 最小値および年月の値によって変動するため、最小日付と比較を行わない
@@ -975,7 +976,7 @@ export function $datetime<const P extends DateTimeProps>(props: P = {} as P) {
       splitProps: SP = {} as SP,
     ) {
       const getBase = () => this;
-      return splitDateTime<This>({
+      return splitDateTime<This>("h", {
         getThis: getBase,
         isValidMin: ({ value, getValidationTime }) => {
           const hour = getValidationTime()?.getHour();
@@ -997,7 +998,7 @@ export function $datetime<const P extends DateTimeProps>(props: P = {} as P) {
       splitProps: SP = {} as SP,
     ) {
       const getBase = () => this;
-      return splitDateTime<This>({
+      return splitDateTime<This>("m", {
         getThis: getBase,
         isValidMin: ({ value }) => {
           return [0 <= value, 0];
@@ -1015,7 +1016,7 @@ export function $datetime<const P extends DateTimeProps>(props: P = {} as P) {
       splitProps: SP = {} as SP,
     ) {
       const getBase = () => this;
-      return splitDateTime<This>({
+      return splitDateTime<This>("s", {
         getThis: getBase,
         isValidMin: ({ value }) => {
           return [0 <= value, 0];

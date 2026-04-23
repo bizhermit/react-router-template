@@ -160,11 +160,11 @@ namespace $Schema {
       T extends "bool" ? P extends { trueValue: infer TV; falseValue: infer FV; } ? InferRequired<R> extends true | "nonFalse" ? (Strict extends true ? (TV | FV) : Nullable<TV | FV>) : Nullable<(TV | FV)> : InferRequired<R> extends true | "nonFalse" ? boolean : Nullable<boolean> :
       T extends "src" ? P extends { items: readonly { value: infer V; }[]; } ? InferRequired<R> extends true ? (Strict extends true ? V : Nullable<V>) : Nullable<V> : never :
       T extends "date" ? InferRequired<R> extends true ? (Strict extends true ? $Date : Nullable<$Date>) : Nullable<$Date> :
-      T extends "date-s" ? InferRequired<R> extends true ? (Strict extends true ? number : Nullable<number>) : Nullable<number> :
+      T extends `date-${import("./date").SplitDatePart}` ? InferRequired<R> extends true ? (Strict extends true ? number : Nullable<number>) : Nullable<number> :
       T extends "month" ? InferRequired<R> extends true ? (Strict extends true ? $Month : Nullable<$Month>) : Nullable<$Month> :
-      T extends "month-s" ? InferRequired<R> extends true ? (Strict extends true ? number : Nullable<number>) : Nullable<number> :
+      T extends `month-${import("./month").SplitMonthPart}` ? InferRequired<R> extends true ? (Strict extends true ? number : Nullable<number>) : Nullable<number> :
       T extends "datetime" ? InferRequired<R> extends true ? (Strict extends true ? $DateTime : Nullable<$DateTime>) : Nullable<$DateTime> :
-      T extends "datetime-s" ? InferRequired<R> extends true ? (Strict extends true ? number : Nullable<number>) : Nullable<number> :
+      T extends `datetime-${import("./datetime").SplitDateTimePart}` ? InferRequired<R> extends true ? (Strict extends true ? number : Nullable<number>) : Nullable<number> :
       T extends "file" ? InferRequired<R> extends true ? (Strict extends true ? File | string : Nullable<File | string>) : Nullable<File | string> :
       T extends "arr" ? P extends { prop: infer Prop; } ? (InferRequired<R> extends true ? (Strict extends true ? InferValue<Prop>[] : Nullable<InferValue<Prop>[]>) : Nullable<InferValue<Prop>[]>) : never :
       T extends "obj" ? (InferRequired<R> extends true ? (Strict extends true ? Infer<P> : Nullable<Infer<P>>) : Nullable<Infer<P>>) :

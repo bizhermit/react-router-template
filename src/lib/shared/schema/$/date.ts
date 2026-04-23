@@ -27,7 +27,7 @@ type DateOptions = {
 
 type DateProps = $Schema.SchemaItemAbstractProps & DateOptions;
 
-const SCHEMA_ITEM_TYPE_SPLIT_DATE = `${SCHEMA_ITEM_TYPE_DATE}-s`;
+export type SplitDatePart = "Y" | "M" | "D";
 
 type SplitDateOptions = {
   parser?: $Schema.Parser<number>;
@@ -44,7 +44,7 @@ type SplitDateBaseProps = Pick<
   "required" | "minDate" | "maxDate" | "getActionType"
 >;
 
-function splitDate<const Base extends SplitDateBaseProps>(base: {
+function splitDate<const Base extends SplitDateBaseProps>(key: SplitDatePart, base: {
   getThis: () => Base;
   isValidMin: (params: {
     value: number;
@@ -60,9 +60,10 @@ function splitDate<const Base extends SplitDateBaseProps>(base: {
       ? SP["required"]
       : $Schema.ValidationArray<Base["required"]>;
 
+    const type = `${SCHEMA_ITEM_TYPE_DATE}-${key}` as const;
     return {
       ...splitProps,
-      type: SCHEMA_ITEM_TYPE_SPLIT_DATE,
+      type,
       required: splitProps.required as Required,
       _validators: null,
       getActionType: function () {
@@ -78,7 +79,7 @@ function splitDate<const Base extends SplitDateBaseProps>(base: {
             type: "e",
             label: this.label,
             actionType: this.getActionType(),
-            otype: SCHEMA_ITEM_TYPE_SPLIT_DATE,
+            otype: type,
             code: "parse",
             name: params.name,
           }],
@@ -88,7 +89,7 @@ function splitDate<const Base extends SplitDateBaseProps>(base: {
         if (this._validators == null) {
           this._validators = [];
           const commonMsgParams = {
-            otype: SCHEMA_ITEM_TYPE_SPLIT_DATE,
+            otype: type,
             type: "e",
           } as const satisfies {
             otype: string;
@@ -668,7 +669,7 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
       splitProps: SP = {} as SP,
     ) {
       const getBase = () => this;
-      return splitDate<This>({
+      return splitDate<This>("Y", {
         getThis: getBase,
         isValidMin: ({ value, validationDate: validationValue }) => {
           return [
@@ -692,7 +693,7 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
       splitProps: SP = {} as SP,
     ) {
       const getBase = () => this;
-      return splitDate<This>({
+      return splitDate<This>("M", {
         getThis: getBase,
         isValidMin: ({ value }) => {
           // NOTE: 最小値および年の値によって変動するため、最小日付と比較を行わない
@@ -712,7 +713,7 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
       splitProps: SP = {} as SP,
     ) {
       const getBase = () => this;
-      return splitDate<This>({
+      return splitDate<This>("D", {
         getThis: getBase,
         isValidMin: ({ value }) => {
           // NOTE: 最小値および年月の値によって変動するため、最小日付と比較を行わない

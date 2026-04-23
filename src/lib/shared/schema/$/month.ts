@@ -41,20 +41,7 @@ type MonthOptions = {
 
 type MonthProps = $Schema.SchemaItemAbstractProps & MonthOptions;
 
-const SCHEMA_ITEM_TYPE_SPLIT_MONTH = `${SCHEMA_ITEM_TYPE_MONTH}-s`;
-
-type SplitMonthValidation_MinParams = { min: number; };
-type SplitMonthValidation_MaxParams = { max: number; };
-
-export type SplitMonthValidationAbstractMessage = $Schema.AbstractMessage & {
-  otype: typeof SCHEMA_ITEM_TYPE_SPLIT_MONTH;
-};
-export type SplitMonthValidationMessage = SplitMonthValidationAbstractMessage & (
-  | { code: "parse"; }
-  | { code: "required"; }
-  | ({ code: "min"; } | SplitMonthValidation_MinParams)
-  | ({ code: "max"; } | SplitMonthValidation_MaxParams)
-);
+export type SplitMonthPart = "Y" | "M";
 
 type SplitMonthOptions = {
   parser?: $Schema.Parser<number>;
@@ -71,7 +58,7 @@ type SplitMonthBaseProps = Pick<
   "required" | "minMonth" | "maxMonth" | "getActionType"
 >;
 
-function splitMonth<const Base extends SplitMonthBaseProps>(base: {
+function splitMonth<const Base extends SplitMonthBaseProps>(key: SplitMonthPart, base: {
   getThis: () => Base;
   isValidMin: (params: {
     value: number;
@@ -87,9 +74,10 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
       ? SP["required"]
       : $Schema.ValidationArray<Base["required"]>;
 
+    const type = `${SCHEMA_ITEM_TYPE_MONTH}-${key}` as const;
     return {
       ...splitProps,
-      type: SCHEMA_ITEM_TYPE_SPLIT_MONTH,
+      type,
       required: splitProps.required as Required,
       _validators: null,
       getActionType: function () {
@@ -105,7 +93,7 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
             type: "e",
             label: this.label,
             actionType: this.getActionType(),
-            otype: SCHEMA_ITEM_TYPE_SPLIT_MONTH,
+            otype: type,
             code: "parse",
             name: params.name,
           }],
@@ -115,7 +103,7 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
         if (this._validators == null) {
           this._validators = [];
           const commonMsgParams = {
-            otype: SCHEMA_ITEM_TYPE_SPLIT_MONTH,
+            otype: type,
             type: "e",
           } as const satisfies {
             otype: string;
@@ -674,7 +662,7 @@ export function $month<const P extends MonthProps>(props: P = {} as P) {
       splitProps: SP = {} as SP,
     ) {
       const getBase = () => this;
-      return splitMonth<This>({
+      return splitMonth<This>("Y", {
         getThis: getBase,
         isValidMin: ({ value, validationMonth: validationValue }) => {
           return [
@@ -698,7 +686,7 @@ export function $month<const P extends MonthProps>(props: P = {} as P) {
       splitProps: SP = {} as SP,
     ) {
       const getBase = () => this;
-      return splitMonth<This>({
+      return splitMonth<This>("M", {
         getThis: getBase,
         isValidMin: ({ value }) => {
           // NOTE: 最小値および年の値によって変動するため、最小日付と比較を行わない
