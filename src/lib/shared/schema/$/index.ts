@@ -82,3 +82,11 @@ export function getValidationArrayAsArray<
   }
   throw new Error(`validation value is not array type`);
 };
+
+export function getEmptyInjectParams() {
+  return {
+    data: {},
+    isServer: typeof window === "undefined",
+    values: {},
+  } as const satisfies $Schema.InjectParams;
+};

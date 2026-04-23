@@ -1,5 +1,5 @@
 import { getLength } from "$/shared/objects/string";
-import { getSchemaItemPropsGenerator, getValidationArray } from ".";
+import { getEmptyInjectParams, getSchemaItemPropsGenerator, getValidationArray } from ".";
 
 export const SCHEMA_ITEM_TYPE_STRING = "str";
 
@@ -154,13 +154,13 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
     getActionType: function () {
       return this.actionType || "input";
     },
-    parse: function (value, params) {
+    parse: function (value, params = getEmptyInjectParams()) {
       if (this.parser) return this.parser(value, params);
       if (value == null || value === "") return { value: undefined };
       if (typeof value === "string") return { value };
       return { value: String(value) };
     },
-    validate: function (value, params) {
+    validate: function (value, params = getEmptyInjectParams()) {
       if (this._validators == null) {
         this._validators = [];
         const commonMsgParams = {

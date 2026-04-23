@@ -134,8 +134,8 @@ namespace $Schema {
 
   type SchemaItemInterfaceProps<Value> = {
     type: string;
-    parse: Parser<Value>;
-    validate: (value: Nullable<Value>, params: ValidationArgParams) => Message[];
+    parse: (value: unknown, params?: ParseArgParams) => ParseResult<Value>;
+    validate: (value: Nullable<Value>, params?: ValidationArgParams) => Message[];
     getActionType: () => ActionType;
     _validators: null | Rule<Value>[];
   } & Record<string, unknown>;

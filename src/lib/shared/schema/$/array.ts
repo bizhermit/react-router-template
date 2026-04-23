@@ -1,4 +1,4 @@
-import { getSchemaItemPropsGenerator, getValidationArray } from ".";
+import { getEmptyInjectParams, getSchemaItemPropsGenerator, getValidationArray } from ".";
 
 export const SCHEMA_ITEM_TYPE_ARRAY = "arr";
 
@@ -41,7 +41,7 @@ export function $array<
     getActionType: function () {
       return this.actionType || "set";
     },
-    parse: function (value, params) {
+    parse: function (value, params = getEmptyInjectParams()) {
       let arrValue: $Schema.Nullable<Value> = undefined;
       const messages: $Schema.Message[] = [];
 
@@ -72,7 +72,7 @@ export function $array<
       }
       return { value: arrValue, messages };
     },
-    validate: function (value, params) {
+    validate: function (value, params = getEmptyInjectParams()) {
       if (this._validators == null) {
         this._validators = [];
         const commonMsgParams = {

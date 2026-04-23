@@ -1,4 +1,4 @@
-import { getSchemaItemPropsGenerator, getValidationArray, optimizeValidationMessage } from ".";
+import { getEmptyInjectParams, getSchemaItemPropsGenerator, getValidationArray, optimizeValidationMessage } from ".";
 
 export const SCHEMA_ITEM_TYPE_SOURCE = "src";
 
@@ -53,7 +53,7 @@ export function $$source<
         return String(item.value) === v;
       });
     },
-    parse: function (value, params) {
+    parse: function (value, params = getEmptyInjectParams()) {
       if (this.parser) return this.parser(value, params);
       const item = this.find(value);
       if (item) return { value: item.value };
@@ -68,7 +68,7 @@ export function $$source<
         }],
       };
     },
-    validate: function (value, params) {
+    validate: function (value, params = getEmptyInjectParams()) {
       if (this._validators == null) {
         this._validators = [];
         const commonMsgParams = {

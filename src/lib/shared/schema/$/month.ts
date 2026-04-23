@@ -1,7 +1,7 @@
 import { getValue } from "$/shared/objects/data";
 import { parseNumber } from "$/shared/objects/numeric";
 import { $Month } from "$/shared/objects/timestamp";
-import { getSchemaItemPropsGenerator, getValidationArray, getValidationArrayAsArray } from ".";
+import { getEmptyInjectParams, getSchemaItemPropsGenerator, getValidationArray, getValidationArrayAsArray } from ".";
 
 export const SCHEMA_ITEM_TYPE_MONTH = "month";
 
@@ -95,7 +95,7 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
       getActionType: function () {
         return this.actionType || base.getThis().getActionType();
       },
-      parse: function (value, params) {
+      parse: function (value, params = getEmptyInjectParams()) {
         if (this.parser) return this.parser(value, params);
         const [num, succeeded] = parseNumber(value);
         if (succeeded) return { value: num };
@@ -110,7 +110,7 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
           }],
         };
       },
-      validate: function (value, params) {
+      validate: function (value, params = getEmptyInjectParams()) {
         if (this._validators == null) {
           this._validators = [];
           const commonMsgParams = {
@@ -412,7 +412,7 @@ export function $month<const P extends MonthProps>(props: P = {} as P) {
     getActionType: function () {
       return this.actionType || "select";
     },
-    parse: function (value, params) {
+    parse: function (value, params = getEmptyInjectParams()) {
       if (this.parser) return this.parser(value, params);
       if (value == null || value === "") return { value: undefined };
       try {
@@ -431,7 +431,7 @@ export function $month<const P extends MonthProps>(props: P = {} as P) {
         };
       }
     },
-    validate: function (value, params) {
+    validate: function (value, params = getEmptyInjectParams()) {
       if (this._validators == null) {
         this._validators = [];
         const commonMsgParams = {

@@ -1,5 +1,5 @@
 import { parseNumber } from "$/shared/objects/numeric";
-import { getSchemaItemPropsGenerator, getValidationArray } from ".";
+import { getEmptyInjectParams, getSchemaItemPropsGenerator, getValidationArray } from ".";
 
 export const SCHEMA_ITEM_TYPE_NUMBER = "num";
 
@@ -26,7 +26,7 @@ export function $num<const P extends NumberProps>(props: P = {} as P) {
     getActionType: function () {
       return this.actionType || "input";
     },
-    parse: function (value, params) {
+    parse: function (value, params = getEmptyInjectParams()) {
       if (this.parser) return this.parser(value, params);
       const [num, succeeded] = parseNumber(value);
       if (succeeded) return { value: num };
@@ -41,7 +41,7 @@ export function $num<const P extends NumberProps>(props: P = {} as P) {
         }],
       };
     },
-    validate: function (value, params) {
+    validate: function (value, params = getEmptyInjectParams()) {
       if (this._validators == null) {
         this._validators = [];
         const commonMsgParams = {

@@ -1,5 +1,5 @@
 import { convertBase64ToFile, convertBlobToFile } from "$/shared/objects/file";
-import { getSchemaItemPropsGenerator, getValidationArray } from ".";
+import { getEmptyInjectParams, getSchemaItemPropsGenerator, getValidationArray } from ".";
 
 export const SCHEMA_ITEM_TYPE_FILE = "file";
 
@@ -103,7 +103,7 @@ export function $file<const P extends FileProps>(props: P = {} as P) {
     getActionType: function () {
       return this.actionType || "select";
     },
-    parse: function (value, params) {
+    parse: function (value, params = getEmptyInjectParams()) {
       if (this.parser) return this.parser(value, params);
       if (value == null) return { value };
 
@@ -144,7 +144,7 @@ export function $file<const P extends FileProps>(props: P = {} as P) {
         }],
       };
     },
-    validate: function (value, params) {
+    validate: function (value, params = getEmptyInjectParams()) {
       if (this._validators == null) {
         this._validators = [];
         const commonMsgParams = {

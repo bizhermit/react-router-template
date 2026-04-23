@@ -1,4 +1,4 @@
-import { getSchemaItemPropsGenerator, getValidationArray } from ".";
+import { getEmptyInjectParams, getSchemaItemPropsGenerator, getValidationArray } from ".";
 
 export const SCHEMA_ITEM_TYPE_OBJECT = "obj";
 
@@ -36,7 +36,7 @@ export function $object<
     getActionType: function () {
       return this.actionType || "set";
     },
-    parse: function (value, params) {
+    parse: function (value, params = getEmptyInjectParams()) {
       let structValue: $Schema.Nullable<Struct> = undefined;
       const messages: $Schema.Message[] = [];
 
@@ -77,7 +77,7 @@ export function $object<
       }
       return { value: structValue as Value, messages };
     },
-    validate: function (value, params) {
+    validate: function (value, params = getEmptyInjectParams()) {
       if (this._validators == null) {
         this._validators = [];
         const commonMsgParams = {

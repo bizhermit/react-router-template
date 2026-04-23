@@ -1,4 +1,4 @@
-import { getSchemaItemPropsGenerator, getValidationArray } from ".";
+import { getEmptyInjectParams, getSchemaItemPropsGenerator, getValidationArray } from ".";
 
 export const SCHEMA_ITEM_TYPE_BOOLEAN = "bool";
 
@@ -50,7 +50,7 @@ export function $bool<
     getActionType: function () {
       return this.actionType || "select";
     },
-    parse: function (value, params) {
+    parse: function (value, params = getEmptyInjectParams()) {
       if (this.parser) return this.parser(value, params);
       const s = String(value);
       if (s === String(trueValue)) {
@@ -80,7 +80,7 @@ export function $bool<
         }],
       };
     },
-    validate: function (value, params) {
+    validate: function (value, params = getEmptyInjectParams()) {
       if (this._validators == null) {
         this._validators = [];
         const commonMsgParams = {
