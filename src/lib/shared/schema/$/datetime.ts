@@ -100,15 +100,15 @@ function splitDateTime<const Base extends SplitDateTimeBaseProps>(base: {
   getThis: () => Base;
   isValidMin: (params: {
     value: number;
-    validationDateTime: () => ($DateTime | null);
-    validationDate: () => ($Date | null);
-    validationTime: () => ($Clock | null);
+    getValidationDateTime: () => ($DateTime | null);
+    getValidationDate: () => ($Date | null);
+    getValidationTime: () => ($Clock | null);
   }) => [boolean, number];
   isValidMax: (params: {
     value: number;
-    validationDateTime: () => ($DateTime | null);
-    validationDate: () => ($Date | null);
-    validationTime: () => ($Clock | null);
+    getValidationDateTime: () => ($DateTime | null);
+    getValidationDate: () => ($Date | null);
+    getValidationTime: () => ($Clock | null);
   }) => [boolean, number];
 }) {
   return function <const SP extends SplitDateTimeProps>(splitProps: SP = {} as SP) {
@@ -227,65 +227,60 @@ function splitDateTime<const Base extends SplitDateTimeBaseProps>(base: {
                 ...p,
               }));
 
+            const getValidationDateTimeGetter = (p: $Schema.RuleArgParams<number>) => {
+              return () => {
+                const [baseMin] = getValidationArray(base.getThis().minDateTime);
+                if (baseMin == null) return null;
+                if (typeof baseMin === "function") {
+                  const baseM = baseMin(p);
+                  if (baseM == null) return null;
+                  return baseM;
+                }
+                return baseMin;
+              };
+            };
+            const getValidationDateGetter = (p: $Schema.RuleArgParams<number>) => {
+              return () => {
+                const [baseMin] = getValidationArray(base.getThis().minDate);
+                if (baseMin == null) return null;
+                if (typeof baseMin === "function") {
+                  const baseM = baseMin(p);
+                  if (baseM == null) return null;
+                  return baseM;
+                }
+                return baseMin;
+              };
+            };
+            const getValidationTimeGetter = (p: $Schema.RuleArgParams<number>) => {
+              return () => {
+                const [baseMin] = getValidationArray(base.getThis().minTime);
+                if (baseMin == null) return null;
+                if (typeof baseMin === "function") {
+                  const baseM = baseMin(p);
+                  if (baseM == null) return null;
+                  return baseM;
+                }
+                return baseMin;
+              };
+            };
+
             if (typeof min === "function") {
               this._validators.push((p) => {
                 if (p.value == null) return null;
                 const m = min(p);
                 if (m == null) return null;
                 if (m === "inherit") {
-                  const [baseMin] = getValidationArray(base.getThis().minDate);
-                  if (baseMin != null) {
-                    if (typeof baseMin === "function") {
-                      if (p.value == null) return null;
-                      const m = baseMin(p);
-                      if (m == null) return null;
-                      const ret = base.isValidMin({
-                        value: p.value,
-                        // validationDateTime: m
-                        validationDateTime: () => {
-                          // TODO:
-                          return null;
-                        },
-                        validationDate: () => {
-                          // TODO:
-                          return null;
-                        },
-                        validationTime: () => {
-                          // TODO:
-                          return null;
-                        },
-                      });
-                      if (ret[0]) return null;
-                      return getMessage({
-                        ...p,
-                        min: ret[1],
-                      });
-                    } else {
-                      if (p.value == null) return null;
-                      const ret = base.isValidMin({
-                        value: p.value,
-                        //  validationDateTime: baseMin
-                        validationDateTime: () => {
-                          // TODO:
-                          return null;
-                        },
-                        validationDate: () => {
-                          // TODO:
-                          return null;
-                        },
-                        validationTime: () => {
-                          // TODO:
-                          return null;
-                        },
-                      });
-                      if (ret[0]) return null;
-                      return getMessage({
-                        ...p,
-                        min: ret[1],
-                      });
-                    }
-                  }
-                  return null;
+                  const ret = base.isValidMin({
+                    value: p.value,
+                    getValidationDateTime: getValidationDateTimeGetter(p),
+                    getValidationDate: getValidationDateGetter(p),
+                    getValidationTime: getValidationTimeGetter(p),
+                  });
+                  if (ret[0]) return null;
+                  return getMessage({
+                    ...p,
+                    min: ret[1],
+                  });
                 }
                 if (m <= p.value) return null;
                 return getMessage({
@@ -304,19 +299,9 @@ function splitDateTime<const Base extends SplitDateTimeBaseProps>(base: {
                       if (m == null) return null;
                       const ret = base.isValidMin({
                         value: p.value,
-                        // validationDateTime: m,
-                        validationDateTime: () => {
-                          // TODO:
-                          return null;
-                        },
-                        validationDate: () => {
-                          // TODO:
-                          return null;
-                        },
-                        validationTime: () => {
-                          // TODO:
-                          return null;
-                        },
+                        getValidationDateTime: getValidationDateTimeGetter(p),
+                        getValidationDate: getValidationDateGetter(p),
+                        getValidationTime: getValidationTimeGetter(p),
                       });
                       if (ret[0]) return null;
                       return getMessage({
@@ -329,19 +314,9 @@ function splitDateTime<const Base extends SplitDateTimeBaseProps>(base: {
                       if (p.value == null) return null;
                       const ret = base.isValidMin({
                         value: p.value,
-                        // validationDateTime: baseMin
-                        validationDateTime: () => {
-                          // TODO:
-                          return null;
-                        },
-                        validationDate: () => {
-                          // TODO:
-                          return null;
-                        },
-                        validationTime: () => {
-                          // TODO:
-                          return null;
-                        },
+                        getValidationDateTime: getValidationDateTimeGetter(p),
+                        getValidationDate: getValidationDateGetter(p),
+                        getValidationTime: getValidationTimeGetter(p),
                       });
                       if (ret[0]) return null;
                       return getMessage({
@@ -375,65 +350,60 @@ function splitDateTime<const Base extends SplitDateTimeBaseProps>(base: {
                 ...p,
               }));
 
+            const getValidationDateTimeGetter = (p: $Schema.RuleArgParams<number>) => {
+              return () => {
+                const [baseMax] = getValidationArray(base.getThis().maxDateTime);
+                if (baseMax == null) return null;
+                if (typeof baseMax === "function") {
+                  const baseM = baseMax(p);
+                  if (baseM == null) return null;
+                  return baseM;
+                }
+                return baseMax;
+              };
+            };
+            const getValidationDateGetter = (p: $Schema.RuleArgParams<number>) => {
+              return () => {
+                const [baseMax] = getValidationArray(base.getThis().maxDate);
+                if (baseMax == null) return null;
+                if (typeof baseMax === "function") {
+                  const baseM = baseMax(p);
+                  if (baseM == null) return null;
+                  return baseM;
+                }
+                return baseMax;
+              };
+            };
+            const getValidationTimeGetter = (p: $Schema.RuleArgParams<number>) => {
+              return () => {
+                const [baseMax] = getValidationArray(base.getThis().maxTime);
+                if (baseMax == null) return null;
+                if (typeof baseMax === "function") {
+                  const baseM = baseMax(p);
+                  if (baseM == null) return null;
+                  return baseM;
+                }
+                return baseMax;
+              };
+            };
+
             if (typeof max === "function") {
               this._validators.push((p) => {
                 if (p.value == null) return null;
                 const m = max(p);
                 if (m == null) return null;
                 if (m === "inherit") {
-                  const [baseMax] = getValidationArray(base.getThis().maxDate);
-                  if (baseMax != null) {
-                    if (typeof baseMax === "function") {
-                      if (p.value == null) return null;
-                      const m = baseMax(p);
-                      if (m == null) return null;
-                      const ret = base.isValidMax({
-                        value: p.value,
-                        // validationDateTime: m,
-                        validationDateTime: () => {
-                          // TODO:
-                          return null;
-                        },
-                        validationDate: () => {
-                          // TODO:
-                          return null;
-                        },
-                        validationTime: () => {
-                          // TODO:
-                          return null;
-                        },
-                      });
-                      if (ret[0]) return null;
-                      return getMessage({
-                        ...p,
-                        max: ret[1],
-                      });
-                    } else {
-                      if (p.value == null) return null;
-                      const ret = base.isValidMax({
-                        value: p.value,
-                        // validationDateTime: baseMax,
-                        validationDateTime: () => {
-                          // TODO:
-                          return null;
-                        },
-                        validationDate: () => {
-                          // TODO:
-                          return null;
-                        },
-                        validationTime: () => {
-                          // TODO:
-                          return null;
-                        },
-                      });
-                      if (ret[0]) return null;
-                      return getMessage({
-                        ...p,
-                        max: ret[1],
-                      });
-                    }
-                  }
-                  return null;
+                  const ret = base.isValidMin({
+                    value: p.value,
+                    getValidationDateTime: getValidationDateTimeGetter(p),
+                    getValidationDate: getValidationDateGetter(p),
+                    getValidationTime: getValidationTimeGetter(p),
+                  });
+                  if (ret[0]) return null;
+                  return getMessage({
+                    ...p,
+                    max: ret[1],
+                  });
                 }
                 if (p.value <= m) return null;
                 return getMessage({
@@ -452,19 +422,9 @@ function splitDateTime<const Base extends SplitDateTimeBaseProps>(base: {
                       if (m == null) return null;
                       const ret = base.isValidMax({
                         value: p.value,
-                        // validationDateTime: m,
-                        validationDateTime: () => {
-                          // TODO:
-                          return null;
-                        },
-                        validationDate: () => {
-                          // TODO:
-                          return null;
-                        },
-                        validationTime: () => {
-                          // TODO:
-                          return null;
-                        },
+                        getValidationDateTime: getValidationDateTimeGetter(p),
+                        getValidationDate: getValidationDateGetter(p),
+                        getValidationTime: getValidationTimeGetter(p),
                       });
                       if (ret[0]) return null;
                       return getMessage({
@@ -477,19 +437,9 @@ function splitDateTime<const Base extends SplitDateTimeBaseProps>(base: {
                       if (p.value == null) return null;
                       const ret = base.isValidMax({
                         value: p.value,
-                        // validationDateTime: baseMax,
-                        validationDateTime: () => {
-                          // TODO:
-                          return null;
-                        },
-                        validationDate: () => {
-                          // TODO:
-                          return null;
-                        },
-                        validationTime: () => {
-                          // TODO:
-                          return null;
-                        },
+                        getValidationDateTime: getValidationDateTimeGetter(p),
+                        getValidationDate: getValidationDateGetter(p),
+                        getValidationTime: getValidationTimeGetter(p),
                       });
                       if (ret[0]) return null;
                       return getMessage({
@@ -943,14 +893,14 @@ export function $datetime<const P extends DateTimeProps>(props: P = {} as P) {
       const getBase = () => this;
       return splitDateTime<This>({
         getThis: getBase,
-        isValidMin: ({ value, validationDateTime: validationValue }) => {
+        isValidMin: () => {
           // return [
           //   validationValue.getYear() <= value,
           //   validationValue.getYear(),
           // ];
           return [true, -1]; // TODO:
         },
-        isValidMax: ({ value, validationDateTime: validationValue }) => {
+        isValidMax: () => {
           // return [
           //   value <= validationValue.getYear(),
           //   validationValue.getYear(),

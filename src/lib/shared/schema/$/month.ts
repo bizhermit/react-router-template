@@ -208,17 +208,15 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
                   const [baseMin] = getValidationArray(base.getThis().minMonth);
                   if (baseMin != null) {
                     if (typeof baseMin === "function") {
-                      if (p.value == null) return null;
-                      const m = baseMin(p);
-                      if (m == null) return null;
-                      const ret = base.isValidMin({ value: p.value, validationMonth: m });
+                      const baseM = baseMin(p);
+                      if (baseM == null) return null;
+                      const ret = base.isValidMin({ value: p.value, validationMonth: baseM });
                       if (ret[0]) return null;
                       return getMessage({
                         ...p,
                         min: ret[1],
                       });
                     } else {
-                      if (p.value == null) return null;
                       const ret = base.isValidMin({ value: p.value, validationMonth: baseMin });
                       if (ret[0]) return null;
                       return getMessage({
@@ -242,9 +240,9 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
                   if (typeof baseMin === "function") {
                     this._validators.push((p) => {
                       if (p.value == null) return null;
-                      const m = baseMin(p);
-                      if (m == null) return null;
-                      const ret = base.isValidMin({ value: p.value, validationMonth: m });
+                      const baseM = baseMin(p);
+                      if (baseM == null) return null;
+                      const ret = base.isValidMin({ value: p.value, validationMonth: baseM });
                       if (ret[0]) return null;
                       return getMessage({
                         ...p,
@@ -296,17 +294,15 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
                   const [baseMax] = getValidationArray(base.getThis().maxMonth);
                   if (baseMax != null) {
                     if (typeof baseMax === "function") {
-                      if (p.value == null) return null;
-                      const m = baseMax(p);
-                      if (m == null) return null;
-                      const ret = base.isValidMax({ value: p.value, validationMonth: m });
+                      const baseM = baseMax(p);
+                      if (baseM == null) return null;
+                      const ret = base.isValidMax({ value: p.value, validationMonth: baseM });
                       if (ret[0]) return null;
                       return getMessage({
                         ...p,
                         max: ret[1],
                       });
                     } else {
-                      if (p.value == null) return null;
                       const ret = base.isValidMax({ value: p.value, validationMonth: baseMax });
                       if (ret[0]) return null;
                       return getMessage({
@@ -330,9 +326,9 @@ function splitMonth<const Base extends SplitMonthBaseProps>(base: {
                   if (typeof baseMax === "function") {
                     this._validators.push((p) => {
                       if (p.value == null) return null;
-                      const m = baseMax(p);
-                      if (m == null) return null;
-                      const ret = base.isValidMax({ value: p.value, validationMonth: m });
+                      const baseM = baseMax(p);
+                      if (baseM == null) return null;
+                      const ret = base.isValidMax({ value: p.value, validationMonth: baseM });
                       if (ret[0]) return null;
                       return getMessage({
                         ...p,

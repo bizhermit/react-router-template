@@ -209,17 +209,15 @@ function splitDate<const Base extends SplitDateBaseProps>(base: {
                   const [baseMin] = getValidationArray(base.getThis().minDate);
                   if (baseMin != null) {
                     if (typeof baseMin === "function") {
-                      if (p.value == null) return null;
-                      const m = baseMin(p);
-                      if (m == null) return null;
-                      const ret = base.isValidMin({ value: p.value, validationDate: m });
+                      const baseM = baseMin(p);
+                      if (baseM == null) return null;
+                      const ret = base.isValidMin({ value: p.value, validationDate: baseM });
                       if (ret[0]) return null;
                       return getMessage({
                         ...p,
                         min: ret[1],
                       });
                     } else {
-                      if (p.value == null) return null;
                       const ret = base.isValidMin({ value: p.value, validationDate: baseMin });
                       if (ret[0]) return null;
                       return getMessage({
@@ -243,9 +241,9 @@ function splitDate<const Base extends SplitDateBaseProps>(base: {
                   if (typeof baseMin === "function") {
                     this._validators.push((p) => {
                       if (p.value == null) return null;
-                      const m = baseMin(p);
-                      if (m == null) return null;
-                      const ret = base.isValidMin({ value: p.value, validationDate: m });
+                      const baseM = baseMin(p);
+                      if (baseM == null) return null;
+                      const ret = base.isValidMin({ value: p.value, validationDate: baseM });
                       if (ret[0]) return null;
                       return getMessage({
                         ...p,
@@ -297,17 +295,15 @@ function splitDate<const Base extends SplitDateBaseProps>(base: {
                   const [baseMax] = getValidationArray(base.getThis().maxDate);
                   if (baseMax != null) {
                     if (typeof baseMax === "function") {
-                      if (p.value == null) return null;
-                      const m = baseMax(p);
-                      if (m == null) return null;
-                      const ret = base.isValidMax({ value: p.value, validationDate: m });
+                      const baseM = baseMax(p);
+                      if (baseM == null) return null;
+                      const ret = base.isValidMax({ value: p.value, validationDate: baseM });
                       if (ret[0]) return null;
                       return getMessage({
                         ...p,
                         max: ret[1],
                       });
                     } else {
-                      if (p.value == null) return null;
                       const ret = base.isValidMax({ value: p.value, validationDate: baseMax });
                       if (ret[0]) return null;
                       return getMessage({
@@ -331,9 +327,9 @@ function splitDate<const Base extends SplitDateBaseProps>(base: {
                   if (typeof baseMax === "function") {
                     this._validators.push((p) => {
                       if (p.value == null) return null;
-                      const m = baseMax(p);
-                      if (m == null) return null;
-                      const ret = base.isValidMax({ value: p.value, validationDate: m });
+                      const baseM = baseMax(p);
+                      if (baseM == null) return null;
+                      const ret = base.isValidMax({ value: p.value, validationDate: baseM });
                       if (ret[0]) return null;
                       return getMessage({
                         ...p,
