@@ -48,10 +48,10 @@ export function $enum<
   const Value,
   const P extends EnumProps<Value>
 >(props: P) {
-  return new $Enum<Value, P>(props);
+  return new $EnumSchema<Value, P>(props);
 };
 
-export class $Enum<
+export class $EnumSchema<
   const Value,
   const P extends EnumProps<Value>
 > extends SchemaItem<Value> {
@@ -155,7 +155,7 @@ export class $Enum<
   }
 
   public overwrite<const OP extends Omit<EnumProps<Value>, "items">>(props: OP) {
-    return new $Enum<Value, Omit<P, keyof OP> & OP & { items: InferItems<P>; }>({
+    return new $EnumSchema<Value, Omit<P, keyof OP> & OP & { items: InferItems<P>; }>({
       ...this.props,
       ...props,
       items: this.items,

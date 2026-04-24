@@ -46,10 +46,10 @@ export function $arr<
   const Prop extends SchemaItem<any>,
   const P extends ArrayProps<Prop>
 >(props: P) {
-  return new $Arr<Prop, P>(props);
+  return new $ArrSchema<Prop, P>(props);
 };
 
-export class $Arr<
+export class $ArrSchema<
   const Prop extends SchemaItem<any>,
   const P extends ArrayProps<Prop>
 > extends SchemaItem<$Schema.InferClassValue<InferChild<P>>[]> {
@@ -268,7 +268,7 @@ export class $Arr<
   }
 
   public overwrite<const OP extends Omit<ArrayProps<Prop>, "prop">>(props: OP) {
-    return new $Arr<Prop, Omit<P, keyof OP> & OP & { prop: Prop; }>({
+    return new $ArrSchema<Prop, Omit<P, keyof OP> & OP & { prop: Prop; }>({
       ...this.props,
       ...props,
       prop: this.child,

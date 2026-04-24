@@ -37,10 +37,10 @@ export function $obj<
   const Props extends Record<string, SchemaItem<any>>,
   const P extends ObjectProps<Props>
 >(props: P) {
-  return new $Obj<Props, P>(props);
+  return new $ObjSchema<Props, P>(props);
 };
 
-export class $Obj<
+export class $ObjSchema<
   const Props extends Record<string, SchemaItem<any>>,
   const P extends ObjectProps<Props>
 > extends SchemaItem<$Schema.InferClass<InferChildren<P>>> {
@@ -171,7 +171,7 @@ export class $Obj<
   }
 
   public overwrite<const OP extends Omit<ObjectProps<Props>, "props">>(props: OP) {
-    return new $Obj<Props, Omit<P, keyof OP> & OP & { props: Props; }>({
+    return new $ObjSchema<Props, Omit<P, keyof OP> & OP & { props: Props; }>({
       ...this.props,
       ...props,
       props: this.chilren,

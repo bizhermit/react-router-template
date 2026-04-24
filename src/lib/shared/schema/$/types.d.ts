@@ -252,9 +252,9 @@ namespace $Schema {
 
   type InferClassValue<P extends import("./core").SchemaItem, Strict extends boolean = false> =
     P extends import("./string").$StrSchema<any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, string, Strict> :
-    P extends import("./number").$Num<any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, number, Strict> :
-    P extends import("./enum").$Enum<any, any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, P["items"][number]["value"], Strict> :
-    P extends import("./boolean").$Bool<any> ? InferRequiredValue<InferRequired<P["props"]["required"]> extends true | "nonFalse" ? true : false, P["trueValue"] | P["falseValue"], Strict> :
+    P extends import("./number").$NumSchema<any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, number, Strict> :
+    P extends import("./enum").$EnumSchema<any, any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, P["items"][number]["value"], Strict> :
+    P extends import("./boolean").$BoolSchema<any> ? InferRequiredValue<InferRequired<P["props"]["required"]> extends true | "nonFalse" ? true : false, P["trueValue"] | P["falseValue"], Strict> :
     P extends import("./date").$DateSchema<any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, $Date, Strict> :
     P extends import("./date").$SplitDateSchema<any, any> ? InferRequiredValue<
       InferRequired<P["props"]["required"]> extends boolean ? InferRequired<P["props"]["required"]> : InferRequired<P["base"]["props"]["required"]>,
@@ -274,8 +274,8 @@ namespace $Schema {
       Strict
     > :
     P extends import("./file").$FileSchema<any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, File | string, Strict> :
-    P extends import("./array").$Arr<any, any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, InferClassValue<P["child"], Strict>[], Strict> :
-    P extends import("./object").$Obj<any, any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, InferClass<P["chilren"], Strict>, Strict> :
+    P extends import("./array").$ArrSchema<any, any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, InferClassValue<P["child"], Strict>[], Strict> :
+    P extends import("./object").$ObjSchema<any, any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, InferClass<P["chilren"], Strict>, Strict> :
     never
     ;
 

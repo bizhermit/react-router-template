@@ -34,13 +34,13 @@ const pickMessage = getPickMessageGetter(SCHEMA_ITEM_TYPE_BOOLEAN);
 export function $bool<
   const P extends BooleanProps<BooleanValue, BooleanValue>
 >(props: P = {} as P) {
-  return new $Bool<P>(props);
+  return new $BoolSchema<P>(props);
 }
 
 type InferTrue<P> = P extends { trueValue: infer T extends BooleanValue; } ? T : true;
 type InferFalse<P> = P extends { falseValue: infer F extends BooleanValue; } ? F : false;
 
-export class $Bool<
+export class $BoolSchema<
   const P extends BooleanProps<BooleanValue, BooleanValue>
 > extends SchemaItem<InferTrue<P> | InferFalse<P>> {
 
@@ -153,7 +153,7 @@ export class $Bool<
   }
 
   public overwrite<const OP extends Omit<BooleanProps<BooleanValue, BooleanValue>, "trueValue" | "falseValue">>(props: OP) {
-    return new $Bool<Omit<P, keyof OP> & OP>({
+    return new $BoolSchema<Omit<P, keyof OP> & OP>({
       ...this.props,
       ...props,
       trueValue: this.trueValue,

@@ -32,10 +32,10 @@ export function getFloatPosition(value: number) {
 const pickMessage = getPickMessageGetter(SCHEMA_ITEM_TYPE_NUMBER);
 
 export function $num<const P extends NumberProps>(props: P = {} as P) {
-  return new $Num<P>(props);
+  return new $NumSchema<P>(props);
 };
 
-export class $Num<const P extends NumberProps> extends SchemaItem<number> {
+export class $NumSchema<const P extends NumberProps> extends SchemaItem<number> {
 
   constructor(protected props: P = {} as P) {
     super();
@@ -214,7 +214,7 @@ export class $Num<const P extends NumberProps> extends SchemaItem<number> {
   }
 
   public overwrite<const OP extends NumberProps>(props: OP) {
-    return new $Num<Omit<P, keyof OP> & OP>({
+    return new $NumSchema<Omit<P, keyof OP> & OP>({
       ...this.props,
       ...props,
     });
