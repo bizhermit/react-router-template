@@ -104,7 +104,7 @@ const schemaObject = $object({
     agreement: $bool({
       required: "nonFalse",
     }).overwrite({
-      required: false,
+      // required: false,
     }),
     roles: $array({
       prop: $str({
@@ -219,17 +219,18 @@ export default function Page() {
             const submission = parseWithSchema({
               schema: schemaObject,
               values: {
-                name: "",
+                name: "ghoe",
                 age: 100,
-              },
+                agreement: false,
+              } satisfies $Schema.Infer<typeof schemaObject>,
             });
+            console.log("-", performance.now() - now);
             if (submission.ok) {
               submission.values.name;
             } else {
               submission.values.name;
             }
-            console.log();
-            console.log("-", performance.now() - now);
+            console.log(submission);
             // console.log("-", validationMessage);
           }}
         >

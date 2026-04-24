@@ -208,6 +208,15 @@ namespace $Schema {
 
   type InferRequired<R> = R extends Array<unknown> ? R[0] : R;
 
+  type RemoveIndexSignature<T> = {
+    [K in keyof T as (
+      string extends K ? never :
+      number extends K ? never :
+      symbol extends K ? never :
+      K
+    )]: T[K];
+  };
+
   type $Date = import("../../objects/timestamp").$Date;
   type $Month = import("../../objects/timestamp").$Month;
   type $DateTime = import("../../objects/timestamp").$DateTime;
@@ -231,7 +240,10 @@ namespace $Schema {
     ) : never;
 
   type Infer<P, Strict extends boolean = false> = P extends { type: "obj"; props: infer Props; }
-    ? { [K in keyof Props]: InferValue<Props[K], Strict> }
+    ? (Strict extends true
+      ? { [K in keyof RemoveIndexSignature<Props>]: InferValue<RemoveIndexSignature<Props>[K], Strict> }
+      : { [K in keyof RemoveIndexSignature<Props>]?: InferValue<RemoveIndexSignature<Props>[K], Strict> }
+    )
     : InferValue<P, Strict>;
 
 }
