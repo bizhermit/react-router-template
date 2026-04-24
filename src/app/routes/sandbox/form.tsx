@@ -1,4 +1,5 @@
 import { Button } from "$/components/elements/button/button";
+import { useSchema } from "$/shared/hooks/$schema";
 import { useRender } from "$/shared/hooks/render";
 import { $Date, $DateTime } from "$/shared/objects/timestamp";
 import { parseWithSchema } from "$/shared/schema/$";
@@ -183,17 +184,32 @@ export function action({ request }: Route.ActionArgs) {
   return data({});
 };
 
+function SchemaContent() {
+  console.log("** render schema content");
+
+  return (
+    <section className="flex flex-col">
+      <h2>Schema Provider</h2>
+    </section>
+  );
+};
+
 export default function Page() {
   const [value, setValue] = useState<$DateTime>(() => new $DateTime());
   const render = useRender();
+
+  const schema = useSchema({
+    schema: schemaObject,
+  });
+
   return (
     <div>
       form sandbox
-      <div className="flex row gap-2">
+      <div className="flex flex-row flex-wrap gap-2">
         <Button
           onClick={() => {
             const dummyValues = {
-              name: null,
+              // name: null,
               // name: "hogefugapiyo",
               year: "2027",
               // year: null,
@@ -216,10 +232,11 @@ export default function Page() {
             //   prev[msg.name || "_root"] = msg;
             //   return prev;
             // }, {} as Record<string, $Schema.Message>));
+            // schemaObject.props.name.required = false;
             const submission = parseWithSchema({
               schema: schemaObject,
               values: {
-                name: "ghoe",
+                // name: "ghoe",
                 age: 100,
                 agreement: false,
               } satisfies $Schema.Infer<typeof schemaObject>,
@@ -237,7 +254,10 @@ export default function Page() {
           validate
         </Button>
       </div>
-      <div className="flex row gap-2">
+      <schema.SchemaProvider>
+        <SchemaContent />
+      </schema.SchemaProvider>
+      <div className="flex flex-row flex-wrap gap-2">
         <Button
           onClick={() => {
             const d = new $DateTime();
@@ -318,7 +338,7 @@ export default function Page() {
           set day 1
         </Button>
       </div>
-      <div className="flex row gap-2">
+      <div className="flex flex-row flex-wrap gap-2">
         <Button
           onClick={() => {
             value.addYear(1);
@@ -376,7 +396,7 @@ export default function Page() {
           add millisecond 1
         </Button>
       </div>
-      <div className="flex row gap-2">
+      <div className="flex flex-row flex-wrap gap-2">
         <Button
           onClick={() => {
             value.addYear(-1);
@@ -434,7 +454,7 @@ export default function Page() {
           minus millisecond 1
         </Button>
       </div>
-      <div className="flex row gap-2">
+      <div className="flex flex-row flex-wrap gap-2">
         <Button
           onClick={() => {
             value.moveFirstDay();

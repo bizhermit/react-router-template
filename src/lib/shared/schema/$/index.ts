@@ -13,11 +13,11 @@ export function getSchemaItemPropsGenerator<
       ...overwriteProps,
       _validators: null,
     } as Props;
-    return {
+    return Object.freeze({
       ...overwritedProps,
       ...fixedProps,
       overwrite: getSchemaItemPropsGenerator<FixedProps, ArgProps, Props>(fixedProps, overwritedProps),
-    } as const;
+    } as const);
   };
 };
 
