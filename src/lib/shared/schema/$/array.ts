@@ -274,4 +274,8 @@ export class $ArrSchema<
     });
   }
 
+  public getSchemaItem<S extends SchemaItem<any> = InferChild<P>>() {
+    return this.child as S;
+  }
+
 }

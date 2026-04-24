@@ -1,4 +1,5 @@
-import { createContext, useCallback, type ReactNode } from "react";
+import { createContext, useCallback, useMemo, type ReactNode } from "react";
+import { FormContext } from "../schema/$/form";
 import type { $ObjSchema } from "../schema/$/object";
 
 type SchemaHookProps<S extends $ObjSchema<any, any>> = {
@@ -8,14 +9,26 @@ type SchemaHookProps<S extends $ObjSchema<any, any>> = {
   messages?: $Schema.Message[];
 };
 
-type SchemaProviderContextProps = {
-
+export type SchemaProviderContextProps<S extends $ObjSchema<any, any> = $ObjSchema<any, any>> = {
+  context: FormContext<S>;
 };
 
-const SchemaProviderContext = createContext<SchemaProviderContextProps>({
+export const SchemaProviderContext = createContext<SchemaProviderContextProps>({
+  context: null!,
 });
 
 export function useSchema<const S extends $ObjSchema<any, any>>(props: SchemaHookProps<S>) {
+  const formContext = useMemo(() => {
+    return new FormContext({
+      values: props.values ?? {},
+      data: {},
+      schema: props.schema,
+    });
+  }, [
+    props.values,
+    props.schema,
+  ]);
+
   const SchemaProvider = useCallback((p: {
     disabled?: boolean;
     readOnly?: boolean;
@@ -24,13 +37,15 @@ export function useSchema<const S extends $ObjSchema<any, any>>(props: SchemaHoo
     return (
       <SchemaProviderContext
         value={{
-
+          context: formContext,
         }}
       >
         {p.children}
       </SchemaProviderContext>
     );
-  }, []);
+  }, [
+    formContext,
+  ]);
 
   return {
     SchemaProvider,

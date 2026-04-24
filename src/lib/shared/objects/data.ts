@@ -75,6 +75,41 @@ export function getValue<V>(
   return [v, has];
 }
 
+export function setValue(
+  data: Record<string, unknown>,
+  name: string,
+  value: unknown
+): boolean {
+  let d = data, change = false;
+  const names = splitName(name);
+  for (let i = 0, il = names.length - 1; i < il; i++) {
+    let n: string | number = names[i];
+    const r = getArrayIndex(n);
+    if (r) n = Number(r[1] || "NaN");
+    if (d[n] == null) {
+      d[n] = getArrayIndex(names[i + 1]) ? [] : {};
+      change = true;
+    }
+    d = d[n] as Record<string | number, unknown>;
+  }
+  const n = names[names.length - 1];
+  const r = getArrayIndex(n);
+  if (r) {
+    if (!Array.isArray(d)) throw new Error(`set value failed. object is no array. "${name}"`);
+    const i = Number(r[1]);
+    if (isNaN(i)) {
+      d.push(value);
+      return true;
+    }
+    change = !Object.is(d[i], value);
+    d[i] = value;
+  } else {
+    change = !Object.is(d[n], value);
+    d[n] = value;
+  }
+  return change;
+};
+
 type Item = {
   /** プロパティ名 */
   name: string;
@@ -136,34 +171,7 @@ export class ProxyData {
   };
 
   public _set(name: string, value: unknown): boolean {
-    let d = this.data, change = false;
-    const names = splitName(name);
-    for (let i = 0, il = names.length - 1; i < il; i++) {
-      let n: string | number = names[i];
-      const r = getArrayIndex(n);
-      if (r) n = Number(r[1] || "NaN");
-      if (d[n] == null) {
-        d[n] = getArrayIndex(names[i + 1]) ? [] : {};
-        change = true;
-      }
-      d = d[n] as Record<string | number, unknown>;
-    }
-    const n = names[names.length - 1];
-    const r = getArrayIndex(n);
-    if (r) {
-      if (!Array.isArray(d)) throw new Error(`set value failed. object is no array. "${name}"`);
-      const i = Number(r[1]);
-      if (isNaN(i)) {
-        d.push(value);
-        return true;
-      }
-      change = !Object.is(d[i], value);
-      d[i] = value;
-    } else {
-      change = !Object.is(d[n], value);
-      d[n] = value;
-    }
-    return change;
+    return setValue(this.data, name, value);
   };
 
   public set(name: string, value: unknown): boolean {

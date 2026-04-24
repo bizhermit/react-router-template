@@ -172,4 +172,8 @@ export class $ObjSchema<
     });
   }
 
+  public getSchemaItem(name: string) {
+    return this.chilren[name];
+  }
+
 };

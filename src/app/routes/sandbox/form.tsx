@@ -1,5 +1,5 @@
 import { Button } from "$/components/elements/button/button";
-import { useSchema } from "$/shared/hooks/$schema";
+import { SchemaProviderContext, useSchema, type SchemaProviderContextProps } from "$/shared/hooks/$schema";
 import { useRender } from "$/shared/hooks/render";
 import { $Date, $DateTime } from "$/shared/objects/timestamp";
 import { parseWithSchema } from "$/shared/schema/$";
@@ -10,7 +10,7 @@ import { $enum } from "$/shared/schema/$/enum";
 import { $num } from "$/shared/schema/$/number";
 import { $obj } from "$/shared/schema/$/object";
 import { $str } from "$/shared/schema/$/string";
-import { useState } from "react";
+import { use, useState } from "react";
 import { data } from "react-router";
 import type { Route } from "./+types/form";
 
@@ -163,9 +163,35 @@ export function action({ request }: Route.ActionArgs) {
 function SchemaContent() {
   console.log("** render schema content");
 
+  const { context } = use(SchemaProviderContext) as SchemaProviderContextProps<typeof schemaObj>;
+
   return (
-    <section className="flex flex-col">
+    <section className="flex flex-col gap-2 p-2">
       <h2>Schema Provider</h2>
+      <div className="flex flex-row flex-wrap gap-2">
+        <Button
+          onClick={() => {
+            console.log(context.getValues());
+          }}
+        >
+          show
+        </Button>
+        <Button
+          onClick={() => {
+            console.log(context.setValue("str2", "hogefugapiyo"));
+          }}
+        >
+          set value
+        </Button>
+        <Button
+          onClick={() => {
+            console.log(context.setValue("str2", null));
+          }}
+        >
+          clear value
+        </Button>
+      </div>
+      <hr />
     </section>
   );
 };
