@@ -1,13 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { getPickMessageGetter, getValidationArray } from ".";
-import { SchemaItem } from "./core";
+import { getPickMessageGetter, getValidationArray, SchemaItem } from "./core";
 
 export const SCHEMA_ITEM_TYPE_OBJECT = "obj";
-
-type ObjectValue<Props extends Record<string, SchemaItem<any>>> = $Schema.Infer<{
-  type: typeof SCHEMA_ITEM_TYPE_OBJECT;
-  props: Props;
-}>;
 
 type ObjectValidations = {
   required: $Schema.ValidationEntry<boolean, null | undefined>;
@@ -23,8 +17,8 @@ type ObjectProps<Props extends Record<string, SchemaItem<any>>> =
   & $Schema.Validations<ObjectValidations>
   & {
     props: Props;
-    parser?: $Schema.Parser<ObjectValue<Props>>;
-    rules?: $Schema.Rule<ObjectValue<Props>>[];
+    parser?: $Schema.Parser<$Schema.Infer<Props>>;
+    rules?: $Schema.Rule<$Schema.Infer<Props>>[];
   };
 
 type Struct = Record<string, unknown>;
@@ -43,7 +37,7 @@ export function $obj<
 export class $ObjSchema<
   const Props extends Record<string, SchemaItem<any>>,
   const P extends ObjectProps<Props>
-> extends SchemaItem<$Schema.InferClass<InferChildren<P>>> {
+> extends SchemaItem<$Schema.Infer<InferChildren<P>>> {
 
   protected chilren: InferChildren<P>;
 
@@ -63,7 +57,7 @@ export class $ObjSchema<
   public parse(
     value: unknown,
     params: $Schema.ParseArgParams = this.getEmptyInjectParams()
-  ): $Schema.ParseResult<$Schema.InferClass<InferChildren<P>>> {
+  ): $Schema.ParseResult<$Schema.Infer<InferChildren<P>>> {
     let structValue: $Schema.Nullable<Struct> = undefined;
     const messages: $Schema.Message[] = [];
 
@@ -119,11 +113,11 @@ export class $ObjSchema<
         }
       });
     }
-    return { value: structValue as $Schema.InferClass<InferChildren<P>>, messages };
+    return { value: structValue as $Schema.Infer<InferChildren<P>>, messages };
   }
 
   public validate(
-    value: $Schema.Nullable<$Schema.InferClass<InferChildren<P>>>,
+    value: $Schema.Nullable<$Schema.Infer<InferChildren<P>>>,
     params: $Schema.ValidationArgParams = this.getEmptyInjectParams()
   ): $Schema.Message[] {
     if (this.validators == null) {

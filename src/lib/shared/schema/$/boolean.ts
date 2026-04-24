@@ -1,5 +1,4 @@
-import { getPickMessageGetter, getValidationArray } from ".";
-import { SchemaItem } from "./core";
+import { getPickMessageGetter, getValidationArray, SchemaItem } from "./core";
 
 export const SCHEMA_ITEM_TYPE_BOOLEAN = "bool";
 

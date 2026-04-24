@@ -194,6 +194,16 @@ const schemaObj = $obj({
     bool: bool,
     bool2: bool2,
     arr: arr,
+    arr2: $arr({
+      prop: $obj({
+        props: {
+          name: $str({ required: true }),
+          age: $num({ required: true }),
+        },
+        required: true,
+      }),
+      required: true,
+    }),
     enum: $enum({
       items: [
         { value: "item1" },
@@ -212,13 +222,13 @@ type F = typeof bool["falseValue"];
 type T2 = typeof bool2["trueValue"];
 type F2 = typeof bool2["falseValue"];
 
-type _Str = $Schema.InferClass<typeof str, true>;
-type _Str2 = $Schema.InferClass<typeof str2, true>;
-type _Bool = $Schema.InferClass<typeof bool, true>;
-type _Bool2 = $Schema.InferClass<typeof bool2, true>;
-type _Obj = $Schema.InferClass<typeof schemaObj, true>;
-type _Date = $Schema.InferClass<typeof date, true>;
-type _Year = $Schema.InferClass<typeof year, true>;
+type _Str = $Schema.Infer<typeof str, true>;
+type _Str2 = $Schema.Infer<typeof str2, true>;
+type _Bool = $Schema.Infer<typeof bool, true>;
+type _Bool2 = $Schema.Infer<typeof bool2, true>;
+type _Obj = $Schema.Infer<typeof schemaObj, true>;
+type _Date = $Schema.Infer<typeof date, true>;
+type _Year = $Schema.Infer<typeof year, true>;
 
 // type _Hoge = $Schema.Infer<typeof schemaObject>;
 // type _Fuga = $Schema.Infer<typeof schemaObject, true>;
@@ -309,9 +319,17 @@ export default function Page() {
                 // name: "ghoe",
                 // age: 100,
                 // agreement: false,
-              } satisfies $Schema.InferClass<typeof schemaObj>,
+                arr2: [
+                  { name: "hoge", age: 1 },
+                  {},
+                ],
+              } satisfies $Schema.Infer<typeof schemaObj>,
             });
             console.log("-", performance.now() - now);
+            console.log(submission.messages.reduce((prev, msg) => {
+              prev[msg.name || "_root"] = msg;
+              return prev;
+            }, {} as Record<string, unknown>));
             if (submission.ok) {
               submission.values.bool;
             } else {

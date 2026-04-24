@@ -1,8 +1,7 @@
 import { getValue } from "$/shared/objects/data";
 import { parseNumber } from "$/shared/objects/numeric";
 import { $Date } from "$/shared/objects/timestamp";
-import { getPickMessageGetter, getValidationArray, getValidationArrayAsArray } from ".";
-import { SchemaItem } from "./core";
+import { getPickMessageGetter, getValidationArray, getValidationArrayAsArray, SchemaItem } from "./core";
 
 export const SCHEMA_ITEM_TYPE_DATE = "date";
 

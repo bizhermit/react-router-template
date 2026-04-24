@@ -193,14 +193,6 @@ namespace $Schema {
     mode?: (params: InjectParams) => Mode;
   };
 
-  type SchemaItemInterfaceProps<Value> = {
-    type: string;
-    parse: (value: unknown, params?: ParseArgParams) => ParseResult<Value>;
-    validate: (value: Nullable<Value>, params?: ValidationArgParams) => Message[];
-    getActionType: () => ActionType;
-    _validators: null | Rule<Value>[];
-  } & Record<string, unknown>;
-
   type SourceItem<const Value> = {
     value: Value;
     text?: string;
@@ -222,35 +214,12 @@ namespace $Schema {
   type $Month = import("../../objects/timestamp").$Month;
   type $DateTime = import("../../objects/timestamp").$DateTime;
 
-  type InferValue<P, Strict extends boolean = false> =
-    P extends { type: infer T; required?: infer R; } ? (
-      T extends "str" ? InferRequired<R> extends true ? (Strict extends true ? string : Nullable<string>) : Nullable<string> :
-      T extends "num" ? InferRequired<R> extends true ? (Strict extends true ? number : Nullable<number>) : Nullable<number> :
-      T extends "bool" ? P extends { trueValue: infer TV; falseValue: infer FV; } ? InferRequired<R> extends true | "nonFalse" ? (Strict extends true ? (TV | FV) : Nullable<TV | FV>) : Nullable<(TV | FV)> : InferRequired<R> extends true | "nonFalse" ? boolean : Nullable<boolean> :
-      T extends "src" ? P extends { items: readonly { value: infer V; }[]; } ? InferRequired<R> extends true ? (Strict extends true ? V : Nullable<V>) : Nullable<V> : never :
-      T extends "date" ? InferRequired<R> extends true ? (Strict extends true ? $Date : Nullable<$Date>) : Nullable<$Date> :
-      T extends `date-${import("./date").SplitDatePart}` ? InferRequired<R> extends true ? (Strict extends true ? number : Nullable<number>) : Nullable<number> :
-      T extends "month" ? InferRequired<R> extends true ? (Strict extends true ? $Month : Nullable<$Month>) : Nullable<$Month> :
-      T extends `month-${import("./month").SplitMonthPart}` ? InferRequired<R> extends true ? (Strict extends true ? number : Nullable<number>) : Nullable<number> :
-      T extends "datetime" ? InferRequired<R> extends true ? (Strict extends true ? $DateTime : Nullable<$DateTime>) : Nullable<$DateTime> :
-      T extends `datetime-${import("./datetime").SplitDateTimePart}` ? InferRequired<R> extends true ? (Strict extends true ? number : Nullable<number>) : Nullable<number> :
-      T extends "file" ? InferRequired<R> extends true ? (Strict extends true ? File | string : Nullable<File | string>) : Nullable<File | string> :
-      T extends "arr" ? P extends { prop: infer Prop; } ? (InferRequired<R> extends true ? (Strict extends true ? InferValue<Prop, Strict>[] : Nullable<InferValue<Prop, Strict>[]>) : Nullable<InferValue<Prop, Strict>[]>) : never :
-      T extends "obj" ? (InferRequired<R> extends true ? (Strict extends true ? Infer<P, Strict> : Nullable<Infer<P, Strict>>) : Nullable<Infer<P, Strict>>) :
-      never
-    ) : never;
-
-  type Infer<P, Strict extends boolean = false> = P extends { type: "obj"; props: infer Props; }
-    ? (Strict extends true
-      ? { [K in keyof RemoveIndexSignature<Props>]: InferValue<RemoveIndexSignature<Props>[K], Strict> }
-      : { [K in keyof RemoveIndexSignature<Props>]?: InferValue<RemoveIndexSignature<Props>[K], Strict> }
-    )
-    : InferValue<P, Strict>;
+  type SchemaItem = import("./core").SchemaItem;
 
   type InferRequiredValue<R, V, Strict> =
     R extends true ? (Strict extends true ? V : Nullable<V>) : Nullable<V>;
 
-  type InferClassValue<P extends import("./core").SchemaItem, Strict extends boolean = false> =
+  type InferValue<P extends SchemaItem, Strict extends boolean = false> =
     P extends import("./string").$StrSchema<any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, string, Strict> :
     P extends import("./number").$NumSchema<any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, number, Strict> :
     P extends import("./enum").$EnumSchema<any, any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, P["items"][number]["value"], Strict> :
@@ -274,21 +243,21 @@ namespace $Schema {
       Strict
     > :
     P extends import("./file").$FileSchema<any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, File | string, Strict> :
-    P extends import("./array").$ArrSchema<any, any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, InferClassValue<P["child"], Strict>[], Strict> :
-    P extends import("./object").$ObjSchema<any, any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, InferClass<P["chilren"], Strict>, Strict> :
+    P extends import("./array").$ArrSchema<any, any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, InferValue<P["child"], Strict>[], Strict> :
+    P extends import("./object").$ObjSchema<any, any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, Infer<P["chilren"], Strict>, Strict> :
     never
     ;
 
-  type InferClass<
-    const P extends import("./core").SchemaItem | Record<string, import("./core").SchemaItem>,
+  type Infer<
+    const P extends SchemaItem | Record<string, SchemaItem>,
     Strict extends boolean = false
-  > = P extends import("./core").SchemaItem
-    ? InferClassValue<P, Strict>
+  > = P extends SchemaItem
+    ? InferValue<P, Strict>
     : (
       Strict extends true ? (
-        { [K in keyof RemoveIndexSignature<P>]: InferClassValue<RemoveIndexSignature<P>[K], Strict> }
+        { [K in keyof RemoveIndexSignature<P>]: InferValue<RemoveIndexSignature<P>[K], Strict> }
       ) : (
-        { [K in keyof RemoveIndexSignature<P>]?: InferClassValue<RemoveIndexSignature<P>[K], Strict> }
+        { [K in keyof RemoveIndexSignature<P>]?: InferValue<RemoveIndexSignature<P>[K], Strict> }
       )
     );
 

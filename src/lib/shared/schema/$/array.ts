@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { getPickMessageGetter, getValidationArray } from ".";
-import { SchemaItem } from "./core";
+import { getPickMessageGetter, getValidationArray, SchemaItem } from "./core";
 
 export const SCHEMA_ITEM_TYPE_ARRAY = "arr";
 
@@ -8,17 +7,17 @@ type ArrayValidations<Prop extends SchemaItem<any>> = {
   required: $Schema.ValidationEntry<boolean, null | undefined>;
   length: $Schema.ValidationEntry<
     number,
-    $Schema.InferClassValue<Prop>[],
+    $Schema.InferValue<Prop>[],
     { length: number; currentLength: number; }
   >;
   minLength: $Schema.ValidationEntry<
     number,
-    $Schema.InferClassValue<Prop>[],
+    $Schema.InferValue<Prop>[],
     { minLength: number; currentLength: number; }
   >;
   maxLength: $Schema.ValidationEntry<
     number,
-    $Schema.InferClassValue<Prop>[],
+    $Schema.InferValue<Prop>[],
     { maxLength: number; currentLength: number; }
   >;
 };
@@ -34,8 +33,8 @@ type ArrayProps<Prop extends SchemaItem<any>> =
   & $Schema.Validations<ArrayValidations<Prop>>
   & {
     prop: Prop;
-    parser?: $Schema.Parser<$Schema.InferClassValue<Prop>[]>;
-    rules?: $Schema.Rule<$Schema.InferClassValue<Prop>[]>[];
+    parser?: $Schema.Parser<$Schema.InferValue<Prop>[]>;
+    rules?: $Schema.Rule<$Schema.InferValue<Prop>[]>[];
   };
 
 const pickMessage = getPickMessageGetter(SCHEMA_ITEM_TYPE_ARRAY);
@@ -52,7 +51,7 @@ export function $arr<
 export class $ArrSchema<
   const Prop extends SchemaItem<any>,
   const P extends ArrayProps<Prop>
-> extends SchemaItem<$Schema.InferClassValue<InferChild<P>>[]> {
+> extends SchemaItem<$Schema.InferValue<InferChild<P>>[]> {
 
   protected child: InferChild<P>;
 
@@ -72,8 +71,8 @@ export class $ArrSchema<
   public parse(
     value: unknown,
     params: $Schema.ParseArgParams = this.getEmptyInjectParams()
-  ): $Schema.ParseResult<$Schema.InferClassValue<InferChild<P>>[]> {
-    let arrValue: $Schema.Nullable<$Schema.InferClassValue<InferChild<P>>[]> = undefined;
+  ): $Schema.ParseResult<$Schema.InferValue<InferChild<P>>[]> {
+    let arrValue: $Schema.Nullable<$Schema.InferValue<InferChild<P>>[]> = undefined;
     const messages: $Schema.Message[] = [];
 
     if (this.props.parser) {
@@ -105,12 +104,12 @@ export class $ArrSchema<
   }
 
   public validate(
-    value: $Schema.Nullable<$Schema.InferClassValue<InferChild<P>>[]>,
+    value: $Schema.Nullable<$Schema.InferValue<InferChild<P>>[]>,
     params: $Schema.ValidationArgParams = this.getEmptyInjectParams()
   ): $Schema.Message[] {
     if (this.validators == null) {
       this.validators = [];
-      type Value = $Schema.InferClassValue<InferChild<P>>[];
+      type Value = $Schema.InferValue<InferChild<P>>[];
 
       // required
       if (this.props.required != null) {
