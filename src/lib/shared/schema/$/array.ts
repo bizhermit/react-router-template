@@ -3,18 +3,18 @@ import { getEmptyInjectParams, getSchemaItemPropsGenerator, getValidationArray }
 export const SCHEMA_ITEM_TYPE_ARRAY = "arr";
 
 type ArrayValidations<Content extends $Schema.SchemaItemInterfaceProps<unknown>> = {
-  required: $Schema.ValidationSchemaEntry<boolean, null | undefined>;
-  length: $Schema.ValidationSchemaEntry<
+  required: $Schema.ValidationEntry<boolean, null | undefined>;
+  length: $Schema.ValidationEntry<
     number,
     $Schema.InferValue<Content>[],
     { length: number; currentLength: number; }
   >;
-  minLength: $Schema.ValidationSchemaEntry<
+  minLength: $Schema.ValidationEntry<
     number,
     $Schema.InferValue<Content>[],
     { minLength: number; currentLength: number; }
   >;
-  maxLength: $Schema.ValidationSchemaEntry<
+  maxLength: $Schema.ValidationEntry<
     number,
     $Schema.InferValue<Content>[],
     { maxLength: number; currentLength: number; }
@@ -22,14 +22,14 @@ type ArrayValidations<Content extends $Schema.SchemaItemInterfaceProps<unknown>>
 };
 
 export type ArraySchemaMessage<Content extends $Schema.SchemaItemInterfaceProps<unknown>> =
-  $Schema.ValidationMessageFromSchema<
+  $Schema.ValidationMessages<
     ArrayValidations<Content>,
     typeof SCHEMA_ITEM_TYPE_ARRAY
   >;
 
 type ArrayProps<Content extends $Schema.SchemaItemInterfaceProps<unknown>> =
   & $Schema.SchemaItemAbstractProps
-  & $Schema.ValidationOptionsFromSchema<ArrayValidations<Content>>
+  & $Schema.Validations<ArrayValidations<Content>>
   & {
     prop: Content;
     parser?: $Schema.Parser<$Schema.InferValue<Content>[]>;

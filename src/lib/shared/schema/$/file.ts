@@ -6,22 +6,22 @@ export const SCHEMA_ITEM_TYPE_FILE = "file";
 type FileValue = File | string;
 
 type FileValidations = {
-  required: $Schema.ValidationSchemaEntry<boolean, null | undefined>;
-  accept: $Schema.ValidationSchemaEntry<
+  required: $Schema.ValidationEntry<boolean, null | undefined>;
+  accept: $Schema.ValidationEntry<
     string,
     File,
     { accept: string; currentFileType: string; currentFileName: string; }
   >;
-  maxSize: $Schema.ValidationSchemaEntry<number, File, { maxSize: number; currentSize: number; }>;
+  maxSize: $Schema.ValidationEntry<number, File, { maxSize: number; currentSize: number; }>;
 };
 
-export type FileSchemaMessage = $Schema.ValidationMessageFromSchema<
+export type FileSchemaMessage = $Schema.ValidationMessages<
   FileValidations,
   typeof SCHEMA_ITEM_TYPE_FILE
 >;
 
 type FileProps = $Schema.SchemaItemAbstractProps
-  & $Schema.ValidationOptionsFromSchema<FileValidations>
+  & $Schema.Validations<FileValidations>
   & {
     parser?: $Schema.Parser<FileValue>;
     rules?: $Schema.Rule<FileValue>[];

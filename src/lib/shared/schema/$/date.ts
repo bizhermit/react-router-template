@@ -13,23 +13,23 @@ type DatePair = {
 };
 
 type DateValidations = {
-  required: $Schema.ValidationSchemaEntry<boolean, null | undefined>;
-  minDate: $Schema.ValidationSchemaEntry<$Date, $Date, { minDate: $Date; }>;
-  maxDate: $Schema.ValidationSchemaEntry<$Date, $Date, { maxDate: $Date; }>;
-  pairs: $Schema.ValidationSchemaEntry<
+  required: $Schema.ValidationEntry<boolean, null | undefined>;
+  minDate: $Schema.ValidationEntry<$Date, $Date, { minDate: $Date; }>;
+  maxDate: $Schema.ValidationEntry<$Date, $Date, { maxDate: $Date; }>;
+  pairs: $Schema.ValidationEntry<
     DatePair | DatePair[],
     $Date,
     Omit<Required<DatePair>, "name"> & { pairName: string; pairDate: $Date; }
   >;
 };
 
-export type DateSchemaMessage = $Schema.ValidationMessageFromSchema<
+export type DateSchemaMessage = $Schema.ValidationMessages<
   DateValidations,
   typeof SCHEMA_ITEM_TYPE_DATE
 >;
 
 type DateProps = $Schema.SchemaItemAbstractProps
-  & $Schema.ValidationOptionsFromSchema<DateValidations>
+  & $Schema.Validations<DateValidations>
   & {
     parser?: $Schema.Parser<$Date>;
     rules?: $Schema.Rule<$Date>[];
@@ -38,18 +38,18 @@ type DateProps = $Schema.SchemaItemAbstractProps
 export type SplitDatePart = "Y" | "M" | "D";
 
 type SplitDateValidations = {
-  required: $Schema.ValidationSchemaEntry<boolean | "inherit", null | undefined>;
-  min: $Schema.ValidationSchemaEntry<number | "inherit", number, { min: number; }>;
-  max: $Schema.ValidationSchemaEntry<number | "inherit", number, { max: number; }>;
+  required: $Schema.ValidationEntry<boolean | "inherit", null | undefined>;
+  min: $Schema.ValidationEntry<number | "inherit", number, { min: number; }>;
+  max: $Schema.ValidationEntry<number | "inherit", number, { max: number; }>;
 };
 
-export type SplitDateSchemaMessage = $Schema.ValidationMessageFromSchema<
+export type SplitDateSchemaMessage = $Schema.ValidationMessages<
   SplitDateValidations,
   `${typeof SCHEMA_ITEM_TYPE_DATE}-${SplitDatePart}`
 >;
 
 type SplitDateProps = $Schema.SchemaItemAbstractProps
-  & $Schema.ValidationOptionsFromSchema<SplitDateValidations>
+  & $Schema.Validations<SplitDateValidations>
   & {
     parser?: $Schema.Parser<number>;
     rules?: $Schema.Rule<number>[];

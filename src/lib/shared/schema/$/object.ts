@@ -8,17 +8,17 @@ type ObjectValue<Contents extends Record<string, $Schema.SchemaItemInterfaceProp
 }>;
 
 type ObjectValidations = {
-  required: $Schema.ValidationSchemaEntry<boolean, null | undefined>;
+  required: $Schema.ValidationEntry<boolean, null | undefined>;
 };
 
-export type ObjectSchemaMessage = $Schema.ValidationMessageFromSchema<
+export type ObjectSchemaMessage = $Schema.ValidationMessages<
   ObjectValidations,
   typeof SCHEMA_ITEM_TYPE_OBJECT
 >;
 
 type ObjectProps<Contents extends Record<string, $Schema.SchemaItemInterfaceProps<unknown>>> =
   & $Schema.SchemaItemAbstractProps
-  & $Schema.ValidationOptionsFromSchema<ObjectValidations>
+  & $Schema.Validations<ObjectValidations>
   & {
     props: Contents;
     parser?: $Schema.Parser<ObjectValue<Contents>>;

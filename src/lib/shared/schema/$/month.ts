@@ -12,23 +12,23 @@ type MonthPair = {
 };
 
 type MonthValidations = {
-  required: $Schema.ValidationSchemaEntry<boolean, null | undefined>;
-  minMonth: $Schema.ValidationSchemaEntry<$Month, $Month, { minMonth: $Month; }>;
-  maxMonth: $Schema.ValidationSchemaEntry<$Month, $Month, { maxMonth: $Month; }>;
-  pairs: $Schema.ValidationSchemaEntry<
+  required: $Schema.ValidationEntry<boolean, null | undefined>;
+  minMonth: $Schema.ValidationEntry<$Month, $Month, { minMonth: $Month; }>;
+  maxMonth: $Schema.ValidationEntry<$Month, $Month, { maxMonth: $Month; }>;
+  pairs: $Schema.ValidationEntry<
     MonthPair | MonthPair[],
     $Month,
     Omit<Required<MonthPair>, "name"> & { pairName: string; pairMonth: $Month; }
   >;
 };
 
-export type MonthSchemaMessage = $Schema.ValidationMessageFromSchema<
+export type MonthSchemaMessage = $Schema.ValidationMessages<
   MonthValidations,
   typeof SCHEMA_ITEM_TYPE_MONTH
 >;
 
 type MonthProps = $Schema.SchemaItemAbstractProps
-  & $Schema.ValidationOptionsFromSchema<MonthValidations>
+  & $Schema.Validations<MonthValidations>
   & {
     parser?: $Schema.Parser<$Month>;
     rules?: $Schema.Rule<$Month>[];
@@ -39,18 +39,18 @@ export type MonthValidationMessage = MonthSchemaMessage;
 export type SplitMonthPart = "Y" | "M";
 
 type SplitMonthValidations = {
-  required: $Schema.ValidationSchemaEntry<boolean | "inherit", null | undefined>;
-  min: $Schema.ValidationSchemaEntry<number | "inherit", number, { min: number; }>;
-  max: $Schema.ValidationSchemaEntry<number | "inherit", number, { max: number; }>;
+  required: $Schema.ValidationEntry<boolean | "inherit", null | undefined>;
+  min: $Schema.ValidationEntry<number | "inherit", number, { min: number; }>;
+  max: $Schema.ValidationEntry<number | "inherit", number, { max: number; }>;
 };
 
-export type SplitMonthSchemaMessage = $Schema.ValidationMessageFromSchema<
+export type SplitMonthSchemaMessage = $Schema.ValidationMessages<
   SplitMonthValidations,
   `${typeof SCHEMA_ITEM_TYPE_MONTH}-${SplitMonthPart}`
 >;
 
 type SplitMonthProps = $Schema.SchemaItemAbstractProps
-  & $Schema.ValidationOptionsFromSchema<SplitMonthValidations>
+  & $Schema.Validations<SplitMonthValidations>
   & {
     parser?: $Schema.Parser<number>;
     rules?: $Schema.Rule<number>[];

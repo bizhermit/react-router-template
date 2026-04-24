@@ -105,7 +105,7 @@ namespace $Schema {
     ]
     ;
 
-  type ValidationSchemaEntry<
+  type ValidationEntry<
     const SettingsValue = unknown,
     const ResultArgValue = unknown,
     const Params extends Record<string, unknown> = {}
@@ -115,13 +115,13 @@ namespace $Schema {
     params: Params;
   };
 
-  type ValidationSchema = Record<string, ValidationSchemaEntry>;
+  type ValidationSchema = Record<string, ValidationEntry>;
 
-  type ValidationOptionsFromSchema<
+  type Validations<
     Schema extends ValidationSchema
   > = { [K in keyof Schema]?: Validation<Schema[K]["settings"], Schema[K]["result"], Schema[K]["params"]>; };
 
-  type ValidationMessageFromSchema<
+  type ValidationMessages<
     Schema extends ValidationSchema,
     OType extends string,
     Extra extends Record<string, unknown> = never

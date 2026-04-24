@@ -136,20 +136,20 @@ const STR_PATTERN_TEST = {
 type StrPattern = keyof typeof STR_PATTERN_TEST;
 
 type StringValidations = {
-  required: $Schema.ValidationSchemaEntry<boolean, null | undefined>;
-  length: $Schema.ValidationSchemaEntry<number, string, { length: number; currentLength: number; }>;
-  minLength: $Schema.ValidationSchemaEntry<number, string, { minLength: number; currentLength: number; }>;
-  maxLength: $Schema.ValidationSchemaEntry<number, string, { maxLength: number; currentLength: number; }>;
-  pattern: $Schema.ValidationSchemaEntry<StrPattern, string, { pattern: StrPattern; }>;
+  required: $Schema.ValidationEntry<boolean, null | undefined>;
+  length: $Schema.ValidationEntry<number, string, { length: number; currentLength: number; }>;
+  minLength: $Schema.ValidationEntry<number, string, { minLength: number; currentLength: number; }>;
+  maxLength: $Schema.ValidationEntry<number, string, { maxLength: number; currentLength: number; }>;
+  pattern: $Schema.ValidationEntry<StrPattern, string, { pattern: StrPattern; }>;
 };
 
-export type StringSchemaMessage = $Schema.ValidationMessageFromSchema<
+export type StringSchemaMessage = $Schema.ValidationMessages<
   StringValidations,
   typeof SCHEMA_ITEM_TYPE_STRING
 >;
 
 type StringProps = $Schema.SchemaItemAbstractProps
-  & $Schema.ValidationOptionsFromSchema<StringValidations>
+  & $Schema.Validations<StringValidations>
   & {
     parser?: $Schema.Parser<string>;
     rules?: $Schema.Rule<string>[];

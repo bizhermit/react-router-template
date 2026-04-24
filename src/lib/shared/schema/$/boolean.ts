@@ -5,11 +5,11 @@ export const SCHEMA_ITEM_TYPE_BOOLEAN = "bool";
 type BooleanValue = boolean | number | string;
 
 type BooleanValidations<FalseValue extends BooleanValue> = {
-  required: $Schema.ValidationSchemaEntry<boolean | "nonFalse", $Schema.Nullable<FalseValue>>;
+  required: $Schema.ValidationEntry<boolean | "nonFalse", $Schema.Nullable<FalseValue>>;
 };
 
 export type BooleanSchemaMessage<FalseValue extends BooleanValue = BooleanValue> =
-  $Schema.ValidationMessageFromSchema<
+  $Schema.ValidationMessages<
     BooleanValidations<FalseValue>,
     typeof SCHEMA_ITEM_TYPE_BOOLEAN
   >;
@@ -18,7 +18,7 @@ type BooleanProps<
   TrueValue extends BooleanValue,
   FalseValue extends BooleanValue
 > = $Schema.SchemaItemAbstractProps
-  & $Schema.ValidationOptionsFromSchema<BooleanValidations<FalseValue>>
+  & $Schema.Validations<BooleanValidations<FalseValue>>
   & {
     trueValue?: TrueValue;
     falseValue?: FalseValue;

@@ -11,10 +11,10 @@ type RemoveEnumArrayNoise<T> = T extends infer U & EnumArrayNoise
   : T;
 
 type EnumValidations = {
-  required: $Schema.ValidationSchemaEntry<boolean, null | undefined>;
+  required: $Schema.ValidationEntry<boolean, null | undefined>;
 };
 
-export type EnumSchemaMessage = $Schema.ValidationMessageFromSchema<
+export type EnumSchemaMessage = $Schema.ValidationMessages<
   EnumValidations,
   typeof SCHEMA_ITEM_TYPE_ENUM,
   {
@@ -26,7 +26,7 @@ export type EnumSchemaMessage = $Schema.ValidationMessageFromSchema<
 >;
 
 type EnumProps<Value> = $Schema.SchemaItemAbstractProps
-  & $Schema.ValidationOptionsFromSchema<EnumValidations>
+  & $Schema.Validations<EnumValidations>
   & {
     parser?: $Schema.Parser<Value>;
     items: $Schema.SourceItem<Value>[] | readonly $Schema.SourceItem<Value>[];

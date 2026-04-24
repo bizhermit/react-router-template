@@ -4,19 +4,19 @@ import { getEmptyInjectParams, getSchemaItemPropsGenerator, getValidationArray }
 export const SCHEMA_ITEM_TYPE_NUMBER = "num";
 
 type NumberValidations = {
-  required: $Schema.ValidationSchemaEntry<boolean, null | undefined>;
-  min: $Schema.ValidationSchemaEntry<number, number, { min: number; }>;
-  max: $Schema.ValidationSchemaEntry<number, number, { max: number; }>;
-  float: $Schema.ValidationSchemaEntry<number, number, { float: number; currentFloat: number; }>;
+  required: $Schema.ValidationEntry<boolean, null | undefined>;
+  min: $Schema.ValidationEntry<number, number, { min: number; }>;
+  max: $Schema.ValidationEntry<number, number, { max: number; }>;
+  float: $Schema.ValidationEntry<number, number, { float: number; currentFloat: number; }>;
 };
 
-export type NumberSchemaMessage = $Schema.ValidationMessageFromSchema<
+export type NumberSchemaMessage = $Schema.ValidationMessages<
   NumberValidations,
   typeof SCHEMA_ITEM_TYPE_NUMBER
 >;
 
 type NumberProps = $Schema.SchemaItemAbstractProps
-  & $Schema.ValidationOptionsFromSchema<NumberValidations>
+  & $Schema.Validations<NumberValidations>
   & {
     parser?: $Schema.Parser<number>;
     rules?: $Schema.Rule<number>[];
