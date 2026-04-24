@@ -1,15 +1,12 @@
 import { Button } from "$/components/elements/button/button";
-import { useSchema } from "$/shared/hooks/$schema";
 import { useRender } from "$/shared/hooks/render";
 import { $Date, $DateTime } from "$/shared/objects/timestamp";
-import { parseWithSchema } from "$/shared/schema/$";
-import { $array } from "$/shared/schema/$/array";
+import { $arr } from "$/shared/schema/$/array";
 import { $bool } from "$/shared/schema/$/boolean";
 import { $date } from "$/shared/schema/$/date";
 import { $enum } from "$/shared/schema/$/enum";
-import { $file } from "$/shared/schema/$/file";
 import { $num } from "$/shared/schema/$/number";
-import { $object } from "$/shared/schema/$/object";
+import { $obj } from "$/shared/schema/$/object";
 import { $str } from "$/shared/schema/$/string";
 import { useState } from "react";
 import { data } from "react-router";
@@ -37,104 +34,166 @@ type _Birth = $Schema.Infer<typeof birth>;
 type __BirthYear = typeof birth_year;
 type _BirthYear = $Schema.Infer<typeof birth_year, true>;
 
-const schemaObject = $object({
-  props: {
-    name: $str({
-      // label: "名前",
-      // // required: false,
-      // // required: [false, "optional"],
-      // // required: true,
-      // // required: [true],
-      // required: [true, "required"],
-      // // required: () => true,
-      // // required: [() => true],
-      // maxLength: 10,
-      label: "名前",
-      // required: [true, "input required"],
-      required: [true, () => "input required"],
-      maxLength: 10,
-    }).overwrite({
-      // required: false,
-      minLength: 8,
-      maxLength: 16,
-    }).overwrite({
-      // required: false,
-      required: true,
-      length: [10, ({ value, params: { currentLength, length } }) => {
-        return null;
-      }],
-      // length: 16,
-      // minLength: null,
-      // maxLength: null,
-    }),
-    age: $num({
-      required: true,
-    }),
-    // mailaddr: $str({
-    //   pattern: "email",
-    // }),
-    image: $file({
+// const schemaObject = $object({
+//   props: {
+//     name: $str({
+//       // label: "名前",
+//       // // required: false,
+//       // // required: [false, "optional"],
+//       // // required: true,
+//       // // required: [true],
+//       // required: [true, "required"],
+//       // // required: () => true,
+//       // // required: [() => true],
+//       // maxLength: 10,
+//       label: "名前",
+//       // required: [true, "input required"],
+//       required: [true, () => "input required"],
+//       maxLength: 10,
+//     }).overwrite({
+//       // required: false,
+//       minLength: 8,
+//       maxLength: 16,
+//     }).overwrite({
+//       // required: false,
+//       required: true,
+//       length: [10, ({ value, params: { currentLength, length } }) => {
+//         return null;
+//       }],
+//       // length: 16,
+//       // minLength: null,
+//       // maxLength: null,
+//     }),
+//     age: $num({
+//       required: true,
+//     }),
+//     // mailaddr: $str({
+//     //   pattern: "email",
+//     // }),
+//     image: $file({
 
-    }),
-    birth: $date({
-      required: true,
-    }),
-    year: birth.getSplitYear({
+//     }),
+//     birth: $date({
+//       required: true,
+//     }),
+//     year: birth.getSplitYear({
+//       // required: true,
+//       // required: "inherit",
+//       // required: false,
+//     }),
+//     // regDate: $datetime({
+//     //   required: true,
+//     // }),
+//     // month: $month(),
+//     // flag: $bool(),
+//     // bitFlag: $bool({
+//     //   trueValue: 1,
+//     //   falseValue: 0,
+//     // }),
+//     // codeFlag: $bool({
+//     //   trueValue: "on",
+//     //   falseValue: "off",
+//     //   // required: true,
+//     // }).overwrite({
+//     //   // required: false,
+//     //   required: "nonFalse",
+//     //   // trueValue: "ononon",
+//     // }),
+//     agreement: $bool({
+//       required: "nonFalse",
+//     }).overwrite({
+//       // required: false,
+//     }),
+//     roles: $array({
+//       prop: $str({
+//         required: true,
+//       }),
+//       required: true,
+//     }),
+//     // obj: $object({
+//     //   props: {
+//     //     item1: $str(),
+//     //     item2: $num({ required: true }),
+//     //     item3: $bool(),
+//     //   },
+//     // }).overwrite({
+//     //   required: true,
+//     // }),
+//     objs: $array({
+//       prop: $object({
+//         props: {
+//           item1: $str({ required: true }),
+//           item2: $num(),
+//           item3: $bool(),
+//         },
+//         // required: true,
+//       }),
+//     }).overwrite({
+//       required: true,
+//     }),
+//     selectStr: $enum({
+//       items: [
+//         { value: "item1" },
+//         { value: "item2" },
+//         { value: "item3" },
+//       ],
+//       required: true,
+//     }),
+//     selectNum: $enum({
+//       items: items,
+//     }).overwrite({
+//       required: true,
+//     }),
+//   },
+// });
+
+const str = $str({
+  // required: true,
+});
+const str2 = str.overwrite({
+  required: [true],
+});
+const bool = $bool({
+  trueValue: "yes",
+  falseValue: "no",
+  required: true,
+});
+const bool2 = $bool({
+  trueValue: 1,
+  falseValue: 0,
+}).overwrite({
+  // trueValue: 2,
+  // falseValue: 3,
+  // required: false,
+  // required: [true],
+  required: "nonFalse",
+});
+const arr = $arr({
+  prop: $str({}),
+  // required: true,
+}).overwrite({
+  required: true,
+});
+
+const date = $date({
+  required: true,
+});
+const year = date.getSplitYear({
+  // required: "inherit",
+});
+
+const schemaObj = $obj({
+  props: {
+    str: str,
+    str2: str2,
+    num: $num({
+    }).overwrite({
       // required: true,
-      // required: "inherit",
-      // required: false,
     }),
-    // regDate: $datetime({
-    //   required: true,
-    // }),
-    // month: $month(),
-    // flag: $bool(),
-    // bitFlag: $bool({
-    //   trueValue: 1,
-    //   falseValue: 0,
-    // }),
-    // codeFlag: $bool({
-    //   trueValue: "on",
-    //   falseValue: "off",
-    //   // required: true,
-    // }).overwrite({
-    //   // required: false,
-    //   required: "nonFalse",
-    //   // trueValue: "ononon",
-    // }),
-    agreement: $bool({
-      required: "nonFalse",
-    }).overwrite({
-      // required: false,
-    }),
-    roles: $array({
-      prop: $str({
-        required: true,
-      }),
-      required: true,
-    }),
-    // obj: $object({
-    //   props: {
-    //     item1: $str(),
-    //     item2: $num({ required: true }),
-    //     item3: $bool(),
-    //   },
-    // }).overwrite({
-    //   required: true,
-    // }),
-    objs: $array({
-      prop: $object({
-        props: {
-          item1: $str({ required: true }),
-          item2: $num(),
-          item3: $bool(),
-        },
-        // required: true,
-      }),
-    }).overwrite({
-      required: true,
-    }),
-    selectStr: $enum({
+    bool: bool,
+    bool2: bool2,
+    arr: arr,
+    enum: $enum({
       items: [
         { value: "item1" },
         { value: "item2" },
@@ -142,21 +201,31 @@ const schemaObject = $object({
       ],
       required: true,
     }),
-    selectNum: $enum({
-      items: items,
-    }).overwrite({
-      required: true,
-    }),
   },
+}).overwrite({
+  required: true,
 });
 
-type _Hoge = $Schema.Infer<typeof schemaObject>;
-type _Fuga = $Schema.Infer<typeof schemaObject, true>;
-// type _Fuga = typeof schemaObject["props"]["selectStr"]["items"];
-// type _Piyo = typeof schemaObject["props"]["selectNum"]["items"];
-const parsed1 = birth.parse(3124).value;
-const parsed2 = schemaObject.parse({ hoge: 1 }).value;
-const parsed3 = schemaObject.parse({ hoge: 1 }).value;
+type T = typeof bool["trueValue"];
+type F = typeof bool["falseValue"];
+type T2 = typeof bool2["trueValue"];
+type F2 = typeof bool2["falseValue"];
+
+type _Str = $Schema.InferClass<typeof str, true>;
+type _Str2 = $Schema.InferClass<typeof str2, true>;
+type _Bool = $Schema.InferClass<typeof bool, true>;
+type _Bool2 = $Schema.InferClass<typeof bool2, true>;
+type _Obj = $Schema.InferClass<typeof schemaObj, true>;
+type _Date = $Schema.InferClass<typeof date, true>;
+type _Year = $Schema.InferClass<typeof year, true>;
+
+// type _Hoge = $Schema.Infer<typeof schemaObject>;
+// type _Fuga = $Schema.Infer<typeof schemaObject, true>;
+// // type _Fuga = typeof schemaObject["props"]["selectStr"]["items"];
+// // type _Piyo = typeof schemaObject["props"]["selectNum"]["items"];
+// const parsed1 = birth.parse(3124).value;
+// const parsed2 = schemaObject.parse({ hoge: 1 }).value;
+// const parsed3 = schemaObject.parse({ hoge: 1 }).value;
 
 const msg: $Schema.I18nMessage = {
   key: "maxStrLength" as const,
@@ -198,9 +267,9 @@ export default function Page() {
   const [value, setValue] = useState<$DateTime>(() => new $DateTime());
   const render = useRender();
 
-  const schema = useSchema({
-    schema: schemaObject,
-  });
+  // const schema = useSchema({
+  //   schema: schemaObject,
+  // });
 
   return (
     <div>
@@ -233,30 +302,30 @@ export default function Page() {
             //   return prev;
             // }, {} as Record<string, $Schema.Message>));
             // schemaObject.props.name.required = false;
-            const submission = parseWithSchema({
-              schema: schemaObject,
-              values: {
-                // name: "ghoe",
-                age: 100,
-                agreement: false,
-              } satisfies $Schema.Infer<typeof schemaObject>,
-            });
-            console.log("-", performance.now() - now);
-            if (submission.ok) {
-              submission.values.name;
-            } else {
-              submission.values.name;
-            }
-            console.log(submission);
+            // const submission = parseWithSchema({
+            //   schema: schemaObject,
+            //   values: {
+            //     // name: "ghoe",
+            //     age: 100,
+            //     agreement: false,
+            //   } satisfies $Schema.Infer<typeof schemaObject>,
+            // });
+            // console.log("-", performance.now() - now);
+            // if (submission.ok) {
+            //   submission.values.name;
+            // } else {
+            //   submission.values.name;
+            // }
+            // console.log(submission);
             // console.log("-", validationMessage);
           }}
         >
           validate
         </Button>
       </div>
-      <schema.SchemaProvider>
+      {/* <schema.SchemaProvider>
         <SchemaContent />
-      </schema.SchemaProvider>
+      </schema.SchemaProvider> */}
       <div className="flex flex-row flex-wrap gap-2">
         <Button
           onClick={() => {

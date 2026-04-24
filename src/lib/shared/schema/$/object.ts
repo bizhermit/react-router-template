@@ -1,10 +1,12 @@
-import { getEmptyInjectParams, getPickMessageGetter, getSchemaItemPropsGenerator, getValidationArray } from ".";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { getPickMessageGetter, getValidationArray } from ".";
+import { SchemaItem } from "./core";
 
 export const SCHEMA_ITEM_TYPE_OBJECT = "obj";
 
-type ObjectValue<Contents extends Record<string, $Schema.SchemaItemInterfaceProps<unknown>>> = $Schema.Infer<{
+type ObjectValue<Props extends Record<string, SchemaItem<any>>> = $Schema.Infer<{
   type: typeof SCHEMA_ITEM_TYPE_OBJECT;
-  props: Contents;
+  props: Props;
 }>;
 
 type ObjectValidations = {
@@ -16,143 +18,164 @@ export type ObjectSchemaMessage = $Schema.ValidationMessages<
   typeof SCHEMA_ITEM_TYPE_OBJECT
 >;
 
-type ObjectProps<Contents extends Record<string, $Schema.SchemaItemInterfaceProps<unknown>>> =
+type ObjectProps<Props extends Record<string, SchemaItem<any>>> =
   & $Schema.SchemaItemAbstractProps
   & $Schema.Validations<ObjectValidations>
   & {
-    props: Contents;
-    parser?: $Schema.Parser<ObjectValue<Contents>>;
-    rules?: $Schema.Rule<ObjectValue<Contents>>[];
+    props: Props;
+    parser?: $Schema.Parser<ObjectValue<Props>>;
+    rules?: $Schema.Rule<ObjectValue<Props>>[];
   };
 
 type Struct = Record<string, unknown>;
 
 const pickMessage = getPickMessageGetter(SCHEMA_ITEM_TYPE_OBJECT);
 
-export function $object<
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const Contents extends Record<string, $Schema.SchemaItemInterfaceProps<any>>,
-  const P extends ObjectProps<Contents>
+type InferChildren<P> = P extends { props: infer T extends Record<string, SchemaItem<any>>; } ? T : {};
+
+export function $obj<
+  const Props extends Record<string, SchemaItem<any>>,
+  const P extends ObjectProps<Props>
 >(props: P) {
-  type Value = ObjectValue<P["props"]>;
+  return new $Obj<Props, P>(props);
+};
 
-  const fixedProps = {
-    type: SCHEMA_ITEM_TYPE_OBJECT,
-    props: props.props,
-    _validators: null,
-    getActionType: function () {
-      return this.actionType || "set";
-    },
-    parse: function (value, params = getEmptyInjectParams()) {
-      let structValue: $Schema.Nullable<Struct> = undefined;
-      const messages: $Schema.Message[] = [];
+export class $Obj<
+  const Props extends Record<string, SchemaItem<any>>,
+  const P extends ObjectProps<Props>
+> extends SchemaItem<$Schema.InferClass<InferChildren<P>>> {
 
-      if (this.parser) {
-        const parsed = this.parser(value, params);
-        structValue = parsed.value;
-        if (parsed.messages) messages.push(...parsed.messages);
-      } else {
-        if (value != null && value !== "") {
-          // TODO:
-          structValue = value as Struct;
+  protected chilren: InferChildren<P>;
+
+  constructor(protected props: P) {
+    super();
+    this.chilren = props.props as InferChildren<P>;
+  }
+
+  public getActionType(): $Schema.ActionType {
+    return this.props.actionType || "set";
+  }
+
+  public getLabel(): string | undefined {
+    return this.props.label;
+  }
+
+  public parse(
+    value: unknown,
+    params: $Schema.ParseArgParams = this.getEmptyInjectParams()
+  ): $Schema.ParseResult<$Schema.InferClass<InferChildren<P>>> {
+    let structValue: $Schema.Nullable<Struct> = undefined;
+    const messages: $Schema.Message[] = [];
+
+    if (this.props.parser) {
+      const parsed = this.props.parser(value, params);
+      structValue = parsed.value;
+      if (parsed.messages) messages.push(...parsed.messages);
+    } else {
+      if (value != null && value !== "") {
+        if (Object.prototype.toString.call(value) !== "[object Object]") {
+          return {
+            value: null,
+            messages: [
+              pickMessage("parse", {
+                actionType: this.getActionType(),
+                label: this.getLabel(),
+                name: params.name,
+              }),
+            ],
+          };
         }
+        structValue = value as Struct;
       }
+    }
 
-      if (structValue != null) {
-        const prefixName = params.name ? `${params.name}.` : "";
+    if (structValue != null) {
+      const prefixName = params.name ? `${params.name}.` : "";
 
-        Object.entries(structValue).forEach(([key, val]) => {
-          const name = `${prefixName}${key}`;
+      Object.entries(structValue).forEach(([key, val]) => {
+        const name = `${prefixName}${key}`;
 
-          const prop = this.props[key];
-          if (prop == null) {
-            messages.push({
-              type: "w",
-              label: this.label,
-              message: `remove not accept value: ${name}`,
-              name,
-              actionType: this.getActionType(),
-            });
-            delete (structValue as Struct)[key];
-            return;
-          }
-
-          const parsedItem = prop.parse(val, {
-            ...params,
+        const prop = this.chilren[key];
+        if (prop == null) {
+          messages.push({
+            type: "w",
+            label: this.getLabel(),
+            message: `remove not accept value: ${name}`,
             name,
+            actionType: this.getActionType(),
           });
-          (structValue as Struct)[key] = parsedItem.value;
-          if (parsedItem.messages) messages.push(...parsedItem.messages);
+          delete structValue[key];
+          return;
+        }
+
+        const parsedItem = prop.parse(val, {
+          ...params,
+          name,
         });
-      }
-      return { value: structValue as Value, messages };
-    },
-    validate: function (value, params = getEmptyInjectParams()) {
-      if (this._validators == null) {
-        this._validators = [];
 
-        // required
-        if (this.required != null) {
-          const [required, getRequiredMessage] = getValidationArray(this.required);
-          if (required) {
-            const getMessage = getRequiredMessage ?? ((p) => pickMessage("required", p));
+        structValue[key] = parsedItem.value;
+        if (parsedItem.messages) {
+          messages.push(...parsedItem.messages);
+        }
+      });
+    }
+    return { value: structValue as $Schema.InferClass<InferChildren<P>>, messages };
+  }
 
-            if (typeof required === "function") {
-              this._validators.push((p) => {
-                if (!required(p)) return null;
-                if (p.value == null) {
-                  return getMessage(p as $Schema.ValidationResultArgParams);
-                }
-                return null;
-              });
-            } else {
-              this._validators.push((p) => {
-                if (p.value == null) {
-                  return getMessage(p as $Schema.ValidationResultArgParams);
-                }
-                return null;
-              });
-            }
+  public validate(
+    value: $Schema.Nullable<$Schema.InferClass<InferChildren<P>>>,
+    params: $Schema.ValidationArgParams = this.getEmptyInjectParams()
+  ): $Schema.Message[] {
+    if (this.validators == null) {
+      this.validators = [];
+
+      // required
+      if (this.props.required != null) {
+        const [required, getRequiredMessage] = getValidationArray(this.props.required);
+        if (required) {
+          const getMessage = getRequiredMessage ?? ((p) => pickMessage("required", p));
+
+          if (typeof required === "function") {
+            this.validators.push((p) => {
+              if (!required(p)) return null;
+              if (p.value == null) {
+                return getMessage(p as $Schema.ValidationResultArgParams);
+              }
+              return null;
+            });
+          } else {
+            this.validators.push((p) => {
+              if (p.value == null) {
+                return getMessage(p as $Schema.ValidationResultArgParams);
+              }
+              return null;
+            });
           }
         }
-
-        // rules
-        if (this.rules) {
-          this._validators.push(...this.rules);
-        }
       }
+    }
 
-      const messages: $Schema.Message[] = [];
-      const ruleArg = {
-        ...params,
-        label: this.label,
-        actionType: this.getActionType(),
-        value,
-      } as const satisfies $Schema.RuleArgParams<Value>;
+    const messages = super.validate(value, params);
 
-      for (const vali of this._validators) {
-        const msg = vali(ruleArg);
-        if (msg) {
-          messages.push(msg);
-          break;
-        }
-      }
+    if (value != null) {
+      const prefixName = params.name ? `${params.name}.` : "";
+      Object.entries(this.chilren).forEach(([key, prop]) => {
+        const name = `${prefixName}${key}`;
+        const val = (value as Struct)[key];
+        const msgs = prop.validate(val, { ...params, name });
+        messages.push(...msgs);
+      });
+    }
 
-      if (value != null) {
-        const prefixName = params.name ? `${params.name}.` : "";
-        Object.entries(this.props).forEach(([key, prop]) => {
-          const name = `${prefixName}${key}`;
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const val = (value as Struct)[key] as any;
+    return messages;
+  }
 
-          const msgs = prop.validate(val, { ...params, name });
-          if (msgs.length > 0) messages.push(...msgs);
-        });
-      }
+  public overwrite<const OP extends Omit<ObjectProps<Props>, "props">>(props: OP) {
+    return new $Obj<Props, Omit<P, keyof OP> & OP & { props: Props; }>({
+      ...this.props,
+      ...props,
+      props: this.chilren,
+    });
+  }
 
-      return messages;
-    },
-  } as const satisfies ObjectProps<Contents> & $Schema.SchemaItemInterfaceProps<Value>;
-
-  return getSchemaItemPropsGenerator<typeof fixedProps, ObjectProps<Contents>, P>(fixedProps, props)({});
 };

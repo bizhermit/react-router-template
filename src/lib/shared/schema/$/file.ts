@@ -1,5 +1,6 @@
 import { convertBase64ToFile, convertBlobToFile } from "$/shared/objects/file";
-import { getEmptyInjectParams, getPickMessageGetter, getSchemaItemPropsGenerator, getValidationArray } from ".";
+import { getPickMessageGetter, getValidationArray } from ".";
+import { SchemaItem } from "./core";
 
 export const SCHEMA_ITEM_TYPE_FILE = "file";
 
@@ -98,182 +99,194 @@ function getAcceptChecker(accept: string) {
 const pickMessage = getPickMessageGetter(SCHEMA_ITEM_TYPE_FILE);
 
 export function $file<const P extends FileProps>(props: P = {} as P) {
-  const fixedProps = {
-    type: SCHEMA_ITEM_TYPE_FILE,
-    _validators: null,
-    getActionType: function () {
-      return this.actionType || "select";
-    },
-    parse: function (value, params = getEmptyInjectParams()) {
-      if (this.parser) return this.parser(value, params);
-      if (value == null) return { value };
+  return new $FileSchema<P>(props);
+};
 
-      if (value instanceof File) {
+export class $FileSchema<const P extends FileProps> extends SchemaItem<FileValue> {
+
+  constructor(protected props: P = {} as P) {
+    super();
+  }
+
+  public getActionType(): $Schema.ActionType {
+    return this.props.actionType || "input";
+  }
+
+  public getLabel(): string | undefined {
+    return this.props.label;
+  }
+
+  public parse(
+    value: unknown,
+    params: $Schema.ParseArgParams = this.getEmptyInjectParams()
+  ): $Schema.ParseResult<FileValue> {
+    if (this.props.parser) return this.props.parser(value, params);
+    if (value == null) return { value };
+
+    if (value instanceof File) {
+      if (value.size === 0) return { value: undefined };
+      return { value };
+    }
+
+    if (value instanceof Blob) {
+      try {
         if (value.size === 0) return { value: undefined };
+        return { value: convertBlobToFile(value, "") };
+      } catch {
+        // fallback
+      }
+    } else if (typeof value === "string") {
+      if (value === "") {
+        return { value: undefined };
+      }
+      if (value.match(/^(https?|file):\/\//)) {
         return { value };
       }
+      try {
+        return { value: convertBase64ToFile(value, "") };
+      } catch {
+        // fallback
+      }
+    }
 
-      if (value instanceof Blob) {
-        try {
-          if (value.size === 0) return { value: undefined };
-          return { value: convertBlobToFile(value, "") };
-        } catch {
-          // fallback
-        }
-      } else if (typeof value === "string") {
-        if (value === "") {
-          return { value: undefined };
-        }
-        if (value.match(/^(https?|file):\/\//)) {
-          return { value };
-        }
-        try {
-          return { value: convertBase64ToFile(value, "") };
-        } catch {
-          // fallback
+    return {
+      value: undefined,
+      messages: [
+        pickMessage("parse", {
+          label: this.getLabel(),
+          actionType: this.getActionType(),
+          name: params.name,
+        }),
+      ],
+    };
+  }
+
+  public validate(
+    value: $Schema.Nullable<FileValue>,
+    params: $Schema.ValidationArgParams = this.getEmptyInjectParams()
+  ): $Schema.Message[] {
+    if (this.validators == null) {
+      this.validators = [];
+
+      // required
+      if (this.props.required) {
+        const [required, getRequiredMessage] = getValidationArray(this.props.required);
+        if (required) {
+          const getMessage = getRequiredMessage ?? ((p) => pickMessage("required", p));
+
+          if (typeof required === "function") {
+            this.validators.push((p) => {
+              if (!required(p)) return null;
+              if (isEmpty(p.value)) {
+                return getMessage(p as $Schema.ValidationResultArgParams);
+              }
+              return null;
+            });
+          } else {
+            this.validators.push((p) => {
+              if (isEmpty(p.value)) {
+                return getMessage(p as $Schema.ValidationResultArgParams);
+              }
+              return null;
+            });
+          }
         }
       }
 
-      return {
-        value: undefined,
-        messages: [
-          pickMessage("parse", {
-            label: this.label,
-            actionType: this.getActionType(),
-            name: params.name,
-          }),
-        ],
-      };
-    },
-    validate: function (value, params = getEmptyInjectParams()) {
-      if (this._validators == null) {
-        this._validators = [];
+      // accept
+      if (this.props.accept) {
+        const [accept, getAcceptMessage] = getValidationArray(this.props.accept);
+        if (accept) {
+          const getMessage = getAcceptMessage ?? ((p) => pickMessage("accept", p));
 
-        // required
-        if (this.required) {
-          const [required, getRequiredMessage] = getValidationArray(this.required);
-          if (required) {
-            const getMessage = getRequiredMessage ?? ((p) => pickMessage("required", p));
-
-            if (typeof required === "function") {
-              this._validators.push((p) => {
-                if (!required(p)) return null;
-                if (isEmpty(p.value)) {
-                  return getMessage(p as $Schema.ValidationResultArgParams);
-                }
-                return null;
+          if (typeof accept === "function") {
+            this.validators.push((p) => {
+              if (isEmpty(p.value)) return null;
+              if (!isFile(p.value)) return null;
+              const ac = accept(p);
+              if (isEmpty(ac)) return null;
+              const ctx = getAcceptChecker(ac);
+              if (ctx.check(p.value)) return null;
+              return getMessage({
+                ...p as $Schema.ValidationResultArgParams<File>,
+                params: {
+                  accept: ctx.accept,
+                  currentFileType: p.value.type,
+                  currentFileName: p.value.name,
+                },
               });
-            } else {
-              this._validators.push((p) => {
-                if (isEmpty(p.value)) {
-                  return getMessage(p as $Schema.ValidationResultArgParams);
-                }
-                return null;
+            });
+          } else {
+            const ctx = getAcceptChecker(accept);
+            this.validators.push((p) => {
+              if (isEmpty(p.value)) return null;
+              if (!isFile(p.value)) return null;
+              if (ctx.check(p.value)) return null;
+              return getMessage({
+                ...p as $Schema.ValidationResultArgParams<File>,
+                params: {
+                  accept: ctx.accept,
+                  currentFileType: p.value.type,
+                  currentFileName: p.value.name,
+                },
               });
-            }
+            });
           }
-        }
-
-        // accept
-        if (this.accept) {
-          const [accept, getAcceptMessage] = getValidationArray(this.accept);
-          if (accept) {
-            const getMessage = getAcceptMessage ?? ((p) => pickMessage("accept", p));
-
-            if (typeof accept === "function") {
-              this._validators.push((p) => {
-                if (isEmpty(p.value)) return null;
-                if (!isFile(p.value)) return null;
-                const ac = accept(p);
-                if (isEmpty(ac)) return null;
-                const ctx = getAcceptChecker(ac);
-                if (ctx.check(p.value)) return null;
-                return getMessage({
-                  ...p as $Schema.ValidationResultArgParams<File>,
-                  params: {
-                    accept: ctx.accept,
-                    currentFileType: p.value.type,
-                    currentFileName: p.value.name,
-                  },
-                });
-              });
-            } else {
-              const ctx = getAcceptChecker(accept);
-              this._validators.push((p) => {
-                if (isEmpty(p.value)) return null;
-                if (!isFile(p.value)) return null;
-                if (ctx.check(p.value)) return null;
-                return getMessage({
-                  ...p as $Schema.ValidationResultArgParams<File>,
-                  params: {
-                    accept: ctx.accept,
-                    currentFileType: p.value.type,
-                    currentFileName: p.value.name,
-                  },
-                });
-              });
-            }
-          }
-        }
-
-        // maxSize
-        if (this.maxSize != null) {
-          const [maxSize, getMaxSizeMessage] = getValidationArray(this.maxSize);
-          if (maxSize != null) {
-            const getMessage = getMaxSizeMessage ?? ((p) => pickMessage("maxSize", p));
-
-            if (typeof maxSize === "function") {
-              this._validators.push((p) => {
-                if (isEmpty(p.value)) return null;
-                if (!isFile(p.value)) return null;
-                const m = maxSize(p);
-                if (m == null) return null;
-                if (p.value.size <= m) return null;
-                return getMessage({
-                  ...p as $Schema.ValidationResultArgParams<File>,
-                  params: {
-                    maxSize: m,
-                    currentSize: p.value.size,
-                  },
-                });
-              });
-            } else {
-              this._validators.push((p) => {
-                if (isEmpty(p.value)) return null;
-                if (!isFile(p.value)) return null;
-                if (p.value.size <= maxSize) return null;
-                return getMessage({
-                  ...p as $Schema.ValidationResultArgParams<File>,
-                  params: {
-                    maxSize,
-                    currentSize: p.value.size,
-                  },
-                });
-              });
-            }
-          }
-        }
-
-        // rules
-        if (this.rules) {
-          this._validators.push(...this.rules);
         }
       }
 
-      const ruleArg = {
-        ...params,
-        label: this.label,
-        actionType: this.getActionType(),
-        value,
-      } as const satisfies $Schema.RuleArgParams<FileValue>;
+      // maxSize
+      if (this.props.maxSize != null) {
+        const [maxSize, getMaxSizeMessage] = getValidationArray(this.props.maxSize);
+        if (maxSize != null) {
+          const getMessage = getMaxSizeMessage ?? ((p) => pickMessage("maxSize", p));
 
-      for (const vali of this._validators) {
-        const msg = vali(ruleArg);
-        if (msg) return [msg];
+          if (typeof maxSize === "function") {
+            this.validators.push((p) => {
+              if (isEmpty(p.value)) return null;
+              if (!isFile(p.value)) return null;
+              const m = maxSize(p);
+              if (m == null) return null;
+              if (p.value.size <= m) return null;
+              return getMessage({
+                ...p as $Schema.ValidationResultArgParams<File>,
+                params: {
+                  maxSize: m,
+                  currentSize: p.value.size,
+                },
+              });
+            });
+          } else {
+            this.validators.push((p) => {
+              if (isEmpty(p.value)) return null;
+              if (!isFile(p.value)) return null;
+              if (p.value.size <= maxSize) return null;
+              return getMessage({
+                ...p as $Schema.ValidationResultArgParams<File>,
+                params: {
+                  maxSize,
+                  currentSize: p.value.size,
+                },
+              });
+            });
+          }
+        }
       }
-      return [];
-    },
-  } as const satisfies FileProps & $Schema.SchemaItemInterfaceProps<FileValue>;
 
-  return getSchemaItemPropsGenerator<typeof fixedProps, FileProps, P>(fixedProps, props)({});
-};
+      // rules
+      if (this.props.rules) {
+        this.validators.push(...this.props.rules);
+      }
+    }
+
+    return super.validate(value, params);
+  }
+
+  public overwrite<const OP extends FileProps>(props: OP) {
+    return new $FileSchema<Omit<P, keyof OP> & OP>({
+      ...this.props,
+      ...props,
+    });
+  }
+
+}

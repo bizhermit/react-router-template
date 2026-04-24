@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 namespace $Schema {
 
   type Nullable<T> = T | null | undefined;
@@ -245,5 +246,50 @@ namespace $Schema {
       : { [K in keyof RemoveIndexSignature<Props>]?: InferValue<RemoveIndexSignature<Props>[K], Strict> }
     )
     : InferValue<P, Strict>;
+
+  type InferRequiredValue<R, V, Strict> =
+    R extends true ? (Strict extends true ? V : Nullable<V>) : Nullable<V>;
+
+  type InferClassValue<P extends import("./core").SchemaItem, Strict extends boolean = false> =
+    P extends import("./string").$StrSchema<any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, string, Strict> :
+    P extends import("./number").$Num<any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, number, Strict> :
+    P extends import("./enum").$Enum<any, any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, P["items"][number]["value"], Strict> :
+    P extends import("./boolean").$Bool<any> ? InferRequiredValue<InferRequired<P["props"]["required"]> extends true | "nonFalse" ? true : false, P["trueValue"] | P["falseValue"], Strict> :
+    P extends import("./date").$DateSchema<any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, $Date, Strict> :
+    P extends import("./date").$SplitDateSchema<any, any> ? InferRequiredValue<
+      InferRequired<P["props"]["required"]> extends boolean ? InferRequired<P["props"]["required"]> : InferRequired<P["base"]["props"]["required"]>,
+      number,
+      Strict
+    > :
+    P extends import("./datetime").$DateTimeSchema<any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, $Date, Strict> :
+    P extends import("./datetime").$SplitDateTimeSchema<any, any> ? InferRequiredValue<
+      InferRequired<P["props"]["required"]> extends boolean ? InferRequired<P["props"]["required"]> : InferRequired<P["base"]["props"]["required"]>,
+      number,
+      Strict
+    > :
+    P extends import("./month").$MonthSchema<any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, $Date, Strict> :
+    P extends import("./month").$SplitMonthSchema<any, any> ? InferRequiredValue<
+      InferRequired<P["props"]["required"]> extends boolean ? InferRequired<P["props"]["required"]> : InferRequired<P["base"]["props"]["required"]>,
+      number,
+      Strict
+    > :
+    P extends import("./file").$FileSchema<any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, File | string, Strict> :
+    P extends import("./array").$Arr<any, any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, InferClassValue<P["child"], Strict>[], Strict> :
+    P extends import("./object").$Obj<any, any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, InferClass<P["chilren"], Strict>, Strict> :
+    never
+    ;
+
+  type InferClass<
+    const P extends import("./core").SchemaItem | Record<string, import("./core").SchemaItem>,
+    Strict extends boolean = false
+  > = P extends import("./core").SchemaItem
+    ? InferClassValue<P, Strict>
+    : (
+      Strict extends true ? (
+        { [K in keyof RemoveIndexSignature<P>]: InferClassValue<RemoveIndexSignature<P>[K], Strict> }
+      ) : (
+        { [K in keyof RemoveIndexSignature<P>]?: InferClassValue<RemoveIndexSignature<P>[K], Strict> }
+      )
+    );
 
 }

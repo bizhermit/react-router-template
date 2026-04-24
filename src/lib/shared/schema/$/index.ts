@@ -1,26 +1,5 @@
 import type { SCHEMA_ITEM_TYPE_OBJECT } from "./object";
 
-export function getSchemaItemPropsGenerator<
-  const FixedProps extends Record<string, unknown>,
-  const Props,
-  const BaseProps
->(fixedProps: FixedProps, baseProps: BaseProps) {
-  type ArgProps = Omit<Props, keyof FixedProps>;
-  return function <OverwriteProps extends ArgProps>(overwriteProps: OverwriteProps) {
-    type Props = Omit<BaseProps, keyof OverwriteProps> & OverwriteProps;
-    const overwritedProps = {
-      ...baseProps,
-      ...overwriteProps,
-      _validators: null,
-    } as Props;
-    return Object.freeze({
-      ...overwritedProps,
-      ...fixedProps,
-      overwrite: getSchemaItemPropsGenerator<FixedProps, ArgProps, Props>(fixedProps, overwritedProps),
-    } as const);
-  };
-};
-
 export function optimizeValidationMessage<
   T extends string | $Schema.Message | ((params: never) => unknown)
 >(m: T | null | undefined): $Schema.ValidationResult<T> | undefined {
@@ -108,14 +87,6 @@ export function getPickMessageGetter<const OType extends $Schema.ValidationMessa
       params: Params["params"];
     };
   };
-};
-
-export function getEmptyInjectParams() {
-  return {
-    data: {},
-    isServer: typeof window === "undefined",
-    values: {},
-  } as const satisfies $Schema.InjectParams;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -1,4 +1,5 @@
-import { getEmptyInjectParams, getPickMessageGetter, getSchemaItemPropsGenerator, getValidationArray } from ".";
+import { getPickMessageGetter, getValidationArray } from ".";
+import { SchemaItem } from "./core";
 
 export const SCHEMA_ITEM_TYPE_BOOLEAN = "bool";
 
@@ -31,110 +32,133 @@ type BooleanProps<
 const pickMessage = getPickMessageGetter(SCHEMA_ITEM_TYPE_BOOLEAN);
 
 export function $bool<
-  const TrueValue extends BooleanValue,
-  const FalseValue extends BooleanValue,
-  const P extends BooleanProps<TrueValue, FalseValue>
+  const P extends BooleanProps<BooleanValue, BooleanValue>
 >(props: P = {} as P) {
-  type TV = P extends undefined ? true :
-    P extends { trueValue: infer T; } ? Exclude<T, undefined> : true;
-  type FV = P extends undefined ? false :
-    P extends { falseValue: infer T; } ? Exclude<T, undefined> : false;
+  return new $Bool<P>(props);
+}
 
-  const trueValue = (props?.trueValue ?? true) as TV;
-  const falseValue = (props?.falseValue ?? false) as FV;
+type InferTrue<P> = P extends { trueValue: infer T extends BooleanValue; } ? T : true;
+type InferFalse<P> = P extends { falseValue: infer F extends BooleanValue; } ? F : false;
 
-  const fixedProps = {
-    type: SCHEMA_ITEM_TYPE_BOOLEAN,
-    trueValue,
-    falseValue,
-    _validators: null,
-    getActionType: function () {
-      return this.actionType || "select";
-    },
-    parse: function (value, params = getEmptyInjectParams()) {
-      if (this.parser) return this.parser(value, params);
-      const s = String(value);
-      if (s === String(trueValue)) {
-        return { value: trueValue };
-      }
-      if (s === String(falseValue)) {
-        return { value: falseValue };
-      }
-      if (value == null || value === "") {
-        return { value: undefined };
-      }
-      const ls = s.toLowerCase();
-      if (ls === "on") {
-        return { value: trueValue };
-      }
-      if (ls === "off") {
-        return { value: falseValue };
-      }
-      return {
-        value: undefined,
-        messages: [
-          pickMessage("parse", {
-            actionType: this.getActionType(),
-            label: this.label,
-            name: params.name,
-          }),
-        ],
-      };
-    },
-    validate: function (value, params = getEmptyInjectParams()) {
-      if (this._validators == null) {
-        this._validators = [];
+export class $Bool<
+  const P extends BooleanProps<BooleanValue, BooleanValue>
+> extends SchemaItem<InferTrue<P> | InferFalse<P>> {
 
-        // required
-        if (this.required != null) {
-          const [required, getRequiredMessage] = getValidationArray(this.required);
-          if (required) {
-            const getMessage = getRequiredMessage ?? ((p) => pickMessage("required", p));
+  protected trueValue: InferTrue<P>;
+  protected falseValue: InferFalse<P>;
 
-            if (typeof required === "function") {
-              this._validators.push((p) => {
-                const r = required(p);
-                if (!r) return null;
-                if (r === "nonFalse") {
-                  if (p.value === trueValue) return null;
-                  return getMessage(p as $Schema.ValidationResultArgParams<$Schema.Nullable<FV>>);
-                }
-                if (p.value == trueValue || p.value === falseValue) return null;
-                return getMessage(p as $Schema.ValidationResultArgParams<$Schema.Nullable<FV>>);
-              });
-            } else {
-              this._validators.push((p) => {
-                if (required === "nonFalse") {
-                  if (p.value === trueValue) return null;
-                  return getMessage(p as $Schema.ValidationResultArgParams<$Schema.Nullable<FV>>);
-                }
-                if (p.value === trueValue || p.value === falseValue) return null;
-                return getMessage(p as $Schema.ValidationResultArgParams<$Schema.Nullable<FV>>);
-              });
-            }
+  constructor(protected props: P = {} as P) {
+    super();
+    this.trueValue = (props.trueValue ?? true) as InferTrue<P>;
+    this.falseValue = (props.falseValue ?? false) as InferFalse<P>;
+  }
+
+  public getTrueValue() {
+    return this.trueValue;
+  }
+
+  public getFalseValue() {
+    return this.falseValue;
+  }
+
+  public getActionType(): $Schema.ActionType {
+    return this.props.actionType || "select";
+  }
+
+  public getLabel(): string | undefined {
+    return this.props.label;
+  }
+
+  public parse(
+    value: unknown,
+    params: $Schema.ParseArgParams = this.getEmptyInjectParams()
+  ): $Schema.ParseResult<InferTrue<P> | InferFalse<P>> {
+    if (this.props.parser) {
+      return this.props.parser(value, params) as $Schema.ParseResult<InferTrue<P> | InferFalse<P>>;
+    }
+
+    const s = String(value);
+    if (s === String(this.trueValue)) {
+      return { value: this.trueValue };
+    }
+    if (s === String(this.falseValue)) {
+      return { value: this.falseValue };
+    }
+    if (value == null || value === "") {
+      return { value: undefined };
+    }
+    const ls = s.toLowerCase();
+    if (ls === "on") {
+      return { value: this.trueValue };
+    }
+    if (ls === "off") {
+      return { value: this.falseValue };
+    }
+    return {
+      value: undefined,
+      messages: [
+        pickMessage("parse", {
+          actionType: this.getActionType(),
+          label: this.getLabel(),
+          name: params.name,
+        }),
+      ],
+    };
+  }
+
+  public validate(
+    value: $Schema.Nullable<InferTrue<P> | InferFalse<P>>,
+    params: $Schema.ValidationArgParams = this.getEmptyInjectParams()
+  ): $Schema.Message[] {
+    if (this.validators == null) {
+      this.validators = [];
+
+      // required
+      if (this.props.required != null) {
+        const [required, getRequiredMessage] = getValidationArray(this.props.required);
+        if (required) {
+          const getMessage = getRequiredMessage ?? ((p) => pickMessage("required", p));
+
+          if (typeof required === "function") {
+            this.validators.push((p) => {
+              const r = required(p);
+              if (!r) return null;
+              if (r === "nonFalse") {
+                if (p.value === this.trueValue) return null;
+                return getMessage(p);
+              }
+              if (p.value == this.trueValue || p.value === this.falseValue) return null;
+              return getMessage(p);
+            });
+          } else {
+            this.validators.push((p) => {
+              if (required === "nonFalse") {
+                if (p.value === this.trueValue) return null;
+                return getMessage(p);
+              }
+              if (p.value === this.trueValue || p.value === this.falseValue) return null;
+              return getMessage(p);
+            });
           }
         }
-
-        // rules
-        if (this.rules) {
-          this._validators.push(...this.rules);
-        }
       }
 
-      const ruleArg = {
-        ...params,
-        label: this.label,
-        actionType: this.getActionType(),
-        value,
-      } as const satisfies $Schema.RuleArgParams<TV | FV>;
-
-      for (const vali of this._validators) {
-        const msg = vali(ruleArg);
-        if (msg) return [msg];
+      // rules
+      if (this.props.rules) {
+        this.validators.push(...this.props.rules);
       }
-      return [];
-    },
-  } as const satisfies BooleanProps<TV, FV> & $Schema.SchemaItemInterfaceProps<TV | FV>;
+    }
 
-  return getSchemaItemPropsGenerator<typeof fixedProps, BooleanProps<TV, FV>, P>(fixedProps, props)({});
-};
+    return super.validate(value, params);
+  }
+
+  public overwrite<const OP extends Omit<BooleanProps<BooleanValue, BooleanValue>, "trueValue" | "falseValue">>(props: OP) {
+    return new $Bool<Omit<P, keyof OP> & OP>({
+      ...this.props,
+      ...props,
+      trueValue: this.trueValue,
+      falseValue: this.falseValue,
+    });
+  }
+
+}

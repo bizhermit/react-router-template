@@ -1,5 +1,6 @@
 import { getLength } from "$/shared/objects/string";
-import { getEmptyInjectParams, getPickMessageGetter, getSchemaItemPropsGenerator, getValidationArray } from ".";
+import { getPickMessageGetter, getValidationArray } from ".";
+import { SchemaItem } from "./core";
 
 export const SCHEMA_ITEM_TYPE_STRING = "str" as const;
 
@@ -158,219 +159,231 @@ type StringProps = $Schema.SchemaItemAbstractProps
 const pickMessage = getPickMessageGetter(SCHEMA_ITEM_TYPE_STRING);
 
 export function $str<const P extends StringProps>(props: P = {} as P) {
-  const fixedProps = {
-    type: SCHEMA_ITEM_TYPE_STRING,
-    _validators: null,
-    getActionType: function () {
-      return this.actionType || "input";
-    },
-    parse: function (value, params = getEmptyInjectParams()) {
-      if (this.parser) return this.parser(value, params);
-      if (value == null || value === "") return { value: undefined };
-      if (typeof value === "string") return { value };
-      return { value: String(value) };
-    },
-    validate: function (value, params = getEmptyInjectParams()) {
-      if (this._validators == null) {
-        this._validators = [];
+  return new $StrSchema<P>(props);
+};
 
-        // required
-        if (this.required != null) {
-          const [required, getRequiredMessage] = getValidationArray(this.required);
-          if (required) {
-            const getMessage = getRequiredMessage ?? ((p) => pickMessage("required", p));
+export class $StrSchema<const P extends StringProps> extends SchemaItem<string> {
 
-            if (typeof required === "function") {
-              this._validators.push((p) => {
-                if (!required(p)) return null;
-                if (isEmpty(p.value)) {
-                  return getMessage(p as $Schema.RuleArgParamsAsValidation<null | undefined>);
-                }
-                return null;
-              });
-            } else {
-              this._validators.push((p) => {
-                if (isEmpty(p.value)) {
-                  return getMessage(p as $Schema.RuleArgParamsAsValidation<null | undefined>);
-                }
-                return null;
-              });
-            }
+  constructor(protected props: P = {} as P) {
+    super();
+  }
+
+  public getActionType(): $Schema.ActionType {
+    return this.props.actionType || "input";
+  }
+
+  public getLabel(): string | undefined {
+    return this.props.label;
+  }
+
+  public parse(
+    value: unknown,
+    params: $Schema.ParseArgParams = this.getEmptyInjectParams()
+  ): $Schema.ParseResult<string> {
+    if (this.props.parser) return this.props.parser(value, params);
+    if (value == null || value === "") return { value: undefined };
+    if (typeof value === "string") return { value };
+    return { value: String(value) };
+  }
+
+  public validate(
+    value: $Schema.Nullable<string>,
+    params?: $Schema.ValidationArgParams
+  ): $Schema.Message[] {
+    if (this.validators == null) {
+      this.validators = [];
+
+      // required
+      if (this.props.required != null) {
+        const [required, getRequiredMessage] = getValidationArray(this.props.required);
+        if (required) {
+          const getMessage = getRequiredMessage ?? ((p) => pickMessage("required", p));
+
+          if (typeof required === "function") {
+            this.validators.push((p) => {
+              if (!required(p)) return null;
+              if (isEmpty(p.value)) {
+                return getMessage(p as $Schema.RuleArgParamsAsValidation<null | undefined>);
+              }
+              return null;
+            });
+          } else {
+            this.validators.push((p) => {
+              if (isEmpty(p.value)) {
+                return getMessage(p as $Schema.RuleArgParamsAsValidation<null | undefined>);
+              }
+              return null;
+            });
           }
-        }
-
-        // length
-        if (this.length != null) {
-          const [length, getLengthMessage] = getValidationArray(this.length);
-
-          if (length != null) {
-            const getMessage = getLengthMessage ?? ((p) => pickMessage("length", p));
-
-            if (typeof length === "function") {
-              this._validators.push((p) => {
-                if (isEmpty(p.value)) return null;
-                const len = length(p);
-                if (len == null) return null;
-                const cur = getLength(p.value);
-                if (cur === len) return null;
-                return getMessage({
-                  ...p as $Schema.RuleArgParamsAsValidation<string>,
-                  params: {
-                    length: len,
-                    currentLength: cur,
-                  },
-                });
-              });
-            } else {
-              this._validators.push((p) => {
-                if (isEmpty(p.value)) return null;
-                const cur = getLength(p.value);
-                if (cur === length) return null;
-                return getMessage({
-                  ...p as $Schema.RuleArgParamsAsValidation<string>,
-                  params: {
-                    length,
-                    currentLength: cur,
-                  },
-                });
-              });
-            }
-          }
-        }
-
-        // minLength
-        if (this.minLength != null) {
-          const [minLength, getMinLengthMessage] = getValidationArray(this.minLength);
-          if (minLength != null) {
-            const getMessage = getMinLengthMessage ?? ((p) => pickMessage("minLength", p));
-
-            if (typeof minLength === "function") {
-              this._validators.push((p) => {
-                if (isEmpty(p.value)) return null;
-                const minLen = minLength(p);
-                if (minLen == null) return null;
-                const cur = getLength(p.value);
-                if (minLen <= cur) return null;
-                return getMessage({
-                  ...p as $Schema.RuleArgParamsAsValidation<string>,
-                  params: {
-                    minLength: minLen,
-                    currentLength: cur,
-                  },
-                });
-              });
-            } else {
-              this._validators.push((p) => {
-                if (isEmpty(p.value)) return null;
-                const cur = getLength(p.value);
-                if (minLength <= cur) return null;
-                return getMessage({
-                  ...p as $Schema.RuleArgParamsAsValidation<string>,
-                  params: {
-                    minLength,
-                    currentLength: cur,
-                  },
-                });
-              });
-            }
-          }
-        }
-
-        // maxLength
-        if (this.maxLength != null) {
-          const [maxLength, getMaxLengthMessage] = getValidationArray(this.maxLength);
-          if (maxLength != null) {
-            const getMessage = getMaxLengthMessage ?? ((p) => pickMessage("maxLength", p));
-
-            if (typeof maxLength === "function") {
-              this._validators.push((p) => {
-                if (isEmpty(p.value)) return null;
-                const maxLen = maxLength(p);
-                if (maxLen == null) return null;
-                const cur = getLength(p.value);
-                if (cur <= maxLen) return null;
-                return getMessage({
-                  ...p as $Schema.RuleArgParamsAsValidation<string>,
-                  params: {
-                    maxLength: maxLen,
-                    currentLength: cur,
-                  },
-                });
-              });
-            } else {
-              this._validators.push((p) => {
-                if (isEmpty(p.value)) return null;
-                const cur = getLength(p.value);
-                if (cur <= maxLength) return null;
-                return getMessage({
-                  ...p as $Schema.RuleArgParamsAsValidation<string>,
-                  params: {
-                    maxLength: maxLength,
-                    currentLength: cur,
-                  },
-                });
-              });
-            }
-          }
-        }
-
-        // pattern
-        if (this.pattern != null) {
-          const [pattern, getPatternMessage] = getValidationArray(this.pattern);
-
-          if (pattern != null) {
-            const getMessage = getPatternMessage ?? ((p) => pickMessage("pattern", p));
-
-            if (typeof pattern === "function") {
-              this._validators.push((p) => {
-                if (isEmpty(p.value)) return null;
-                const ptn = pattern(p);
-                if (!ptn) return null;
-                const test = STR_PATTERN_TEST[ptn];
-                if (test(p.value)) return null;
-                return getMessage({
-                  ...p as $Schema.RuleArgParamsAsValidation<string>,
-                  params: {
-                    pattern: ptn,
-                  },
-                });
-              });
-            } else {
-              const test = STR_PATTERN_TEST[pattern];
-              this._validators.push((p) => {
-                if (isEmpty(p.value)) return null;
-                if (test(p.value)) return null;
-                return getMessage({
-                  ...p as $Schema.RuleArgParamsAsValidation<string>,
-                  params: {
-                    pattern,
-                  },
-                });
-              });
-            }
-          }
-        }
-
-        // rules
-        if (this.rules) {
-          this._validators.push(...this.rules);
         }
       }
 
-      const ruleArg = {
-        ...params,
-        label: this.label,
-        actionType: this.getActionType(),
-        value,
-      } as const satisfies $Schema.RuleArgParams<string>;
+      // length
+      if (this.props.length != null) {
+        const [length, getLengthMessage] = getValidationArray(this.props.length);
 
-      for (const vali of this._validators) {
-        const msg = vali(ruleArg);
-        if (msg) return [msg];
+        if (length != null) {
+          const getMessage = getLengthMessage ?? ((p) => pickMessage("length", p));
+
+          if (typeof length === "function") {
+            this.validators.push((p) => {
+              if (isEmpty(p.value)) return null;
+              const len = length(p);
+              if (len == null) return null;
+              const cur = getLength(p.value);
+              if (cur === len) return null;
+              return getMessage({
+                ...p as $Schema.RuleArgParamsAsValidation<string>,
+                params: {
+                  length: len,
+                  currentLength: cur,
+                },
+              });
+            });
+          } else {
+            this.validators.push((p) => {
+              if (isEmpty(p.value)) return null;
+              const cur = getLength(p.value);
+              if (cur === length) return null;
+              return getMessage({
+                ...p as $Schema.RuleArgParamsAsValidation<string>,
+                params: {
+                  length,
+                  currentLength: cur,
+                },
+              });
+            });
+          }
+        }
       }
-      return [];
-    },
-  } as const satisfies StringProps & $Schema.SchemaItemInterfaceProps<string>;
 
-  return getSchemaItemPropsGenerator<typeof fixedProps, StringProps, P>(fixedProps, props)({});
+      // minLength
+      if (this.props.minLength != null) {
+        const [minLength, getMinLengthMessage] = getValidationArray(this.props.minLength);
+        if (minLength != null) {
+          const getMessage = getMinLengthMessage ?? ((p) => pickMessage("minLength", p));
+
+          if (typeof minLength === "function") {
+            this.validators.push((p) => {
+              if (isEmpty(p.value)) return null;
+              const minLen = minLength(p);
+              if (minLen == null) return null;
+              const cur = getLength(p.value);
+              if (minLen <= cur) return null;
+              return getMessage({
+                ...p as $Schema.RuleArgParamsAsValidation<string>,
+                params: {
+                  minLength: minLen,
+                  currentLength: cur,
+                },
+              });
+            });
+          } else {
+            this.validators.push((p) => {
+              if (isEmpty(p.value)) return null;
+              const cur = getLength(p.value);
+              if (minLength <= cur) return null;
+              return getMessage({
+                ...p as $Schema.RuleArgParamsAsValidation<string>,
+                params: {
+                  minLength,
+                  currentLength: cur,
+                },
+              });
+            });
+          }
+        }
+      }
+
+      // maxLength
+      if (this.props.maxLength != null) {
+        const [maxLength, getMaxLengthMessage] = getValidationArray(this.props.maxLength);
+        if (maxLength != null) {
+          const getMessage = getMaxLengthMessage ?? ((p) => pickMessage("maxLength", p));
+
+          if (typeof maxLength === "function") {
+            this.validators.push((p) => {
+              if (isEmpty(p.value)) return null;
+              const maxLen = maxLength(p);
+              if (maxLen == null) return null;
+              const cur = getLength(p.value);
+              if (cur <= maxLen) return null;
+              return getMessage({
+                ...p as $Schema.RuleArgParamsAsValidation<string>,
+                params: {
+                  maxLength: maxLen,
+                  currentLength: cur,
+                },
+              });
+            });
+          } else {
+            this.validators.push((p) => {
+              if (isEmpty(p.value)) return null;
+              const cur = getLength(p.value);
+              if (cur <= maxLength) return null;
+              return getMessage({
+                ...p as $Schema.RuleArgParamsAsValidation<string>,
+                params: {
+                  maxLength: maxLength,
+                  currentLength: cur,
+                },
+              });
+            });
+          }
+        }
+      }
+
+      // pattern
+      if (this.props.pattern != null) {
+        const [pattern, getPatternMessage] = getValidationArray(this.props.pattern);
+
+        if (pattern != null) {
+          const getMessage = getPatternMessage ?? ((p) => pickMessage("pattern", p));
+
+          if (typeof pattern === "function") {
+            this.validators.push((p) => {
+              if (isEmpty(p.value)) return null;
+              const ptn = pattern(p);
+              if (!ptn) return null;
+              const test = STR_PATTERN_TEST[ptn];
+              if (test(p.value)) return null;
+              return getMessage({
+                ...p as $Schema.RuleArgParamsAsValidation<string>,
+                params: {
+                  pattern: ptn,
+                },
+              });
+            });
+          } else {
+            const test = STR_PATTERN_TEST[pattern];
+            this.validators.push((p) => {
+              if (isEmpty(p.value)) return null;
+              if (test(p.value)) return null;
+              return getMessage({
+                ...p as $Schema.RuleArgParamsAsValidation<string>,
+                params: {
+                  pattern,
+                },
+              });
+            });
+          }
+        }
+      }
+
+      // rules
+      if (this.props.rules) {
+        this.validators.push(...this.props.rules);
+      }
+    }
+
+    return super.validate(value, params);
+  }
+
+  public overwrite<const OP extends StringProps>(props: OP) {
+    return new $StrSchema<Omit<P, keyof OP> & OP>({
+      ...this.props,
+      ...props,
+    });
+  }
+
 };

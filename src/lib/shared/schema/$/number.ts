@@ -1,5 +1,6 @@
 import { parseNumber } from "$/shared/objects/numeric";
-import { getEmptyInjectParams, getPickMessageGetter, getSchemaItemPropsGenerator, getValidationArray } from ".";
+import { getPickMessageGetter, getValidationArray } from ".";
+import { SchemaItem } from "./core";
 
 export const SCHEMA_ITEM_TYPE_NUMBER = "num";
 
@@ -31,180 +32,192 @@ export function getFloatPosition(value: number) {
 const pickMessage = getPickMessageGetter(SCHEMA_ITEM_TYPE_NUMBER);
 
 export function $num<const P extends NumberProps>(props: P = {} as P) {
-  const fixedProps = {
-    type: SCHEMA_ITEM_TYPE_NUMBER,
-    _validators: null,
-    getActionType: function () {
-      return this.actionType || "input";
-    },
-    parse: function (value, params = getEmptyInjectParams()) {
-      if (this.parser) return this.parser(value, params);
-      const [num, succeeded] = parseNumber(value);
-      if (succeeded) return { value: num };
-      return {
-        value: num,
-        messages: [
-          pickMessage("parse", {
-            label: this.label,
-            actionType: this.getActionType(),
-            name: params.name,
-          }),
-        ],
-      };
-    },
-    validate: function (value, params = getEmptyInjectParams()) {
-      if (this._validators == null) {
-        this._validators = [];
-
-        // required
-        if (this.required != null) {
-          const [required, getRequiredMessage] = getValidationArray(this.required);
-          if (required) {
-            const getMessage = getRequiredMessage ?? ((p) => pickMessage("required", p));
-
-            if (typeof required === "function") {
-              this._validators.push((p) => {
-                if (!required(p)) return null;
-                if (p.value == null) {
-                  return getMessage(p as $Schema.RuleArgParamsAsValidation<null | undefined>);
-                }
-                return null;
-              });
-            } else {
-              this._validators.push((p) => {
-                if (p.value == null) {
-                  return getMessage(p as $Schema.RuleArgParamsAsValidation<null | undefined>);
-                }
-                return null;
-              });
-            }
-          }
-        }
-
-        // min
-        if (this.min != null) {
-          const [min, getMinMessage] = getValidationArray(this.min);
-          if (min != null) {
-            const getMessage = getMinMessage ?? ((p) => pickMessage("min", p));
-
-            if (typeof min === "function") {
-              this._validators.push((p) => {
-                if (p.value == null) return null;
-                const m = min(p);
-                if (m == null || m <= p.value) return null;
-                return getMessage({
-                  ...p as $Schema.RuleArgParamsAsValidation<number>,
-                  params: {
-                    min: m,
-                  },
-                });
-              });
-            } else {
-              this._validators.push((p) => {
-                if (p.value == null) return null;
-                if (min <= p.value) return null;
-                return getMessage({
-                  ...p as $Schema.RuleArgParamsAsValidation<number>,
-                  params: {
-                    min,
-                  },
-                });
-              });
-            }
-          }
-        }
-
-        // max
-        if (this.max != null) {
-          const [max, getMaxMessage] = getValidationArray(this.max);
-          if (max != null) {
-            const getMessage = getMaxMessage ?? ((p) => pickMessage("max", p));
-
-            if (typeof max === "function") {
-              this._validators.push((p) => {
-                if (p.value == null) return null;
-                const m = max(p);
-                if (m == null || p.value <= m) return null;
-                return getMessage({
-                  ...p as $Schema.RuleArgParamsAsValidation<number>,
-                  params: {
-                    max: m,
-                  },
-                });
-              });
-            } else {
-              this._validators.push((p) => {
-                if (p.value == null) return null;
-                if (p.value <= max) return null;
-                return getMessage({
-                  ...p as $Schema.RuleArgParamsAsValidation<number>,
-                  params: {
-                    max,
-                  },
-                });
-              });
-            }
-          }
-        }
-
-        // float
-        if (this.float != null) {
-          const [float, getFloatMessage] = getValidationArray(this.float);
-          if (float != null) {
-            const getMessage = getFloatMessage ?? ((p) => pickMessage("float", p));
-
-            if (typeof float === "function") {
-              this._validators.push((p) => {
-                if (p.value == null) return null;
-                const f = float(p);
-                if (f == null) return null;
-                const cur = getFloatPosition(p.value);
-                if (cur <= f) return null;
-                return getMessage({
-                  ...p as $Schema.RuleArgParamsAsValidation<number>,
-                  params: {
-                    float: f,
-                    currentFloat: cur,
-                  },
-                });
-              });
-            } else {
-              this._validators.push((p) => {
-                if (p.value == null) return null;
-                const cur = getFloatPosition(p.value);
-                if (cur <= float) return null;
-                return getMessage({
-                  ...p as $Schema.RuleArgParamsAsValidation<number>,
-                  params: {
-                    float,
-                    currentFloat: cur,
-                  },
-                });
-              });
-            }
-          }
-        }
-
-        // rules
-        if (this.rules) {
-          this._validators.push(...this.rules);
-        }
-      }
-
-      const ruleArg = {
-        ...params,
-        label: this.label,
-        actionType: this.getActionType(),
-        value,
-      } as const satisfies $Schema.RuleArgParams<number>;
-
-      for (const vali of this._validators) {
-        const msg = vali(ruleArg);
-        if (msg) return [msg];
-      }
-      return [];
-    },
-  } as const satisfies NumberProps & $Schema.SchemaItemInterfaceProps<number>;
-
-  return getSchemaItemPropsGenerator<typeof fixedProps, NumberProps, P>(fixedProps, props)({});
+  return new $Num<P>(props);
 };
+
+export class $Num<const P extends NumberProps> extends SchemaItem<number> {
+
+  constructor(protected props: P = {} as P) {
+    super();
+  }
+
+  public getActionType(): $Schema.ActionType {
+    return this.props.actionType || "input";
+  }
+
+  public getLabel(): string | undefined {
+    return this.props.label;
+  }
+
+  public parse(
+    value: unknown,
+    params: $Schema.ParseArgParams = this.getEmptyInjectParams()
+  ): $Schema.ParseResult<number> {
+    if (this.props.parser) return this.props.parser(value, params);
+    const [num, succeeded] = parseNumber(value);
+    if (succeeded) return { value: num };
+    return {
+      value: num,
+      messages: [
+        pickMessage("parse", {
+          label: this.getLabel(),
+          actionType: this.getActionType(),
+          name: params.name,
+        }),
+      ],
+    };
+  }
+
+  public validate(
+    value: $Schema.Nullable<number>,
+    params: $Schema.ValidationArgParams = this.getEmptyInjectParams()
+  ): $Schema.Message[] {
+    if (this.validators == null) {
+      this.validators = [];
+
+      // required
+      if (this.props.required != null) {
+        const [required, getRequiredMessage] = getValidationArray(this.props.required);
+        if (required) {
+          const getMessage = getRequiredMessage ?? ((p) => pickMessage("required", p));
+
+          if (typeof required === "function") {
+            this.validators.push((p) => {
+              if (!required(p)) return null;
+              if (p.value == null) {
+                return getMessage(p as $Schema.RuleArgParamsAsValidation<null | undefined>);
+              }
+              return null;
+            });
+          } else {
+            this.validators.push((p) => {
+              if (p.value == null) {
+                return getMessage(p as $Schema.RuleArgParamsAsValidation<null | undefined>);
+              }
+              return null;
+            });
+          }
+        }
+      }
+
+      // min
+      if (this.props.min != null) {
+        const [min, getMinMessage] = getValidationArray(this.props.min);
+        if (min != null) {
+          const getMessage = getMinMessage ?? ((p) => pickMessage("min", p));
+
+          if (typeof min === "function") {
+            this.validators.push((p) => {
+              if (p.value == null) return null;
+              const m = min(p);
+              if (m == null || m <= p.value) return null;
+              return getMessage({
+                ...p as $Schema.RuleArgParamsAsValidation<number>,
+                params: {
+                  min: m,
+                },
+              });
+            });
+          } else {
+            this.validators.push((p) => {
+              if (p.value == null) return null;
+              if (min <= p.value) return null;
+              return getMessage({
+                ...p as $Schema.RuleArgParamsAsValidation<number>,
+                params: {
+                  min,
+                },
+              });
+            });
+          }
+        }
+      }
+
+      // max
+      if (this.props.max != null) {
+        const [max, getMaxMessage] = getValidationArray(this.props.max);
+        if (max != null) {
+          const getMessage = getMaxMessage ?? ((p) => pickMessage("max", p));
+
+          if (typeof max === "function") {
+            this.validators.push((p) => {
+              if (p.value == null) return null;
+              const m = max(p);
+              if (m == null || p.value <= m) return null;
+              return getMessage({
+                ...p as $Schema.RuleArgParamsAsValidation<number>,
+                params: {
+                  max: m,
+                },
+              });
+            });
+          } else {
+            this.validators.push((p) => {
+              if (p.value == null) return null;
+              if (p.value <= max) return null;
+              return getMessage({
+                ...p as $Schema.RuleArgParamsAsValidation<number>,
+                params: {
+                  max,
+                },
+              });
+            });
+          }
+        }
+      }
+
+      // float
+      if (this.props.float != null) {
+        const [float, getFloatMessage] = getValidationArray(this.props.float);
+        if (float != null) {
+          const getMessage = getFloatMessage ?? ((p) => pickMessage("float", p));
+
+          if (typeof float === "function") {
+            this.validators.push((p) => {
+              if (p.value == null) return null;
+              const f = float(p);
+              if (f == null) return null;
+              const cur = getFloatPosition(p.value);
+              if (cur <= f) return null;
+              return getMessage({
+                ...p as $Schema.RuleArgParamsAsValidation<number>,
+                params: {
+                  float: f,
+                  currentFloat: cur,
+                },
+              });
+            });
+          } else {
+            this.validators.push((p) => {
+              if (p.value == null) return null;
+              const cur = getFloatPosition(p.value);
+              if (cur <= float) return null;
+              return getMessage({
+                ...p as $Schema.RuleArgParamsAsValidation<number>,
+                params: {
+                  float,
+                  currentFloat: cur,
+                },
+              });
+            });
+          }
+        }
+      }
+
+      // rules
+      if (this.props.rules) {
+        this.validators.push(...this.props.rules);
+      }
+    }
+
+    return super.validate(value, params);
+  }
+
+  public overwrite<const OP extends NumberProps>(props: OP) {
+    return new $Num<Omit<P, keyof OP> & OP>({
+      ...this.props,
+      ...props,
+    });
+  }
+
+}

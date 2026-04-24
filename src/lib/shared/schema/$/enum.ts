@@ -1,4 +1,6 @@
-import { getEmptyInjectParams, getPickMessageGetter, getSchemaItemPropsGenerator, getValidationArray, optimizeValidationMessage } from ".";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { getPickMessageGetter, getValidationArray, optimizeValidationMessage } from ".";
+import { SchemaItem } from "./core";
 
 export const SCHEMA_ITEM_TYPE_ENUM = "src";
 
@@ -40,108 +42,124 @@ type EnumProps<Value> = $Schema.SchemaItemAbstractProps
 
 const pickMessage = getPickMessageGetter(SCHEMA_ITEM_TYPE_ENUM);
 
+type InferItems<P> = P extends { items: infer T extends $Schema.SourceItem<any>[]; } ? RemoveEnumArrayNoise<T> : never;
+
 export function $enum<
   const Value,
   const P extends EnumProps<Value>
 >(props: P) {
-  type Items = RemoveEnumArrayNoise<P["items"]>;
+  return new $Enum<Value, P>(props);
+};
 
-  const fixedProps = {
-    type: SCHEMA_ITEM_TYPE_ENUM,
-    items: props.items as Items,
-    _validators: null,
-    getActionType: function () {
-      return this.actionType || "set";
-    },
-    find: function (value: unknown) {
-      if (value == null || value === "") return undefined;
-      const v = String(value);
-      return this.items.find(item => {
-        return String(item.value) === v;
-      });
-    },
-    parse: function (value, params = getEmptyInjectParams()) {
-      if (this.parser) return this.parser(value, params);
-      const item = this.find(value);
-      if (item) return { value: item.value };
-      return {
-        value: value as Value,
-        messages: [
-          pickMessage("parse", {
-            label: this.label,
-            actionType: this.getActionType(),
-            name: params.name,
-          }),
-        ],
-      };
-    },
-    validate: function (value, params = getEmptyInjectParams()) {
-      if (this._validators == null) {
-        this._validators = [];
+export class $Enum<
+  const Value,
+  const P extends EnumProps<Value>
+> extends SchemaItem<Value> {
 
-        // required
-        if (this.required != null) {
-          const [required, getRequiredMessage] = getValidationArray(this.required);
-          if (required) {
-            const getMessage = getRequiredMessage ?? ((p) => pickMessage("required", p));
+  protected items: InferItems<P>;
 
-            if (typeof required === "function") {
-              this._validators.push((p) => {
-                if (!required(p)) return null;
-                if (p.value == null) {
-                  return getMessage(p as $Schema.ValidationResultArgParams);
-                }
-                return null;
-              });
-            } else {
-              this._validators.push((p) => {
-                if (p.value == null) {
-                  return getMessage(p as $Schema.ValidationResultArgParams);
-                }
-                return null;
-              });
-            }
+  constructor(protected props: P) {
+    super();
+    this.items = props.items as InferItems<P>;
+  }
+
+  public getActionType(): $Schema.ActionType {
+    return this.props.actionType || "select";
+  }
+
+  public getLabel(): string | undefined {
+    return this.props.label;
+  }
+
+  public find(value: unknown) {
+    if (value == null || value === "") return undefined;
+    const v = String(value);
+    return this.items.find(item => {
+      return String(item.value) === v;
+    });
+  }
+
+  public parse(
+    value: unknown,
+    params: $Schema.ParseArgParams = this.getEmptyInjectParams()
+  ): $Schema.ParseResult<Value> {
+    if (this.props.parser) return this.props.parser(value, params);
+    const item = this.find(value);
+    if (item) return { value: item.value };
+    return {
+      value: value as Value,
+      messages: [
+        pickMessage("parse", {
+          label: this.getLabel(),
+          actionType: this.getActionType(),
+          name: params.name,
+        }),
+      ],
+    };
+  }
+
+  public validate(
+    value: $Schema.Nullable<Value>,
+    params: $Schema.ValidationArgParams = this.getEmptyInjectParams()
+  ): $Schema.Message[] {
+    if (this.validators == null) {
+      this.validators = [];
+
+      // required
+      if (this.props.required != null) {
+        const [required, getRequiredMessage] = getValidationArray(this.props.required);
+        if (required) {
+          const getMessage = getRequiredMessage ?? ((p) => pickMessage("required", p));
+
+          if (typeof required === "function") {
+            this.validators.push((p) => {
+              if (!required(p)) return null;
+              if (p.value == null) {
+                return getMessage(p as $Schema.ValidationResultArgParams);
+              }
+              return null;
+            });
+          } else {
+            this.validators.push((p) => {
+              if (p.value == null) {
+                return getMessage(p as $Schema.ValidationResultArgParams);
+              }
+              return null;
+            });
           }
         }
+      }
 
-        // notFound
-        const getSourceMessage = optimizeValidationMessage(this.notFoundMessage) ?? ((p) => pickMessage("notFound", p));
+      // notFound
+      const getSourceMessage = optimizeValidationMessage(this.props.notFoundMessage) ?? ((p) => pickMessage("notFound", p));
 
-        this._validators.push((p) => {
-          if (p.value == null || p.value === "") return null;
-          const item = this.find(p.value);
-          if (item) return null;
-          return getSourceMessage({
-            ...p as $Schema.ValidationResultArgParams<unknown>,
-            params: {
-              items: this.items,
-            },
-          });
+      this.validators.push((p) => {
+        if (p.value == null || p.value === "") return null;
+        const item = this.find(p.value);
+        if (item) return null;
+        return getSourceMessage({
+          ...p as $Schema.ValidationResultArgParams<unknown>,
+          params: {
+            items: this.items,
+          },
         });
+      });
 
-        // rules
-        if (this.rules) {
-          this._validators.push(...this.rules);
-        }
+      // rules
+      if (this.props.rules) {
+        this.validators.push(...this.props.rules);
       }
+    }
 
-      const ruleArg = {
-        ...params,
-        label: this.label,
-        actionType: this.getActionType(),
-        value,
-      } as const satisfies $Schema.RuleArgParams<Value>;
+    return super.validate(value, params);
+  }
 
-      for (const vali of this._validators) {
-        const msg = vali(ruleArg);
-        if (msg) return [msg];
-      }
-      return [];
-    },
-  } as const satisfies Omit<EnumProps<Value>, "items"> & $Schema.SchemaItemInterfaceProps<Value> & {
-    items: Items;
-    find: (value: unknown) => $Schema.SourceItem<Value> | undefined;
-  };
+  public overwrite<const OP extends Omit<EnumProps<Value>, "items">>(props: OP) {
+    return new $Enum<Value, Omit<P, keyof OP> & OP & { items: InferItems<P>; }>({
+      ...this.props,
+      ...props,
+      items: this.items,
+    });
+  }
 
-  return getSchemaItemPropsGenerator<typeof fixedProps, EnumProps<Value>, P>(fixedProps, props)({});
-};
+}
