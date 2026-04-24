@@ -1,4 +1,4 @@
-import type { SCHEMA_ITEM_TYPE_OBJECT } from "./object";
+import type { $ObjSchema } from "./object";
 
 export function optimizeValidationMessage<
   T extends string | $Schema.Message | ((params: never) => unknown)
@@ -90,10 +90,7 @@ export function getPickMessageGetter<const OType extends $Schema.ValidationMessa
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function parseWithSchema<const S extends $Schema.SchemaItemInterfaceProps<any> & {
-  type: typeof SCHEMA_ITEM_TYPE_OBJECT;
-  props: unknown;
-}>(params: {
+export function parseWithSchema<const S extends $ObjSchema<any, any>>(params: {
   schema: S;
   values: Record<string, unknown> | null | undefined;
   data?: Record<string, unknown> | null | undefined;
@@ -112,13 +109,13 @@ export function parseWithSchema<const S extends $Schema.SchemaItemInterfaceProps
   if (hasError) {
     return {
       ok: false,
-      values: parsed.value as $Schema.Infer<typeof params.schema>,
+      values: parsed.value as $Schema.InferClass<typeof params.schema>,
       messages: [...parsed.messages ?? [], ...msgs],
     } as const;
   }
   return {
     ok: true,
-    values: parsed.value as $Schema.Infer<typeof params.schema, true>,
+    values: parsed.value as $Schema.InferClass<typeof params.schema, true>,
     messages: [...parsed.messages ?? [], ...msgs],
   } as const;
 };

@@ -1,6 +1,7 @@
 import { Button } from "$/components/elements/button/button";
 import { useRender } from "$/shared/hooks/render";
 import { $Date, $DateTime } from "$/shared/objects/timestamp";
+import { parseWithSchema } from "$/shared/schema/$";
 import { $arr } from "$/shared/schema/$/array";
 import { $bool } from "$/shared/schema/$/boolean";
 import { $date } from "$/shared/schema/$/date";
@@ -296,27 +297,27 @@ export default function Page() {
             //   params
             // );
             // console.log(parsed);
-            // const submission = schemaObject.validate(parsed.value, params);
+            // const submission = schemaObj.validate(parsed.value, params);
             // console.log(submission.reduce((prev, msg) => {
             //   prev[msg.name || "_root"] = msg;
             //   return prev;
             // }, {} as Record<string, $Schema.Message>));
             // schemaObject.props.name.required = false;
-            // const submission = parseWithSchema({
-            //   schema: schemaObject,
-            //   values: {
-            //     // name: "ghoe",
-            //     age: 100,
-            //     agreement: false,
-            //   } satisfies $Schema.Infer<typeof schemaObject>,
-            // });
-            // console.log("-", performance.now() - now);
-            // if (submission.ok) {
-            //   submission.values.name;
-            // } else {
-            //   submission.values.name;
-            // }
-            // console.log(submission);
+            const submission = parseWithSchema({
+              schema: schemaObj,
+              values: {
+                // name: "ghoe",
+                // age: 100,
+                // agreement: false,
+              } satisfies $Schema.InferClass<typeof schemaObj>,
+            });
+            console.log("-", performance.now() - now);
+            if (submission.ok) {
+              submission.values.bool;
+            } else {
+              submission.values?.bool;
+            }
+            console.log(submission);
             // console.log("-", validationMessage);
           }}
         >
