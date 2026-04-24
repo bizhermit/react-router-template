@@ -1,4 +1,4 @@
-import { getEmptyInjectParams, getSchemaItemPropsGenerator, getValidationArray } from ".";
+import { getEmptyInjectParams, getPickMessageGetter, getSchemaItemPropsGenerator, getValidationArray } from ".";
 
 export const SCHEMA_ITEM_TYPE_BOOLEAN = "bool";
 
@@ -27,6 +27,8 @@ type BooleanProps<
     trueText?: string;
     falseText?: string;
   };
+
+const pickMessage = getPickMessageGetter(SCHEMA_ITEM_TYPE_BOOLEAN);
 
 export function $bool<
   const TrueValue extends BooleanValue,
@@ -70,38 +72,24 @@ export function $bool<
       }
       return {
         value: undefined,
-        messages: [{
-          type: "e",
-          label: this.label,
-          actionType: this.getActionType(),
-          otype: SCHEMA_ITEM_TYPE_BOOLEAN,
-          code: "parse",
-          name: params.name,
-        }],
+        messages: [
+          pickMessage("parse", {
+            actionType: this.getActionType(),
+            label: this.label,
+            name: params.name,
+          }),
+        ],
       };
     },
     validate: function (value, params = getEmptyInjectParams()) {
       if (this._validators == null) {
         this._validators = [];
-        const commonMsgParams = {
-          otype: SCHEMA_ITEM_TYPE_BOOLEAN,
-          type: "e",
-        } as const satisfies {
-          otype: string;
-          type: $Schema.AbstractMessage["type"];
-        };
 
         // required
         if (this.required != null) {
           const [required, getRequiredMessage] = getValidationArray(this.required);
           if (required) {
-            const getMessage = getRequiredMessage ?? ((p) => ({
-              ...commonMsgParams,
-              code: "required",
-              label: p.label,
-              params: p.params,
-              name: p.name,
-            }));
+            const getMessage = getRequiredMessage ?? ((p) => pickMessage("required", p));
 
             if (typeof required === "function") {
               this._validators.push((p) => {

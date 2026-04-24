@@ -1,4 +1,4 @@
-import { getEmptyInjectParams, getSchemaItemPropsGenerator, getValidationArray, optimizeValidationMessage } from ".";
+import { getEmptyInjectParams, getPickMessageGetter, getSchemaItemPropsGenerator, getValidationArray, optimizeValidationMessage } from ".";
 
 export const SCHEMA_ITEM_TYPE_ENUM = "src";
 
@@ -38,6 +38,8 @@ type EnumProps<Value> = $Schema.SchemaItemAbstractProps
     rules?: $Schema.Rule<Value>[];
   };
 
+const pickMessage = getPickMessageGetter(SCHEMA_ITEM_TYPE_ENUM);
+
 export function $enum<
   const Value,
   const P extends EnumProps<Value>
@@ -64,38 +66,24 @@ export function $enum<
       if (item) return { value: item.value };
       return {
         value: value as Value,
-        messages: [{
-          type: "e",
-          label: this.label,
-          actionType: this.getActionType(),
-          otype: SCHEMA_ITEM_TYPE_ENUM,
-          code: "parse",
-          name: params.name,
-        }],
+        messages: [
+          pickMessage("parse", {
+            label: this.label,
+            actionType: this.getActionType(),
+            name: params.name,
+          }),
+        ],
       };
     },
     validate: function (value, params = getEmptyInjectParams()) {
       if (this._validators == null) {
         this._validators = [];
-        const commonMsgParams = {
-          otype: SCHEMA_ITEM_TYPE_ENUM,
-          type: "e",
-        } as const satisfies {
-          otype: string;
-          type: $Schema.AbstractMessage["type"];
-        };
 
         // required
         if (this.required != null) {
           const [required, getRequiredMessage] = getValidationArray(this.required);
           if (required) {
-            const getMessage = getRequiredMessage ?? ((p) => ({
-              ...commonMsgParams,
-              code: "required",
-              label: p.label,
-              params: p.params,
-              name: p.name,
-            }));
+            const getMessage = getRequiredMessage ?? ((p) => pickMessage("required", p));
 
             if (typeof required === "function") {
               this._validators.push((p) => {
@@ -117,13 +105,7 @@ export function $enum<
         }
 
         // notFound
-        const getSourceMessage = optimizeValidationMessage(this.notFoundMessage) ?? ((p) => ({
-          ...commonMsgParams,
-          code: "notFound",
-          label: p.label,
-          params: p.params,
-          name: p.name,
-        }));
+        const getSourceMessage = optimizeValidationMessage(this.notFoundMessage) ?? ((p) => pickMessage("notFound", p));
 
         this._validators.push((p) => {
           if (p.value == null || p.value === "") return null;

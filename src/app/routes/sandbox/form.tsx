@@ -57,7 +57,8 @@ const schemaObject = $object({
       minLength: 8,
       maxLength: 16,
     }).overwrite({
-      required: false,
+      // required: false,
+      required: true,
       length: [10, ({ value, params: { currentLength, length } }) => {
         return null;
       }],
@@ -165,6 +166,7 @@ const msg: $Schema.I18nMessage = {
   params: {
     maxLength: 10,
   },
+  actionType: "input",
 };
 
 export function loader({ request }: Route.LoaderArgs) {

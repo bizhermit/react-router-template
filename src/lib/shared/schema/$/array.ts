@@ -1,40 +1,44 @@
-import { getEmptyInjectParams, getSchemaItemPropsGenerator, getValidationArray } from ".";
+import { getEmptyInjectParams, getPickMessageGetter, getSchemaItemPropsGenerator, getValidationArray } from ".";
 
 export const SCHEMA_ITEM_TYPE_ARRAY = "arr";
 
-type ArrayValidations<Content extends $Schema.SchemaItemInterfaceProps<unknown>> = {
+type Content = $Schema.SchemaItemInterfaceProps<unknown>;
+
+type ArrayValidations<C extends Content> = {
   required: $Schema.ValidationEntry<boolean, null | undefined>;
   length: $Schema.ValidationEntry<
     number,
-    $Schema.InferValue<Content>[],
+    $Schema.InferValue<C>[],
     { length: number; currentLength: number; }
   >;
   minLength: $Schema.ValidationEntry<
     number,
-    $Schema.InferValue<Content>[],
+    $Schema.InferValue<C>[],
     { minLength: number; currentLength: number; }
   >;
   maxLength: $Schema.ValidationEntry<
     number,
-    $Schema.InferValue<Content>[],
+    $Schema.InferValue<C>[],
     { maxLength: number; currentLength: number; }
   >;
 };
 
-export type ArraySchemaMessage<Content extends $Schema.SchemaItemInterfaceProps<unknown>> =
+export type ArraySchemaMessage<C extends Content = Content> =
   $Schema.ValidationMessages<
-    ArrayValidations<Content>,
+    ArrayValidations<C>,
     typeof SCHEMA_ITEM_TYPE_ARRAY
   >;
 
-type ArrayProps<Content extends $Schema.SchemaItemInterfaceProps<unknown>> =
+type ArrayProps<C extends Content> =
   & $Schema.SchemaItemAbstractProps
-  & $Schema.Validations<ArrayValidations<Content>>
+  & $Schema.Validations<ArrayValidations<C>>
   & {
-    prop: Content;
-    parser?: $Schema.Parser<$Schema.InferValue<Content>[]>;
-    rules?: $Schema.Rule<$Schema.InferValue<Content>[]>[];
+    prop: C;
+    parser?: $Schema.Parser<$Schema.InferValue<C>[]>;
+    rules?: $Schema.Rule<$Schema.InferValue<C>[]>[];
   };
+
+const pickMessage = getPickMessageGetter(SCHEMA_ITEM_TYPE_ARRAY);
 
 export function $array<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -84,25 +88,12 @@ export function $array<
     validate: function (value, params = getEmptyInjectParams()) {
       if (this._validators == null) {
         this._validators = [];
-        const commonMsgParams = {
-          otype: SCHEMA_ITEM_TYPE_ARRAY,
-          type: "e",
-        } as const satisfies {
-          otype: string;
-          type: $Schema.AbstractMessage["type"];
-        };
 
         // required
         if (this.required != null) {
           const [required, getRequiredMessage] = getValidationArray(this.required);
           if (required) {
-            const getMessage = getRequiredMessage ?? ((p) => ({
-              ...commonMsgParams,
-              code: "required",
-              label: p.label,
-              params: p.params,
-              name: p.name,
-            }));
+            const getMessage = getRequiredMessage ?? ((p) => pickMessage("required", p));
 
             if (typeof required === "function") {
               this._validators.push((p) => {
@@ -127,13 +118,7 @@ export function $array<
         if (this.length != null) {
           const [length, getLengthMessage] = getValidationArray(this.length);
           if (length != null) {
-            const getMessage = getLengthMessage ?? ((p) => ({
-              ...commonMsgParams,
-              code: "length",
-              label: p.label,
-              params: p.params,
-              name: p.name,
-            }));
+            const getMessage = getLengthMessage ?? ((p) => pickMessage("length", p));
 
             if (typeof length === "function") {
               this._validators.push((p) => {
@@ -169,13 +154,7 @@ export function $array<
         if (this.minLength != null) {
           const [minLength, getMinLengthMessage] = getValidationArray(this.minLength);
           if (minLength != null) {
-            const getMessage = getMinLengthMessage ?? ((p) => ({
-              ...commonMsgParams,
-              code: "minLength",
-              label: p.label,
-              params: p.params,
-              name: p.name,
-            }));
+            const getMessage = getMinLengthMessage ?? ((p) => pickMessage("minLength", p));
 
             if (typeof minLength === "function") {
               this._validators.push((p) => {
@@ -211,13 +190,7 @@ export function $array<
         if (this.maxLength != null) {
           const [maxLength, getMaxLengthMessage] = getValidationArray(this.maxLength);
           if (maxLength != null) {
-            const getMessage = getMaxLengthMessage ?? ((p) => ({
-              ...commonMsgParams,
-              code: "maxLength",
-              label: p.label,
-              params: p.params,
-              name: p.name,
-            }));
+            const getMessage = getMaxLengthMessage ?? ((p) => pickMessage("maxLength", p));
 
             if (typeof maxLength === "function") {
               this._validators.push((p) => {

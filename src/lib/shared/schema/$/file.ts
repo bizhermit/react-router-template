@@ -1,5 +1,5 @@
 import { convertBase64ToFile, convertBlobToFile } from "$/shared/objects/file";
-import { getEmptyInjectParams, getSchemaItemPropsGenerator, getValidationArray } from ".";
+import { getEmptyInjectParams, getPickMessageGetter, getSchemaItemPropsGenerator, getValidationArray } from ".";
 
 export const SCHEMA_ITEM_TYPE_FILE = "file";
 
@@ -95,6 +95,8 @@ function getAcceptChecker(accept: string) {
   } as const;
 };
 
+const pickMessage = getPickMessageGetter(SCHEMA_ITEM_TYPE_FILE);
+
 export function $file<const P extends FileProps>(props: P = {} as P) {
   const fixedProps = {
     type: SCHEMA_ITEM_TYPE_FILE,
@@ -134,38 +136,24 @@ export function $file<const P extends FileProps>(props: P = {} as P) {
 
       return {
         value: undefined,
-        messages: [{
-          type: "e",
-          label: this.label,
-          actionType: this.getActionType(),
-          otype: SCHEMA_ITEM_TYPE_FILE,
-          code: "parse",
-          name: params.name,
-        }],
+        messages: [
+          pickMessage("parse", {
+            label: this.label,
+            actionType: this.getActionType(),
+            name: params.name,
+          }),
+        ],
       };
     },
     validate: function (value, params = getEmptyInjectParams()) {
       if (this._validators == null) {
         this._validators = [];
-        const commonMsgParams = {
-          otype: SCHEMA_ITEM_TYPE_FILE,
-          type: "e",
-        } as const satisfies {
-          otype: string;
-          type: $Schema.AbstractMessage["type"];
-        };
 
         // required
         if (this.required) {
           const [required, getRequiredMessage] = getValidationArray(this.required);
           if (required) {
-            const getMessage = getRequiredMessage ?? ((p) => ({
-              ...commonMsgParams,
-              code: "required",
-              label: p.label,
-              params: p.params,
-              name: p.name,
-            }));
+            const getMessage = getRequiredMessage ?? ((p) => pickMessage("required", p));
 
             if (typeof required === "function") {
               this._validators.push((p) => {
@@ -190,13 +178,7 @@ export function $file<const P extends FileProps>(props: P = {} as P) {
         if (this.accept) {
           const [accept, getAcceptMessage] = getValidationArray(this.accept);
           if (accept) {
-            const getMessage = getAcceptMessage ?? ((p) => ({
-              ...commonMsgParams,
-              code: "accept",
-              label: p.label,
-              params: p.params,
-              name: p.name,
-            }));
+            const getMessage = getAcceptMessage ?? ((p) => pickMessage("accept", p));
 
             if (typeof accept === "function") {
               this._validators.push((p) => {
@@ -238,13 +220,7 @@ export function $file<const P extends FileProps>(props: P = {} as P) {
         if (this.maxSize != null) {
           const [maxSize, getMaxSizeMessage] = getValidationArray(this.maxSize);
           if (maxSize != null) {
-            const getMessage = getMaxSizeMessage ?? ((p) => ({
-              ...commonMsgParams,
-              code: "maxSize",
-              label: p.label,
-              params: p.params,
-              name: p.name,
-            }));
+            const getMessage = getMaxSizeMessage ?? ((p) => pickMessage("maxSize", p));
 
             if (typeof maxSize === "function") {
               this._validators.push((p) => {

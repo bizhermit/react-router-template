@@ -1,7 +1,7 @@
 import { getValue } from "$/shared/objects/data";
 import { parseNumber } from "$/shared/objects/numeric";
 import { $Date } from "$/shared/objects/timestamp";
-import { getEmptyInjectParams, getSchemaItemPropsGenerator, getValidationArray, getValidationArrayAsArray } from ".";
+import { getEmptyInjectParams, getPickMessageGetter, getSchemaItemPropsGenerator, getValidationArray, getValidationArrayAsArray } from ".";
 
 export const SCHEMA_ITEM_TYPE_DATE = "date";
 
@@ -60,6 +60,8 @@ type SplitDateBaseProps = Pick<
   "required" | "minDate" | "maxDate" | "getActionType"
 >;
 
+const pickMessage = getPickMessageGetter(SCHEMA_ITEM_TYPE_DATE);
+
 function splitDate<const Base extends SplitDateBaseProps>(key: SplitDatePart, base: {
   getThis: () => Base;
   isValidMin: (params: {
@@ -77,6 +79,8 @@ function splitDate<const Base extends SplitDateBaseProps>(key: SplitDatePart, ba
       : $Schema.ValidationArray<Base["required"]>;
 
     const type = `${SCHEMA_ITEM_TYPE_DATE}-${key}` as const;
+    const pickMessage = getPickMessageGetter(type);
+
     return {
       ...splitProps,
       type,
@@ -91,37 +95,23 @@ function splitDate<const Base extends SplitDateBaseProps>(key: SplitDatePart, ba
         if (succeeded) return { value: num };
         return {
           value: num,
-          messages: [{
-            type: "e",
-            label: this.label,
-            actionType: this.getActionType(),
-            otype: type,
-            code: "parse",
-            name: params.name,
-          }],
+          messages: [
+            pickMessage("parse", {
+              label: this.label,
+              actionType: this.getActionType(),
+              name: params.name,
+            }),
+          ],
         };
       },
       validate: function (value, params = getEmptyInjectParams()) {
         if (this._validators == null) {
           this._validators = [];
-          const commonMsgParams = {
-            otype: type,
-            type: "e",
-          } as const satisfies {
-            otype: string;
-            type: $Schema.AbstractMessage["type"];
-          };
 
           // required
           const [required, getRequiredMessage] = getValidationArray(this.required, "inherit");
           if (required) {
-            const getMessage = getRequiredMessage ?? ((p) => ({
-              ...commonMsgParams,
-              code: "required",
-              label: p.label,
-              params: p.params,
-              name: p.name,
-            }));
+            const getMessage = getRequiredMessage ?? ((p) => pickMessage("required", p));
 
             if (typeof required === "function") {
               this._validators.push((p) => {
@@ -183,13 +173,7 @@ function splitDate<const Base extends SplitDateBaseProps>(key: SplitDatePart, ba
           // min
           const [min, getMinMessage] = getValidationArray(this.min, "inherit");
           if (min != null) {
-            const getMessage = getMinMessage ?? ((p) => ({
-              ...commonMsgParams,
-              code: "min",
-              label: p.label,
-              params: p.params,
-              name: p.name,
-            }));
+            const getMessage = getMinMessage ?? ((p) => pickMessage("min", p));
 
             if (typeof min === "function") {
               this._validators.push((p) => {
@@ -281,13 +265,7 @@ function splitDate<const Base extends SplitDateBaseProps>(key: SplitDatePart, ba
           // max
           const [max, getMaxMessage] = getValidationArray(this.max, "inherit");
           if (max != null) {
-            const getMessage = getMaxMessage ?? ((p) => ({
-              ...commonMsgParams,
-              code: "max",
-              label: p.label,
-              params: p.params,
-              name: p.name,
-            }));
+            const getMessage = getMaxMessage ?? ((p) => pickMessage("max", p));
 
             if (typeof max === "function") {
               this._validators.push((p) => {
@@ -415,39 +393,25 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
       } catch {
         return {
           value: null,
-          messages: [{
-            type: "e",
-            label: this.label,
-            actionType: this.getActionType(),
-            otype: SCHEMA_ITEM_TYPE_DATE,
-            code: "parse",
-            name: params.name,
-          }],
+          messages: [
+            pickMessage("parse", {
+              label: this.label,
+              actionType: this.getActionType(),
+              name: params.name,
+            }),
+          ],
         };
       }
     },
     validate: function (value, params = getEmptyInjectParams()) {
       if (this._validators == null) {
         this._validators = [];
-        const commonMsgParams = {
-          otype: SCHEMA_ITEM_TYPE_DATE,
-          type: "e",
-        } as const satisfies {
-          otype: string;
-          type: $Schema.AbstractMessage["type"];
-        };
 
         // required
         if (this.required != null) {
           const [required, getRequiredMessage] = getValidationArray(this.required);
           if (required) {
-            const getMessage = getRequiredMessage ?? ((p) => ({
-              ...commonMsgParams,
-              code: "required",
-              label: p.label,
-              params: p.params,
-              name: p.name,
-            }));
+            const getMessage = getRequiredMessage ?? ((p) => pickMessage("required", p));
 
             if (typeof required === "function") {
               this._validators.push((p) => {
@@ -472,14 +436,7 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
         if (this.minDate) {
           const [minDate, getMinDateMessage] = getValidationArray(this.minDate);
           if (minDate != null) {
-            const getMessage = getMinDateMessage ?? ((p) => ({
-              ...commonMsgParams,
-              code: "minDate",
-              label: p.label,
-              params: p.params,
-              name: p.name,
-            }));
-
+            const getMessage = getMinDateMessage ?? ((p) => pickMessage("minDate", p));
             if (typeof minDate === "function") {
               this._validators.push((p) => {
                 if (p.value == null) return null;
@@ -516,13 +473,7 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
         if (this.maxDate) {
           const [maxDate, getMaxDateMessage] = getValidationArray(this.maxDate);
           if (maxDate != null) {
-            const getMessage = getMaxDateMessage ?? ((p) => ({
-              ...commonMsgParams,
-              code: "maxDate",
-              label: p.label,
-              params: p.params,
-              name: p.name,
-            }));
+            const getMessage = getMaxDateMessage ?? ((p) => pickMessage("maxDate", p));
 
             if (typeof maxDate === "function") {
               this._validators.push((p) => {
@@ -560,13 +511,7 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
         if (this.pairs) {
           const [pairs, getPairsMessage] = getValidationArrayAsArray(this.pairs);
           if (pairs) {
-            const getMessage = getPairsMessage ?? ((p) => ({
-              ...commonMsgParams,
-              code: "pair",
-              label: p.label,
-              params: p.params,
-              name: p.name,
-            }));
+            const getMessage = getPairsMessage ?? ((p) => pickMessage("pairs", p));
 
             if (typeof pairs === "function") {
               this._validators.push((p) => {

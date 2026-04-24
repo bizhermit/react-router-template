@@ -20,6 +20,7 @@ namespace $Schema {
     type: "e" | "w" | "i";
     label: string | undefined;
     name: string | undefined;
+    actionType: ActionType | undefined;
   };
 
   type I18nMessageMap = {
@@ -39,12 +40,21 @@ namespace $Schema {
     otype?: never;
   };
 
-  type ValidationMessage<
-    Params extends Record<string, unknown> = {}
-  > = AbstractMessage & {
-    code: string;
-    otype: string;
-  } & ParamsField<Params>;
+  type ValidationMessage =
+    | import("./string").StringSchemaMessage
+    | import("./number").NumberSchemaMessage
+    | import("./enum").EnumSchemaMessage
+    | import("./boolean").BooleanSchemaMessage
+    | import("./date").DateSchemaMessage
+    | import("./date").SplitDateSchemaMessage
+    | import("./datetime").DateTimeSchemaMessage
+    | import("./datetime").SplitDateTimeSchemaMessage
+    | import("./month").MonthSchemaMessage
+    | import("./month").SplitMonthSchemaMessage
+    | import("./file").FileSchemaMessage
+    | import("./array").ArraySchemaMessage
+    | import("./object").ObjectSchemaMessage
+    ;
 
   type Message =
     | I18nMessage
@@ -101,9 +111,8 @@ namespace $Schema {
     | ValidationValue<SettingsValue>
     | [
       ValidationValue<SettingsValue>,
-      ValidationCustomMessage<ResultArgValue, UsedParams, ValidationMessage<UsedParams>>?
-    ]
-    ;
+      ValidationCustomMessage<ResultArgValue, UsedParams>?
+    ];
 
   type ValidationEntry<
     const SettingsValue = unknown,
@@ -139,6 +148,17 @@ namespace $Schema {
         otype: OType;
       } & ParamsField<Schema[K]["params"]>;
     }[keyof Schema];
+
+  type ExtractCodeFromOType<OType extends ValidationMessage["otype"]> = Extract<ValidationMessage, { otype: OType; }> extends infer M
+    ? (M extends { code: infer C extends string; } ? C : never)
+    : never;
+
+  type ExtractParamsFromOTypeAndCode<
+    OType extends Message["otype"],
+    Code extends string
+  > = Extract<ValidationMessage, { otype: OType; code: Code; }> extends infer M
+    ? (M extends { params: infer P; } ? P : {})
+    : {};
 
   type ValidationResult<T> =
     T extends string | I18nMessage | CustomMessage | undefined ? undefined :

@@ -1,7 +1,7 @@
 import { getValue } from "$/shared/objects/data";
 import { parseNumber } from "$/shared/objects/numeric";
 import { $Month } from "$/shared/objects/timestamp";
-import { getEmptyInjectParams, getSchemaItemPropsGenerator, getValidationArray, getValidationArrayAsArray } from ".";
+import { getEmptyInjectParams, getPickMessageGetter, getSchemaItemPropsGenerator, getValidationArray, getValidationArrayAsArray } from ".";
 
 export const SCHEMA_ITEM_TYPE_MONTH = "month";
 
@@ -61,6 +61,8 @@ type SplitMonthBaseProps = Pick<
   "required" | "minMonth" | "maxMonth" | "getActionType"
 >;
 
+const pickMessage = getPickMessageGetter(SCHEMA_ITEM_TYPE_MONTH);
+
 function splitMonth<const Base extends SplitMonthBaseProps>(key: SplitMonthPart, base: {
   getThis: () => Base;
   isValidMin: (params: {
@@ -78,6 +80,8 @@ function splitMonth<const Base extends SplitMonthBaseProps>(key: SplitMonthPart,
       : $Schema.ValidationArray<Base["required"]>;
 
     const type = `${SCHEMA_ITEM_TYPE_MONTH}-${key}` as const;
+    const pickMessage = getPickMessageGetter(type);
+
     return {
       ...splitProps,
       type,
@@ -92,37 +96,23 @@ function splitMonth<const Base extends SplitMonthBaseProps>(key: SplitMonthPart,
         if (succeeded) return { value: num };
         return {
           value: num,
-          messages: [{
-            type: "e",
-            label: this.label,
-            actionType: this.getActionType(),
-            otype: type,
-            code: "parse",
-            name: params.name,
-          }],
+          messages: [
+            pickMessage("parse", {
+              label: this.label,
+              actionType: this.getActionType(),
+              name: params.name,
+            }),
+          ],
         };
       },
       validate: function (value, params = getEmptyInjectParams()) {
         if (this._validators == null) {
           this._validators = [];
-          const commonMsgParams = {
-            otype: type,
-            type: "e",
-          } as const satisfies {
-            otype: string;
-            type: $Schema.AbstractMessage["type"];
-          };
 
           // required
           const [required, getRequiredMessage] = getValidationArray(this.required, "inherit");
           if (required) {
-            const getMessage = getRequiredMessage ?? ((p) => ({
-              ...commonMsgParams,
-              code: "required",
-              label: p.label,
-              params: p.params,
-              name: p.name,
-            }));
+            const getMessage = getRequiredMessage ?? ((p) => pickMessage("required", p));
 
             if (typeof required === "function") {
               this._validators.push((p) => {
@@ -184,13 +174,7 @@ function splitMonth<const Base extends SplitMonthBaseProps>(key: SplitMonthPart,
           // min
           const [min, getMinMessage] = getValidationArray(this.min, "inherit");
           if (min != null) {
-            const getMessage = getMinMessage ?? ((p) => ({
-              ...commonMsgParams,
-              code: "min",
-              label: p.label,
-              params: p.params,
-              name: p.name,
-            }));
+            const getMessage = getMinMessage ?? ((p) => pickMessage("min", p));
 
             if (typeof min === "function") {
               this._validators.push((p) => {
@@ -282,13 +266,7 @@ function splitMonth<const Base extends SplitMonthBaseProps>(key: SplitMonthPart,
           // max
           const [max, getMaxMessage] = getValidationArray(this.max, "inherit");
           if (max != null) {
-            const getMessage = getMaxMessage ?? ((p) => ({
-              ...commonMsgParams,
-              code: "max",
-              label: p.label,
-              params: p.params,
-              name: p.name,
-            }));
+            const getMessage = getMaxMessage ?? ((p) => pickMessage("max", p));
 
             if (typeof max === "function") {
               this._validators.push((p) => {
@@ -416,39 +394,25 @@ export function $month<const P extends MonthProps>(props: P = {} as P) {
       } catch {
         return {
           value: null,
-          messages: [{
-            type: "e",
-            label: this.label,
-            actionType: this.getActionType(),
-            otype: SCHEMA_ITEM_TYPE_MONTH,
-            code: "parse",
-            name: params.name,
-          }],
+          messages: [
+            pickMessage("parse", {
+              label: this.label,
+              actionType: this.getActionType(),
+              name: params.name,
+            }),
+          ],
         };
       }
     },
     validate: function (value, params = getEmptyInjectParams()) {
       if (this._validators == null) {
         this._validators = [];
-        const commonMsgParams = {
-          otype: SCHEMA_ITEM_TYPE_MONTH,
-          type: "e",
-        } as const satisfies {
-          otype: string;
-          type: $Schema.AbstractMessage["type"];
-        };
 
         // required
         if (this.required != null) {
           const [required, getRequiredMessage] = getValidationArray(this.required);
           if (required) {
-            const getMessage = getRequiredMessage ?? ((p) => ({
-              ...commonMsgParams,
-              code: "required",
-              label: p.label,
-              params: p.params,
-              name: p.name,
-            }));
+            const getMessage = getRequiredMessage ?? ((p) => pickMessage("required", p));
 
             if (typeof required === "function") {
               this._validators.push((p) => {
@@ -473,13 +437,7 @@ export function $month<const P extends MonthProps>(props: P = {} as P) {
         if (this.minMonth) {
           const [minMonth, getMinMonthMessage] = getValidationArray(this.minMonth);
           if (minMonth != null) {
-            const getMessage = getMinMonthMessage ?? ((p) => ({
-              ...commonMsgParams,
-              code: "minMonth",
-              label: p.label,
-              params: p.params,
-              name: p.name,
-            }));
+            const getMessage = getMinMonthMessage ?? ((p) => pickMessage("minMonth", p));
 
             if (typeof minMonth === "function") {
               this._validators.push((p) => {
@@ -517,13 +475,7 @@ export function $month<const P extends MonthProps>(props: P = {} as P) {
         if (this.maxMonth) {
           const [maxMonth, getMaxMonthMessage] = getValidationArray(this.maxMonth);
           if (maxMonth != null) {
-            const getMessage = getMaxMonthMessage ?? ((p) => ({
-              ...commonMsgParams,
-              code: "maxMonth",
-              label: p.label,
-              params: p.params,
-              name: p.name,
-            }));
+            const getMessage = getMaxMonthMessage ?? ((p) => pickMessage("maxMonth", p));
 
             if (typeof maxMonth === "function") {
               this._validators.push((p) => {
@@ -561,13 +513,7 @@ export function $month<const P extends MonthProps>(props: P = {} as P) {
         if (this.pairs) {
           const [pairs, getPairsMessage] = getValidationArrayAsArray(this.pairs);
           if (pairs) {
-            const getMessage = getPairsMessage ?? ((p) => ({
-              ...commonMsgParams,
-              code: "pair",
-              label: p.label,
-              params: p.params,
-              name: p.name,
-            }));
+            const getMessage = getPairsMessage ?? ((p) => pickMessage("pairs", p));
 
             if (typeof pairs === "function") {
               this._validators.push((p) => {

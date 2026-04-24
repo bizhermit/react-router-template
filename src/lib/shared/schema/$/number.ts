@@ -1,5 +1,5 @@
 import { parseNumber } from "$/shared/objects/numeric";
-import { getEmptyInjectParams, getSchemaItemPropsGenerator, getValidationArray } from ".";
+import { getEmptyInjectParams, getPickMessageGetter, getSchemaItemPropsGenerator, getValidationArray } from ".";
 
 export const SCHEMA_ITEM_TYPE_NUMBER = "num";
 
@@ -28,6 +28,8 @@ export function getFloatPosition(value: number) {
   return n?.length ?? 0;
 };
 
+const pickMessage = getPickMessageGetter(SCHEMA_ITEM_TYPE_NUMBER);
+
 export function $num<const P extends NumberProps>(props: P = {} as P) {
   const fixedProps = {
     type: SCHEMA_ITEM_TYPE_NUMBER,
@@ -41,38 +43,24 @@ export function $num<const P extends NumberProps>(props: P = {} as P) {
       if (succeeded) return { value: num };
       return {
         value: num,
-        messages: [{
-          type: "e",
-          label: this.label,
-          actionType: this.getActionType(),
-          otype: SCHEMA_ITEM_TYPE_NUMBER,
-          code: "parse",
-          name: params.name,
-        }],
+        messages: [
+          pickMessage("parse", {
+            label: this.label,
+            actionType: this.getActionType(),
+            name: params.name,
+          }),
+        ],
       };
     },
     validate: function (value, params = getEmptyInjectParams()) {
       if (this._validators == null) {
         this._validators = [];
-        const commonMsgParams = {
-          otype: SCHEMA_ITEM_TYPE_NUMBER,
-          type: "e",
-        } as const satisfies {
-          otype: string;
-          type: $Schema.AbstractMessage["type"];
-        };
 
         // required
         if (this.required != null) {
           const [required, getRequiredMessage] = getValidationArray(this.required);
           if (required) {
-            const getMessage = getRequiredMessage ?? ((p) => ({
-              ...commonMsgParams,
-              code: "required",
-              label: p.label,
-              params: p.params,
-              name: p.name,
-            }));
+            const getMessage = getRequiredMessage ?? ((p) => pickMessage("required", p));
 
             if (typeof required === "function") {
               this._validators.push((p) => {
@@ -97,13 +85,7 @@ export function $num<const P extends NumberProps>(props: P = {} as P) {
         if (this.min != null) {
           const [min, getMinMessage] = getValidationArray(this.min);
           if (min != null) {
-            const getMessage = getMinMessage ?? ((p) => ({
-              ...commonMsgParams,
-              code: "min",
-              label: p.label,
-              params: p.params,
-              name: p.name,
-            }));
+            const getMessage = getMinMessage ?? ((p) => pickMessage("min", p));
 
             if (typeof min === "function") {
               this._validators.push((p) => {
@@ -136,13 +118,7 @@ export function $num<const P extends NumberProps>(props: P = {} as P) {
         if (this.max != null) {
           const [max, getMaxMessage] = getValidationArray(this.max);
           if (max != null) {
-            const getMessage = getMaxMessage ?? ((p) => ({
-              ...commonMsgParams,
-              code: "max",
-              label: p.label,
-              params: p.params,
-              name: p.name,
-            }));
+            const getMessage = getMaxMessage ?? ((p) => pickMessage("max", p));
 
             if (typeof max === "function") {
               this._validators.push((p) => {
@@ -175,13 +151,7 @@ export function $num<const P extends NumberProps>(props: P = {} as P) {
         if (this.float != null) {
           const [float, getFloatMessage] = getValidationArray(this.float);
           if (float != null) {
-            const getMessage = getFloatMessage ?? ((p) => ({
-              ...commonMsgParams,
-              code: "float",
-              label: p.label,
-              params: p.params,
-              name: p.name,
-            }));
+            const getMessage = getFloatMessage ?? ((p) => pickMessage("float", p));
 
             if (typeof float === "function") {
               this._validators.push((p) => {

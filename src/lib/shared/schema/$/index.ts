@@ -36,6 +36,7 @@ export function optimizeValidationMessage<
         label: params.label,
         message: m,
         name: params.name,
+        actionType: params.actionType,
       } as const satisfies $Schema.Message;
     }) as U;
   }
@@ -49,6 +50,7 @@ export function optimizeValidationMessage<
           label: params.label,
           message: ret,
           name: params.name,
+          actionType: params.actionType,
         } as const satisfies $Schema.Message;
       }
       return ret;
@@ -85,6 +87,27 @@ export function getValidationArrayAsArray<
     return [validation] as U;
   }
   throw new Error(`validation value is not array type`);
+};
+
+export function getPickMessageGetter<const OType extends $Schema.ValidationMessage["otype"]>(otype: OType) {
+  return function pickMessage<
+    const Code extends $Schema.ExtractCodeFromOType<OType>,
+    const Params extends Pick<$Schema.ValidationResultArgParams<unknown, $Schema.ExtractParamsFromOTypeAndCode<OType, Code>>, "actionType" | "name" | "label" | "params">
+  >(code: Code, params: Params) {
+    return {
+      type: "e",
+      code,
+      otype,
+      actionType: params.actionType,
+      label: params.label,
+      name: params.name,
+      params: params.params as Params["params"],
+    } as const satisfies $Schema.AbstractMessage & {
+      code: Code;
+      otype: OType;
+      params: Params["params"];
+    };
+  };
 };
 
 export function getEmptyInjectParams() {

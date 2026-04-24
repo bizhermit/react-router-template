@@ -1,4 +1,4 @@
-import { getEmptyInjectParams, getSchemaItemPropsGenerator, getValidationArray } from ".";
+import { getEmptyInjectParams, getPickMessageGetter, getSchemaItemPropsGenerator, getValidationArray } from ".";
 
 export const SCHEMA_ITEM_TYPE_OBJECT = "obj";
 
@@ -27,6 +27,8 @@ type ObjectProps<Contents extends Record<string, $Schema.SchemaItemInterfaceProp
 
 type Struct = Record<string, unknown>;
 
+const pickMessage = getPickMessageGetter(SCHEMA_ITEM_TYPE_OBJECT);
+
 export function $object<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const Contents extends Record<string, $Schema.SchemaItemInterfaceProps<any>>,
@@ -51,6 +53,7 @@ export function $object<
         if (parsed.messages) messages.push(...parsed.messages);
       } else {
         if (value != null && value !== "") {
+          // TODO:
           structValue = value as Struct;
         }
       }
@@ -68,6 +71,7 @@ export function $object<
               label: this.label,
               message: `remove not accept value: ${name}`,
               name,
+              actionType: this.getActionType(),
             });
             delete (structValue as Struct)[key];
             return;
@@ -86,25 +90,12 @@ export function $object<
     validate: function (value, params = getEmptyInjectParams()) {
       if (this._validators == null) {
         this._validators = [];
-        const commonMsgParams = {
-          otype: SCHEMA_ITEM_TYPE_OBJECT,
-          type: "e",
-        } as const satisfies {
-          otype: string;
-          type: $Schema.AbstractMessage["type"];
-        };
 
         // required
         if (this.required != null) {
           const [required, getRequiredMessage] = getValidationArray(this.required);
           if (required) {
-            const getMessage = getRequiredMessage ?? ((p) => ({
-              ...commonMsgParams,
-              code: "required",
-              label: p.label,
-              params: p.params,
-              name: p.name,
-            }));
+            const getMessage = getRequiredMessage ?? ((p) => pickMessage("required", p));
 
             if (typeof required === "function") {
               this._validators.push((p) => {
