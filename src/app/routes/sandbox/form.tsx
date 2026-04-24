@@ -1,4 +1,5 @@
 import { Button } from "$/components/elements/button/button";
+import { useSchema } from "$/shared/hooks/$schema";
 import { useRender } from "$/shared/hooks/render";
 import { $Date, $DateTime } from "$/shared/objects/timestamp";
 import { parseWithSchema } from "$/shared/schema/$";
@@ -35,119 +36,6 @@ type _Birth = $Schema.Infer<typeof birth>;
 type __BirthYear = typeof birth_year;
 type _BirthYear = $Schema.Infer<typeof birth_year, true>;
 
-// const schemaObject = $object({
-//   props: {
-//     name: $str({
-//       // label: "名前",
-//       // // required: false,
-//       // // required: [false, "optional"],
-//       // // required: true,
-//       // // required: [true],
-//       // required: [true, "required"],
-//       // // required: () => true,
-//       // // required: [() => true],
-//       // maxLength: 10,
-//       label: "名前",
-//       // required: [true, "input required"],
-//       required: [true, () => "input required"],
-//       maxLength: 10,
-//     }).overwrite({
-//       // required: false,
-//       minLength: 8,
-//       maxLength: 16,
-//     }).overwrite({
-//       // required: false,
-//       required: true,
-//       length: [10, ({ value, params: { currentLength, length } }) => {
-//         return null;
-//       }],
-//       // length: 16,
-//       // minLength: null,
-//       // maxLength: null,
-//     }),
-//     age: $num({
-//       required: true,
-//     }),
-//     // mailaddr: $str({
-//     //   pattern: "email",
-//     // }),
-//     image: $file({
-
-//     }),
-//     birth: $date({
-//       required: true,
-//     }),
-//     year: birth.getSplitYear({
-//       // required: true,
-//       // required: "inherit",
-//       // required: false,
-//     }),
-//     // regDate: $datetime({
-//     //   required: true,
-//     // }),
-//     // month: $month(),
-//     // flag: $bool(),
-//     // bitFlag: $bool({
-//     //   trueValue: 1,
-//     //   falseValue: 0,
-//     // }),
-//     // codeFlag: $bool({
-//     //   trueValue: "on",
-//     //   falseValue: "off",
-//     //   // required: true,
-//     // }).overwrite({
-//     //   // required: false,
-//     //   required: "nonFalse",
-//     //   // trueValue: "ononon",
-//     // }),
-//     agreement: $bool({
-//       required: "nonFalse",
-//     }).overwrite({
-//       // required: false,
-//     }),
-//     roles: $array({
-//       prop: $str({
-//         required: true,
-//       }),
-//       required: true,
-//     }),
-//     // obj: $object({
-//     //   props: {
-//     //     item1: $str(),
-//     //     item2: $num({ required: true }),
-//     //     item3: $bool(),
-//     //   },
-//     // }).overwrite({
-//     //   required: true,
-//     // }),
-//     objs: $array({
-//       prop: $object({
-//         props: {
-//           item1: $str({ required: true }),
-//           item2: $num(),
-//           item3: $bool(),
-//         },
-//         // required: true,
-//       }),
-//     }).overwrite({
-//       required: true,
-//     }),
-//     selectStr: $enum({
-//       items: [
-//         { value: "item1" },
-//         { value: "item2" },
-//         { value: "item3" },
-//       ],
-//       required: true,
-//     }),
-//     selectNum: $enum({
-//       items: items,
-//     }).overwrite({
-//       required: true,
-//     }),
-//   },
-// });
-
 const str = $str({
   // required: true,
 });
@@ -183,6 +71,18 @@ const year = date.getSplitYear({
   // required: "inherit",
 });
 
+const enum1 = $enum({
+  items: [
+    { value: "item1" },
+    { value: "item2" },
+    { value: "item3" },
+  ],
+  required: true,
+});
+const enum2 = $enum({
+  items,
+});
+
 const schemaObj = $obj({
   props: {
     str: str,
@@ -204,14 +104,8 @@ const schemaObj = $obj({
       }),
       required: true,
     }),
-    enum: $enum({
-      items: [
-        { value: "item1" },
-        { value: "item2" },
-        { value: "item3" },
-      ],
-      required: true,
-    }),
+    enum: enum1,
+    enum2: enum2,
   },
 }).overwrite({
   required: true,
@@ -229,6 +123,8 @@ type _Bool2 = $Schema.Infer<typeof bool2, true>;
 type _Obj = $Schema.Infer<typeof schemaObj, true>;
 type _Date = $Schema.Infer<typeof date, true>;
 type _Year = $Schema.Infer<typeof year, true>;
+type _Enum = $Schema.Infer<typeof enum1, true>;
+type _Enum2 = $Schema.Infer<typeof enum2, true>;
 
 // type _Hoge = $Schema.Infer<typeof schemaObject>;
 // type _Fuga = $Schema.Infer<typeof schemaObject, true>;
@@ -278,9 +174,9 @@ export default function Page() {
   const [value, setValue] = useState<$DateTime>(() => new $DateTime());
   const render = useRender();
 
-  // const schema = useSchema({
-  //   schema: schemaObject,
-  // });
+  const schema = useSchema({
+    schema: schemaObj,
+  });
 
   return (
     <div>
@@ -342,9 +238,9 @@ export default function Page() {
           validate
         </Button>
       </div>
-      {/* <schema.SchemaProvider>
+      <schema.SchemaProvider>
         <SchemaContent />
-      </schema.SchemaProvider> */}
+      </schema.SchemaProvider>
       <div className="flex flex-row flex-wrap gap-2">
         <Button
           onClick={() => {

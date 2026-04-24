@@ -41,7 +41,9 @@ type EnumProps<Value> = $Schema.SchemaItemAbstractProps
 
 const pickMessage = getPickMessageGetter(SCHEMA_ITEM_TYPE_ENUM);
 
-type InferItems<P> = P extends { items: infer T extends $Schema.SourceItem<any>[]; } ? RemoveEnumArrayNoise<T> : never;
+type InferItems<P> = P extends { readonly items: infer T extends readonly $Schema.SourceItem<any>[]; }
+  ? RemoveEnumArrayNoise<T>
+  : never;
 
 export function $enum<
   const Value,
