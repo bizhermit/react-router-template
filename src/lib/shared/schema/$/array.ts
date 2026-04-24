@@ -2,30 +2,39 @@ import { getEmptyInjectParams, getSchemaItemPropsGenerator, getValidationArray }
 
 export const SCHEMA_ITEM_TYPE_ARRAY = "arr";
 
-type ArrayOptions<Content extends $Schema.SchemaItemInterfaceProps<unknown>> = {
-  prop: Content;
-  parser?: $Schema.Parser<$Schema.InferValue<Content>[]>;
-  required?: $Schema.Validation<boolean, null | undefined>;
-  length?: $Schema.Validation<
+type ArrayValidations<Content extends $Schema.SchemaItemInterfaceProps<unknown>> = {
+  required: $Schema.ValidationSchemaEntry<boolean, null | undefined>;
+  length: $Schema.ValidationSchemaEntry<
     number,
     $Schema.InferValue<Content>[],
     { length: number; currentLength: number; }
   >;
-  minLength?: $Schema.Validation<
+  minLength: $Schema.ValidationSchemaEntry<
     number,
     $Schema.InferValue<Content>[],
     { minLength: number; currentLength: number; }
   >;
-  maxLength?: $Schema.Validation<
+  maxLength: $Schema.ValidationSchemaEntry<
     number,
     $Schema.InferValue<Content>[],
     { maxLength: number; currentLength: number; }
   >;
-  rules?: $Schema.Rule<$Schema.InferValue<Content>[]>[];
 };
 
+export type ArraySchemaMessage<Content extends $Schema.SchemaItemInterfaceProps<unknown>> =
+  $Schema.ValidationMessageFromSchema<
+    ArrayValidations<Content>,
+    typeof SCHEMA_ITEM_TYPE_ARRAY
+  >;
+
 type ArrayProps<Content extends $Schema.SchemaItemInterfaceProps<unknown>> =
-  $Schema.SchemaItemAbstractProps & ArrayOptions<Content>;
+  & $Schema.SchemaItemAbstractProps
+  & $Schema.ValidationOptionsFromSchema<ArrayValidations<Content>>
+  & {
+    prop: Content;
+    parser?: $Schema.Parser<$Schema.InferValue<Content>[]>;
+    rules?: $Schema.Rule<$Schema.InferValue<Content>[]>[];
+  };
 
 export function $array<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -4,30 +4,29 @@ export const SCHEMA_ITEM_TYPE_BOOLEAN = "bool";
 
 type BooleanValue = boolean | number | string;
 
-export type BooleanValidationMessage = $Schema.AbstractMessage & {
-  otype: typeof SCHEMA_ITEM_TYPE_BOOLEAN;
-} & (
-    | { code: "parse"; }
-    | { code: "required"; }
-  );
-
-type BooleanOptions<
-  TrueValue extends BooleanValue,
-  FalseValue extends BooleanValue
-> = {
-  trueValue?: TrueValue;
-  falseValue?: FalseValue;
-  parser?: $Schema.Parser<TrueValue | FalseValue>;
-  required?: $Schema.Validation<boolean | "nonFalse", $Schema.Nullable<FalseValue>>;
-  rules?: $Schema.Rule<TrueValue | FalseValue>[];
-  trueText?: string;
-  falseText?: string;
+type BooleanValidations<FalseValue extends BooleanValue> = {
+  required: $Schema.ValidationSchemaEntry<boolean | "nonFalse", $Schema.Nullable<FalseValue>>;
 };
+
+export type BooleanSchemaMessage<FalseValue extends BooleanValue = BooleanValue> =
+  $Schema.ValidationMessageFromSchema<
+    BooleanValidations<FalseValue>,
+    typeof SCHEMA_ITEM_TYPE_BOOLEAN
+  >;
 
 type BooleanProps<
   TrueValue extends BooleanValue,
   FalseValue extends BooleanValue
-> = $Schema.SchemaItemAbstractProps & BooleanOptions<TrueValue, FalseValue>;
+> = $Schema.SchemaItemAbstractProps
+  & $Schema.ValidationOptionsFromSchema<BooleanValidations<FalseValue>>
+  & {
+    trueValue?: TrueValue;
+    falseValue?: FalseValue;
+    parser?: $Schema.Parser<TrueValue | FalseValue>;
+    rules?: $Schema.Rule<TrueValue | FalseValue>[];
+    trueText?: string;
+    falseText?: string;
+  };
 
 export function $bool<
   const TrueValue extends BooleanValue,

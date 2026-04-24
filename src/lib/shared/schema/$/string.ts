@@ -3,6 +3,10 @@ import { getEmptyInjectParams, getSchemaItemPropsGenerator, getValidationArray }
 
 export const SCHEMA_ITEM_TYPE_STRING = "str";
 
+function isEmpty(value: $Schema.Nullable<string>): value is (null | undefined) {
+  return value == null || value === "";
+};
+
 function isIpv4Address(str: string | null | undefined) {
   if (str == null) return false;
   const s = str.split(".");
@@ -131,21 +135,25 @@ const STR_PATTERN_TEST = {
 
 type StrPattern = keyof typeof STR_PATTERN_TEST;
 
-type StringOptions = {
-  parser?: $Schema.Parser<string>;
-  required?: $Schema.Validation<boolean, null | undefined>;
-  length?: $Schema.Validation<number, string, { length: number; currentLength: number; }>;
-  minLength?: $Schema.Validation<number, string, { minLength: number; currentLength: number; }>;
-  maxLength?: $Schema.Validation<number, string, { maxLength: number; currentLength: number; }>;
-  pattern?: $Schema.Validation<StrPattern, string, { pattern: StrPattern; }>;
-  rules?: $Schema.Rule<string>[];
+type StringValidations = {
+  required: $Schema.ValidationSchemaEntry<boolean, null | undefined>;
+  length: $Schema.ValidationSchemaEntry<number, string, { length: number; currentLength: number; }>;
+  minLength: $Schema.ValidationSchemaEntry<number, string, { minLength: number; currentLength: number; }>;
+  maxLength: $Schema.ValidationSchemaEntry<number, string, { maxLength: number; currentLength: number; }>;
+  pattern: $Schema.ValidationSchemaEntry<StrPattern, string, { pattern: StrPattern; }>;
 };
 
-type StringProps = $Schema.SchemaItemAbstractProps & StringOptions;
+export type StringSchemaMessage = $Schema.ValidationMessageFromSchema<
+  StringValidations,
+  typeof SCHEMA_ITEM_TYPE_STRING
+>;
 
-function isEmpty(value: $Schema.Nullable<string>): value is (null | undefined) {
-  return value == null || value === "";
-};
+type StringProps = $Schema.SchemaItemAbstractProps
+  & $Schema.ValidationOptionsFromSchema<StringValidations>
+  & {
+    parser?: $Schema.Parser<string>;
+    rules?: $Schema.Rule<string>[];
+  };
 
 export function $str<const P extends StringProps>(props: P = {} as P) {
   const fixedProps = {

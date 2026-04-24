@@ -11,47 +11,50 @@ type MonthPair = {
   disallowSame?: boolean;
 };
 
-type MonthValidation_MinMonthParams = { minMonth: $Month; };
-type MonthValidation_MaxMonthParams = { maxMonth: $Month; };
-type MonthValidation_PairParams = Omit<Required<MonthPair>, "name"> & { pairName: string; pairMonth: $Month; };
-
-type MonthValidationAbstractMessage = $Schema.AbstractMessage & {
-  otype: typeof SCHEMA_ITEM_TYPE_MONTH;
-};
-export type MonthValidationMessage = MonthValidationAbstractMessage & (
-  | { code: "parse"; }
-  | { code: "required"; }
-  | ({ code: "minMonth"; } & MonthValidation_MinMonthParams)
-  | ({ code: "maxMonth"; } & MonthValidation_MaxMonthParams)
-  | ({ code: "pair"; } & MonthValidation_PairParams)
-);
-
-type MonthOptions = {
-  parser?: $Schema.Parser<$Month>;
-  required?: $Schema.Validation<boolean, null | undefined>;
-  minMonth?: $Schema.Validation<$Month, $Month, { minMonth: $Month; }>;
-  maxMonth?: $Schema.Validation<$Month, $Month, { maxMonth: $Month; }>;
-  pairs?: $Schema.Validation<
+type MonthValidations = {
+  required: $Schema.ValidationSchemaEntry<boolean, null | undefined>;
+  minMonth: $Schema.ValidationSchemaEntry<$Month, $Month, { minMonth: $Month; }>;
+  maxMonth: $Schema.ValidationSchemaEntry<$Month, $Month, { maxMonth: $Month; }>;
+  pairs: $Schema.ValidationSchemaEntry<
     MonthPair | MonthPair[],
     $Month,
     Omit<Required<MonthPair>, "name"> & { pairName: string; pairMonth: $Month; }
   >;
-  rules?: $Schema.Rule<$Month>[];
 };
 
-type MonthProps = $Schema.SchemaItemAbstractProps & MonthOptions;
+export type MonthSchemaMessage = $Schema.ValidationMessageFromSchema<
+  MonthValidations,
+  typeof SCHEMA_ITEM_TYPE_MONTH
+>;
+
+type MonthProps = $Schema.SchemaItemAbstractProps
+  & $Schema.ValidationOptionsFromSchema<MonthValidations>
+  & {
+    parser?: $Schema.Parser<$Month>;
+    rules?: $Schema.Rule<$Month>[];
+  };
+
+export type MonthValidationMessage = MonthSchemaMessage;
 
 export type SplitMonthPart = "Y" | "M";
 
-type SplitMonthOptions = {
-  parser?: $Schema.Parser<number>;
-  required?: $Schema.Validation<boolean | "inherit", null | undefined>;
-  min?: $Schema.Validation<number | "inherit", number, { min: number; }>;
-  max?: $Schema.Validation<number | "inherit", number, { max: number; }>;
-  rules?: $Schema.Rule<number>[];
+type SplitMonthValidations = {
+  required: $Schema.ValidationSchemaEntry<boolean | "inherit", null | undefined>;
+  min: $Schema.ValidationSchemaEntry<number | "inherit", number, { min: number; }>;
+  max: $Schema.ValidationSchemaEntry<number | "inherit", number, { max: number; }>;
 };
 
-type SplitMonthProps = $Schema.SchemaItemAbstractProps & SplitMonthOptions;
+export type SplitMonthSchemaMessage = $Schema.ValidationMessageFromSchema<
+  SplitMonthValidations,
+  `${typeof SCHEMA_ITEM_TYPE_MONTH}-${SplitMonthPart}`
+>;
+
+type SplitMonthProps = $Schema.SchemaItemAbstractProps
+  & $Schema.ValidationOptionsFromSchema<SplitMonthValidations>
+  & {
+    parser?: $Schema.Parser<number>;
+    rules?: $Schema.Rule<number>[];
+  };
 
 type SplitMonthBaseProps = Pick<
   MonthProps & $Schema.SchemaItemInterfaceProps<$Month>,

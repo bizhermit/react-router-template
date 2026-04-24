@@ -105,6 +105,41 @@ namespace $Schema {
     ]
     ;
 
+  type ValidationSchemaEntry<
+    const SettingsValue = unknown,
+    const ResultArgValue = unknown,
+    const Params extends Record<string, unknown> = {}
+  > = {
+    settings: SettingsValue;
+    result: ResultArgValue;
+    params: Params;
+  };
+
+  type ValidationSchema = Record<string, ValidationSchemaEntry>;
+
+  type ValidationOptionsFromSchema<
+    Schema extends ValidationSchema
+  > = { [K in keyof Schema]?: Validation<Schema[K]["settings"], Schema[K]["result"], Schema[K]["params"]>; };
+
+  type ValidationMessageFromSchema<
+    Schema extends ValidationSchema,
+    OType extends string,
+    Extra extends Record<string, unknown> = never
+  > =
+    | (AbstractMessage & {
+      code: "parse";
+      otype: OType;
+    })
+    | (AbstractMessage & {
+      otype: OType;
+    } & Extra)
+    | {
+      [K in keyof Schema]: AbstractMessage & {
+        code: K;
+        otype: OType;
+      } & ParamsField<Schema[K]["params"]>;
+    }[keyof Schema];
+
   type ValidationResult<T> =
     T extends string | I18nMessage | CustomMessage | undefined ? undefined :
     (p: Parameters<T>[0]) => (Exclude<ReturnType<T>, string | I18nMessage | CustomMessage> | null)
@@ -170,8 +205,8 @@ namespace $Schema {
       T extends "datetime" ? InferRequired<R> extends true ? (Strict extends true ? $DateTime : Nullable<$DateTime>) : Nullable<$DateTime> :
       T extends `datetime-${import("./datetime").SplitDateTimePart}` ? InferRequired<R> extends true ? (Strict extends true ? number : Nullable<number>) : Nullable<number> :
       T extends "file" ? InferRequired<R> extends true ? (Strict extends true ? File | string : Nullable<File | string>) : Nullable<File | string> :
-      T extends "arr" ? P extends { prop: infer Prop; } ? (InferRequired<R> extends true ? (Strict extends true ? InferValue<Prop>[] : Nullable<InferValue<Prop>[]>) : Nullable<InferValue<Prop>[]>) : never :
-      T extends "obj" ? (InferRequired<R> extends true ? (Strict extends true ? Infer<P> : Nullable<Infer<P>>) : Nullable<Infer<P>>) :
+      T extends "arr" ? P extends { prop: infer Prop; } ? (InferRequired<R> extends true ? (Strict extends true ? InferValue<Prop, Strict>[] : Nullable<InferValue<Prop, Strict>[]>) : Nullable<InferValue<Prop, Strict>[]>) : never :
+      T extends "obj" ? (InferRequired<R> extends true ? (Strict extends true ? Infer<P, Strict> : Nullable<Infer<P, Strict>>) : Nullable<Infer<P, Strict>>) :
       never
     ) : never;
 

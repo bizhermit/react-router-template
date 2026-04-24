@@ -3,16 +3,25 @@ import { getEmptyInjectParams, getSchemaItemPropsGenerator, getValidationArray }
 
 export const SCHEMA_ITEM_TYPE_NUMBER = "num";
 
-type NumberOptions = {
-  parser?: $Schema.Parser<number>;
-  required?: $Schema.Validation<boolean, null | undefined>;
-  min?: $Schema.Validation<number, number, { min: number; }>;
-  max?: $Schema.Validation<number, number, { max: number; }>;
-  float?: $Schema.Validation<number, number, { float: number; currentFloat: number; }>;
-  rules?: $Schema.Rule<number>[];
+type NumberValidations = {
+  required: $Schema.ValidationSchemaEntry<boolean, null | undefined>;
+  min: $Schema.ValidationSchemaEntry<number, number, { min: number; }>;
+  max: $Schema.ValidationSchemaEntry<number, number, { max: number; }>;
+  float: $Schema.ValidationSchemaEntry<number, number, { float: number; currentFloat: number; }>;
 };
 
-type NumberProps = $Schema.SchemaItemAbstractProps & NumberOptions;
+export type NumberSchemaMessage = $Schema.ValidationMessageFromSchema<
+  NumberValidations,
+  typeof SCHEMA_ITEM_TYPE_NUMBER
+>;
+
+type NumberProps = $Schema.SchemaItemAbstractProps
+  & $Schema.ValidationOptionsFromSchema<NumberValidations>
+  & {
+    parser?: $Schema.Parser<number>;
+    rules?: $Schema.Rule<number>[];
+  };
+;
 
 export function getFloatPosition(value: number) {
   const [_, n] = String(value).split(".");

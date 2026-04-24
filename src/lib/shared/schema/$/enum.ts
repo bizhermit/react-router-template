@@ -1,46 +1,51 @@
 import { getEmptyInjectParams, getSchemaItemPropsGenerator, getValidationArray, optimizeValidationMessage } from ".";
 
-export const SCHEMA_ITEM_TYPE_SOURCE = "src";
+export const SCHEMA_ITEM_TYPE_ENUM = "src";
 
-type SourceValidationAbstractMessage = $Schema.AbstractMessage & {
-  otype: typeof SCHEMA_ITEM_TYPE_SOURCE;
-};
-export type SourceValidationMessage = SourceValidationAbstractMessage & (
-  | { code: "parse"; }
-  | { code: "required"; }
-  | { code: "notFound"; }
-);
-
-type SourceArrayNoise =
+type EnumArrayNoise =
   | $Schema.SourceItem<unknown>[]
   | readonly $Schema.SourceItem<unknown>[];
 
-type RemoveSourceArrayNoise<T> = T extends infer U & SourceArrayNoise
+type RemoveEnumArrayNoise<T> = T extends infer U & EnumArrayNoise
   ? Extract<U, readonly unknown[]>
   : T;
 
-type SourceOptions<Value> = {
-  parser?: $Schema.Parser<Value>;
-  items: $Schema.SourceItem<Value>[] | readonly $Schema.SourceItem<Value>[];
-  required?: $Schema.Validation<boolean, null | undefined>;
-  notFoundMessage?: $Schema.ValidationCustomMessage<
-    unknown,
-    { items: $Schema.SourceItem<Value>[] | readonly $Schema.SourceItem<Value>[]; },
-    $Schema.Message
-  >;
-  rules?: $Schema.Rule<Value>[];
+type EnumValidations = {
+  required: $Schema.ValidationSchemaEntry<boolean, null | undefined>;
 };
 
-type SourceProps<Value> = $Schema.SchemaItemAbstractProps & SourceOptions<Value>;
+export type EnumSchemaMessage = $Schema.ValidationMessageFromSchema<
+  EnumValidations,
+  typeof SCHEMA_ITEM_TYPE_ENUM,
+  {
+    code: "notFound";
+    params: {
+      items: $Schema.SourceItem<unknown>[] | readonly $Schema.SourceItem<unknown>[];
+    };
+  }
+>;
+
+type EnumProps<Value> = $Schema.SchemaItemAbstractProps
+  & $Schema.ValidationOptionsFromSchema<EnumValidations>
+  & {
+    parser?: $Schema.Parser<Value>;
+    items: $Schema.SourceItem<Value>[] | readonly $Schema.SourceItem<Value>[];
+    notFoundMessage?: $Schema.ValidationCustomMessage<
+      unknown,
+      { items: $Schema.SourceItem<Value>[] | readonly $Schema.SourceItem<Value>[]; },
+      $Schema.Message
+    >;
+    rules?: $Schema.Rule<Value>[];
+  };
 
 export function $enum<
   const Value,
-  const P extends SourceProps<Value>
+  const P extends EnumProps<Value>
 >(props: P) {
-  type Items = RemoveSourceArrayNoise<P["items"]>;
+  type Items = RemoveEnumArrayNoise<P["items"]>;
 
   const fixedProps = {
-    type: SCHEMA_ITEM_TYPE_SOURCE,
+    type: SCHEMA_ITEM_TYPE_ENUM,
     items: props.items as Items,
     _validators: null,
     getActionType: function () {
@@ -63,7 +68,7 @@ export function $enum<
           type: "e",
           label: this.label,
           actionType: this.getActionType(),
-          otype: SCHEMA_ITEM_TYPE_SOURCE,
+          otype: SCHEMA_ITEM_TYPE_ENUM,
           code: "parse",
           name: params.name,
         }],
@@ -73,7 +78,7 @@ export function $enum<
       if (this._validators == null) {
         this._validators = [];
         const commonMsgParams = {
-          otype: SCHEMA_ITEM_TYPE_SOURCE,
+          otype: SCHEMA_ITEM_TYPE_ENUM,
           type: "e",
         } as const satisfies {
           otype: string;
@@ -151,10 +156,10 @@ export function $enum<
       }
       return [];
     },
-  } as const satisfies Omit<SourceProps<Value>, "items"> & $Schema.SchemaItemInterfaceProps<Value> & {
+  } as const satisfies Omit<EnumProps<Value>, "items"> & $Schema.SchemaItemInterfaceProps<Value> & {
     items: Items;
     find: (value: unknown) => $Schema.SourceItem<Value> | undefined;
   };
 
-  return getSchemaItemPropsGenerator<typeof fixedProps, SourceProps<Value>, P>(fixedProps, props)({});
+  return getSchemaItemPropsGenerator<typeof fixedProps, EnumProps<Value>, P>(fixedProps, props)({});
 };

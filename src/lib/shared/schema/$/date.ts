@@ -12,32 +12,48 @@ type DatePair = {
   basis?: "date" | "month";
 };
 
-type DateOptions = {
-  parser?: $Schema.Parser<$Date>;
-  required?: $Schema.Validation<boolean, null | undefined>;
-  minDate?: $Schema.Validation<$Date, $Date, { minDate: $Date; }>;
-  maxDate?: $Schema.Validation<$Date, $Date, { maxDate: $Date; }>;
-  pairs?: $Schema.Validation<
+type DateValidations = {
+  required: $Schema.ValidationSchemaEntry<boolean, null | undefined>;
+  minDate: $Schema.ValidationSchemaEntry<$Date, $Date, { minDate: $Date; }>;
+  maxDate: $Schema.ValidationSchemaEntry<$Date, $Date, { maxDate: $Date; }>;
+  pairs: $Schema.ValidationSchemaEntry<
     DatePair | DatePair[],
     $Date,
     Omit<Required<DatePair>, "name"> & { pairName: string; pairDate: $Date; }
   >;
-  rules?: $Schema.Rule<$Date>[];
 };
 
-type DateProps = $Schema.SchemaItemAbstractProps & DateOptions;
+export type DateSchemaMessage = $Schema.ValidationMessageFromSchema<
+  DateValidations,
+  typeof SCHEMA_ITEM_TYPE_DATE
+>;
+
+type DateProps = $Schema.SchemaItemAbstractProps
+  & $Schema.ValidationOptionsFromSchema<DateValidations>
+  & {
+    parser?: $Schema.Parser<$Date>;
+    rules?: $Schema.Rule<$Date>[];
+  };
 
 export type SplitDatePart = "Y" | "M" | "D";
 
-type SplitDateOptions = {
-  parser?: $Schema.Parser<number>;
-  required?: $Schema.Validation<boolean | "inherit", null | undefined>;
-  min?: $Schema.Validation<number | "inherit", number, { min: number; }>;
-  max?: $Schema.Validation<number | "inherit", number, { max: number; }>;
-  rules?: $Schema.Rule<number>[];
+type SplitDateValidations = {
+  required: $Schema.ValidationSchemaEntry<boolean | "inherit", null | undefined>;
+  min: $Schema.ValidationSchemaEntry<number | "inherit", number, { min: number; }>;
+  max: $Schema.ValidationSchemaEntry<number | "inherit", number, { max: number; }>;
 };
 
-type SplitDateProps = $Schema.SchemaItemAbstractProps & SplitDateOptions;
+export type SplitDateSchemaMessage = $Schema.ValidationMessageFromSchema<
+  SplitDateValidations,
+  `${typeof SCHEMA_ITEM_TYPE_DATE}-${SplitDatePart}`
+>;
+
+type SplitDateProps = $Schema.SchemaItemAbstractProps
+  & $Schema.ValidationOptionsFromSchema<SplitDateValidations>
+  & {
+    parser?: $Schema.Parser<number>;
+    rules?: $Schema.Rule<number>[];
+  };
 
 type SplitDateBaseProps = Pick<
   DateProps & $Schema.SchemaItemInterfaceProps<$Date>,

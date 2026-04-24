@@ -5,28 +5,27 @@ export const SCHEMA_ITEM_TYPE_FILE = "file";
 
 type FileValue = File | string;
 
-type FileValidation_Accept = { accept: string; currentFileType: string; currentFileName: string; };
-type FileValidation_MaxSize = { maxSize: number; currentSize: number; };
-
-type FileValidationAbstractMessage = $Schema.AbstractMessage & {
-  otype: typeof SCHEMA_ITEM_TYPE_FILE;
-};
-export type FileValidationMessage = FileValidationAbstractMessage & (
-  | { code: "parse"; }
-  | { code: "required"; }
-  | ({ code: "accept"; } & FileValidation_Accept)
-  | ({ code: "maxSize"; } & FileValidation_MaxSize)
-);
-
-type FileOptions = {
-  parser?: $Schema.Parser<FileValue>;
-  required?: $Schema.Validation<boolean, null | undefined>;
-  accept?: $Schema.Validation<string, File, { accept: string; currentFileType: string; currentFileName: string; }>;
-  maxSize?: $Schema.Validation<number, File, { maxSize: number; currentSize: number; }>;
-  rules?: $Schema.Rule<FileValue>[];
+type FileValidations = {
+  required: $Schema.ValidationSchemaEntry<boolean, null | undefined>;
+  accept: $Schema.ValidationSchemaEntry<
+    string,
+    File,
+    { accept: string; currentFileType: string; currentFileName: string; }
+  >;
+  maxSize: $Schema.ValidationSchemaEntry<number, File, { maxSize: number; currentSize: number; }>;
 };
 
-type FileProps = $Schema.SchemaItemAbstractProps & FileOptions;
+export type FileSchemaMessage = $Schema.ValidationMessageFromSchema<
+  FileValidations,
+  typeof SCHEMA_ITEM_TYPE_FILE
+>;
+
+type FileProps = $Schema.SchemaItemAbstractProps
+  & $Schema.ValidationOptionsFromSchema<FileValidations>
+  & {
+    parser?: $Schema.Parser<FileValue>;
+    rules?: $Schema.Rule<FileValue>[];
+  };
 
 function isEmpty(value: unknown) {
   return value == null || value === "";

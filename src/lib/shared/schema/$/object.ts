@@ -2,28 +2,28 @@ import { getEmptyInjectParams, getSchemaItemPropsGenerator, getValidationArray }
 
 export const SCHEMA_ITEM_TYPE_OBJECT = "obj";
 
-type ObjectValidationAbstractMessage = $Schema.AbstractMessage & {
-  otype: typeof SCHEMA_ITEM_TYPE_OBJECT;
-};
-export type ObjectValidationMessage = ObjectValidationAbstractMessage & (
-  | { code: "parse"; }
-  | { code: "required"; }
-);
-
 type ObjectValue<Contents extends Record<string, $Schema.SchemaItemInterfaceProps<unknown>>> = $Schema.Infer<{
   type: typeof SCHEMA_ITEM_TYPE_OBJECT;
   props: Contents;
 }>;
 
-type ObjectOptions<Contents extends Record<string, $Schema.SchemaItemInterfaceProps<unknown>>> = {
-  props: Contents;
-  parser?: $Schema.Parser<ObjectValue<Contents>>;
-  required?: $Schema.Validation<boolean, null | undefined>;
-  rules?: $Schema.Rule<ObjectValue<Contents>>[];
+type ObjectValidations = {
+  required: $Schema.ValidationSchemaEntry<boolean, null | undefined>;
 };
 
+export type ObjectSchemaMessage = $Schema.ValidationMessageFromSchema<
+  ObjectValidations,
+  typeof SCHEMA_ITEM_TYPE_OBJECT
+>;
+
 type ObjectProps<Contents extends Record<string, $Schema.SchemaItemInterfaceProps<unknown>>> =
-  $Schema.SchemaItemAbstractProps & ObjectOptions<Contents>;
+  & $Schema.SchemaItemAbstractProps
+  & $Schema.ValidationOptionsFromSchema<ObjectValidations>
+  & {
+    props: Contents;
+    parser?: $Schema.Parser<ObjectValue<Contents>>;
+    rules?: $Schema.Rule<ObjectValue<Contents>>[];
+  };
 
 type Struct = Record<string, unknown>;
 

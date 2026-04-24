@@ -12,37 +12,53 @@ type DateTimePair = {
   basis?: "datetime" | "date" | "month";
 };
 
-type DateTimeOptions = {
-  parser?: $Schema.Parser<$DateTime>;
-  timeBasis?: "minute" | "hour" | "second";
-  required?: $Schema.Validation<boolean, null | undefined>;
-  minDateTime?: $Schema.Validation<$DateTime, $DateTime, { minDateTime: $DateTime; }>;
-  maxDateTime?: $Schema.Validation<$DateTime, $DateTime, { maxDateTime: $DateTime; }>;
-  minDate?: $Schema.Validation<$Date, $DateTime, { minDate: $Date; }>;
-  maxDate?: $Schema.Validation<$Date, $DateTime, { maxDate: $Date; }>;
-  minTime?: $Schema.Validation<$Clock, $DateTime, { minTime: $Clock; }>;
-  maxTime?: $Schema.Validation<$Clock, $DateTime, { maxTime: $Clock; }>;
-  pairs?: $Schema.Validation<
+type DateTimeValidations = {
+  required: $Schema.ValidationSchemaEntry<boolean, null | undefined>;
+  minDateTime: $Schema.ValidationSchemaEntry<$DateTime, $DateTime, { minDateTime: $DateTime; }>;
+  maxDateTime: $Schema.ValidationSchemaEntry<$DateTime, $DateTime, { maxDateTime: $DateTime; }>;
+  minDate: $Schema.ValidationSchemaEntry<$Date, $DateTime, { minDate: $Date; }>;
+  maxDate: $Schema.ValidationSchemaEntry<$Date, $DateTime, { maxDate: $Date; }>;
+  minTime: $Schema.ValidationSchemaEntry<$Clock, $DateTime, { minTime: $Clock; }>;
+  maxTime: $Schema.ValidationSchemaEntry<$Clock, $DateTime, { maxTime: $Clock; }>;
+  pairs: $Schema.ValidationSchemaEntry<
     DateTimePair | DateTimePair[],
     $DateTime,
     Omit<Required<DateTimePair>, "name"> & { pairName: string; pairDateTime: $DateTime; }
   >;
-  rules?: $Schema.Rule<$DateTime>[];
 };
 
-type DateTimeProps = $Schema.SchemaItemAbstractProps & DateTimeOptions;
+export type DateTimeSchemaMessage = $Schema.ValidationMessageFromSchema<
+  DateTimeValidations,
+  typeof SCHEMA_ITEM_TYPE_DATETIME
+>;
+
+type DateTimeProps = $Schema.SchemaItemAbstractProps
+  & $Schema.ValidationOptionsFromSchema<DateTimeValidations>
+  & {
+    parser?: $Schema.Parser<$DateTime>;
+    timeBasis?: "minute" | "hour" | "second";
+    rules?: $Schema.Rule<$DateTime>[];
+  };
 
 export type SplitDateTimePart = "Y" | "M" | "D" | "h" | "m" | "s";
 
-type SplitDateTimeOptions = {
-  parser?: $Schema.Parser<number>;
-  required?: $Schema.Validation<boolean | "inherit", null | undefined>;
-  min?: $Schema.Validation<number | "inherit", number, { min: number; }>;
-  max?: $Schema.Validation<number | "inherit", number, { max: number; }>;
-  rules?: $Schema.Rule<number>[];
+type SplitDateTimeValidations = {
+  required: $Schema.ValidationSchemaEntry<boolean | "inherit", null | undefined>;
+  min: $Schema.ValidationSchemaEntry<number | "inherit", number, { min: number; }>;
+  max: $Schema.ValidationSchemaEntry<number | "inherit", number, { max: number; }>;
 };
 
-type SplitDateTimeProps = $Schema.SchemaItemAbstractProps & SplitDateTimeOptions;
+export type SplitDateTimeSchemaMessage = $Schema.ValidationMessageFromSchema<
+  SplitDateTimeValidations,
+  `${typeof SCHEMA_ITEM_TYPE_DATETIME}-${SplitDateTimePart}`
+>;
+
+type SplitDateTimeProps = $Schema.SchemaItemAbstractProps
+  & $Schema.ValidationOptionsFromSchema<SplitDateTimeValidations>
+  & {
+    parser?: $Schema.Parser<number>;
+    rules?: $Schema.Rule<number>[];
+  };
 
 type SplitDateTimeBaseProps = Pick<
   DateTimeProps & $Schema.SchemaItemInterfaceProps<$Date>,
