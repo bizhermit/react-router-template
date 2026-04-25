@@ -1,3 +1,4 @@
+import { equals } from "$/shared/objects";
 import { getArrayIndex, getValue, setValue, splitName } from "$/shared/objects/data";
 import { mergeRecordMessages } from ".";
 import { $ArrSchema } from "./array";
@@ -13,11 +14,11 @@ export class FormContext<S extends $ObjSchema<any, any>> {
 
   protected subscribes: ((params: any) => void)[]; // TODO:
 
-  protected messages: Map<string, $Schema.Message>;
+  protected messages: Map<string, $Schema.Message | undefined>;
   protected messagesSubscribes: Map<string, Set<() => void>>;
 
   protected error: boolean;
-  protected hasErrorSubscribes: Set<() => void>;
+  protected errorSubscribes: Set<() => void>;
 
   constructor(init: {
     schema: S;
@@ -35,7 +36,7 @@ export class FormContext<S extends $ObjSchema<any, any>> {
     this.messagesSubscribes = new Map();
 
     this.error = false;
-    this.hasErrorSubscribes = new Set();
+    this.errorSubscribes = new Set();
   }
 
   public setMessages() {
@@ -46,6 +47,15 @@ export class FormContext<S extends $ObjSchema<any, any>> {
     return this.messages.get(name);
   }
 
+  public addMessageSubscribe(name: string, listener: () => void) {
+    if (!this.messagesSubscribes.has(name)) this.messagesSubscribes.set(name, new Set());
+    const listeners = this.messagesSubscribes.get(name)!;
+    listeners.add(listener);
+    return () => {
+      listeners.delete(listener);
+    };
+  }
+
   public hasError() {
     return this.error;
   }
@@ -53,14 +63,14 @@ export class FormContext<S extends $ObjSchema<any, any>> {
   public setHasError(error: boolean) {
     if (this.error === error) return this;
     this.error = error;
-    this.hasErrorSubscribes.forEach(fn => fn());
+    this.errorSubscribes.forEach(fn => fn());
     return this;
   }
 
-  public addChangeErrorListener(listener: () => void) {
-    this.hasErrorSubscribes.add(listener);
+  public addErrorSubscribe(listener: () => void) {
+    this.errorSubscribes.add(listener);
     return () => {
-      this.hasErrorSubscribes.delete(listener);
+      this.errorSubscribes.delete(listener);
     };
   };
 
@@ -116,7 +126,7 @@ export class FormContext<S extends $ObjSchema<any, any>> {
   public setValue(name: string, value: unknown) {
     const schemaItem = this.getSchemaItem(name);
     if (schemaItem == null) {
-      console.warn(`invalid access: ${name}`);
+      console.warn(`invalid property: ${name}`);
       return {
         value: undefined,
         hasChanged: false,
@@ -142,6 +152,16 @@ export class FormContext<S extends $ObjSchema<any, any>> {
     }) : {};
 
     const messages = mergeRecordMessages(parsed.messages, validated);
+
+    Object.entries(messages).forEach(([name, msgs]) => {
+      const current = this.messages.get(name);
+      const message = msgs?.find(msg => msg.type === "e");
+      if (equals(current, message)) return;
+      if (equals(current?.code, message?.code)) return;
+
+      this.messages.set(name, message);
+      this.messagesSubscribes.get(name)?.forEach(fn => fn());
+    });
 
     return {
       value: parsed.value,
