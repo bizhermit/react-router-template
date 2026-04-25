@@ -25,7 +25,7 @@ export abstract class SchemaItem<Value = any> {
   public validate(
     value: $Schema.Nullable<Value>,
     params: $Schema.ValidationArgParams = this.getEmptyInjectParams()
-  ): $Schema.Message[] {
+  ): $Schema.RecordMessages {
     if (this.validators == null) throw new Error("not initialized: validators");
 
     const ruleArgParams = {
@@ -35,11 +35,11 @@ export abstract class SchemaItem<Value = any> {
       value: value,
     } as const satisfies $Schema.RuleArgParams<Value>;
 
-    for (const vali of this.validators) {
-      const msg = vali(ruleArgParams);
-      if (msg) return [msg];
+    for (const validator of this.validators) {
+      const msg = validator(ruleArgParams);
+      if (msg) return { [params.name || ""]: [msg] };
     }
-    return [];
+    return { [params.name || ""]: undefined };
   }
 
 };

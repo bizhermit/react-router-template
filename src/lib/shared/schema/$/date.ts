@@ -90,25 +90,34 @@ export class $SplitDateSchema<
     value: unknown,
     params: $Schema.ParseArgParams = this.getEmptyInjectParams()
   ): $Schema.ParseResult<number> {
-    if (this.props.parser) return this.props.parser(value, params);
+    if (this.props.parser) {
+      const parsed = this.props.parser(value, params);
+      return {
+        value: parsed.value,
+        messages: { [params.name || ""]: parsed.messages },
+      };
+    }
+
     const [num, succeeded] = parseNumber(value);
     if (succeeded) return { value: num };
     return {
       value: num,
-      messages: [
-        this.pickMessage("parse", {
-          label: this.getLabel(),
-          actionType: this.getActionType(),
-          name: params.name,
-        }),
-      ],
+      messages: {
+        [params.name || ""]: [
+          this.pickMessage("parse", {
+            label: this.getLabel(),
+            actionType: this.getActionType(),
+            name: params.name,
+          }),
+        ],
+      },
     };
   }
 
   public validate(
     value: $Schema.Nullable<number>,
     params: $Schema.ValidationArgParams = this.getEmptyInjectParams()
-  ): $Schema.Message[] {
+  ): $Schema.RecordMessages {
     if (this.validators == null) {
       this.validators = [];
 
@@ -292,7 +301,14 @@ export class $DateSchema<const P extends DateProps> extends SchemaItem<$Date> {
     value: unknown,
     params: $Schema.ParseArgParams = this.getEmptyInjectParams()
   ): $Schema.ParseResult<$Date> {
-    if (this.props.parser) return this.props.parser(value, params);
+    if (this.props.parser) {
+      const parsed = this.props.parser(value, params);
+      return {
+        value: parsed.value,
+        messages: { [params.name || ""]: parsed.messages },
+      };
+    }
+
     if (value == null || value === "") return { value: undefined };
     try {
       const date = new $Date(value as string);
@@ -300,13 +316,15 @@ export class $DateSchema<const P extends DateProps> extends SchemaItem<$Date> {
     } catch {
       return {
         value: null,
-        messages: [
-          pickMessage("parse", {
-            label: this.getLabel(),
-            actionType: this.getActionType(),
-            name: params.name,
-          }),
-        ],
+        messages: {
+          [params.name || ""]: [
+            pickMessage("parse", {
+              label: this.getLabel(),
+              actionType: this.getActionType(),
+              name: params.name,
+            }),
+          ],
+        },
       };
     }
   }
@@ -314,7 +332,7 @@ export class $DateSchema<const P extends DateProps> extends SchemaItem<$Date> {
   public validate(
     value: $Schema.Nullable<$Date>,
     params: $Schema.ValidationArgParams = this.getEmptyInjectParams()
-  ): $Schema.Message[] {
+  ): $Schema.RecordMessages {
     if (this.validators == null) {
       this.validators = [];
 

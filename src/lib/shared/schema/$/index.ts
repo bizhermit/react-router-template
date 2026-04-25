@@ -14,19 +14,44 @@ export function parseWithSchema<const S extends $ObjSchema<any, any>>(params: {
   } as const satisfies $Schema.InjectParams;
 
   const parsed = params.schema.parse(params.values, injectParams);
-  const msgs = params.schema.validate(parsed.value, injectParams);
-  const hasError = parsed.messages?.some(msg => msg.type === "e") || msgs.some(msg => msg.type === "e");
+  const validated = params.schema.validate(parsed.value, injectParams);
+  const messages = mergeRecordMessages(parsed.messages, validated);
+  const hasError = getHasError(messages);
 
   if (hasError) {
     return {
       ok: false,
       values: parsed.value as $Schema.Infer<typeof params.schema>,
-      messages: [...parsed.messages ?? [], ...msgs],
+      messages,
     } as const;
   }
   return {
     ok: true,
     values: parsed.value as $Schema.Infer<typeof params.schema, true>,
-    messages: [...parsed.messages ?? [], ...msgs],
+    messages,
   } as const;
+};
+
+export function mergeRecordMessages(
+  parsedMessages: $Schema.RecordMessages | undefined,
+  validatedMessages: $Schema.RecordMessages | undefined
+) {
+  const messages = parsedMessages ?? {};
+  if (validatedMessages) {
+    Object.entries(validatedMessages).forEach(([name, msgs]) => {
+      if (!msgs || msgs.length === 0) {
+        if (!(name in messages)) messages[name] = undefined;
+        return;
+      }
+      if (messages[name] == null) {
+        messages[name] = [];
+      }
+      messages[name].push(...msgs);
+    });
+  }
+  return messages;
+};
+
+export function getHasError(messages: $Schema.RecordMessages) {
+  return Object.entries(messages).some(([_, msgs]) => msgs && msgs.some(msg => msg.type === "e"));
 };

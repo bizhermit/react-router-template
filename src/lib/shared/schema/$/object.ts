@@ -46,11 +46,11 @@ export class $ObjSchema<
     this.chilren = props.props as InferChildren<P>;
   }
 
-  public getActionType(): $Schema.ActionType {
+  public getActionType() {
     return this.props.actionType || "set";
   }
 
-  public getLabel(): string | undefined {
+  public getLabel() {
     return this.props.label;
   }
 
@@ -59,27 +59,30 @@ export class $ObjSchema<
     params: $Schema.ParseArgParams = this.getEmptyInjectParams()
   ): $Schema.ParseResult<$Schema.Infer<InferChildren<P>>> {
     let structValue: $Schema.Nullable<Struct> = undefined;
-    const messages: $Schema.Message[] = [];
+    const messages: Record<string, $Schema.Message[] | undefined> = {
+      [params.name || ""]: undefined,
+    };
 
     if (this.props.parser) {
       const parsed = this.props.parser(value, params);
       structValue = parsed.value;
-      if (parsed.messages) messages.push(...parsed.messages);
+      if (parsed.messages) {
+        messages[params.name || ""] = parsed.messages;
+      }
     } else {
       if (value != null && value !== "") {
         if (Object.prototype.toString.call(value) !== "[object Object]") {
-          return {
-            value: null,
-            messages: [
-              pickMessage("parse", {
-                actionType: this.getActionType(),
-                label: this.getLabel(),
-                name: params.name,
-              }),
-            ],
-          };
+          messages[params.name || ""] = [
+            pickMessage("parse", {
+              actionType: this.getActionType(),
+              label: this.getLabel(),
+              name: params.name,
+            }),
+          ];
+          structValue = null;
+        } else {
+          structValue = value as Struct;
         }
-        structValue = value as Struct;
       }
     }
 
@@ -91,13 +94,13 @@ export class $ObjSchema<
 
         const prop = this.chilren[key];
         if (prop == null) {
-          messages.push({
+          messages[params.name || ""] = [{
             type: "w",
             label: this.getLabel(),
-            message: `remove not accept value: ${name}`,
+            message: `remove not accept property: ${name}`,
             name,
             actionType: this.getActionType(),
-          });
+          }];
           delete structValue[key];
           return;
         }
@@ -109,17 +112,24 @@ export class $ObjSchema<
 
         structValue[key] = parsedItem.value;
         if (parsedItem.messages) {
-          messages.push(...parsedItem.messages);
+          Object.assign(messages, parsedItem.messages);
+          if (!(name in parsedItem.messages)) messages[name] = undefined;
+        } else {
+          messages[name] = undefined;
         }
       });
     }
-    return { value: structValue as $Schema.Infer<InferChildren<P>>, messages };
+
+    return {
+      value: structValue as $Schema.Nullable<$Schema.Infer<InferChildren<P>>>,
+      messages,
+    };
   }
 
   public validate(
     value: $Schema.Nullable<$Schema.Infer<InferChildren<P>>>,
     params: $Schema.ValidationArgParams = this.getEmptyInjectParams()
-  ): $Schema.Message[] {
+  ): $Schema.RecordMessages {
     if (this.validators == null) {
       this.validators = [];
 
@@ -156,8 +166,11 @@ export class $ObjSchema<
       Object.entries(this.chilren).forEach(([key, prop]) => {
         const name = `${prefixName}${key}`;
         const val = (value as Struct)[key];
-        const msgs = prop.validate(val, { ...params, name });
-        messages.push(...msgs);
+
+        const validated = prop.validate(val, { ...params, name });
+
+        Object.assign(messages, validated);
+        if (!(name in validated)) messages[name] = undefined;
       });
     }
 

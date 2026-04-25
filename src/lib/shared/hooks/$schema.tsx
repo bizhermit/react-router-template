@@ -1,4 +1,4 @@
-import { createContext, useCallback, useMemo, type ReactNode } from "react";
+import { createContext, useCallback, useMemo, useSyncExternalStore, type ReactNode } from "react";
 import { FormContext } from "../schema/$/form";
 import type { $ObjSchema } from "../schema/$/object";
 
@@ -29,6 +29,15 @@ export function useSchema<const S extends $ObjSchema<any, any>>(props: SchemaHoo
     props.schema,
   ]);
 
+  const hasError = useSyncExternalStore((callback) => {
+    const cleanup = formContext.addChangeErrorListener(callback);
+    return () => cleanup();
+  }, () => {
+    return formContext.hasError();
+  }, () => {
+    return formContext.hasError();
+  });
+
   const SchemaProvider = useCallback((p: {
     disabled?: boolean;
     readOnly?: boolean;
@@ -49,5 +58,6 @@ export function useSchema<const S extends $ObjSchema<any, any>>(props: SchemaHoo
 
   return {
     SchemaProvider,
+    hasError,
   } as const;
 };

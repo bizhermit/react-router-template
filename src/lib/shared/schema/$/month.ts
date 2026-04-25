@@ -91,25 +91,34 @@ export class $SplitMonthSchema<
     value: unknown,
     params: $Schema.ParseArgParams = this.getEmptyInjectParams()
   ): $Schema.ParseResult<number> {
-    if (this.props.parser) return this.props.parser(value, params);
+    if (this.props.parser) {
+      const parsed = this.props.parser(value, params);
+      return {
+        value: parsed.value,
+        messages: { [params.name || ""]: parsed.messages },
+      };
+    }
+
     const [num, succeeded] = parseNumber(value);
     if (succeeded) return { value: num };
     return {
       value: num,
-      messages: [
-        this.pickMessage("parse", {
-          label: this.getLabel(),
-          actionType: this.getActionType(),
-          name: params.name,
-        }),
-      ],
+      messages: {
+        [params.name || ""]: [
+          this.pickMessage("parse", {
+            label: this.getLabel(),
+            actionType: this.getActionType(),
+            name: params.name,
+          }),
+        ],
+      },
     };
   }
 
   public validate(
     value: $Schema.Nullable<number>,
     params: $Schema.ValidationArgParams = this.getEmptyInjectParams()
-  ): $Schema.Message[] {
+  ): $Schema.RecordMessages {
     if (this.validators == null) {
       this.validators = [];
 
@@ -293,7 +302,14 @@ export class $MonthSchema<const P extends MonthProps> extends SchemaItem<$Month>
     value: unknown,
     params: $Schema.ParseArgParams = this.getEmptyInjectParams()
   ): $Schema.ParseResult<$Month> {
-    if (this.props.parser) return this.props.parser(value, params);
+    if (this.props.parser) {
+      const parsed = this.props.parser(value, params);
+      return {
+        value: parsed.value,
+        messages: { [params.name || ""]: parsed.messages },
+      };
+    }
+
     if (value == null || value === "") return { value: undefined };
     try {
       const month = new $Month(value as string);
@@ -301,13 +317,15 @@ export class $MonthSchema<const P extends MonthProps> extends SchemaItem<$Month>
     } catch {
       return {
         value: null,
-        messages: [
-          pickMessage("parse", {
-            label: this.getLabel(),
-            actionType: this.getActionType(),
-            name: params.name,
-          }),
-        ],
+        messages: {
+          [params.name || ""]: [
+            pickMessage("parse", {
+              label: this.getLabel(),
+              actionType: this.getActionType(),
+              name: params.name,
+            }),
+          ],
+        },
       };
     }
   }
@@ -315,7 +333,7 @@ export class $MonthSchema<const P extends MonthProps> extends SchemaItem<$Month>
   public validate(
     value: $Schema.Nullable<$Month>,
     params: $Schema.ValidationArgParams = this.getEmptyInjectParams()
-  ): $Schema.Message[] {
+  ): $Schema.RecordMessages {
     if (this.validators == null) {
       this.validators = [];
 

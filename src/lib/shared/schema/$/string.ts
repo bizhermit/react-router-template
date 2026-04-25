@@ -179,7 +179,14 @@ export class $StrSchema<const P extends StringProps> extends SchemaItem<string> 
     value: unknown,
     params: $Schema.ParseArgParams = this.getEmptyInjectParams()
   ): $Schema.ParseResult<string> {
-    if (this.props.parser) return this.props.parser(value, params);
+    if (this.props.parser) {
+      const parsed = this.props.parser(value, params);
+      return {
+        value: parsed.value,
+        messages: { [params.name || ""]: parsed.messages },
+      };
+    }
+
     if (value == null || value === "") return { value: undefined };
     if (typeof value === "string") return { value };
     return { value: String(value) };
@@ -188,7 +195,7 @@ export class $StrSchema<const P extends StringProps> extends SchemaItem<string> 
   public validate(
     value: $Schema.Nullable<string>,
     params?: $Schema.ValidationArgParams
-  ): $Schema.Message[] {
+  ): $Schema.RecordMessages {
     if (this.validators == null) {
       this.validators = [];
 

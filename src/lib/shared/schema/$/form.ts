@@ -1,4 +1,5 @@
 import { getArrayIndex, getValue, setValue, splitName } from "$/shared/objects/data";
+import { mergeRecordMessages } from ".";
 import { $ArrSchema } from "./array";
 import type { SchemaItem } from "./core";
 import { $ObjSchema } from "./object";
@@ -10,6 +11,14 @@ export class FormContext<S extends $ObjSchema<any, any>> {
   protected data: Record<string, any>;
   protected isServer: boolean;
 
+  protected subscribes: ((params: any) => void)[]; // TODO:
+
+  protected messages: Map<string, $Schema.Message>;
+  protected messagesSubscribes: Map<string, Set<() => void>>;
+
+  protected error: boolean;
+  protected hasErrorSubscribes: Set<() => void>;
+
   constructor(init: {
     schema: S;
     values: Record<string, any>;
@@ -19,7 +28,41 @@ export class FormContext<S extends $ObjSchema<any, any>> {
     this.values = init.values;
     this.data = init.data;
     this.isServer = false;
+
+    this.subscribes = [];
+
+    this.messages = new Map();
+    this.messagesSubscribes = new Map();
+
+    this.error = false;
+    this.hasErrorSubscribes = new Set();
   }
+
+  public setMessages() {
+
+  }
+
+  public getMessage(name: string) {
+    return this.messages.get(name);
+  }
+
+  public hasError() {
+    return this.error;
+  }
+
+  public setHasError(error: boolean) {
+    if (this.error === error) return this;
+    this.error = error;
+    this.hasErrorSubscribes.forEach(fn => fn());
+    return this;
+  }
+
+  public addChangeErrorListener(listener: () => void) {
+    this.hasErrorSubscribes.add(listener);
+    return () => {
+      this.hasErrorSubscribes.delete(listener);
+    };
+  };
 
   public getInjectParams(): $Schema.InjectParams {
     return {
@@ -82,28 +125,23 @@ export class FormContext<S extends $ObjSchema<any, any>> {
       } as const;
     }
 
-    const messages: $Schema.Message[] = [];
-
     const parsed = schemaItem.parse(value, {
       data: this.data,
       isServer: this.isServer,
       values: this.values,
       name,
     });
-    if (parsed.messages) {
-      messages.push(...parsed.messages);
-    }
 
+    // TODO: rollback when error
     const hasChanged = setValue(this.values, name, parsed.value);
-    if (hasChanged) {
-      const msgs = schemaItem.validate(parsed.value, {
-        data: this.data,
-        isServer: this.isServer,
-        values: this.values,
-        name,
-      });
-      messages.push(...msgs);
-    }
+    const validated = hasChanged ? schemaItem.validate(parsed.value, {
+      data: this.data,
+      isServer: this.isServer,
+      values: this.values,
+      name,
+    }) : {};
+
+    const messages = mergeRecordMessages(parsed.messages, validated);
 
     return {
       value: parsed.value,

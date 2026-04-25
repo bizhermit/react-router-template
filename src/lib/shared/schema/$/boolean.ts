@@ -73,7 +73,11 @@ export class $BoolSchema<
     params: $Schema.ParseArgParams = this.getEmptyInjectParams()
   ): $Schema.ParseResult<InferTrue<P> | InferFalse<P>> {
     if (this.props.parser) {
-      return this.props.parser(value, params) as $Schema.ParseResult<InferTrue<P> | InferFalse<P>>;
+      const parsed = this.props.parser(value, params) as $Schema.ParserResult<InferTrue<P> | InferFalse<P>>;
+      return {
+        value: parsed.value,
+        messages: { [params.name || ""]: parsed.messages },
+      };
     }
 
     const s = String(value);
@@ -93,22 +97,25 @@ export class $BoolSchema<
     if (ls === "off") {
       return { value: this.falseValue };
     }
+
     return {
       value: undefined,
-      messages: [
-        pickMessage("parse", {
-          actionType: this.getActionType(),
-          label: this.getLabel(),
-          name: params.name,
-        }),
-      ],
+      messages: {
+        [params.name || ""]: [
+          pickMessage("parse", {
+            actionType: this.getActionType(),
+            label: this.getLabel(),
+            name: params.name,
+          }),
+        ],
+      },
     };
   }
 
   public validate(
     value: $Schema.Nullable<InferTrue<P> | InferFalse<P>>,
     params: $Schema.ValidationArgParams = this.getEmptyInjectParams()
-  ): $Schema.Message[] {
+  ): $Schema.RecordMessages {
     if (this.validators == null) {
       this.validators = [];
 

@@ -73,12 +73,16 @@ export class $ArrSchema<
     params: $Schema.ParseArgParams = this.getEmptyInjectParams()
   ): $Schema.ParseResult<$Schema.InferValue<InferChild<P>>[]> {
     let arrValue: $Schema.Nullable<$Schema.InferValue<InferChild<P>>[]> = undefined;
-    const messages: $Schema.Message[] = [];
+    const messages: $Schema.RecordMessages = {
+      [params.name || ""]: undefined,
+    };
 
     if (this.props.parser) {
       const parsed = this.props.parser(value, params);
       arrValue = parsed.value;
-      if (parsed.messages) messages.push(...parsed.messages);
+      if (parsed.messages) {
+        messages[params.name || ""] = parsed.messages;
+      }
     } else {
       if (value != null && value !== "") {
         arrValue = Array.isArray(value) ? value : [value];
@@ -96,17 +100,24 @@ export class $ArrSchema<
           ...params,
           name,
         });
+
         arrValue[i] = parsedItem.value;
-        if (parsedItem.messages) messages.push(...parsedItem.messages);
+        if (parsedItem.messages) {
+          Object.assign(messages, parsedItem.messages);
+          if (!(name in parsedItem.messages)) messages[name] = undefined;
+        } else {
+          messages[name] = undefined;
+        }
       }
     }
+
     return { value: arrValue, messages };
   }
 
   public validate(
     value: $Schema.Nullable<$Schema.InferValue<InferChild<P>>[]>,
     params: $Schema.ValidationArgParams = this.getEmptyInjectParams()
-  ): $Schema.Message[] {
+  ): $Schema.RecordMessages {
     if (this.validators == null) {
       this.validators = [];
       type Value = $Schema.InferValue<InferChild<P>>[];
@@ -258,8 +269,11 @@ export class $ArrSchema<
       for (let i = 0, il = value.length; i < il; i++) {
         const val = value[i];
         const name = `${prefixName}[${i}]`;
-        const msgs = this.child.validate(val, { ...params, name });
-        if (msgs) messages.push(...msgs);
+
+        const validated = this.child.validate(val, { ...params, name });
+
+        Object.assign(messages, validated);
+        if (!(name in validated)) messages[name] = undefined;
       }
     }
 

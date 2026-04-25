@@ -10,7 +10,7 @@ import { $enum } from "$/shared/schema/$/enum";
 import { $num } from "$/shared/schema/$/number";
 import { $obj } from "$/shared/schema/$/object";
 import { $str } from "$/shared/schema/$/string";
-import { use, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { data } from "react-router";
 import type { Route } from "./+types/form";
 
@@ -165,6 +165,13 @@ function SchemaContent() {
 
   const { context } = use(SchemaProviderContext) as SchemaProviderContextProps<typeof schemaObj>;
 
+  useEffect(() => {
+    console.log("mount");
+    return () => {
+      console.log("unmount");
+    };
+  }, []);
+
   return (
     <section className="flex flex-col gap-2 p-2">
       <h2>Schema Provider</h2>
@@ -189,6 +196,34 @@ function SchemaContent() {
           }}
         >
           clear value
+        </Button>
+        <Button
+          onClick={() => {
+            context.setHasError(true);
+          }}
+        >
+          error
+        </Button>
+        <Button
+          onClick={() => {
+            context.setHasError(false);
+          }}
+        >
+          no error
+        </Button>
+        <Button
+          onClick={() => {
+            // const map = new Map<string, string>();
+            // map.set("hoge", "fuga");
+            // console.log(JSON.stringify(map));
+            const struct = { "": "" };
+            const hoge = { hoge: 1, fuga: 2 };
+            const fuga = { fuga: 3, piyo: "4" };
+            const piyo = Object.assign(hoge, fuga);
+            console.log(hoge, fuga, piyo);
+          }}
+        >
+
         </Button>
       </div>
       <hr />
@@ -248,16 +283,12 @@ export default function Page() {
               } satisfies $Schema.Infer<typeof schemaObj>,
             });
             console.log("-", performance.now() - now);
-            console.log(submission.messages.reduce((prev, msg) => {
-              prev[msg.name || "_root"] = msg;
-              return prev;
-            }, {} as Record<string, unknown>));
             if (submission.ok) {
               submission.values.bool;
             } else {
               submission.values?.bool;
             }
-            console.log(submission);
+            console.log(JSON.stringify(submission, null, 2));
             // console.log("-", validationMessage);
           }}
         >
@@ -265,6 +296,7 @@ export default function Page() {
         </Button>
       </div>
       <schema.SchemaProvider>
+        <span>error: {String(schema.hasError)}</span>
         <SchemaContent />
       </schema.SchemaProvider>
       <div className="flex flex-row flex-wrap gap-2">

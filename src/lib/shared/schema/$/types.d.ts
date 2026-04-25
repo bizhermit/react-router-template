@@ -63,7 +63,7 @@ namespace $Schema {
     | ValidationMessage
     ;
 
-  type ParseResult<Value> = {
+  type ParserResult<Value> = {
     value: Nullable<Value>;
     messages?: Message[];
   };
@@ -71,7 +71,14 @@ namespace $Schema {
   type ParseArgParams = InjectParams & { name?: string; };
 
   type Parser<Value> =
-    (value: unknown, params: ParseArgParams) => ParseResult<Value>;
+    (value: unknown, params: ParseArgParams) => ParserResult<Value>;
+
+  type RecordMessages = Record<string, Message[] | undefined>;
+
+  type ParseResult<Value> = {
+    value: Nullable<Value>;
+    messages?: RecordMessages;
+  };
 
   type ValidationArgParams = InjectParams & { name?: string; };
 

@@ -119,7 +119,14 @@ export class $FileSchema<const P extends FileProps> extends SchemaItem<FileValue
     value: unknown,
     params: $Schema.ParseArgParams = this.getEmptyInjectParams()
   ): $Schema.ParseResult<FileValue> {
-    if (this.props.parser) return this.props.parser(value, params);
+    if (this.props.parser) {
+      const parsed = this.props.parser(value, params);
+      return {
+        value: parsed.value,
+        messages: { [params.name || ""]: parsed.messages },
+      };
+    }
+
     if (value == null) return { value };
 
     if (value instanceof File) {
@@ -150,20 +157,22 @@ export class $FileSchema<const P extends FileProps> extends SchemaItem<FileValue
 
     return {
       value: undefined,
-      messages: [
-        pickMessage("parse", {
-          label: this.getLabel(),
-          actionType: this.getActionType(),
-          name: params.name,
-        }),
-      ],
+      messages: {
+        [params.name || ""]: [
+          pickMessage("parse", {
+            label: this.getLabel(),
+            actionType: this.getActionType(),
+            name: params.name,
+          }),
+        ],
+      },
     };
   }
 
   public validate(
     value: $Schema.Nullable<FileValue>,
     params: $Schema.ValidationArgParams = this.getEmptyInjectParams()
-  ): $Schema.Message[] {
+  ): $Schema.RecordMessages {
     if (this.validators == null) {
       this.validators = [];
 

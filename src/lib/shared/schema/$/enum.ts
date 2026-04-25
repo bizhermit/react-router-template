@@ -84,25 +84,34 @@ export class $EnumSchema<
     value: unknown,
     params: $Schema.ParseArgParams = this.getEmptyInjectParams()
   ): $Schema.ParseResult<Value> {
-    if (this.props.parser) return this.props.parser(value, params);
+    if (this.props.parser) {
+      const parsed = this.props.parser(value, params);
+      return {
+        value: parsed.value,
+        messages: { [params.name || ""]: parsed.messages },
+      };
+    }
+
     const item = this.find(value);
     if (item) return { value: item.value };
     return {
       value: value as Value,
-      messages: [
-        pickMessage("parse", {
-          label: this.getLabel(),
-          actionType: this.getActionType(),
-          name: params.name,
-        }),
-      ],
+      messages: {
+        [params.name || ""]: [
+          pickMessage("parse", {
+            label: this.getLabel(),
+            actionType: this.getActionType(),
+            name: params.name,
+          }),
+        ],
+      },
     };
   }
 
   public validate(
     value: $Schema.Nullable<Value>,
     params: $Schema.ValidationArgParams = this.getEmptyInjectParams()
-  ): $Schema.Message[] {
+  ): $Schema.RecordMessages {
     if (this.validators == null) {
       this.validators = [];
 
