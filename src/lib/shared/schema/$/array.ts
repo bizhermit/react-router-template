@@ -39,7 +39,7 @@ type ArrayProps<Prop extends SchemaItem<any>> =
 
 const pickMessage = getPickMessageGetter(SCHEMA_ITEM_TYPE_ARRAY);
 
-type InferChild<P> = P extends { prop: infer T extends SchemaItem<any>; } ? T : unknown;
+type InferChild<P> = P extends { prop: infer T extends SchemaItem<any>; } ? T : SchemaItem<any>;
 
 export function $arr<
   const Prop extends SchemaItem<any>,
@@ -288,8 +288,8 @@ export class $ArrSchema<
     });
   }
 
-  public getSchemaItem<S extends SchemaItem<any> = InferChild<P>>() {
-    return this.child as S;
+  public getChild() {
+    return this.child;
   }
 
 }

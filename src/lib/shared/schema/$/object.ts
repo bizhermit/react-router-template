@@ -39,11 +39,11 @@ export class $ObjSchema<
   const P extends ObjectProps<Props>
 > extends SchemaItem<$Schema.Infer<InferChildren<P>>> {
 
-  protected chilren: InferChildren<P>;
+  protected children: InferChildren<P>;
 
   constructor(protected props: P) {
     super();
-    this.chilren = props.props as InferChildren<P>;
+    this.children = props.props as InferChildren<P>;
   }
 
   public getActionType() {
@@ -92,7 +92,7 @@ export class $ObjSchema<
       Object.entries(structValue).forEach(([key, val]) => {
         const name = `${prefixName}${key}`;
 
-        const prop = this.chilren[key];
+        const prop = this.children[key];
         if (prop == null) {
           messages[params.name || ""] = [{
             type: "w",
@@ -163,7 +163,7 @@ export class $ObjSchema<
 
     if (value != null) {
       const prefixName = params.name ? `${params.name}.` : "";
-      Object.entries(this.chilren).forEach(([key, prop]) => {
+      Object.entries(this.children).forEach(([key, prop]) => {
         const name = `${prefixName}${key}`;
         const val = (value as Struct)[key];
 
@@ -181,12 +181,16 @@ export class $ObjSchema<
     return new $ObjSchema<Props, Omit<P, keyof OP> & OP & { props: Props; }>({
       ...this.props,
       ...props,
-      props: this.chilren,
+      props: this.children,
     });
   }
 
   public getSchemaItem(name: string) {
-    return this.chilren[name];
+    return this.children[name];
+  }
+
+  public getChildren() {
+    return this.children;
   }
 
 };

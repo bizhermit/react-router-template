@@ -5,12 +5,33 @@ import { $ArrSchema } from "./array";
 import type { SchemaItem } from "./core";
 import { $ObjSchema } from "./object";
 
+export function convertToFormItems(
+  formContext: FormContext<any>,
+  prefixName: string | undefined,
+  props: Record<string, SchemaItem<any>>
+) {
+  const formItems: Record<string, FormItem<any>> = {};
+  const pn = prefixName ? `${prefixName}.` : "";
+
+  Object.entries(props).forEach(([name, item]) => {
+    formItems[name] = new FormItem(
+      formContext,
+      `${pn}${name}`,
+      item,
+    );
+  });
+
+  return formItems;
+};
+
 export class FormContext<S extends $ObjSchema<any, any>> {
 
   protected schema: S;
   protected values: Record<string, any>;
   protected data: Record<string, any>;
   protected isServer: boolean;
+
+  protected formItems: Record<string, FormItem<any>>;
 
   protected messages: Map<string, $Schema.Message | undefined>;
   protected messagesSubscribes: Map<string, Set<() => void>>;
@@ -37,6 +58,16 @@ export class FormContext<S extends $ObjSchema<any, any>> {
     this.errorSubscribes = new Set();
 
     this.valuesSubscribes = new Map();
+
+    this.formItems = convertToFormItems(
+      this,
+      undefined,
+      init.schema.getChildren()
+    );
+  }
+
+  public getFormItems() {
+    return this.formItems as $Schema.InferFormItem<S>;
   }
 
   public getInjectParams(): $Schema.InjectParams {
@@ -102,7 +133,7 @@ export class FormContext<S extends $ObjSchema<any, any>> {
           console.warn(`invalid access: ${name}`);
           return null;
         }
-        schemaItem = schemaItem.getSchemaItem();
+        schemaItem = schemaItem.getChild();
         continue;
       }
       if (!(schemaItem instanceof $ObjSchema)) {
@@ -194,6 +225,10 @@ export class FormItem<S extends SchemaItem<any>> {
     protected schemaItem: S
   ) {
 
+  }
+
+  public getName() {
+    return this.name;
   }
 
   public getSchemaItem() {

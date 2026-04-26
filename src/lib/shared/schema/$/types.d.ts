@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 namespace $Schema {
 
+  type Eval<T> = { [K in keyof T]: T[K] };
+
   type Nullable<T> = T | null | undefined;
 
   type Mode = "enabled" | "disabled" | "readonly" | "hidden";
@@ -222,9 +224,13 @@ namespace $Schema {
   type $DateTime = import("../../objects/timestamp").$DateTime;
 
   type SchemaItem = import("./core").SchemaItem;
+  type FormItem<S extends SchemaItem> = import("./form").FormItem<S>;
 
   type InferRequiredValue<R, V, Strict> =
     R extends true ? (Strict extends true ? V : Nullable<V>) : Nullable<V>;
+
+  type InferArrayChild<S extends import("./array").$ArrSchema<any, any>> = S["child"];
+  type InferObjectChildren<S extends import("./object").$ObjSchema<any, any>> = S["children"];
 
   type InferValue<P extends SchemaItem, Strict extends boolean = false> =
     P extends import("./string").$StrSchema<any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, string, Strict> :
@@ -250,8 +256,8 @@ namespace $Schema {
       Strict
     > :
     P extends import("./file").$FileSchema<any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, File | string, Strict> :
-    P extends import("./array").$ArrSchema<any, any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, InferValue<P["child"], Strict>[], Strict> :
-    P extends import("./object").$ObjSchema<any, any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, Infer<P["chilren"], Strict>, Strict> :
+    P extends import("./array").$ArrSchema<any, any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, InferValue<InferArrayChild<P>, Strict>[], Strict> :
+    P extends import("./object").$ObjSchema<any, any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, Infer<InferObjectChildren<P>, Strict>, Strict> :
     never
     ;
 
@@ -267,5 +273,9 @@ namespace $Schema {
         { [K in keyof RemoveIndexSignature<P>]?: InferValue<RemoveIndexSignature<P>[K], Strict> }
       )
     );
+
+  type InferFormItem<S extends SchemaItem> = S extends import("./object").$ObjSchema<any, any>
+    ? { [K in keyof InferObjectChildren<S>]: FormItem<InferObjectChildren<S>[K]> }
+    : FormItem<S>;
 
 }

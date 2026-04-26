@@ -1,5 +1,5 @@
 import { Button } from "$/components/elements/button/button";
-import { SchemaProviderContext, useSchema, type SchemaProviderContextProps } from "$/shared/hooks/$schema";
+import { SchemaProviderContext, useArraySchema, useSchema, type SchemaProviderContextProps } from "$/shared/hooks/$schema";
 import { useRender } from "$/shared/hooks/render";
 import { $Date, $DateTime } from "$/shared/objects/timestamp";
 import { parseWithSchema } from "$/shared/schema/$";
@@ -164,29 +164,33 @@ function SchemaContent() {
   console.log("** render schema content");
 
   const { context } = use(SchemaProviderContext) as SchemaProviderContextProps<typeof schemaObj>;
+  const formItems = context.getFormItems();
 
   const value = useSyncExternalStore((callback) => {
-    const cleanup = context.addValuesSubscribe("str2", callback);
+    const cleanup = context.addValuesSubscribe(formItems.str2.getName(), callback);
     return () => cleanup();
   }, () => {
-    return context.getValue("str2");
+    return context.getValue(formItems.str2.getName());
   }, () => {
-    return context.getValue("str2");
+    return context.getValue(formItems.str2.getName());
   });
 
   const message = useSyncExternalStore((callback) => {
-    const cleanup = context.addMessageSubscribe("str2", callback);
+    const cleanup = context.addMessageSubscribe(formItems.str2.getName(), callback);
     return () => cleanup();
   }, () => {
-    return context.getMessage("str2");
+    return context.getMessage(formItems.str2.getName());
   }, () => {
-    return context.getMessage("str2");
+    return context.getMessage(formItems.str2.getName());
   });
+
+  const arr = useArraySchema(formItems.arr);
+  const arr2 = useArraySchema(formItems.arr2);
 
   console.log("render: ", value, message);
 
   useEffect(() => {
-    console.log("mount");
+    console.log("mount", formItems);
     return () => {
       console.log("unmount");
     };
@@ -236,27 +240,73 @@ function SchemaContent() {
             // const map = new Map<string, string>();
             // map.set("hoge", "fuga");
             // console.log(JSON.stringify(map));
-            const struct = { "": "" };
-            const hoge = { hoge: 1, fuga: 2 };
-            const fuga = { fuga: 3, piyo: "4" };
-            const piyo = Object.assign(hoge, fuga);
-            console.log(hoge, fuga, piyo);
+            // const struct = { "": "" };
+            // const hoge = { hoge: 1, fuga: 2 };
+            // const fuga = { fuga: 3, piyo: "4" };
+            // const piyo = Object.assign(hoge, fuga);
+            // console.log(hoge, fuga, piyo);
+            console.log(context.getFormItems());
           }}
         >
 
         </Button>
       </div>
+      <ul className="flex-col gap-2">
+        {
+          arr.map(({ key, name, value, formItem }) => {
+            formItem.getName();
+            return (
+              <li key={key}>
+                ・
+                {name}
+                ：
+                {JSON.stringify(value)}
+              </li>
+            );
+          })
+        }
+      </ul>
+      <hr />
+      <ul className="flex-col gap-2">
+        {
+          arr2.map(({ key, name, value, formItems }) => {
+            formItems.age.getName();
+            return (
+              <li key={key}>
+                ・
+                {name}
+                ：
+                {JSON.stringify(value)}
+              </li>
+            );
+          })
+        }
+      </ul>
       <hr />
     </section>
   );
 };
 
 export default function Page() {
-  const [value, setValue] = useState<$DateTime>(() => new $DateTime());
+  const [dateValue, setDateValue] = useState<$DateTime>(() => new $DateTime());
   const render = useRender();
 
+  const [values, setValues] = useState(() => {
+    return {
+      arr: [
+        "hoge",
+        "fuga",
+      ],
+      arr2: [
+        { name: "hoge", age: 1 },
+        { name: "fuga" },
+        {},
+      ],
+    };
+  });
   const schema = useSchema({
     schema: schemaObj,
+    values,
   });
 
   return (
@@ -298,6 +348,7 @@ export default function Page() {
                 // agreement: false,
                 arr2: [
                   { name: "hoge", age: 1 },
+                  { name: "fuga" },
                   {},
                 ],
               } satisfies $Schema.Infer<typeof schemaObj>,
@@ -324,14 +375,14 @@ export default function Page() {
           onClick={() => {
             const d = new $DateTime();
             console.log(d);
-            setValue(d);
+            setDateValue(d);
           }}
         >
           reset
         </Button>
         <Button
           onClick={() => {
-            setValue(new $DateTime(new $Date(value)));
+            setDateValue(new $DateTime(new $Date(dateValue)));
           }}
         >
           set timestamp
@@ -343,7 +394,7 @@ export default function Page() {
               // setValue(new $DateTime("2020-01-02T12:34:56.789+09:00"));
               // setValue(new $DateTime("2020-01-01T12:34:56.789+0900"));
               // setValue(new $DateTime("2020-01-02T12:34:56.789+00:00"));
-              setValue(new $DateTime("Thu Apr 16 2026 18:28:52 GMT+0900 (日本標準時)"));
+              setDateValue(new $DateTime("Thu Apr 16 2026 18:28:52 GMT+0900 (日本標準時)"));
               // setValue(new $DateTime("Thu, 16 Apr 2026 01:20:30 GMT"));
             } catch (e) {
               console.error(e);
@@ -355,21 +406,21 @@ export default function Page() {
         <Button
           onClick={() => {
             const d = new Date();
-            setValue(new $DateTime(d));
+            setDateValue(new $DateTime(d));
           }}
         >
           set date
         </Button>
         <Button
           onClick={() => {
-            setValue(new $DateTime(Date.now()));
+            setDateValue(new $DateTime(Date.now()));
           }}
         >
           set number
         </Button>
         <Button
           onClick={() => {
-            value?.setNow();
+            dateValue?.setNow();
             render();
           }}
         >
@@ -377,7 +428,7 @@ export default function Page() {
         </Button>
         <Button
           onClick={() => {
-            value.setMonth(2);
+            dateValue.setMonth(2);
             render();
           }}
         >
@@ -385,7 +436,7 @@ export default function Page() {
         </Button>
         <Button
           onClick={() => {
-            value.setDay(0);
+            dateValue.setDay(0);
             render();
           }}
         >
@@ -393,7 +444,7 @@ export default function Page() {
         </Button>
         <Button
           onClick={() => {
-            value.setDay(1);
+            dateValue.setDay(1);
             render();
           }}
         >
@@ -403,7 +454,7 @@ export default function Page() {
       <div className="flex flex-row flex-wrap gap-2">
         <Button
           onClick={() => {
-            value.addYear(1);
+            dateValue.addYear(1);
             render();
           }}
         >
@@ -411,7 +462,7 @@ export default function Page() {
         </Button>
         <Button
           onClick={() => {
-            value.addMonth(1);
+            dateValue.addMonth(1);
             render();
           }}
         >
@@ -419,7 +470,7 @@ export default function Page() {
         </Button>
         <Button
           onClick={() => {
-            value.addDay(1);
+            dateValue.addDay(1);
             render();
           }}
         >
@@ -427,7 +478,7 @@ export default function Page() {
         </Button>
         <Button
           onClick={() => {
-            value.addHour(1);
+            dateValue.addHour(1);
             render();
           }}
         >
@@ -435,7 +486,7 @@ export default function Page() {
         </Button>
         <Button
           onClick={() => {
-            value.addMinute(1);
+            dateValue.addMinute(1);
             render();
           }}
         >
@@ -443,7 +494,7 @@ export default function Page() {
         </Button>
         <Button
           onClick={() => {
-            value.addSecond(1);
+            dateValue.addSecond(1);
             render();
           }}
         >
@@ -451,7 +502,7 @@ export default function Page() {
         </Button>
         <Button
           onClick={() => {
-            value.addMillisecond(1);
+            dateValue.addMillisecond(1);
             render();
           }}
         >
@@ -461,7 +512,7 @@ export default function Page() {
       <div className="flex flex-row flex-wrap gap-2">
         <Button
           onClick={() => {
-            value.addYear(-1);
+            dateValue.addYear(-1);
             render();
           }}
         >
@@ -469,7 +520,7 @@ export default function Page() {
         </Button>
         <Button
           onClick={() => {
-            value.addMonth(-1);
+            dateValue.addMonth(-1);
             render();
           }}
         >
@@ -477,7 +528,7 @@ export default function Page() {
         </Button>
         <Button
           onClick={() => {
-            value.addDay(-1);
+            dateValue.addDay(-1);
             render();
           }}
         >
@@ -485,7 +536,7 @@ export default function Page() {
         </Button>
         <Button
           onClick={() => {
-            value.addHour(-1);
+            dateValue.addHour(-1);
             render();
           }}
         >
@@ -493,7 +544,7 @@ export default function Page() {
         </Button>
         <Button
           onClick={() => {
-            value.addMinute(-1);
+            dateValue.addMinute(-1);
             render();
           }}
         >
@@ -501,7 +552,7 @@ export default function Page() {
         </Button>
         <Button
           onClick={() => {
-            value.addSecond(-1);
+            dateValue.addSecond(-1);
             render();
           }}
         >
@@ -509,7 +560,7 @@ export default function Page() {
         </Button>
         <Button
           onClick={() => {
-            value.addMillisecond(-1);
+            dateValue.addMillisecond(-1);
             render();
           }}
         >
@@ -519,7 +570,7 @@ export default function Page() {
       <div className="flex flex-row flex-wrap gap-2">
         <Button
           onClick={() => {
-            value.moveFirstDay();
+            dateValue.moveFirstDay();
             render();
           }}
         >
@@ -528,7 +579,7 @@ export default function Page() {
 
         <Button
           onClick={() => {
-            value.moveLastDay();
+            dateValue.moveLastDay();
             render();
           }}
         >
@@ -536,25 +587,25 @@ export default function Page() {
         </Button>
       </div>
       {
-        value &&
+        dateValue &&
         <ul className="px-8 py-4 list-disc">
-          <li>年: {value.getYear()}</li>
-          <li>月: {value.getMonth()}</li>
-          <li>日: {value.getDay()}</li>
-          <li>時: {value.getHour()}</li>
-          <li>分: {value.getMinute()}</li>
-          <li>秒: {value.getSecond()}</li>
-          <li>ms: {value.getMillisecond()}</li>
-          <li>曜: {value.getWeek()}</li>
+          <li>年: {dateValue.getYear()}</li>
+          <li>月: {dateValue.getMonth()}</li>
+          <li>日: {dateValue.getDay()}</li>
+          <li>時: {dateValue.getHour()}</li>
+          <li>分: {dateValue.getMinute()}</li>
+          <li>秒: {dateValue.getSecond()}</li>
+          <li>ms: {dateValue.getMillisecond()}</li>
+          <li>曜: {dateValue.getWeek()}</li>
           <hr />
-          <li>iso: {value.toISOString()}</li>
-          <li>json: {value.toJSON()}</li>
-          <li>str: {value.toString()}</li>
-          <li>date: {value.toDateString()}</li>
-          <li>time: {value.toTimeString()}</li>
-          <li>offset: {value.getOffset()}</li>
-          <li>{value.toString(`yyyy年MM月dd日(W) hh時mm分ss秒`)}</li>
-          <li>{JSON.stringify({ value })}</li>
+          <li>iso: {dateValue.toISOString()}</li>
+          <li>json: {dateValue.toJSON()}</li>
+          <li>str: {dateValue.toString()}</li>
+          <li>date: {dateValue.toDateString()}</li>
+          <li>time: {dateValue.toTimeString()}</li>
+          <li>offset: {dateValue.getOffset()}</li>
+          <li>{dateValue.toString(`yyyy年MM月dd日(W) hh時mm分ss秒`)}</li>
+          <li>{JSON.stringify({ value: dateValue })}</li>
         </ul>
       }
     </div>
