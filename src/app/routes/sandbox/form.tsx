@@ -1,6 +1,6 @@
 import { Button } from "$/components/elements/button/button";
 import { DeleteIcon } from "$/components/elements/icon";
-import { SchemaProviderContext, useArraySchema, useHasError, useSchema, type SchemaProviderContextProps } from "$/shared/hooks/$schema";
+import { SchemaProviderContext, useFormArrayItem, useHasError, useSchema, type SchemaProviderContextProps } from "$/shared/hooks/$schema";
 import { useRender } from "$/shared/hooks/render";
 import { $Date, $DateTime } from "$/shared/objects/timestamp";
 import { parseWithSchema } from "$/shared/schema/$";
@@ -190,8 +190,8 @@ function SchemaContent() {
     return context.getMessage(formItems.str2.getName());
   });
 
-  const arr = useArraySchema(formItems.arr);
-  const arr2 = useArraySchema(formItems.arr2);
+  const arr = useFormArrayItem(formItems.arr);
+  const arr2 = useFormArrayItem(formItems.arr2);
 
   console.log("render: ", str2, str2Msg);
 

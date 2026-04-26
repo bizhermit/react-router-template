@@ -75,7 +75,7 @@ export function useHasError() {
   return hasError;
 };
 
-export function useArraySchema<S extends $ArrSchema<any, any>>(arrayFormItem: FormItem<S>) {
+export function useFormArrayItem<S extends $ArrSchema<any, any>>(arrayFormItem: FormItem<S>) {
   const { context } = use(SchemaProviderContext);
   const [revision, setRevision] = useState(0);
   const value = useSyncExternalStore<$Schema.Nullable<$Schema.InferValue<S>>>((callback) => {
@@ -163,4 +163,34 @@ export function useArraySchema<S extends $ArrSchema<any, any>>(arrayFormItem: Fo
     remove,
     add,
   } as const;
+};
+
+export function useFormValue<S extends SchemaItem<any>>(formItem: FormItem<S>) {
+  const { context } = use(SchemaProviderContext);
+  const value = useSyncExternalStore<$Schema.Nullable<$Schema.InferValue<S>>>((callback) => {
+    const cleanup = context.addValuesSubscribe(formItem.getName(), () => {
+      callback();
+    });
+    return () => cleanup();
+  }, () => {
+    return context.getValue(formItem.getName());
+  }, () => {
+    return context.getValue(formItem.getName());
+  });
+  return value;
+};
+
+export function useFormMessage(formItem: FormItem<any>) {
+  const { context } = use(SchemaProviderContext);
+  const message = useSyncExternalStore<$Schema.Message | undefined>((callback) => {
+    const cleanup = context.addMessageSubscribe(formItem.getName(), () => {
+      callback();
+    });
+    return () => cleanup();
+  }, () => {
+    return context.getMessage(formItem.getName());
+  }, () => {
+    return context.getMessage(formItem.getName());
+  });
+  return message;
 };
