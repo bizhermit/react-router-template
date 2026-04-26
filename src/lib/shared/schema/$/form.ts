@@ -98,7 +98,7 @@ export class FormContext<S extends $ObjSchema<any, any>> {
     return this.error;
   }
 
-  public setHasError(error: boolean) {
+  protected setHasError(error: boolean) {
     if (this.error === error) return this;
     this.error = error;
     this.errorSubscribes.forEach(fn => fn());
@@ -165,6 +165,8 @@ export class FormContext<S extends $ObjSchema<any, any>> {
       } as const;
     }
 
+    const isReplace = schemaItem instanceof $ArrSchema || schemaItem instanceof $ObjSchema;
+
     const parsed = schemaItem.parse(value, {
       data: this.data,
       isServer: this.isServer,
@@ -187,15 +189,39 @@ export class FormContext<S extends $ObjSchema<any, any>> {
       this.valuesSubscribes.get(name)?.forEach(fn => fn());
     }
 
-    Object.entries(messages).forEach(([name, msgs]) => {
-      const current = this.messages.get(name);
+    const updateMessages = Object.entries(messages).reduce((prev, [name, msgs]) => {
       const message = msgs?.find(msg => msg.type === "e");
-      if (equals(current, message)) return;
-      if (equals(current?.code, message?.code)) return;
+      if (isReplace) {
+        prev.push({ name, message });
+        return prev;
+      }
+      const current = this.messages.get(name);
+      if (equals(current, message)) return prev;
+      if (equals(current?.code, message?.code)) return prev;
+      prev.push({ name, message });
+      return prev;
+    }, [] as ({ name: string; message: $Schema.Message | undefined; }[]));
 
+    if (isReplace) {
+      const keys = Array.from(this.messages.keys());
+      const regexp = new RegExp(`${name}($|\\[\\d\\]|.)`);
+      keys.forEach(key => {
+        if (regexp.test(key)) {
+          this.messages.delete(key);
+        }
+      });
+    }
+
+    updateMessages.forEach(({ name, message }) => {
       this.messages.set(name, message);
       this.messagesSubscribes.get(name)?.forEach(fn => fn());
     });
+
+    this.setHasError(
+      Array.from(this.messages.values()).some(
+        message => message?.type === "e"
+      )
+    );
 
     return {
       value: parsed.value,

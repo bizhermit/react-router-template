@@ -1,6 +1,6 @@
 import { Button } from "$/components/elements/button/button";
 import { DeleteIcon } from "$/components/elements/icon";
-import { SchemaProviderContext, useArraySchema, useSchema, type SchemaProviderContextProps } from "$/shared/hooks/$schema";
+import { SchemaProviderContext, useArraySchema, useHasError, useSchema, type SchemaProviderContextProps } from "$/shared/hooks/$schema";
 import { useRender } from "$/shared/hooks/render";
 import { $Date, $DateTime } from "$/shared/objects/timestamp";
 import { parseWithSchema } from "$/shared/schema/$";
@@ -229,20 +229,6 @@ function SchemaContent() {
         </Button>
         <Button
           onClick={() => {
-            context.setHasError(true);
-          }}
-        >
-          error
-        </Button>
-        <Button
-          onClick={() => {
-            context.setHasError(false);
-          }}
-        >
-          no error
-        </Button>
-        <Button
-          onClick={() => {
             // const map = new Map<string, string>();
             // map.set("hoge", "fuga");
             // console.log(JSON.stringify(map));
@@ -336,6 +322,15 @@ function SchemaContent() {
   );
 };
 
+export function DisplayHasError() {
+  const hasError = useHasError();
+  return (
+    <span>
+      error: {String(hasError)}
+    </span>
+  );
+};
+
 export default function Page() {
   const [dateValue, setDateValue] = useState<$DateTime>(() => new $DateTime());
   const render = useRender();
@@ -416,7 +411,7 @@ export default function Page() {
         </Button>
       </div>
       <schema.SchemaProvider>
-        <span>error: {String(schema.hasError)}</span>
+        <DisplayHasError />
         <SchemaContent />
       </schema.SchemaProvider>
       <div className="flex flex-row flex-wrap gap-2">

@@ -62,6 +62,19 @@ export function useSchema<const S extends $ObjSchema<any, any>>(props: SchemaHoo
   } as const;
 };
 
+export function useHasError() {
+  const { context } = use(SchemaProviderContext);
+  const hasError = useSyncExternalStore((callback) => {
+    const cleanup = context.addErrorSubscribe(callback);
+    return () => cleanup();
+  }, () => {
+    return context.hasError();
+  }, () => {
+    return context.hasError();
+  });
+  return hasError;
+};
+
 export function useArraySchema<S extends $ArrSchema<any, any>>(arrayFormItem: FormItem<S>) {
   const { context } = use(SchemaProviderContext);
   const [revision, setRevision] = useState(0);
