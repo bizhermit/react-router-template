@@ -7,8 +7,8 @@ import { $ObjSchema } from "./object";
 
 export function convertToFormItems(
   formContext: FormContext<any>,
-  prefixName: string | undefined,
-  props: Record<string, SchemaItem<any>>
+  props: Record<string, SchemaItem<any>>,
+  prefixName?: string | undefined
 ) {
   const formItems: Record<string, FormItem<any>> = {};
   const pn = prefixName ? `${prefixName}.` : "";
@@ -61,13 +61,12 @@ export class FormContext<S extends $ObjSchema<any, any>> {
 
     this.formItems = convertToFormItems(
       this,
-      undefined,
       init.schema.getChildren()
     );
   }
 
   public getFormItems() {
-    return this.formItems as $Schema.InferFormItem<S>;
+    return this.formItems as $Schema.ObjectFormItems<S>;
   }
 
   public getInjectParams(): $Schema.InjectParams {

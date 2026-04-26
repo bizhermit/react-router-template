@@ -1,4 +1,5 @@
 import { Button } from "$/components/elements/button/button";
+import { DeleteIcon } from "$/components/elements/icon";
 import { SchemaProviderContext, useArraySchema, useSchema, type SchemaProviderContextProps } from "$/shared/hooks/$schema";
 import { useRender } from "$/shared/hooks/render";
 import { $Date, $DateTime } from "$/shared/objects/timestamp";
@@ -126,6 +127,9 @@ type _Year = $Schema.Infer<typeof year, true>;
 type _Enum = $Schema.Infer<typeof enum1, true>;
 type _Enum2 = $Schema.Infer<typeof enum2, true>;
 
+type _FormItem = $Schema.InferFormItems<typeof schemaObj>["arr2"]["age"];
+type _FormItem2 = $Schema.InferFormItems<typeof schemaObj>["arr"];
+
 // type _Hoge = $Schema.Infer<typeof schemaObject>;
 // type _Fuga = $Schema.Infer<typeof schemaObject, true>;
 // // type _Fuga = typeof schemaObject["props"]["selectStr"]["items"];
@@ -163,10 +167,12 @@ export function action({ request }: Route.ActionArgs) {
 function SchemaContent() {
   console.log("** render schema content");
 
+  const render = useRender();
+
   const { context } = use(SchemaProviderContext) as SchemaProviderContextProps<typeof schemaObj>;
   const formItems = context.getFormItems();
 
-  const value = useSyncExternalStore((callback) => {
+  const str2 = useSyncExternalStore((callback) => {
     const cleanup = context.addValuesSubscribe(formItems.str2.getName(), callback);
     return () => cleanup();
   }, () => {
@@ -175,7 +181,7 @@ function SchemaContent() {
     return context.getValue(formItems.str2.getName());
   });
 
-  const message = useSyncExternalStore((callback) => {
+  const str2Msg = useSyncExternalStore((callback) => {
     const cleanup = context.addMessageSubscribe(formItems.str2.getName(), callback);
     return () => cleanup();
   }, () => {
@@ -187,7 +193,7 @@ function SchemaContent() {
   const arr = useArraySchema(formItems.arr);
   const arr2 = useArraySchema(formItems.arr2);
 
-  console.log("render: ", value, message);
+  console.log("render: ", str2, str2Msg);
 
   useEffect(() => {
     console.log("mount", formItems);
@@ -251,7 +257,7 @@ function SchemaContent() {
 
         </Button>
       </div>
-      <ul className="flex-col gap-2">
+      <ul className="flex flex-col gap-2">
         {
           arr.map(({ key, name, value, formItem }) => {
             formItem.getName();
@@ -267,9 +273,9 @@ function SchemaContent() {
         }
       </ul>
       <hr />
-      <ul className="flex-col gap-2">
+      <ul className="flex flex-col gap-2">
         {
-          arr2.map(({ key, name, value, formItems }) => {
+          arr2.map(({ key, index, name, value, formItems, remove }) => {
             formItems.age.getName();
             return (
               <li key={key}>
@@ -277,11 +283,54 @@ function SchemaContent() {
                 {name}
                 ：
                 {JSON.stringify(value)}
+                <div className="flex flex-row flex-wrap gap-2">
+                  <Button
+                    onClick={() => {
+                      formItems.name.setValue(key);
+                      render();
+                    }}
+                  >
+                    set name
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      formItems.age.setValue(index);
+                      render();
+                    }}
+                  >
+                    set age
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      remove();
+                    }}
+                  >
+                    <DeleteIcon />
+                  </Button>
+                </div>
               </li>
             );
           })
         }
       </ul>
+      <div className="flex flex-row flex-wrap gap-2">
+        <Button
+          onClick={() => {
+            arr2.remove();
+          }}
+        >
+          clear
+        </Button>
+        <Button
+          onClick={() => {
+            arr2.add({
+              name: "piyo",
+            });
+          }}
+        >
+          add
+        </Button>
+      </div>
       <hr />
     </section>
   );

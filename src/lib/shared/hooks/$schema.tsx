@@ -78,10 +78,10 @@ export function useArraySchema<S extends $ArrSchema<any, any>>(arrayFormItem: Fo
   });
 
   type ArgFormParams = $Schema.InferArrayChild<S> extends $ObjSchema<any, any> ? {
-    formItems: $Schema.InferFormItem<$Schema.InferArrayChild<S>>;
+    formItems: $Schema.ObjectFormItems<$Schema.InferArrayChild<S>>;
     formItem: never;
   } : {
-    formItem: $Schema.InferFormItem<$Schema.InferArrayChild<S>>;
+    formItem: FormItem<$Schema.InferArrayChild<S>>;
     formItems: never;
   };
 
@@ -93,8 +93,8 @@ export function useArraySchema<S extends $ArrSchema<any, any>>(arrayFormItem: Fo
       return (index: number) => ({
         formItems: convertToFormItems(
           context,
-          `${name}[${index}]`,
           child.getChildren(),
+          `${name}[${index}]`,
         ),
       } as ArgFormParams);
     }
@@ -107,16 +107,37 @@ export function useArraySchema<S extends $ArrSchema<any, any>>(arrayFormItem: Fo
     } as ArgFormParams);
   });
 
+  function remove(index?: number) {
+    const v = arrayFormItem.getValue();
+    if (v == null) return;
+    if (index == null) {
+      arrayFormItem.setValue([]);
+      return;
+    }
+    const nv = [...v];
+    nv.splice(index, 1);
+    arrayFormItem.setValue(nv);
+  };
+
+  function add(value: $Schema.InferValue<$Schema.InferArrayChild<S>>) {
+    const v = [...arrayFormItem.getValue() ?? [], value];
+    arrayFormItem.setValue(v);
+  };
+
   function map<T>(callback: (params: {
     key: string;
+    index: number;
     name: string;
     value: $Schema.InferValue<$Schema.InferArrayChild<S>>;
+    remove: () => void;
   } & ArgFormParams) => T) {
     return value?.map((val, index) => {
       return callback({
         key: `${revision}-${index}`,
+        index,
         name: `${arrayFormItem.getName()}[${index}]`,
         value: val,
+        remove: () => remove(index),
         ...getChildFormItem(index),
       });
     });
@@ -126,5 +147,7 @@ export function useArraySchema<S extends $ArrSchema<any, any>>(arrayFormItem: Fo
     value,
     revision,
     map,
+    remove,
+    add,
   } as const;
 };

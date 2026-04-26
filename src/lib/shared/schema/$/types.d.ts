@@ -274,8 +274,11 @@ namespace $Schema {
       )
     );
 
-  type InferFormItem<S extends SchemaItem> = S extends import("./object").$ObjSchema<any, any>
-    ? { [K in keyof InferObjectChildren<S>]: FormItem<InferObjectChildren<S>[K]> }
-    : FormItem<S>;
+  type ObjectFormItems<S extends import("./object").$ObjSchema<any, any>> = { [K in keyof InferObjectChildren<S>]: FormItem<InferObjectChildren<S>[K]> };
+
+  type InferFormItems<S extends SchemaItem> =
+    S extends import("./object").$ObjSchema<any, any> ? { [K in keyof InferObjectChildren<S>]: InferFormItems<InferObjectChildren<S>[K]> } :
+    S extends import("./array").$ArrSchema<any, any> ? InferFormItems<InferArrayChild<S>> :
+    FormItem<S>;
 
 }
