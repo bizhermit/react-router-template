@@ -12,13 +12,13 @@ export class FormContext<S extends $ObjSchema<any, any>> {
   protected data: Record<string, any>;
   protected isServer: boolean;
 
-  protected subscribes: ((params: any) => void)[]; // TODO:
-
   protected messages: Map<string, $Schema.Message | undefined>;
   protected messagesSubscribes: Map<string, Set<() => void>>;
 
   protected error: boolean;
   protected errorSubscribes: Set<() => void>;
+
+  protected valuesSubscribes: Map<string, Set<() => void>>;
 
   constructor(init: {
     schema: S;
@@ -30,17 +30,25 @@ export class FormContext<S extends $ObjSchema<any, any>> {
     this.data = init.data;
     this.isServer = false;
 
-    this.subscribes = [];
-
     this.messages = new Map();
     this.messagesSubscribes = new Map();
 
     this.error = false;
     this.errorSubscribes = new Set();
+
+    this.valuesSubscribes = new Map();
+  }
+
+  public getInjectParams(): $Schema.InjectParams {
+    return {
+      values: this.values,
+      data: this.data,
+      isServer: this.isServer,
+    } as const;
   }
 
   public setMessages() {
-
+    // TODO:
   }
 
   public getMessage(name: string) {
@@ -73,14 +81,6 @@ export class FormContext<S extends $ObjSchema<any, any>> {
       this.errorSubscribes.delete(listener);
     };
   };
-
-  public getInjectParams(): $Schema.InjectParams {
-    return {
-      values: this.values,
-      data: this.data,
-      isServer: this.isServer,
-    } as const;
-  }
 
   public getSchemaItem(name: string): SchemaItem<any> | null {
     const names = splitName(name);
@@ -153,6 +153,10 @@ export class FormContext<S extends $ObjSchema<any, any>> {
 
     const messages = mergeRecordMessages(parsed.messages, validated);
 
+    if (hasChanged) {
+      this.valuesSubscribes.get(name)?.forEach(fn => fn());
+    }
+
     Object.entries(messages).forEach(([name, msgs]) => {
       const current = this.messages.get(name);
       const message = msgs?.find(msg => msg.type === "e");
@@ -169,6 +173,15 @@ export class FormContext<S extends $ObjSchema<any, any>> {
       messages,
       schemaItem,
     } as const;
+  }
+
+  public addValuesSubscribe(name: string, listener: () => void) {
+    if (!this.valuesSubscribes.has(name)) this.valuesSubscribes.set(name, new Set());
+    const listeners = this.valuesSubscribes.get(name)!;
+    listeners.add(listener);
+    return () => {
+      listeners.delete(listener);
+    };
   }
 
 };

@@ -38,17 +38,6 @@ export function useSchema<const S extends $ObjSchema<any, any>>(props: SchemaHoo
     return formContext.hasError();
   });
 
-  const message = useSyncExternalStore((callback) => {
-    const cleanup = formContext.addMessageSubscribe("str2", callback);
-    return () => cleanup();
-  }, () => {
-    return formContext.getMessage("str2");
-  }, () => {
-    return formContext.getMessage("str2");
-  });
-
-  console.log("render: ", message);
-
   const SchemaProvider = useCallback((p: {
     disabled?: boolean;
     readOnly?: boolean;

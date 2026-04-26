@@ -10,7 +10,7 @@ import { $enum } from "$/shared/schema/$/enum";
 import { $num } from "$/shared/schema/$/number";
 import { $obj } from "$/shared/schema/$/object";
 import { $str } from "$/shared/schema/$/string";
-import { use, useEffect, useState } from "react";
+import { use, useEffect, useState, useSyncExternalStore } from "react";
 import { data } from "react-router";
 import type { Route } from "./+types/form";
 
@@ -165,6 +165,26 @@ function SchemaContent() {
 
   const { context } = use(SchemaProviderContext) as SchemaProviderContextProps<typeof schemaObj>;
 
+  const value = useSyncExternalStore((callback) => {
+    const cleanup = context.addValuesSubscribe("str2", callback);
+    return () => cleanup();
+  }, () => {
+    return context.getValue("str2");
+  }, () => {
+    return context.getValue("str2");
+  });
+
+  const message = useSyncExternalStore((callback) => {
+    const cleanup = context.addMessageSubscribe("str2", callback);
+    return () => cleanup();
+  }, () => {
+    return context.getMessage("str2");
+  }, () => {
+    return context.getMessage("str2");
+  });
+
+  console.log("render: ", value, message);
+
   useEffect(() => {
     console.log("mount");
     return () => {
@@ -185,14 +205,14 @@ function SchemaContent() {
         </Button>
         <Button
           onClick={() => {
-            console.log(context.setValue("str2", "hogefugapiyo"));
+            context.setValue("str2", "hogefugapiyo");
           }}
         >
           set value
         </Button>
         <Button
           onClick={() => {
-            console.log(context.setValue("str2", null));
+            context.setValue("str2", null);
           }}
         >
           clear value
