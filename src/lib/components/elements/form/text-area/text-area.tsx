@@ -12,7 +12,7 @@ export type TextAreaProps<S extends $StrSchema<any>> =
   & FormInputStyleProps
   & FormInputProps
   & {
-    ref?: RefObject<TextAreaRef | null>;
+    ref?: RefObject<InputRef | null>;
     formItem: FormItem<S>;
     resize?: TextAreaResize;
   }

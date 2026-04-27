@@ -228,7 +228,7 @@ function slice(num: number | string, len = 2) {
   return String(num).slice(len * -1);
 }
 
-abstract class Timestamp {
+export abstract class Timestamp {
 
   protected offset: number;
   protected ms: number;

@@ -1,158 +1,155 @@
-import { useImperativeHandle, useRef, useState } from "react";
+import { useFormInput, type FormInputProps, type FormInputStyleProps } from "$/shared/hooks/$schema";
+import { $DateTime } from "$/shared/objects/timestamp";
+import { $DateSchema } from "$/shared/schema/$/date";
+import { $DateTimeSchema } from "$/shared/schema/$/datetime";
+import type { FormItem } from "$/shared/schema/$/form";
+import { $MonthSchema } from "$/shared/schema/$/month";
+import { useImperativeHandle, useMemo, useRef, type InputHTMLAttributes, type RefObject } from "react";
 import { DateBox$, type DateBox$Ref } from ".";
-import { useSource } from "../../../../shared/hooks/data-item-source";
-import { useSchemaItem } from "../../../../shared/hooks/schema";
-import { parseTypedDateString } from "../../../../shared/schema/date";
-import { getValidationValue } from "../../../../shared/schema/utilities";
-import { WithMessage } from "../message";
+import { WithMessage$ } from "../message";
 
-/** 日付ボックス対応スキーマアイテム */
-type DateBoxSchemaProps = Schema.$Date | Schema.$Month | Schema.$DateTime;
+type DateBoxSchemaItem =
+  | $DateSchema<any>
+  | $DateTimeSchema<any>
+  | $MonthSchema<any>;
 
-/** 日付ボックス ref オブジェクト */
-export interface DateBoxRef extends DateBox$Ref { };
+export interface DateBoxRef extends DateBox$Ref { }
 
-/** 日付ボックス Props */
-export type DateBoxProps<D extends Schema.DataItem<DateBoxSchemaProps>> = Overwrite<
-  InputPropsWithDataItem<D>,
-  {
-    /** 選択候補アイテム（配列） */
-    source?: Schema.Source<Schema.ValueType<D["_"]>>;
-    /** プレースホルダー */
-    placeholder?: string;
+export type DateBoxProps<S extends DateBoxSchemaItem> =
+  & FormInputStyleProps
+  & FormInputProps
+  & {
+    ref?: RefObject<InputRef | null>;
+    formItem: FormItem<S>;
   }
->;
+  & Pick<InputHTMLAttributes<HTMLInputElement>,
+    | "placeholder"
+    | "autoFocus"
+    | "list"
+    | "step"
+    | "children"
+  >;
 
-/**
- * 日付ボックス（スキーマ対応）
- * @param param {@link DateBoxProps}
- * @returns
- */
-export function DateBox<P extends Schema.DataItem<DateBoxSchemaProps>>({
+export function DateBox<S extends DateBoxSchemaItem>({
+  ref,
+  formItem,
+  hideMessage,
+  omitOnSubmit,
   className,
   style,
   placeholder,
-  autoFocus,
-  source: propsSource,
-  ...$props
-}: DateBoxProps<P>) {
-  const ref = useRef<DateBox$Ref>(null!);
+  children,
+  ...props
+}: DateBoxProps<S>) {
+  const ref$ = useRef<DateBox$Ref>(null!);
 
   const {
+    schemaItem,
+    id,
     name,
-    dataItem,
+    label,
     state,
-    required,
     value,
     setValue,
-    result,
-    label,
-    invalid,
+    message,
+    isInvalid,
+    errormMessageId,
     errormessage,
-    getCommonParams,
-    setRefs,
-    env,
-    omitOnSubmit,
+    injectParams,
+  } = useFormInput(formItem, {
     hideMessage,
-  } = useSchemaItem<Schema.DataItem<DateBoxSchemaProps>>($props, {
-    effectContext: function () {
-      setMin(getMin);
-      setMax(getMax);
-      setPair(getPair);
-      resetDataItemSource();
-    },
+    omitOnSubmit,
   });
 
-  const type = dataItem._.type;
-  const time = (dataItem._ as Schema.$DateTime).time;
+  const {
+    required,
+    min,
+    max,
+    type,
+    formatPattern,
+  } = useMemo(() => {
+    let min = new $DateTime("1900-01-01T00:00:00");
+    const minMonth = schemaItem.getMinMonth(injectParams);
+    if (minMonth && min.isBefore(minMonth)) {
+      min = new $DateTime(minMonth);
+    }
+    const minDate = schemaItem.getMinDate(injectParams);
+    if (minDate && min.isBefore(minDate)) {
+      min = new $DateTime(minDate);
+    }
+    const minDateTime = schemaItem.getMinDateTime(injectParams);
+    if (minDateTime && min.isBefore(minDateTime)) {
+      min = new $DateTime(minDateTime);
+    }
 
-  function getMin() {
-    return parseTypedDateString(
-      getValidationValue(getCommonParams(), dataItem._.minDate),
+    let max = new $DateTime("2999-12-31T23:59:59");
+    const maxMonth = schemaItem.getMaxMonth(injectParams);
+    if (maxMonth && max.isAfter(maxMonth)) {
+      max = new $DateTime(maxMonth);
+    }
+    const maxDate = schemaItem.getMaxDate(injectParams);
+    if (maxDate && max.isAfter(maxDate)) {
+      max = new $DateTime(maxDate);
+    }
+    const maxDateTime = schemaItem.getMaxDateTime(injectParams);
+    if (maxDateTime && max.isAfter(maxDateTime)) {
+      max = new $DateTime(maxDateTime);
+    }
+
+    let type: "date" | "month" | "datetime-local" = "date";
+    let formatPattern = "yyyy-MM-dd";
+    if (schemaItem instanceof $MonthSchema) {
+      type = "month";
+      formatPattern = "yyyy-MM";
+    } else if (schemaItem instanceof $DateTimeSchema) {
+      type = "datetime-local";
+      formatPattern = "yyyy-MM-ddThh:mm:ss";
+    }
+
+    return {
+      required: schemaItem.getRequired(injectParams),
+      max: max.toString(formatPattern),
+      min: min.toString(formatPattern),
       type,
-      time,
-    );
-  };
+      formatPattern,
+    };
+  }, [
+    schemaItem,
+    injectParams,
+  ]);
 
-  const [min, setMin] = useState(getMin);
-
-  function getMax() {
-    return parseTypedDateString(
-      getValidationValue(getCommonParams(), dataItem._.maxDate),
-      type,
-      time,
-    );
-  };
-
-  const [max, setMax] = useState(getMax);
-
-  function getPair() {
-    const pair = getValidationValue(getCommonParams(), dataItem._.pair);
-    setRefs(pair?.name ? [pair.name] : []);
-    return pair;
-  };
-
-  const [_pair, setPair] = useState(getPair);
-
-  const { source, resetDataItemSource } = useSource({
-    dataItem,
-    propsSource,
-    env,
-    getCommonParams,
-  });
-
-  const dataListId = source == null ? undefined : `${name}_dl`;
-
-  useImperativeHandle($props.ref, () => ref.current);
+  useImperativeHandle(ref, () => ref$.current);
 
   return (
-    <WithMessage
+    <WithMessage$
+      id={errormMessageId}
       hide={hideMessage}
       state={state}
-      result={result}
+      message={message}
     >
       <DateBox$
+        ref={ref$}
         className={className}
         style={style}
-        ref={ref}
-        invalid={invalid}
         state={state}
-        value={value}
+        invalid={isInvalid}
+        value={value?.toString(formatPattern)}
         onChangeValue={setValue}
         inputProps={{
-          type: type === "datetime" ? "datetime-local" : type,
+          ...props,
+          type,
+          id,
           name: omitOnSubmit ? undefined : name,
           placeholder,
           required,
           min,
           max,
-          step: type === "datetime"
-            ? (dataItem._.time === "hm" ? 60 : undefined)
-            : undefined,
           "aria-label": label,
           "aria-errormessage": errormessage,
-          list: dataListId,
-          autoFocus,
         }}
       >
-        {
-          source &&
-          <datalist
-            id={dataListId}
-          >
-            {source.map(item => {
-              return (
-                <option
-                  key={item.value}
-                  value={item.value || ""}
-                >
-                  {item.text}
-                </option>
-              );
-            })}
-          </datalist>
-        }
+        {children}
       </DateBox$>
-    </WithMessage>
+    </WithMessage$>
   );
-};
+}

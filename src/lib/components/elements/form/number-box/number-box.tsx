@@ -12,7 +12,7 @@ export type NumberBoxProps<S extends $NumSchema<any>> =
   & FormInputStyleProps
   & FormInputProps
   & {
-    ref?: RefObject<NumberBoxRef | null>;
+    ref?: RefObject<InputRef | null>;
     formItem: FormItem<S>;
     step?: number;
   }
@@ -22,6 +22,7 @@ export type NumberBoxProps<S extends $NumSchema<any>> =
     | "autoComplete"
     | "enterKeyHint"
     | "list"
+    | "children"
   >;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -32,6 +33,7 @@ export function NumberBox<S extends $NumSchema<any>>({
   omitOnSubmit,
   className,
   style,
+  children,
   ...props
 }: NumberBoxProps<S>) {
   const ref$ = useRef<NumberBox$Ref>(null!);
@@ -99,7 +101,9 @@ export function NumberBox<S extends $NumSchema<any>>({
           "aria-label": label,
           "aria-errormessage": errormessage,
         }}
-      />
+      >
+        {children}
+      </NumberBox$>
     </WithMessage$>
   );
 }

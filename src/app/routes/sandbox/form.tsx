@@ -2,6 +2,7 @@ import { Button } from "$/components/elements/button/button";
 import { CheckBox } from "$/components/elements/form/check-box/check-box";
 import { CheckList } from "$/components/elements/form/check-box/check-list";
 import { ComboBox } from "$/components/elements/form/combo-box/combo-box";
+import { DateBox } from "$/components/elements/form/date-box/date-box";
 import { FileBox } from "$/components/elements/form/file-box/file-box";
 import { NumberBox } from "$/components/elements/form/number-box/number-box";
 import { PasswordBox } from "$/components/elements/form/password-box/password-box";
@@ -20,8 +21,10 @@ import { parseWithSchema } from "$/shared/schema/$";
 import { $arr } from "$/shared/schema/$/array";
 import { $bool } from "$/shared/schema/$/boolean";
 import { $date } from "$/shared/schema/$/date";
+import { $datetime } from "$/shared/schema/$/datetime";
 import { $enum } from "$/shared/schema/$/enum";
 import { $file } from "$/shared/schema/$/file";
+import { $month } from "$/shared/schema/$/month";
 import { $num } from "$/shared/schema/$/number";
 import { $obj } from "$/shared/schema/$/object";
 import { $str } from "$/shared/schema/$/string";
@@ -202,6 +205,18 @@ const schemaObj = $obj({
         },
       }),
     }),
+    date: $date({
+      label: "date",
+      required: true,
+    }),
+    month: $month({
+      label: "month",
+      required: true,
+    }),
+    datetime: $datetime({
+      label: "datetime",
+      required: true,
+    }),
     arr: arr,
     arr2: $arr({
       prop: $obj({
@@ -213,8 +228,8 @@ const schemaObj = $obj({
       }),
       required: true,
     }),
-    enum: enum1,
-    enum2: enum2,
+    // enum: enum1,
+    // enum2: enum2,
   },
 }).overwrite({
   required: true,
@@ -436,6 +451,21 @@ function SchemaContent() {
             // appearance="togglebox"
             appearance="button"
             color="primary"
+          />
+        </FormItem>
+        <FormItem>
+          <DateBox
+            formItem={formItems.date}
+          />
+        </FormItem>
+        <FormItem>
+          <DateBox
+            formItem={formItems.month}
+          />
+        </FormItem>
+        <FormItem>
+          <DateBox
+            formItem={formItems.datetime}
           />
         </FormItem>
       </div>

@@ -12,7 +12,6 @@ import { Dialog, useDialog } from "$/components/elements/dialog";
 import { CheckBox$ } from "$/components/elements/form/check-box";
 import { ComboBox$, ComboBoxItem } from "$/components/elements/form/combo-box";
 import { DateBox$ } from "$/components/elements/form/date-box";
-import { DateBox } from "$/components/elements/form/date-box/date-box";
 import { DateSelectBox } from "$/components/elements/form/date-box/date-select-box";
 import { FieldSet } from "$/components/elements/form/fieldset";
 import { FileBox$ } from "$/components/elements/form/file-box";
@@ -724,25 +723,25 @@ function Component2() {
       </FormItem> */}
       <FormItem>
         <DateBox$ />
-        <DateBox
+        {/* <DateBox
           $={dataItems.date}
-        />
+        /> */}
       </FormItem>
-      <FormItem>
+      {/* <FormItem>
         <DateBox
           $={dataItems.datePair}
         />
-      </FormItem>
-      <FormItem>
+      </FormItem> */}
+      {/* <FormItem>
         <DateBox
           $={dataItems.month}
         />
-      </FormItem>
-      <FormItem>
+      </FormItem> */}
+      {/* <FormItem>
         <DateBox
           $={dataItems.datetime}
         />
-      </FormItem>
+      </FormItem> */}
       <FormItem>
         <DateSelectBox
           $={dataItems.birth_year}

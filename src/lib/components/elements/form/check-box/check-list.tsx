@@ -17,7 +17,7 @@ export type CheckListProps<
   & FormInputStyleProps
   & FormInputProps
   & {
-    ref?: RefObject<CheckListRef | null>;
+    ref?: RefObject<InputRef | null>;
     formItem: FormItem<S>;
     appearance?: CheckBoxAppearance;
     color?: StyleColor;

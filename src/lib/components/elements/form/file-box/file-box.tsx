@@ -13,7 +13,7 @@ export type FileBoxProps<S extends $FileSchema<any>> =
   & FormInputStyleProps
   & FormInputProps
   & {
-    ref?: RefObject<FileBoxRef | null>;
+    ref?: RefObject<InputRef | null>;
     formItem: FormItem<S>;
   } & (
     | {

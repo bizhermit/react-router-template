@@ -11,7 +11,7 @@ export type CheckBoxProps<S extends $BoolSchema<any>> =
   & FormInputStyleProps
   & FormInputProps
   & {
-    ref?: RefObject<CheckBoxRef | null>;
+    ref?: RefObject<InputRef | null>;
     formItem: FormItem<S>;
     appearance?: CheckBoxAppearance;
     color?: StyleColor;

@@ -605,4 +605,52 @@ export class $MonthSchema<const P extends MonthProps> extends SchemaItem<$Month>
     });
   }
 
+  public getRequired(params: $Schema.InjectParams) {
+    const required = getValidationArray(this.props.required)[0];
+    if (typeof required === "function") {
+      return required(params) ?? false;
+    }
+    return required ?? false;
+  }
+
+  public getMinMonth(params: $Schema.InjectParams) {
+    const minMonth = getValidationArray(this.props.minMonth)[0];
+    if (typeof minMonth === "function") {
+      return minMonth(params);
+    }
+    return minMonth;
+  }
+
+  public getMaxMonth(params: $Schema.InjectParams) {
+    const maxMonth = getValidationArray(this.props.maxMonth)[0];
+    if (typeof maxMonth === "function") {
+      return maxMonth(params);
+    }
+    return maxMonth;
+  }
+
+  public getMinDate() {
+    return undefined;
+  }
+
+  public getMaxDate() {
+    return undefined;
+  }
+
+  public getMinTime() {
+    return undefined;
+  }
+
+  public getMaxTime() {
+    return undefined;
+  }
+
+  public getMinDateTime() {
+    return undefined;
+  }
+
+  public getMaxDateTime() {
+    return undefined;
+  }
+
 };

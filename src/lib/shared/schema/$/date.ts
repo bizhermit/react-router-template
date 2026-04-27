@@ -655,4 +655,52 @@ export class $DateSchema<const P extends DateProps> extends SchemaItem<$Date> {
     });
   }
 
+  public getRequired(params: $Schema.InjectParams) {
+    const required = getValidationArray(this.props.required)[0];
+    if (typeof required === "function") {
+      return required(params) ?? false;
+    }
+    return required ?? false;
+  }
+
+  public getMinMonth() {
+    return undefined;
+  }
+
+  public getMaxMonth() {
+    return undefined;
+  }
+
+  public getMinDate(params: $Schema.InjectParams) {
+    const minDate = getValidationArray(this.props.minDate)[0];
+    if (typeof minDate === "function") {
+      return minDate(params);
+    }
+    return minDate;
+  }
+
+  public getMaxDate(params: $Schema.InjectParams) {
+    const maxDate = getValidationArray(this.props.maxDate)[0];
+    if (typeof maxDate === "function") {
+      return maxDate(params);
+    }
+    return maxDate;
+  }
+
+  public getMinTime() {
+    return undefined;
+  }
+
+  public getMaxTime() {
+    return undefined;
+  }
+
+  public getMinDateTime() {
+    return undefined;
+  }
+
+  public getMaxDateTime() {
+    return undefined;
+  }
+
 }

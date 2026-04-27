@@ -924,4 +924,68 @@ export class $DateTimeSchema<const P extends DateTimeProps> extends SchemaItem<$
     });
   }
 
+  public getRequired(params: $Schema.InjectParams) {
+    const required = getValidationArray(this.props.required)[0];
+    if (typeof required === "function") {
+      return required(params) ?? false;
+    }
+    return required ?? false;
+  }
+
+  public getMinMonth() {
+    return undefined;
+  }
+
+  public getMaxMonth() {
+    return undefined;
+  }
+
+  public getMinDate(params: $Schema.InjectParams) {
+    const minDate = getValidationArray(this.props.minDate)[0];
+    if (typeof minDate === "function") {
+      return minDate(params);
+    }
+    return minDate;
+  }
+
+  public getMaxDate(params: $Schema.InjectParams) {
+    const maxDate = getValidationArray(this.props.maxDate)[0];
+    if (typeof maxDate === "function") {
+      return maxDate(params);
+    }
+    return maxDate;
+  }
+
+  public getMinTime(params: $Schema.InjectParams) {
+    const minTime = getValidationArray(this.props.minTime)[0];
+    if (typeof minTime === "function") {
+      return minTime(params);
+    }
+    return minTime;
+  }
+
+  public getMaxTime(params: $Schema.InjectParams) {
+    const maxTime = getValidationArray(this.props.maxTime)[0];
+    if (typeof maxTime === "function") {
+      return maxTime(params);
+    }
+    return maxTime;
+  }
+
+  public getMinDateTime(params: $Schema.InjectParams) {
+    const minDateTime = getValidationArray(this.props.minDateTime)[0];
+    if (typeof minDateTime === "function") {
+      return minDateTime(params);
+    }
+    return minDateTime;
+  }
+
+  public getMaxDateTime(params: $Schema.InjectParams) {
+    const maxDateTime = getValidationArray(this.props.maxDateTime)[0];
+    if (typeof maxDateTime === "function") {
+      return maxDateTime(params);
+    }
+    return maxDateTime;
+  }
+
 }

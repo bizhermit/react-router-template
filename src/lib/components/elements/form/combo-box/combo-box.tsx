@@ -13,7 +13,7 @@ export type ComboBoxProps<S extends $EnumSchema<any, any>> =
   & FormInputStyleProps
   & FormInputProps
   & {
-    ref?: RefObject<ComboBoxRef | null>;
+    ref?: RefObject<InputRef | null>;
     formItem: FormItem<S>;
     placeholder?: string;
     emptyText?: string;

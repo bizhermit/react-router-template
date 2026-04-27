@@ -12,7 +12,7 @@ export type SliderProps<S extends $NumSchema<any>> =
   & FormInputStyleProps
   & FormInputProps
   & {
-    ref?: RefObject<SliderRef | null>;
+    ref?: RefObject<InputRef | null>;
     formItem: FormItem<S>;
     step?: number;
     color?: StyleColor;

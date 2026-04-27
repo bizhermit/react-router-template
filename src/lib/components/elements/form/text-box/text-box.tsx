@@ -22,6 +22,7 @@ export type TextBoxProps<S extends $StrSchema<any>> =
     | "autoCapitalize"
     | "enterKeyHint"
     | "list"
+    | "children"
   >;
 
 interface PatternProps {
@@ -58,6 +59,7 @@ export function TextBox<S extends $StrSchema<any>>({
   omitOnSubmit,
   className,
   style,
+  children,
   ...props
 }: TextBoxProps<S>) {
   const ref$ = useRef<TextBox$Ref>(null!);
@@ -130,7 +132,9 @@ export function TextBox<S extends $StrSchema<any>>({
           "aria-label": label,
           "aria-errormessage": errormessage,
         }}
-      />
+      >
+        {children}
+      </TextBox$>
     </WithMessage$>
   );
 };

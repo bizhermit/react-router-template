@@ -12,7 +12,7 @@ export type PasswordBoxProps<S extends $StrSchema<any>> =
   & FormInputStyleProps
   & FormInputProps
   & {
-    ref?: RefObject<PasswordBoxRef | null>;
+    ref?: RefObject<InputRef | null>;
     formItem: FormItem<S>;
   }
   & Pick<InputHTMLAttributes<HTMLInputElement>,
@@ -21,6 +21,7 @@ export type PasswordBoxProps<S extends $StrSchema<any>> =
     | "autoComplete"
     | "autoCapitalize"
     | "enterKeyHint"
+    | "children"
   >;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -31,6 +32,7 @@ export function PasswordBox<S extends $StrSchema<any>>({
   omitOnSubmit,
   className,
   style,
+  children,
   ...props
 }: PasswordBoxProps<S>) {
   const ref$ = useRef<PasswordBox$Ref>(null!);
@@ -95,7 +97,9 @@ export function PasswordBox<S extends $StrSchema<any>>({
           "aria-label": label,
           "aria-errormessage": errormessage,
         }}
-      />
+      >
+        {children}
+      </PasswordBox$>
     </WithMessage$>
   );
 };
