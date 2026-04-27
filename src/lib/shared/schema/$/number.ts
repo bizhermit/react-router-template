@@ -37,15 +37,11 @@ export function $num<const P extends NumberProps>(props: P = {} as P) {
 export class $NumSchema<const P extends NumberProps> extends SchemaItem<number> {
 
   constructor(protected props: P = {} as P) {
-    super();
+    super(props);
   }
 
   public getActionType(): $Schema.ActionType {
     return this.props.actionType || "input";
-  }
-
-  public getLabel(): string | undefined {
-    return this.props.label;
   }
 
   public parse(
@@ -226,6 +222,38 @@ export class $NumSchema<const P extends NumberProps> extends SchemaItem<number> 
       ...this.props,
       ...props,
     });
+  }
+
+  public getRequired(params: $Schema.InjectParams) {
+    const required = getValidationArray(this.props.required)[0];
+    if (typeof required === "function") {
+      return required(params) ?? false;
+    }
+    return required ?? false;
+  }
+
+  public getMin(params: $Schema.InjectParams) {
+    const min = getValidationArray(this.props.min)[0];
+    if (typeof min === "function") {
+      return min(params);
+    }
+    return min;
+  }
+
+  public getMax(params: $Schema.InjectParams) {
+    const max = getValidationArray(this.props.max)[0];
+    if (typeof max === "function") {
+      return max(params);
+    }
+    return max;
+  }
+
+  public getFloat(params: $Schema.InjectParams) {
+    const float = getValidationArray(this.props.float)[0];
+    if (typeof float === "function") {
+      return float(params);
+    }
+    return float;
   }
 
 }

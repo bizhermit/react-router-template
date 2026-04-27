@@ -1,87 +1,84 @@
-import { useImperativeHandle, useRef } from "react";
+import { useFormInput, useSchemaInitizlied, type FormInputProps, type FormInputStyleProps } from "$/shared/hooks/$schema";
+import type { $ArrSchema, ArrayProps } from "$/shared/schema/$/array";
+import type { $EnumSchema } from "$/shared/schema/$/enum";
+import type { FormItem } from "$/shared/schema/$/form";
+import { useImperativeHandle, useMemo, useRef, type InputHTMLAttributes, type RefObject } from "react";
 import { CheckBox$, type CheckBox$Ref, type CheckBoxAppearance } from ".";
-import { useSource } from "../../../../shared/hooks/data-item-source";
-import { useSchemaItem } from "../../../../shared/hooks/schema";
-import { WithMessage } from "../message";
+import { LoadingBar } from "../../loading";
+import { WithMessage$ } from "../message";
 import { InputGroupWrapper } from "../wrapper/input-group";
 
-/** チェックリスト対応スキーマアイテム */
-type CheckListItemSchemaProps =
-  | Schema.$String
-  | Schema.$Number
-  | Schema.$Boolean
-  ;
+export interface CheckListRef extends InputRef { }
 
-/** チェックリスト ref オブジェクト */
-export interface CheckListRef extends InputRef { };
-
-/** チェックリスト Props */
-export type CheckListProps<D extends Schema.DataItem<Schema.$Array<CheckListItemSchemaProps>>> = Overwrite<
-  InputPropsWithDataItem<D>,
-  {
-    /** チェックボックス見た目 */
+export type CheckListProps<
+  E extends $EnumSchema<any, any>,
+  S extends $ArrSchema<E, ArrayProps<E>>
+> =
+  & FormInputStyleProps
+  & FormInputProps
+  & {
+    ref?: RefObject<CheckListRef | null>;
+    formItem: FormItem<S>;
     appearance?: CheckBoxAppearance;
-    /** チェックボックス配色 */
     color?: StyleColor;
-    /** チェックリストアイテム（配列） */
-    source?: Schema.Source<Schema.ValueType<D["_"]>>;
   }
->;
+  & Pick<InputHTMLAttributes<HTMLInputElement>,
+    | "autoFocus"
+  >;
 
-/**
- * チェックリスト（スキーマ対応）
- * @param param {@link CheckListProps}
- * @returns
- */
-export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemSchemaProps>>>({
+export function CheckList<
+  E extends $EnumSchema<any, any>,
+  S extends $ArrSchema<E, ArrayProps<E>>
+>({
+  ref,
+  formItem,
+  hideMessage,
+  omitOnSubmit,
   className,
   style,
-  appearance = "checkbox",
+  appearance,
   color,
   autoFocus,
-  source: propsSource,
-  ...$props
-}: CheckListProps<D>) {
+}: CheckListProps<E, S>) {
   const wref = useRef<HTMLDivElement>(null!);
   const firstRef = useRef<CheckBox$Ref | null>(null);
 
   const {
+    schemaItem,
+    id,
     name,
-    dataItem,
+    label,
     state,
-    required,
     value,
     setValue,
-    result,
-    label,
-    invalid,
+    message,
+    isInvalid,
+    errormMessageId,
     errormessage,
-    env,
-    getCommonParams,
-    omitOnSubmit,
+    injectParams,
+  } = useFormInput(formItem, {
     hideMessage,
-  } = useSchemaItem<Schema.DataItem<Schema.$Array>>($props, {
-    effect: function ({ value }) {
-      if (!wref.current) return;
-      const arr = ((value == null || !Array.isArray(value)) ? [] : value)
-        .map(v => v == null ? "" : String(v));
-      wref.current.querySelectorAll(`input[type="checkbox"]`).forEach(elem => {
-        const v = (elem as HTMLInputElement).value;
-        const isChecked = arr.some(av => av === v);
-        (elem as HTMLInputElement).checked = isChecked;
-      });
-    },
-    effectContext: function () {
-      resetDataItemSource();
-    },
+    omitOnSubmit,
   });
 
-  const { source, resetDataItemSource } = useSource({
-    dataItem,
-    propsSource,
-    env,
-    getCommonParams,
-  });
+  const enumSchema = formItem.getSchemaItem().getChild();
+
+  const initializedEnum = useSchemaInitizlied(enumSchema);
+
+  const {
+    items,
+    required,
+  } = useMemo(() => {
+    return {
+      items: enumSchema.getItems(),
+      required: schemaItem.getRequired(injectParams),
+    };
+  }, [
+    schemaItem,
+    enumSchema,
+    initializedEnum,
+    injectParams,
+  ]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function handleChange(v: any) {
@@ -96,24 +93,27 @@ export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemS
     setValue(newValue);
   };
 
-  useImperativeHandle($props.ref, () => ({
+  useImperativeHandle(ref, () => ({
     element: wref.current,
     focus: () => firstRef.current?.focus(),
   } as const satisfies CheckListRef));
 
   return (
-    <WithMessage
+    <WithMessage$
+      id={errormMessageId}
       hide={hideMessage}
       state={state}
-      result={result}
+      message={message}
     >
+      {!initializedEnum && <LoadingBar />}
       <InputGroupWrapper
+        id={id}
         className={className}
         style={style}
         ref={wref}
         state={state}
       >
-        {source?.map((item, index) => {
+        {items?.map((item, index) => {
           const key = String(item.value);
           const isChecked = value?.some(v => v === item.value);
 
@@ -121,9 +121,9 @@ export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemS
             <CheckBox$
               key={key}
               ref={index === 0 ? firstRef : undefined}
-              invalid={invalid}
-              appearance={appearance}
               state={state}
+              invalid={isInvalid}
+              appearance={appearance}
               color={color}
               checked={isChecked}
               onChangeChecked={() => handleChange(item.value)}
@@ -141,6 +141,6 @@ export function CheckList<D extends Schema.DataItem<Schema.$Array<CheckListItemS
           );
         })}
       </InputGroupWrapper>
-    </WithMessage>
+    </WithMessage$>
   );
 };

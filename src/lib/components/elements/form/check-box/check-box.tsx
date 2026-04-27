@@ -1,89 +1,106 @@
-import { useImperativeHandle, useRef, type ReactNode } from "react";
+import { useFormInput, type FormInputProps, type FormInputStyleProps } from "$/shared/hooks/$schema";
+import type { $BoolSchema } from "$/shared/schema/$/boolean";
+import type { FormItem } from "$/shared/schema/$/form";
+import { useImperativeHandle, useMemo, useRef, type InputHTMLAttributes, type RefObject } from "react";
 import { CheckBox$, type CheckBox$Ref, type CheckBoxAppearance } from ".";
-import { useSchemaItem } from "../../../../shared/hooks/schema";
-import { WithMessage } from "../message";
+import { WithMessage$ } from "../message";
 
-/** チェックボックス ref オブジェクト */
-export interface CheckBoxRef extends CheckBox$Ref { };
+export interface CheckBoxRef extends CheckBox$Ref { }
 
-/** チェックボックス Props */
-export type CheckBoxProps<D extends Schema.DataItem<Schema.$Boolean>> = Overwrite<
-  InputPropsWithDataItem<D>,
-  {
-    /** チェックボックス見た目 */
+export type CheckBoxProps<S extends $BoolSchema<any>> =
+  & FormInputStyleProps
+  & FormInputProps
+  & {
+    ref?: RefObject<CheckBoxRef | null>;
+    formItem: FormItem<S>;
     appearance?: CheckBoxAppearance;
-    /** チェックボックス配色 */
     color?: StyleColor;
-    /** チェックボックステキスト */
-    children?: ReactNode;
   }
->;
+  & Pick<InputHTMLAttributes<HTMLInputElement>,
+    | "autoFocus"
+    | "children"
+  >;
 
-/**
- * チェックボックス（スキーマ対応）
- * @param param {@link CheckBoxProps}
- * @returns
- */
-export function CheckBox<D extends Schema.DataItem<Schema.$Boolean>>({
+export function CheckBox<S extends $BoolSchema<any>>({
+  ref,
+  formItem,
+  hideMessage,
+  omitOnSubmit,
   className,
   style,
-  autoFocus,
-  appearance,
+  appearance = "checkbox",
   color,
   children,
-  ...$props
-}: CheckBoxProps<D>) {
-  const ref = useRef<CheckBox$Ref>(null!);
+  ...props
+}: CheckBoxProps<S>) {
+  const ref$ = useRef<CheckBox$Ref>(null!);
 
   const {
+    schemaItem,
+    id,
     name,
-    dataItem,
+    label,
     state,
-    required,
     value,
     setValue,
-    result,
-    label,
-    invalid,
+    message,
+    isInvalid,
+    errormMessageId,
     errormessage,
-    omitOnSubmit,
+    injectParams,
+  } = useFormInput(formItem, {
     hideMessage,
-  } = useSchemaItem<Schema.DataItem<Schema.$Boolean>>($props, {});
+    omitOnSubmit,
+  });
+
+  const {
+    required,
+  } = useMemo(() => {
+    const required = schemaItem.getRequired(injectParams);
+    return {
+      required: required ? true : required,
+    };
+  }, [
+    schemaItem,
+    injectParams,
+  ]);
 
   function handleChangeValue(checked: boolean) {
-    setValue(checked ? dataItem._.trueValue : dataItem._.falseValue);
+    setValue(checked ? schemaItem.getTrueValue() : schemaItem.getFalseValue());
   };
 
-  useImperativeHandle($props.ref, () => ref.current);
+  useImperativeHandle(ref, () => ref$.current);
 
   return (
-    <WithMessage
+    <WithMessage$
+      id={errormMessageId}
       hide={hideMessage}
       state={state}
-      result={result}
+      message={message}
     >
       <CheckBox$
-        ref={ref}
-        invalid={invalid}
+        ref={ref$}
         className={className}
         style={style}
+        state={state}
+        invalid={isInvalid}
+        checked={schemaItem.getTrueValue() === value}
+        onChangeChecked={handleChangeValue}
+        trueValue={schemaItem.getTrueValue()}
+        falseValue={schemaItem.getFalseValue()}
         color={color}
         appearance={appearance}
-        state={state}
-        checked={dataItem._.trueValue === value}
-        onChangeChecked={handleChangeValue}
-        trueValue={dataItem._.trueValue}
-        falseValue={dataItem._.falseValue}
         inputProps={{
+          ...props,
+          id,
           name: omitOnSubmit ? undefined : name,
           required,
           "aria-label": label,
           "aria-errormessage": errormessage,
-          autoFocus,
         }}
       >
         {children}
       </CheckBox$>
-    </WithMessage>
+    </WithMessage$>
   );
 };

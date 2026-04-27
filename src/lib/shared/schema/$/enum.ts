@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import type { Awaitable } from "better-auth";
 import { getPickMessageGetter, getValidationArray, optimizeValidationMessage, SchemaItem } from "./core";
 
-export const SCHEMA_ITEM_TYPE_ENUM = "src";
+export const SCHEMA_ITEM_TYPE_ENUM = "enum";
 
 type EnumArrayNoise =
   | $Schema.SourceItem<unknown>[]
@@ -26,11 +27,18 @@ export type EnumSchemaMessage = $Schema.ValidationMessages<
   }
 >;
 
+type EnumItems<Value> =
+  | $Schema.SourceItem<Value>[]
+  | readonly $Schema.SourceItem<Value>[]
+  ;
+
+type DynamicEnumItems<Value> = (params: $Schema.InjectParams) => (EnumItems<Value> | Promise<EnumItems<Value>>);
+
 type EnumProps<Value> = $Schema.SchemaItemAbstractProps
   & $Schema.Validations<EnumValidations>
   & {
     parser?: $Schema.Parser<Value>;
-    items: $Schema.SourceItem<Value>[] | readonly $Schema.SourceItem<Value>[];
+    items: EnumItems<Value> | DynamicEnumItems<Value>;
     notFoundMessage?: $Schema.ValidationCustomMessage<
       unknown,
       { items: $Schema.SourceItem<Value>[] | readonly $Schema.SourceItem<Value>[]; },
@@ -41,9 +49,11 @@ type EnumProps<Value> = $Schema.SchemaItemAbstractProps
 
 const pickMessage = getPickMessageGetter(SCHEMA_ITEM_TYPE_ENUM);
 
-type InferItems<P> = P extends { readonly items: infer T extends readonly $Schema.SourceItem<any>[]; }
-  ? RemoveEnumArrayNoise<T>
-  : never;
+type InferItems<P> =
+  P extends { readonly items: infer T extends readonly $Schema.SourceItem<any>[]; } ? RemoveEnumArrayNoise<T> :
+  P extends { readonly items: infer T extends () => Awaitable<readonly $Schema.SourceItem<any>[]>; } ? (
+    RemoveEnumArrayNoise<Awaited<ReturnType<T>>>
+  ) : never;
 
 export function $enum<
   const Value,
@@ -57,33 +67,59 @@ export class $EnumSchema<
   const P extends EnumProps<Value>
 > extends SchemaItem<Value> {
 
-  protected items: InferItems<P>;
+  protected items: InferItems<P> | undefined;
 
   constructor(protected props: P) {
-    super();
-    this.items = props.items as InferItems<P>;
+    super(props);
+    if (Array.isArray(props.items)) {
+      this.items = props.items as unknown as InferItems<P>;
+    }
+  }
+
+  public initialize(params: $Schema.InjectParams): Promise<void>[] {
+    if (typeof this.props.items !== "function" || this.items != null) {
+      this.initialized = true;
+      return [];
+    }
+    const ret = this.props.items(params);
+    if (!("then" in ret)) {
+      this.items = ret as InferItems<P>;
+      this.initialized = true;
+      return [];
+    }
+    return [
+      ret.then((items) => {
+        this.items = items as InferItems<P>;
+        this.initialized = true;
+      }),
+    ];
   }
 
   public getActionType(): $Schema.ActionType {
     return this.props.actionType || "select";
   }
 
-  public getLabel(): string | undefined {
-    return this.props.label;
-  }
-
-  public find(value: unknown) {
-    if (value == null || value === "") return undefined;
+  public find(value: unknown): [item: $Schema.SourceItem<Value> | undefined, hasItems: boolean] {
+    if (this.items == null) return [undefined, false];
+    if (value == null || value === "") return [undefined, true];
     const v = String(value);
-    return this.items.find(item => {
-      return String(item.value) === v;
-    });
+    return [
+      this.items.find(item => {
+        return String(item.value) === v;
+      }),
+      true,
+    ];
   }
 
   public parse(
     value: unknown,
     params: $Schema.ParseArgParams = this.getEmptyInjectParams()
   ): $Schema.ParseResult<Value> {
+    if (this.items == null) {
+      console.warn("loading items");
+      return { value: value as Value };
+    }
+
     if (this.props.parser) {
       const parsed = this.props.parser(value, params);
       return {
@@ -92,7 +128,8 @@ export class $EnumSchema<
       };
     }
 
-    const item = this.find(value);
+    if (value == null || value === "") return { value: undefined };
+    const item = this.find(value)[0];
     if (item) return { value: item.value };
     return {
       value: value as Value,
@@ -145,12 +182,12 @@ export class $EnumSchema<
 
       this.validators.push((p) => {
         if (p.value == null || p.value === "") return null;
-        const item = this.find(p.value);
+        const item = this.find(p.value)[0];
         if (item) return null;
         return getSourceMessage({
           ...p as $Schema.ValidationResultArgParams<unknown>,
           params: {
-            items: this.items,
+            items: this.items as unknown as $Schema.SourceItem<Value>[],
           },
         });
       });
@@ -159,6 +196,11 @@ export class $EnumSchema<
       if (this.props.rules) {
         this.validators.push(...this.props.rules);
       }
+    }
+
+    if (this.items == null) {
+      console.warn("loading items");
+      return {};
     }
 
     return super.validate(value, params);
@@ -170,6 +212,18 @@ export class $EnumSchema<
       ...props,
       items: this.items,
     });
+  }
+
+  public getRequired(params: $Schema.InjectParams) {
+    const required = getValidationArray(this.props.required)[0];
+    if (typeof required === "function") {
+      return required(params) ?? false;
+    }
+    return required ?? false;
+  }
+
+  public getItems() {
+    return this.items;
   }
 
 }

@@ -104,15 +104,11 @@ export function $file<const P extends FileProps>(props: P = {} as P) {
 export class $FileSchema<const P extends FileProps> extends SchemaItem<FileValue> {
 
   constructor(protected props: P = {} as P) {
-    super();
+    super(props);
   }
 
   public getActionType(): $Schema.ActionType {
-    return this.props.actionType || "input";
-  }
-
-  public getLabel(): string | undefined {
-    return this.props.label;
+    return this.props.actionType || "select";
   }
 
   public parse(
@@ -295,6 +291,30 @@ export class $FileSchema<const P extends FileProps> extends SchemaItem<FileValue
       ...this.props,
       ...props,
     });
+  }
+
+  public getRequired(params: $Schema.InjectParams) {
+    const required = getValidationArray(this.props.required)[0];
+    if (typeof required === "function") {
+      return required(params) ?? false;
+    }
+    return required ?? false;
+  }
+
+  public getAccept(params: $Schema.InjectParams) {
+    const accept = getValidationArray(this.props.accept)[0];
+    if (typeof accept === "function") {
+      return accept(params);
+    }
+    return accept;
+  }
+
+  public getMaxSize(params: $Schema.InjectParams) {
+    const maxSize = getValidationArray(this.props.maxSize)[0];
+    if (typeof maxSize === "function") {
+      return maxSize(params);
+    }
+    return maxSize;
   }
 
 }

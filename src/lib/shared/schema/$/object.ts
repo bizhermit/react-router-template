@@ -42,16 +42,21 @@ export class $ObjSchema<
   protected children: InferChildren<P>;
 
   constructor(protected props: P) {
-    super();
+    super(props);
     this.children = props.props as InferChildren<P>;
+  }
+
+  public initialize(params: $Schema.InjectParams): Promise<void>[] {
+    const inits: Promise<void>[] = [];
+    Object.entries(this.children).forEach(([_, prop]) => {
+      const init = prop.initialize(params);
+      inits.push(...init);
+    });
+    return inits;
   }
 
   public getActionType() {
     return this.props.actionType || "set";
-  }
-
-  public getLabel() {
-    return this.props.label;
   }
 
   public parse(

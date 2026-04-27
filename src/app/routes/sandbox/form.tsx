@@ -1,17 +1,32 @@
 import { Button } from "$/components/elements/button/button";
+import { CheckBox } from "$/components/elements/form/check-box/check-box";
+import { CheckList } from "$/components/elements/form/check-box/check-list";
+import { ComboBox } from "$/components/elements/form/combo-box/combo-box";
+import { FileBox } from "$/components/elements/form/file-box/file-box";
+import { NumberBox } from "$/components/elements/form/number-box/number-box";
+import { PasswordBox } from "$/components/elements/form/password-box/password-box";
+import { RadioButtons } from "$/components/elements/form/radio-button/radio-buttons";
+import { SelectBox } from "$/components/elements/form/select-box/select-box";
+import { Slider } from "$/components/elements/form/slider/slider";
+import { TextArea } from "$/components/elements/form/text-area/text-area";
+import { TextBox } from "$/components/elements/form/text-box/text-box";
+import { FormItem } from "$/components/elements/form/wrapper/form-item";
 import { DeleteIcon } from "$/components/elements/icon";
 import { SchemaProviderContext, useFormArrayItem, useHasError, useSchema, type SchemaProviderContextProps } from "$/shared/hooks/$schema";
 import { useRender } from "$/shared/hooks/render";
 import { $Date, $DateTime } from "$/shared/objects/timestamp";
+import { SchemaProvider } from "$/shared/providers/schema";
 import { parseWithSchema } from "$/shared/schema/$";
 import { $arr } from "$/shared/schema/$/array";
 import { $bool } from "$/shared/schema/$/boolean";
 import { $date } from "$/shared/schema/$/date";
 import { $enum } from "$/shared/schema/$/enum";
+import { $file } from "$/shared/schema/$/file";
 import { $num } from "$/shared/schema/$/number";
 import { $obj } from "$/shared/schema/$/object";
 import { $str } from "$/shared/schema/$/string";
-import { use, useEffect, useState, useSyncExternalStore } from "react";
+import sleep from "$/shared/timing/sleep";
+import { use, useEffect, useState } from "react";
 import { data } from "react-router";
 import type { Route } from "./+types/form";
 
@@ -87,13 +102,106 @@ const enum2 = $enum({
 const schemaObj = $obj({
   props: {
     str: str,
-    str2: str2,
+    text: $str({
+      label: "text",
+      required: true,
+    }),
+    password: $str({
+      label: "password",
+      required: true,
+    }),
+    note: $str({
+      label: "note",
+      required: true,
+      minLength: 120,
+    }),
     num: $num({
+      label: "num",
     }).overwrite({
+      required: true,
+    }),
+    rate: $num({
+      label: "rate",
+      min: 1,
+      max: 99,
+    }),
+    file: $file({
+      label: "file",
+      required: true,
+    }),
+    select: $enum({
+      label: "select",
+      items: async () => {
+        await sleep(2000);
+        return [
+          { value: "0", text: "value-0" },
+          { value: "1", text: "value-1" },
+          { value: "2", text: "value-2" },
+          { value: "3", text: "value-3" },
+          { value: "4", text: "value-4" },
+        ] as const;
+      },
       // required: true,
     }),
-    bool: bool,
-    bool2: bool2,
+    combo: $enum({
+      label: "combo",
+      items: async () => {
+        await sleep(5000);
+        return [
+          { value: 0, text: "無印" },
+          { value: 1, text: "AG" },
+          { value: 2, text: "DP" },
+          { value: 3, text: "BW" },
+          { value: 4, text: "XY" },
+          { value: 5, text: "SM" },
+          { value: 6, text: "新無印" },
+        ] as const;
+      },
+    }),
+    check: $bool({
+      label: "check",
+      trueValue: 1,
+      falseValue: 0,
+      required: "nonFalse",
+    }),
+    toggle: $bool({
+      label: "toggle",
+      required: true,
+    }),
+    radio: $enum({
+      label: "radio",
+      items: async () => {
+        await sleep(5000);
+        return [
+          { value: 0, text: "無印" },
+          { value: 1, text: "AG" },
+          { value: 2, text: "DP" },
+          { value: 3, text: "BW" },
+          { value: 4, text: "XY" },
+          { value: 5, text: "SM" },
+          { value: 6, text: "新無印" },
+        ] as const;
+      },
+    }),
+    checklist: $arr({
+      label: "checklist",
+      minLength: 1,
+      maxLength: 3,
+      prop: $enum({
+        items: async () => {
+          await sleep(1000);
+          return [
+            { value: 0, text: "無印" },
+            { value: 1, text: "AG" },
+            { value: 2, text: "DP" },
+            { value: 3, text: "BW" },
+            { value: 4, text: "XY" },
+            { value: 5, text: "SM" },
+            { value: 6, text: "新無印" },
+          ] as const;
+        },
+      }),
+    }),
     arr: arr,
     arr2: $arr({
       prop: $obj({
@@ -138,17 +246,17 @@ type _FormItem2 = $Schema.InferFormItems<typeof schemaObj>["arr"];
 // const parsed2 = schemaObject.parse({ hoge: 1 }).value;
 // const parsed3 = schemaObject.parse({ hoge: 1 }).value;
 
-const msg: $Schema.I18nMessage = {
-  key: "maxStrLength" as const,
-  label: "名前",
-  type: "e",
-  name: "name",
-  code: "maxLength",
-  params: {
-    maxLength: 10,
-  },
-  actionType: "input",
-};
+// const msg: $Schema.I18nMessage = {
+//   key: "maxStrLength" as const,
+//   label: "名前",
+//   type: "e",
+//   name: "name",
+//   code: "maxLength",
+//   params: {
+//     maxLength: 10,
+//   },
+//   actionType: "input",
+// };
 
 export function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
@@ -172,29 +280,30 @@ function SchemaContent() {
   const { context } = use(SchemaProviderContext) as SchemaProviderContextProps<typeof schemaObj>;
   const formItems = context.getFormItems();
 
-  const str2 = useSyncExternalStore((callback) => {
-    const cleanup = context.addValuesSubscribe(formItems.str2.getName(), callback);
-    return () => cleanup();
-  }, () => {
-    return context.getValue(formItems.str2.getName());
-  }, () => {
-    return context.getValue(formItems.str2.getName());
-  });
+  // const str2 = useSyncExternalStore((callback) => {
+  //   const cleanup = context.addValuesSubscribe(formItems.str2.getName(), callback);
+  //   return () => cleanup();
+  // }, () => {
+  //   return context.getValue(formItems.str2.getName());
+  // }, () => {
+  //   return context.getValue(formItems.str2.getName());
+  // });
 
-  const str2Msg = useSyncExternalStore((callback) => {
-    const cleanup = context.addMessageSubscribe(formItems.str2.getName(), callback);
-    return () => cleanup();
-  }, () => {
-    return context.getMessage(formItems.str2.getName());
-  }, () => {
-    return context.getMessage(formItems.str2.getName());
-  });
+  // const str2Msg = useSyncExternalStore((callback) => {
+  //   const cleanup = context.addMessageSubscribe(formItems.str2.getName(), callback);
+  //   return () => cleanup();
+  // }, () => {
+  //   return context.getMessage(formItems.str2.getName());
+  // }, () => {
+  //   return context.getMessage(formItems.str2.getName());
+  // });
 
   const arr = useFormArrayItem(formItems.arr);
   const arr2 = useFormArrayItem(formItems.arr2);
 
-  console.log("render: ", str2, str2Msg);
+  // console.log("render: ", str2, str2Msg);
 
+  console.log("render");
   useEffect(() => {
     console.log("mount", formItems);
     return () => {
@@ -242,6 +351,93 @@ function SchemaContent() {
         >
 
         </Button>
+      </div>
+      <div className="flex flex-row flex-wrap gap-2">
+        <FormItem>
+          <TextBox
+            formItem={formItems.text}
+          />
+        </FormItem>
+        <FormItem>
+          <PasswordBox
+            formItem={formItems.password}
+          />
+        </FormItem>
+        <FormItem>
+          <TextArea
+            formItem={formItems.note}
+            rows="fit"
+            minRows={3}
+            maxRows={5}
+          />
+        </FormItem>
+        <FormItem>
+          <NumberBox
+            formItem={formItems.num}
+          />
+        </FormItem>
+        <FormItem>
+          <Slider
+            formItem={formItems.rate}
+            scales={[
+              { value: 1, text: "1%" },
+              { value: 33 },
+              { value: 66 },
+              { value: 99, text: "99%" },
+            ]}
+          />
+          <NumberBox
+            formItem={formItems.rate}
+            omitOnSubmit
+          />
+        </FormItem>
+        <FormItem>
+          <FileBox
+            formItem={formItems.file}
+            placeholder="ファイルを選択してください"
+            viewMode="link"
+          />
+        </FormItem>
+        <FormItem>
+          <SelectBox
+            formItem={formItems.select}
+          />
+        </FormItem>
+        <FormItem>
+          <ComboBox
+            formItem={formItems.combo}
+          />
+        </FormItem>
+        <FormItem>
+          <CheckBox
+            formItem={formItems.check}
+          >
+            CheckBox
+          </CheckBox>
+        </FormItem>
+        <FormItem>
+          <CheckBox
+            formItem={formItems.toggle}
+            appearance="togglebox"
+            color="danger"
+          >
+            ToggleBox
+          </CheckBox>
+        </FormItem>
+        <FormItem>
+          <RadioButtons
+            formItem={formItems.radio}
+            color="primary"
+          />
+        </FormItem>
+        <FormItem>
+          <CheckList
+            formItem={formItems.checklist}
+            // appearance="togglebox"
+            appearance="button"
+            color="primary"
+          />
+        </FormItem>
       </div>
       <ul className="flex flex-col gap-2">
         {
@@ -346,9 +542,12 @@ export default function Page() {
         { name: "fuga" },
         {},
       ],
-    };
+      select: "0",
+      combo: 3,
+    } satisfies $Schema.Infer<typeof schemaObj>;
   });
   const schema = useSchema({
+    id: "sandbox",
     schema: schemaObj,
     values,
   });
@@ -358,7 +557,7 @@ export default function Page() {
       form sandbox
       <div className="flex flex-row flex-wrap gap-2">
         <Button
-          onClick={() => {
+          onClick={async ({ unlock }) => {
             const dummyValues = {
               // name: null,
               // name: "hogefugapiyo",
@@ -384,7 +583,7 @@ export default function Page() {
             //   return prev;
             // }, {} as Record<string, $Schema.Message>));
             // schemaObject.props.name.required = false;
-            const submission = parseWithSchema({
+            const submission = await parseWithSchema({
               schema: schemaObj,
               values: {
                 // name: "ghoe",
@@ -399,21 +598,28 @@ export default function Page() {
             });
             console.log("-", performance.now() - now);
             if (submission.ok) {
-              submission.values.bool;
+              submission.values.text;
             } else {
-              submission.values?.bool;
+              submission.values?.text;
             }
-            console.log(JSON.stringify(submission, null, 2));
+            // console.log(JSON.stringify(submission, null, 2));
             // console.log("-", validationMessage);
+            unlock();
           }}
         >
           validate
         </Button>
+        <Button onClick={() => schema.setFormState("idle")}>
+          idle
+        </Button>
+        <Button onClick={() => schema.setFormState("submitting")}>
+          submitting
+        </Button>
       </div>
-      <schema.SchemaProvider>
+      <SchemaProvider {...schema.providerProps}>
         <DisplayHasError />
         <SchemaContent />
-      </schema.SchemaProvider>
+      </SchemaProvider>
       <div className="flex flex-row flex-wrap gap-2">
         <Button
           onClick={() => {

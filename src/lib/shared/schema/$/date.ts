@@ -45,7 +45,7 @@ type SplitDateValidations = {
 
 export type SplitDateSchemaMessage = $Schema.ValidationMessages<
   SplitDateValidations,
-  `${typeof SCHEMA_ITEM_TYPE_DATE}-${SplitDatePart}`
+  `split-${SplitDatePart}`
 >;
 
 type SplitDateProps = $Schema.SchemaItemAbstractProps
@@ -62,7 +62,7 @@ export class $SplitDateSchema<
   const SP extends SplitDateProps
 > extends SchemaItem<number> {
 
-  protected pickMessage: ReturnType<typeof getPickMessageGetter<`${typeof SCHEMA_ITEM_TYPE_DATE}-${SplitDatePart}`>>;
+  protected pickMessage: ReturnType<typeof getPickMessageGetter<`split-${SplitDatePart}`>>;
 
   constructor(
     protected base: $DateSchema<Base>,
@@ -74,16 +74,12 @@ export class $SplitDateSchema<
       isValidMax: (params: $Schema.RuleArgParams<number>) => [boolean, number];
     },
   ) {
-    super();
-    this.pickMessage = getPickMessageGetter(`${SCHEMA_ITEM_TYPE_DATE}-${key}`);
+    super(props);
+    this.pickMessage = getPickMessageGetter(`split-${key}`);
   }
 
   public getActionType(): $Schema.ActionType {
     return this.props.actionType || this.base.getActionType();
-  }
-
-  public getLabel(): string | undefined {
-    return this.props.label;
   }
 
   public parse(
@@ -286,15 +282,11 @@ export function $date<const P extends DateProps>(props: P = {} as P) {
 export class $DateSchema<const P extends DateProps> extends SchemaItem<$Date> {
 
   constructor(protected props: P = {} as P) {
-    super();
+    super(props);
   }
 
   public getActionType(): $Schema.ActionType {
     return this.props.actionType || "input";
-  }
-
-  public getLabel(): string | undefined {
-    return this.props.label;
   }
 
   public parse(

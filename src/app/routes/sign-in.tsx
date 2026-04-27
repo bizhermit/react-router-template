@@ -4,8 +4,9 @@ import { InputMessageSpan } from "$/components/elements/form/message";
 import { PasswordBox } from "$/components/elements/form/password-box/password-box";
 import { TextBox } from "$/components/elements/form/text-box/text-box";
 import { FormItem } from "$/components/elements/form/wrapper/form-item";
+import { useSchema } from "$/shared/hooks/$schema";
 import { useText } from "$/shared/hooks/i18n";
-import { useSchema } from "$/shared/hooks/schema";
+import { SchemaProvider } from "$/shared/providers/schema";
 import { useEffect } from "react";
 import { data, redirect, useFetcher } from "react-router";
 import { signInByEmail } from "~/auth/server/sign-in";
@@ -31,12 +32,12 @@ export default function Page({ actionData }: Route.ComponentProps) {
   const t = useText();
 
   const {
-    SchemaProvider,
-    dataItems,
+    formItems,
     getFormProps,
+    providerProps,
   } = useSchema({
+    id: "sign-in",
     schema: authSchema,
-    state: fetcher.state,
   });
 
   const userId = useFormItem();
@@ -52,21 +53,21 @@ export default function Page({ actionData }: Route.ComponentProps) {
   return (
     <div className="flex flex-col justify-center items-center grow gap-8">
       <h1>{t("signIn_title")}</h1>
-      <SchemaProvider>
+      <SchemaProvider {...providerProps}>
         <fetcher.Form
           {...getFormProps("post")}
           className="grid place-items-center gap-4"
         >
           <FormItem>
             <TextBox
-              $={dataItems.email}
+              formItem={formItems.email}
               hideMessage
               ref={userId}
             />
           </FormItem>
           <FormItem>
             <PasswordBox
-              $={dataItems.password}
+              formItem={formItems.password}
               hideMessage
             />
           </FormItem>

@@ -31,7 +31,8 @@ namespace $Schema {
       key: K;
       code?: string;
       params?: Omit<I18nReplaceParams<K>, "label">;
-      otype?: never;
+      otype: "i18n";
+      message?: never;
     };
   };
 
@@ -64,6 +65,8 @@ namespace $Schema {
     | CustomMessage
     | ValidationMessage
     ;
+
+  type InitializeArgParams = InjectParams & { name?: string; };
 
   type ParserResult<Value> = {
     value: Nullable<Value>;
@@ -148,14 +151,17 @@ namespace $Schema {
     | (AbstractMessage & {
       code: "parse";
       otype: OType;
+      message?: never;
     })
     | (AbstractMessage & {
       otype: OType;
+      message?: never;
     } & Extra)
     | {
       [K in keyof Schema]: AbstractMessage & {
         code: K;
         otype: OType;
+        message?: never;
       } & ParamsField<Schema[K]["params"]>;
     }[keyof Schema];
 
@@ -235,7 +241,11 @@ namespace $Schema {
   type InferValue<P extends SchemaItem, Strict extends boolean = false> =
     P extends import("./string").$StrSchema<any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, string, Strict> :
     P extends import("./number").$NumSchema<any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, number, Strict> :
-    P extends import("./enum").$EnumSchema<any, any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, P["items"][number]["value"], Strict> :
+    P extends import("./enum").$EnumSchema<any, any> ? InferRequiredValue<
+      InferRequired<P["props"]["required"]>,
+      Exclude<P["items"], undefined>[number]["value"],
+      Strict
+    > :
     P extends import("./boolean").$BoolSchema<any> ? InferRequiredValue<InferRequired<P["props"]["required"]> extends true | "nonFalse" ? true : false, P["trueValue"] | P["falseValue"], Strict> :
     P extends import("./date").$DateSchema<any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, $Date, Strict> :
     P extends import("./date").$SplitDateSchema<any, any> ? InferRequiredValue<

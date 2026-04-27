@@ -88,6 +88,7 @@ export function PasswordBox$({
         disabled={state === "disabled"}
         readOnly={state === "readonly"}
         aria-invalid={invalid}
+        inputMode="url"
         {...inputProps}
         type={type}
         className={clsx(

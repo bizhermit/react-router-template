@@ -1,122 +1,110 @@
-import { useState } from "react";
+import { useFormInput, type FormInputProps, type FormInputStyleProps } from "$/shared/hooks/$schema";
+import type { FormItem } from "$/shared/schema/$/form";
+import type { $NumSchema } from "$/shared/schema/$/number";
+import { useMemo, useRef, type InputHTMLAttributes, type RefObject } from "react";
 import { Slider$, type Slider$Ref } from ".";
-import { useSource } from "../../../../shared/hooks/data-item-source";
-import { useSchemaItem } from "../../../../shared/hooks/schema";
-import { getValidationValue } from "../../../../shared/schema/utilities";
-import { WithMessage } from "../message";
+import { WithMessage$ } from "../message";
 
-/** スライダー ref オブジェクト */
-export interface SliderRef extends Slider$Ref { };
+export interface SliderRef extends Slider$Ref { }
 
-/** スライダー Props */
-export type SliderProps<D extends Schema.DataItem<Schema.$Number>> = Overwrite<
-  InputPropsWithDataItem<D>,
-  {
-    /** 配色 */
-    color?: StyleColor;
-    /** 目盛りアイテム（配列） */
-    source?: Schema.Source<Schema.ValueType<D["_"]>>;
-    /** ステップ @default 1 */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type SliderProps<S extends $NumSchema<any>> =
+  & FormInputStyleProps
+  & FormInputProps
+  & {
+    ref?: RefObject<SliderRef | null>;
+    formItem: FormItem<S>;
     step?: number;
-    /** 数値ラベル表示 @default false */
+    color?: StyleColor;
     showValueText?: boolean;
-    /** 目盛り非表示 @default false */
+    scales?: $Schema.SourceItem<number>[];
     hideScales?: boolean;
   }
->;
+  & Pick<InputHTMLAttributes<HTMLInputElement>,
+    | "autoFocus"
+  >;
 
-/**
- * スライダー（スキーマ対応）
- * @param param {@link SliderProps}
- * @returns
- */
-export function Slider<D extends Schema.DataItem<Schema.$Number>>({
+export function Slider<S extends $NumSchema<any>>({
+  ref,
+  formItem,
+  hideMessage,
+  omitOnSubmit,
   className,
   style,
   color,
-  source: propsSource,
-  step,
   showValueText = false,
-  hideScales = false,
-  autoFocus,
-  ref,
-  ...$props
-}: SliderProps<D>) {
+  scales,
+  hideScales,
+  ...props
+}: SliderProps<S>) {
+  const ref$ = useRef<Slider$Ref>(null!);
+
   const {
+    schemaItem,
+    id,
     name,
-    dataItem,
+    label,
     state,
-    required,
     value,
     setValue,
-    result,
-    label,
-    invalid,
+    message,
+    isInvalid,
+    errormMessageId,
     errormessage,
-    getCommonParams,
-    env,
-    omitOnSubmit,
+    injectParams,
+  } = useFormInput(formItem, {
     hideMessage,
-  } = useSchemaItem<Schema.DataItem<Schema.$Number>>($props, {
-    effectContext: function () {
-      setMin(getMin);
-      setMax(getMax);
-      resetDataItemSource();
-    },
+    omitOnSubmit,
   });
 
-  function getMin() {
-    return getValidationValue(getCommonParams(), dataItem._.min);
-  };
-
-  const [min, setMin] = useState(getMin);
-
-  function getMax() {
-    return getValidationValue(getCommonParams(), dataItem._.max);
-  };
-
-  const [max, setMax] = useState(getMax);
-
-  const { source, resetDataItemSource } = useSource({
-    dataItem,
-    propsSource,
-    env,
-    getCommonParams,
-  });
+  const {
+    required,
+    min,
+    max,
+  } = useMemo(() => {
+    return {
+      required: schemaItem.getRequired(injectParams) ?? undefined,
+      min: schemaItem.getMin(injectParams) ?? undefined,
+      max: schemaItem.getMax(injectParams) ?? undefined,
+    };
+  }, [
+    schemaItem,
+    injectParams,
+  ]);
 
   return (
-    <WithMessage
+    <WithMessage$
+      id={errormMessageId}
       hide={hideMessage}
       state={state}
-      result={result}
+      message={message}
     >
       <Slider$
+        ref={ref$}
         className={className}
         style={style}
-        ref={ref}
-        invalid={invalid}
         state={state}
-        color={color}
-        showValueText={showValueText}
-        dataList={source ? {
-          id: `${name}_dl`,
-          source,
-          hideScales,
-        } : undefined}
+        invalid={isInvalid}
         value={value}
         onChangeValue={setValue}
+        color={color}
+        showValueText={showValueText}
+        dataList={scales ? {
+          id: `${id}_list`,
+          source: scales,
+          hideScales,
+        } : undefined}
         inputProps={{
+          title: value == null ? undefined : String(value),
+          ...props,
           name: omitOnSubmit ? undefined : name,
           required,
           min,
           max,
-          step,
           "aria-label": label,
           "aria-errormessage": errormessage,
-          title: value == null ? undefined : String(value),
-          autoFocus,
         }}
       />
-    </WithMessage>
+    </WithMessage$>
   );
-};
+}

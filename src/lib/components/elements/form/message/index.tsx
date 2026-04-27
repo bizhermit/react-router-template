@@ -1,6 +1,6 @@
 import { use, type HTMLAttributes, type ReactNode } from "react";
 import { I18nContext } from "../../../../shared/hooks/i18n";
-import { getResultMessage } from "../../../../shared/schema/message";
+import { getResultMessage, getResultMessage$ } from "../../../../shared/schema/message";
 import { clsx } from "../../utilities";
 
 /** メッセージ Props */
@@ -71,6 +71,39 @@ export function WithMessage({
           type={result.type}
         >
           {message}
+        </InputMessageSpan>
+      }
+    </>
+  );
+}
+
+type WithMessage$ = {
+  id?: string;
+  hide?: boolean;
+  state: $Schema.Mode;
+  message: $Schema.Message | null | undefined;
+  children?: ReactNode;
+};
+
+export function WithMessage$({
+  id,
+  hide,
+  state,
+  message,
+  children,
+}: WithMessage$) {
+  return (
+    <>
+      {children}
+      {
+        !hide &&
+        state === "enabled" &&
+        message &&
+        <InputMessageSpan
+          id={id}
+          type={message.type}
+        >
+          {getResultMessage$(use(I18nContext).t, message)}
         </InputMessageSpan>
       }
     </>

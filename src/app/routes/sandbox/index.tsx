@@ -10,29 +10,18 @@ import { Carousel, type CarouselOptions, type CarouselRef } from "$/components/e
 import { Details } from "$/components/elements/details";
 import { Dialog, useDialog } from "$/components/elements/dialog";
 import { CheckBox$ } from "$/components/elements/form/check-box";
-import { CheckBox } from "$/components/elements/form/check-box/check-box";
-import { CheckList } from "$/components/elements/form/check-box/check-list";
 import { ComboBox$, ComboBoxItem } from "$/components/elements/form/combo-box";
-import { ComboBox } from "$/components/elements/form/combo-box/combo-box";
 import { DateBox$ } from "$/components/elements/form/date-box";
 import { DateBox } from "$/components/elements/form/date-box/date-box";
 import { DateSelectBox } from "$/components/elements/form/date-box/date-select-box";
 import { FieldSet } from "$/components/elements/form/fieldset";
 import { FileBox$ } from "$/components/elements/form/file-box";
-import { FileBox } from "$/components/elements/form/file-box/file-box";
 import { NumberBox$ } from "$/components/elements/form/number-box";
-import { NumberBox } from "$/components/elements/form/number-box/number-box";
 import { PasswordBox$ } from "$/components/elements/form/password-box";
-import { PasswordBox } from "$/components/elements/form/password-box/password-box";
-import { RadioButtons } from "$/components/elements/form/radio-button/radio-buttons";
 import { SelectBox$, SelectBoxEmptyOption } from "$/components/elements/form/select-box";
-import { SelectBox } from "$/components/elements/form/select-box/select-box";
 import { Slider$ } from "$/components/elements/form/slider";
-import { Slider } from "$/components/elements/form/slider/slider";
 import { TextArea$ } from "$/components/elements/form/text-area";
-import { TextArea } from "$/components/elements/form/text-area/text-area";
 import { TextBox$ } from "$/components/elements/form/text-box";
-import { TextBox } from "$/components/elements/form/text-box/text-box";
 import { FormItem } from "$/components/elements/form/wrapper/form-item";
 import { Text } from "$/components/elements/i18n-text";
 import { ArrowDownIcon, ArrowLeftIcon, ArrowRightIcon, ArrowUpIcon, BadgeIcon, BookmarkFillIcon, BookmarkIcon, ButtonIcon, CalendarFillIcon, CalendarIcon, CameraFillIcon, CameraIcon, CardIcon, CheckCircleFillIcon, CheckCircleIcon, CheckIcon, ChocolateMenuFillIcon, ChocolateMenuIcon, CircleFillIcon, CircleIcon, ClearAllIcon, ClockFillIcon, ClockIcon, CloudDownloadIcon, CloudFillIcon, CloudIcon, CloudUploadIcon, ContainerIcon, CrossCircleFillIcon, CrossCircleIcon, CrossIcon, DeleteBackFillIcon, DeleteBackIcon, DeleteFillIcon, DeleteIcon, DocumentFillIcon, DocumentIcon, DoubleDownFillIcon, DoubleDownIcon, DoubleLeftFillIcon, DoubleLeftIcon, DoubleRightFillIcon, DoubleRightIcon, DoubleUpFillIcon, DoubleUpIcon, DownFillIcon, DownIcon, DownloadIcon, ElementIcon, ExclamationCircleFillIcon, ExclamationCircleIcon, ExclamationDiamondFillIcon, ExclamationDiamondIcon, ExclamationIcon, ExclamationTriangleFillIcon, ExclamationTriangleIcon, ExLinkIcon, FileAddFillIcon, FileAddIcon, FileDeleteFillIcon, FileDeleteIcon, FileFillIcon, FileIcon, FilterFillIcon, FilterIcon, FolderAddFillIcon, FolderAddIcon, FolderDeleteFillIcon, FolderDeleteIcon, FolderFillIcon, FolderIcon, FormIcon, FormItemIcon, GearFillIcon, GearIcon, GridFillIcon, GridIcon, HeartFillIcon, HeartHalfFillIcon, HeartIcon, HomeFillIcon, HomeIcon, HorizontalDividerIcon, KebabMenuIcon, LabelFillIcon, LabelIcon, LeftFillIcon, LeftIcon, LeftRightIcon, LinkIcon, ListFilterIcon, ListIcon, LoadingIcon, LocationFillIcon, LocationIcon, MagnifyingGlassIcon, MagnifyingGlassMinusFillIcon, MagnifyingGlassMinusIcon, MagnifyingGlassPlusFillIcon, MagnifyingGlassPlusIcon, MailFillIcon, MailIcon, MeatballsMenuIcon, MenuIcon, MenuLeftIcon, MenuLeftRightIcon, MenuRightIcon, MinusCircleFillIcon, MinusCircleIcon, MinusIcon, NavContainerIcon, OrderListIcon, PinFillIcon, PinIcon, PlusCircleFillIcon, PlusCircleIcon, PlusIcon, PopupIcon, PowerIcon, QuestionCircleFillIcon, QuestionCircleIcon, QuestionIcon, RedoIcon, ReloadIcon, RightFillIcon, RightIcon, SaveFillIcon, SaveIcon, ShareFillIcon, ShareIcon, SignInIcon, SignOutIcon, SlideContainerIcon, SmileFillIcon, SmileIcon, SplitContainerIcon, StarFillIcon, StarHalfFillIcon, StarIcon, StepperIcon, SyncIcon, TabContainerIcon, TextBoxIcon, TodayFillIcon, TodayIcon, TooltipIcon, TrashCanFillIcon, TrashCanIcon, UndoIcon, UnloadIcon, UpDownIcon, UpFillIcon, UpIcon, UploadIcon, UserAddIcon, UserFillIcon, UserIcon, UserMinusIcon, UsersFillIcon, UsersIcon, VerticalDividerIcon, type IconProps } from "$/components/elements/icon";
@@ -58,7 +47,6 @@ import { $bool } from "$/shared/schema/boolean";
 import { $date, $datetime, $month } from "$/shared/schema/date";
 import { $file } from "$/shared/schema/file";
 import { $num } from "$/shared/schema/number";
-import { getPayload } from "$/shared/schema/server";
 import { $str } from "$/shared/schema/string";
 import { $struct } from "$/shared/schema/struct";
 import sleep from "$/shared/timing/sleep";
@@ -322,19 +310,21 @@ export async function action(args: Route.ActionArgs) {
   });
   console.log(session);
   const start = performance.now();
-  const submittion = await getPayload({
-    request: args.request,
-    schema,
-  });
-  console.log(submittion);
+  // const submittion = await getPayload({
+  //   request: args.request,
+  //   schema,
+  // });
+  // console.log(submittion);
   console.log(performance.now() - start);
   console.log("-----------------");
 
   // await sleep(5000);
 
   return data({
-    data: submittion.data,
-    results: submittion.results,
+    // data: submittion.data,
+    // results: submittion.results,
+    data: {},
+    results: {},
   });
 };
 
@@ -576,12 +566,12 @@ function Component1() {
               <span>
                 {JSON.stringify(params.value)}
               </span>
-              <TextBox
+              {/* <TextBox
                 $={params.dataItem.dataItems.name}
-              />
-              <NumberBox
+              /> */}
+              {/* <NumberBox
                 $={params.dataItem.dataItems.age}
-              />
+              /> */}
               <Button
                 appearance="outline"
                 color="danger"
@@ -633,32 +623,32 @@ function Component2() {
     <div className="flex flex-row flex-wrap gap-2">
       <FormValueSetterComponent />
       <FormItem>
-        <TextBox
+        {/* <TextBox
           $={dataItems.text}
           placeholder="テキスト"
-        />
+        /> */}
         <TextBox$ inputProps={{ placeholder: "テキスト" }} />
       </FormItem>
       <FormItem>
-        <PasswordBox
+        {/* <PasswordBox
           $={dataItems.password}
           placeholder="パスワード"
-        />
+        /> */}
         <PasswordBox$ inputProps={{ placeholder: "パスワード" }} />
       </FormItem>
       <FormItem>
-        <NumberBox
+        {/* <NumberBox
           $={dataItems.count}
           placeholder="数値"
-        />
+        /> */}
         <NumberBox$ inputProps={{ placeholder: "数値", min: 0 }} />
       </FormItem>
       <FormItem>
-        <ComboBox
+        {/* <ComboBox
           $={dataItems.generation2}
           placeholder="世代"
           emptyText
-        />
+        /> */}
         <ComboBox$
           onChangeValue={console.log}
           // multiple
@@ -681,10 +671,10 @@ function Component2() {
         </ComboBox$>
       </FormItem>
       <FormItem>
-        <SelectBox
+        {/* <SelectBox
           $={dataItems.generation}
           placeholder="世代"
-        />
+        /> */}
         <SelectBox$ placeholder="世代">
           <SelectBoxEmptyOption>
             {/* (世代) */}
@@ -703,35 +693,35 @@ function Component2() {
       </FormItem>
       <DynamicSelectBoxComponent />
       <FormItem>
-        <CheckBox
+        {/* <CheckBox
           $={dataItems.check}
         // appearance="button"
         // color="secondary"
         >
           <HeartFillIcon className="text-pink-400 dark:text-pink-400" />
-        </CheckBox>
+        </CheckBox> */}
         <CheckBox$>
           CheckBox
         </CheckBox$>
       </FormItem>
       <FormItem>
-        <CheckBox
+        {/* <CheckBox
           appearance="togglebox"
           $={dataItems.numFlag}
         >
           Switch(Num)
-        </CheckBox>
+        </CheckBox> */}
         <CheckBox$ appearance="togglebox">
           CheckBox
         </CheckBox$>
       </FormItem>
-      <FormItem>
+      {/* <FormItem>
         <RadioButtons
           $={dataItems.sourceText}
           // appearance="button"
           color="primary"
         />
-      </FormItem>
+      </FormItem> */}
       <FormItem>
         <DateBox$ />
         <DateBox
@@ -760,43 +750,43 @@ function Component2() {
       </FormItem>
       <FormItem>
         <TextArea$ textAreaProps={{ rows: "fit" }} />
-        <TextArea
+        {/* <TextArea
           $={dataItems.customMessageText}
           rows="fit"
           minRows={3}
           maxRows={5}
-        />
+        /> */}
       </FormItem>
       <FormItem>
         <FileBox$ inputProps={{ placeholder: "ファイルを選択してください。" }} />
-        <FileBox
+        {/* <FileBox
           $={dataItems.file}
           placeholder="ファイルを選択してください。"
           viewMode="image"
-        />
+        /> */}
       </FormItem>
-      <FormItem>
+      {/* <FormItem>
         <CheckList
           $={dataItems.array}
           // appearance="button"
           color="primary"
         />
-      </FormItem>
+      </FormItem> */}
       <FormItem>
         <Slider$ showValueText />
-        <Slider
+        {/* <Slider
           $={dataItems.range}
           omitOnSubmit
           showValueText
           color="secondary"
-        />
+        /> */}
       </FormItem>
-      <FormItem>
+      {/* <FormItem>
         <NumberBox
           className="w-16"
           $={dataItems.range}
         />
-      </FormItem>
+      </FormItem> */}
     </div>
   );
 };
@@ -826,12 +816,12 @@ function DynamicSelectBoxComponent() {
       >
         countup {count}
       </Button>
-      <FormItem>
+      {/* <FormItem>
         <SelectBox
           $={dataItems.requiredText}
           source={source}
         />
-      </FormItem>
+      </FormItem> */}
     </div>
   );
 };

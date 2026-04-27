@@ -1,43 +1,35 @@
-import { useState, type HTMLAttributes, type HTMLInputTypeAttribute, type InputHTMLAttributes } from "react";
+import { useFormInput, type FormInputProps, type FormInputStyleProps } from "$/shared/hooks/$schema";
+import type { FormItem } from "$/shared/schema/$/form";
+import type { $StrSchema, StrPattern } from "$/shared/schema/$/string";
+import { useImperativeHandle, useMemo, useRef, type HTMLAttributes, type HTMLInputTypeAttribute, type InputHTMLAttributes, type RefObject } from "react";
 import { TextBox$, type TextBox$Ref } from ".";
-import { useSource } from "../../../../shared/hooks/data-item-source";
-import { useSchemaItem } from "../../../../shared/hooks/schema";
-import { getValidationValue } from "../../../../shared/schema/utilities";
-import { WithMessage } from "../message";
+import { WithMessage$ } from "../message";
 
-/** テキストボックス ref オブジェクト */
-export interface TextBoxRef extends TextBox$Ref { };
+export interface TextBoxRef extends TextBox$Ref { }
 
-/** テキストボックス Props */
-export type TextBoxProps<D extends Schema.DataItem<Schema.$String>> = Overwrite<
-  InputPropsWithDataItem<D>,
-  {
-    /** プレースホルダー */
-    placeholder?: string;
-    /** データリストアイテム（配列） */
-    source?: Schema.Source<Schema.ValueType<D["_"]>>;
-  } & Pick<
-    InputHTMLAttributes<HTMLInputElement>,
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type TextBoxProps<S extends $StrSchema<any>> =
+  & FormInputStyleProps
+  & FormInputProps
+  & {
+    ref?: RefObject<InputRef | null>;
+    formItem: FormItem<S>;
+  }
+  & Pick<InputHTMLAttributes<HTMLInputElement>,
+    | "placeholder"
+    | "autoFocus"
     | "autoComplete"
     | "autoCapitalize"
     | "enterKeyHint"
-  >
->;
+    | "list"
+  >;
 
-/** 入力パターン Props */
 interface PatternProps {
-  /** type */
   type?: HTMLInputTypeAttribute;
-  /** inputMode */
   inputMode?: HTMLAttributes<HTMLInputElement>["inputMode"];
 };
 
-/**
- * 入力パターンからinputに設定する属性値を取得
- * @param pattern {@link Schema.StringProps["pattern"]}
- * @returns
- */
-function getPatternInputProps(pattern: Schema.StringProps["pattern"]): PatternProps {
+function getPatternInputProps(pattern: StrPattern | undefined): PatternProps {
   if (pattern == null || typeof pattern !== "string") return {};
   switch (pattern) {
     case "int":
@@ -56,123 +48,89 @@ function getPatternInputProps(pattern: Schema.StringProps["pattern"]): PatternPr
     default:
       return {};
   }
-}
+};
 
-/**
- * テキストボックス（スキーマ対応）
- * @param param {@link TextBoxProps}
- * @returns
- */
-export function TextBox<D extends Schema.DataItem<Schema.$String>>({
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function TextBox<S extends $StrSchema<any>>({
+  ref,
+  formItem,
+  hideMessage,
+  omitOnSubmit,
   className,
   style,
-  placeholder,
-  source: propsSource,
-  autoFocus,
-  autoComplete = "off",
-  autoCapitalize,
-  enterKeyHint,
-  ref,
-  ...$props
-}: TextBoxProps<D>) {
+  ...props
+}: TextBoxProps<S>) {
+  const ref$ = useRef<TextBox$Ref>(null!);
+
   const {
+    schemaItem,
+    id,
     name,
-    dataItem,
+    label,
     state,
-    required,
     value,
     setValue,
-    result,
-    label,
-    invalid,
+    message,
+    isInvalid,
+    errormMessageId,
     errormessage,
-    getCommonParams,
-    env,
-    omitOnSubmit,
+    injectParams,
+  } = useFormInput(formItem, {
     hideMessage,
-  } = useSchemaItem<Schema.DataItem<Schema.$String>>($props, {
-    effectContext: function () {
-      setMinLen(getMinLen);
-      setMaxLen(getMaxLen);
-      resetDataItemSource();
-    },
+    omitOnSubmit,
   });
 
-  function getMinLen() {
-    return getValidationValue(getCommonParams(), dataItem._.minLength);
-  };
+  const {
+    required,
+    minLength,
+    maxLength,
+    type,
+    inputMode,
+  } = useMemo(() => {
+    const pattern = schemaItem.getPattern(injectParams) ?? undefined;
+    const { type, inputMode } = getPatternInputProps(pattern);
+    return {
+      required: schemaItem.getRequired(injectParams) ?? undefined,
+      minLength: schemaItem.getMinLength(injectParams) ?? undefined,
+      maxLength: schemaItem.getMaxLength(injectParams) ?? undefined,
+      type: type ?? "text",
+      inputMode,
+    };
+  }, [
+    schemaItem,
+    injectParams,
+  ]);
 
-  const [minLen, setMinLen] = useState<number | undefined>(getMinLen);
-
-  function getMaxLen() {
-    const params = getCommonParams();
-    const len = getValidationValue(params, dataItem._.length);
-    if (len != null) return len;
-    return getValidationValue(params, dataItem._.maxLength);
-  };
-
-  const [maxLen, setMaxLen] = useState<number | undefined>(getMaxLen);
-
-  const { source, resetDataItemSource } = useSource({
-    dataItem,
-    propsSource,
-    env,
-    getCommonParams,
-  });
-
-  const patternProps = getPatternInputProps(dataItem._.pattern);
-
-  const dataListId = source == null ? undefined : `${name}_dl`;
+  useImperativeHandle(ref, () => ref$.current);
 
   return (
-    <WithMessage
+    <WithMessage$
+      id={errormMessageId}
       hide={hideMessage}
       state={state}
-      result={result}
+      message={message}
     >
       <TextBox$
+        ref={ref$}
         className={className}
         style={style}
-        ref={ref}
         state={state}
-        invalid={invalid}
+        invalid={isInvalid}
         value={value}
         onChangeValue={setValue}
         inputProps={{
-          type: patternProps.type || "text",
+          ...props,
+          id,
           name: omitOnSubmit ? undefined : name,
+          type,
+          inputMode,
           required,
-          minLength: minLen,
-          maxLength: maxLen,
-          placeholder,
-          inputMode: patternProps.inputMode,
+          minLength,
+          maxLength,
           "aria-label": label,
           "aria-errormessage": errormessage,
-          list: dataListId,
-          autoFocus,
-          autoComplete,
-          autoCapitalize,
-          enterKeyHint,
         }}
-      >
-        {
-          source &&
-          <datalist
-            id={dataListId}
-          >
-            {source.map(item => {
-              return (
-                <option
-                  key={item.value}
-                  value={item.value ?? ""}
-                >
-                  {item.text}
-                </option>
-              );
-            })}
-          </datalist>
-        }
-      </TextBox$>
-    </WithMessage>
+      />
+    </WithMessage$>
   );
 };

@@ -133,7 +133,7 @@ const STR_PATTERN_TEST = {
   },
 } as const;
 
-type StrPattern = keyof typeof STR_PATTERN_TEST;
+export type StrPattern = keyof typeof STR_PATTERN_TEST;
 
 type StringValidations = {
   required: $Schema.ValidationEntry<boolean, null | undefined>;
@@ -164,15 +164,11 @@ export function $str<const P extends StringProps>(props: P = {} as P) {
 export class $StrSchema<const P extends StringProps> extends SchemaItem<string> {
 
   constructor(protected props: P = {} as P) {
-    super();
+    super(props);
   }
 
   public getActionType(): $Schema.ActionType {
-    return this.props.actionType || "input";
-  }
-
-  public getLabel(): string | undefined {
-    return this.props.label;
+    return this.actionType || "input";
   }
 
   public parse(
@@ -390,6 +386,46 @@ export class $StrSchema<const P extends StringProps> extends SchemaItem<string> 
       ...this.props,
       ...props,
     });
+  }
+
+  public getRequired(params: $Schema.InjectParams) {
+    const required = getValidationArray(this.props.required)[0];
+    if (typeof required === "function") {
+      return required(params) ?? false;
+    }
+    return required ?? false;
+  }
+
+  public getLength(params: $Schema.InjectParams) {
+    const length = getValidationArray(this.props.length)[0];
+    if (typeof length === "function") {
+      return length(params);
+    }
+    return length;
+  }
+
+  public getMinLength(params: $Schema.InjectParams) {
+    const minLength = getValidationArray(this.props.minLength)[0];
+    if (typeof minLength === "function") {
+      return minLength(params);
+    }
+    return minLength;
+  }
+
+  public getMaxLength(params: $Schema.InjectParams) {
+    const maxLength = getValidationArray(this.props.maxLength)[0];
+    if (typeof maxLength === "function") {
+      return maxLength(params);
+    }
+    return maxLength;
+  }
+
+  public getPattern(params: $Schema.InjectParams) {
+    const pattern = getValidationArray(this.props.pattern)[0];
+    if (typeof pattern === "function") {
+      return pattern(params);
+    }
+    return pattern;
   }
 
 };

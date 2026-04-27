@@ -1,37 +1,42 @@
-import { parseWithSchema } from ".";
+// import { parseWithSchema } from ".";
+import { parseWithSchema } from "./$";
+import type { $ObjSchema } from "./$/object";
 
-interface Params<$Schema extends Record<string, Schema.$Any>> {
+interface PayloadParams<S extends $ObjSchema<any, any>> {
   request: Request;
-  schema: $Schema;
-  data?: FormData | Record<string, unknown>;
-  dep?: Record<string, unknown>;
-  skipCsrfCheck?: boolean;
-}
+  schema: S;
+  values?: FormData | Record<string, unknown>;
+  data?: Record<string, unknown>;
+};
 
-export async function getPayload<$Schema extends Record<string, Schema.$Any>>({
+export async function getPayload<S extends $ObjSchema<any, any>>({
   request,
   schema,
-  data,
-  dep,
-}: Params<$Schema>) {
-  const formData = data ?? await request.formData();
-  const submission = parseWithSchema({
-    data: formData,
-    env: {
-      isServer: true,
-    },
-    schema,
-    dep,
-  });
-  delete (submission as Partial<typeof submission>).dataItems;
+  values,
+  data = {},
+}: PayloadParams<S>) {
+  const formData = values ?? await request.formData();
+  const struct = formData instanceof FormData ?
+    (() => {
+      const obj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (obj[key]) {
+          obj[key] = Array.isArray(obj[key])
+            ? [...obj[key], value]
+            : [obj[key], value];
+        } else {
+          obj[key] = value;
+        }
+      }
+      return obj;
+    })() :
+    formData
+    ;
 
-  return submission as ({
-    hasError: true;
-    data: Schema.SchemaValue<$Schema, true>;
-    results: Record<string, Schema.Result>;
-  } | {
-    hasError: false;
-    data: Schema.SchemaValue<$Schema>;
-    results: Record<string, Schema.Result>;
+  return parseWithSchema({
+    schema,
+    values: struct,
+    data,
+    isServer: true,
   });
-};
+}

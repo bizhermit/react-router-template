@@ -46,7 +46,7 @@ type SplitMonthValidations = {
 
 export type SplitMonthSchemaMessage = $Schema.ValidationMessages<
   SplitMonthValidations,
-  `${typeof SCHEMA_ITEM_TYPE_MONTH}-${SplitMonthPart}`
+  `split-${SplitMonthPart}`
 >;
 
 type SplitMonthProps = $Schema.SchemaItemAbstractProps
@@ -63,7 +63,7 @@ export class $SplitMonthSchema<
   const SP extends SplitMonthProps
 > extends SchemaItem<number> {
 
-  protected pickMessage: ReturnType<typeof getPickMessageGetter<`${typeof SCHEMA_ITEM_TYPE_MONTH}-${SplitMonthPart}`>>;
+  protected pickMessage: ReturnType<typeof getPickMessageGetter<`split-${SplitMonthPart}`>>;
 
   constructor(
     protected base: $MonthSchema<Base>,
@@ -75,16 +75,12 @@ export class $SplitMonthSchema<
       isValidMax: (params: $Schema.RuleArgParams<number>) => [boolean, number];
     },
   ) {
-    super();
-    this.pickMessage = getPickMessageGetter(`${SCHEMA_ITEM_TYPE_MONTH}-${key}`);
+    super(props);
+    this.pickMessage = getPickMessageGetter(`split-${key}`);
   }
 
   public getActionType(): $Schema.ActionType {
     return this.props.actionType || this.base.getActionType();
-  }
-
-  public getLabel(): string | undefined {
-    return this.props.label;
   }
 
   public parse(
@@ -287,15 +283,11 @@ export function $month<const P extends MonthProps>(props: P = {} as P) {
 export class $MonthSchema<const P extends MonthProps> extends SchemaItem<$Month> {
 
   constructor(protected props: P = {} as P) {
-    super();
+    super(props);
   }
 
   public getActionType(): $Schema.ActionType {
     return this.props.actionType || "input";
-  }
-
-  public getLabel(): string | undefined {
-    return this.props.label;
   }
 
   public parse(

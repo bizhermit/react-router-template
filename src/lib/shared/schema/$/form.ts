@@ -1,5 +1,5 @@
 import { equals } from "$/shared/objects";
-import { getArrayIndex, getValue, setValue, splitName } from "$/shared/objects/data";
+import { getArrayIndex, getRelativeName, getValue, setValue, splitName } from "$/shared/objects/data";
 import { mergeRecordMessages } from ".";
 import { $ArrSchema } from "./array";
 import type { SchemaItem } from "./core";
@@ -26,12 +26,14 @@ export function convertToFormItems(
 
 export class FormContext<S extends $ObjSchema<any, any>> {
 
+  protected initialized: boolean;
+
   protected schema: S;
   protected values: Record<string, any>;
-  protected data: Record<string, any>;
-  protected isServer: boolean;
-
   protected formItems: Record<string, FormItem<any>>;
+
+  protected injectParams: $Schema.InjectParams;
+  protected injectParamsSubscribes: Set<() => void>;
 
   protected messages: Map<string, $Schema.Message | undefined>;
   protected messagesSubscribes: Map<string, Set<() => void>>;
@@ -46,10 +48,17 @@ export class FormContext<S extends $ObjSchema<any, any>> {
     values: Record<string, any>;
     data: Record<string, any>;
   }) {
+    this.initialized = false;
+
     this.schema = init.schema;
     this.values = init.values;
-    this.data = init.data;
-    this.isServer = false;
+    this.injectParams = {
+      data: init.data,
+      isServer: false,
+      values: init.values,
+    };
+
+    this.injectParamsSubscribes = new Set();
 
     this.messages = new Map();
     this.messagesSubscribes = new Map();
@@ -58,6 +67,11 @@ export class FormContext<S extends $ObjSchema<any, any>> {
     this.errorSubscribes = new Set();
 
     this.valuesSubscribes = new Map();
+
+    const inits = init.schema.initialize(this.injectParams);
+    Promise.all(inits).finally(() => {
+      this.initialized = true;
+    });
 
     this.formItems = convertToFormItems(
       this,
@@ -69,12 +83,15 @@ export class FormContext<S extends $ObjSchema<any, any>> {
     return this.formItems as $Schema.ObjectFormItems<S>;
   }
 
-  public getInjectParams(): $Schema.InjectParams {
-    return {
-      values: this.values,
-      data: this.data,
-      isServer: this.isServer,
-    } as const;
+  public getInjectParams() {
+    return this.injectParams;
+  }
+
+  public addInjectParamsSubscribe(listener: () => void) {
+    this.injectParamsSubscribes.add(listener);
+    return () => {
+      this.injectParamsSubscribes.delete(listener);
+    };
   }
 
   public setMessages() {
@@ -153,7 +170,9 @@ export class FormContext<S extends $ObjSchema<any, any>> {
     return getValue<T>(this.values, name)[0];
   }
 
-  public setValue(name: string, value: unknown) {
+  public setValue(name: string, value: unknown, options?: {
+    skipValidate?: boolean;
+  }) {
     const schemaItem = this.getSchemaItem(name);
     if (schemaItem == null) {
       console.warn(`invalid property: ${name}`);
@@ -168,20 +187,16 @@ export class FormContext<S extends $ObjSchema<any, any>> {
     const isReplace = schemaItem instanceof $ArrSchema || schemaItem instanceof $ObjSchema;
 
     const parsed = schemaItem.parse(value, {
-      data: this.data,
-      isServer: this.isServer,
-      values: this.values,
+      ...this.injectParams,
       name,
     });
 
-    // TODO: rollback when error
     const hasChanged = setValue(this.values, name, parsed.value);
-    const validated = hasChanged ? schemaItem.validate(parsed.value, {
-      data: this.data,
-      isServer: this.isServer,
-      values: this.values,
-      name,
-    }) : {};
+    const validated = (hasChanged && !options?.skipValidate) ?
+      schemaItem.validate(parsed.value, {
+        ...this.injectParams,
+        name,
+      }) : {};
 
     const messages = mergeRecordMessages(parsed.messages, validated);
 
@@ -244,6 +259,8 @@ export class FormContext<S extends $ObjSchema<any, any>> {
 
 export class FormItem<S extends SchemaItem<any>> {
 
+  protected refsCache: string[] | undefined;
+
   constructor(
     protected formContext: FormContext<any>,
     protected name: string,
@@ -256,6 +273,27 @@ export class FormItem<S extends SchemaItem<any>> {
     return this.name;
   }
 
+  public getLabel() {
+    return this.schemaItem.getLabel();
+  }
+
+  public getActionType() {
+    return this.schemaItem.getActionType();
+  }
+
+  public getRefs() {
+    if (!this.refsCache) {
+      this.refsCache = this.schemaItem.getRefs()?.map(ref => {
+        return getRelativeName(this.name, ref);
+      }) ?? [];
+    }
+    return this.refsCache;
+  }
+
+  public getMode(params: $Schema.InjectParams) {
+    return this.schemaItem.getMode(params);
+  }
+
   public getSchemaItem() {
     return this.schemaItem;
   }
@@ -266,6 +304,12 @@ export class FormItem<S extends SchemaItem<any>> {
 
   public setValue(value: unknown) {
     return this.formContext.setValue(this.name, value);
+  }
+
+  public initializeValue() {
+    this.formContext.setValue(this.name, this.getValue(), {
+      skipValidate: true,
+    });
   }
 
 };

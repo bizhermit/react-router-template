@@ -2,10 +2,29 @@
 
 export abstract class SchemaItem<Value = any> {
 
+  protected refs: (string[] | undefined);
+  protected mode: ((params: $Schema.InjectParams) => $Schema.Mode) | undefined;
   protected validators: $Schema.Rule<Value>[] | null;
+  protected label: string | undefined;
+  protected actionType: $Schema.ActionType | undefined;
+  protected initialized: boolean;
 
-  constructor() {
+  constructor(props: $Schema.SchemaItemAbstractProps) {
     this.validators = null;
+    this.refs = props.refs;
+    this.mode = props.mode;
+    this.label = props.label;
+    this.actionType = props.actionType;
+    this.initialized = false;
+  }
+
+  public initialize(_params: $Schema.InitializeArgParams): Promise<void>[] {
+    this.initialized = true;
+    return [];
+  }
+
+  public isInitialized() {
+    return this.initialized;
   }
 
   protected getEmptyInjectParams() {
@@ -16,9 +35,19 @@ export abstract class SchemaItem<Value = any> {
     } as const satisfies $Schema.InjectParams;
   }
 
-  abstract getActionType(): $Schema.ActionType;
+  public getRefs() {
+    return this.refs;
+  }
 
-  abstract getLabel(): string | undefined;
+  public getMode(params: $Schema.InjectParams): $Schema.Mode {
+    return this.mode ? this.mode(params) : "enabled";
+  }
+
+  public getLabel() {
+    return this.label;
+  }
+
+  abstract getActionType(): $Schema.ActionType;
 
   abstract parse(value: any, params?: $Schema.ParseArgParams): $Schema.ParseResult<Value>;
 

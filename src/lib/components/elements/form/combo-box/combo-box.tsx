@@ -1,106 +1,96 @@
-import { useSource } from "$/shared/hooks/data-item-source";
-import { useSchemaItem } from "$/shared/hooks/schema";
-import { useImperativeHandle, useRef, type ReactNode } from "react";
+import { useFormInput, type FormInputProps, type FormInputStyleProps } from "$/shared/hooks/$schema";
+import type { $EnumSchema } from "$/shared/schema/$/enum";
+import type { FormItem } from "$/shared/schema/$/form";
+import { useImperativeHandle, useMemo, useRef, type InputHTMLAttributes, type RefObject } from "react";
 import { ComboBox$, ComboBoxItem, type ComboBox$Ref } from ".";
-import { WithMessage } from "../message";
+import { LoadingBar } from "../../loading";
+import { WithMessage$ } from "../message";
 
-/** コンボボックス対応スキーマアイテム */
-type ComboBoxSchemaProps =
-  | Schema.$String
-  | Schema.$Number
-  | Schema.$Boolean
-  ;
-
-/** コンボボックス ref オブジェクト */
 export interface ComboBoxRef extends ComboBox$Ref { };
 
-/** コンボボックス Props */
-export type ComboBoxProps<D extends Schema.DataItem<ComboBoxSchemaProps>> = Overwrite<
-  InputPropsWithDataItem<D>,
-  {
-    /** プレースホルダー */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type ComboBoxProps<S extends $EnumSchema<any, any>> =
+  & FormInputStyleProps
+  & FormInputProps
+  & {
+    ref?: RefObject<ComboBoxRef | null>;
+    formItem: FormItem<S>;
     placeholder?: string;
-    /** 横幅を選択肢文字列に合わせない @default false */
+    emptyText?: string;
     manualWidth?: boolean;
-    /**
-     * 未選択アイテム
-     * - true: ブランク表示
-     * - false: なし
-     * - ReactNode: 任意の表示
-     */
-    emptyText?: boolean | ReactNode;
-    /** 選択アイテム（配列） */
-    source?: Schema.Source<Schema.ValueType<D["_"]>>;
-    /** 子要素（ボタン他） */
-    children?: ReactNode;
   }
->;
+  & Pick<InputHTMLAttributes<HTMLInputElement>,
+    | "placeholder"
+    | "autoFocus"
+    | "children"
+  >;
 
-/**
- * コンボボックス
- * @param param {@link ComboBoxProps}
- * @returns
- */
-export function ComboBox<D extends Schema.DataItem<ComboBoxSchemaProps>>({
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function ComboBox<S extends $EnumSchema<any, any>>({
+  ref,
+  formItem,
+  hideMessage,
+  omitOnSubmit,
   className,
   style,
   placeholder,
-  manualWidth,
   emptyText,
-  children,
-  source: propsSource,
+  manualWidth,
   autoFocus,
-  ...$props
-}: ComboBoxProps<D>) {
-  const ref = useRef<ComboBox$Ref>(null!);
+  children,
+}: ComboBoxProps<S>) {
+  const ref$ = useRef<ComboBox$Ref>(null!);
 
   const {
+    schemaItem,
+    initialized,
     name,
-    dataItem,
     state,
-    required,
     value,
     setValue,
-    result,
-    label,
-    invalid,
-    // errormessage,
-    env,
-    getCommonParams,
-    omitOnSubmit,
+    message,
+    isInvalid,
+    errormMessageId,
+    injectParams,
+  } = useFormInput(formItem, {
     hideMessage,
-  } = useSchemaItem<Schema.DataItem<ComboBoxSchemaProps>>($props, {
-    effectContext: function () {
-      resetDataItemSource();
-    },
+    omitOnSubmit,
   });
 
-  const { source, resetDataItemSource } = useSource({
-    dataItem,
-    propsSource,
-    env,
-    getCommonParams,
-  });
+  const {
+    required,
+    items,
+  } = useMemo(() => {
+    return {
+      required: schemaItem.getRequired(injectParams) ?? undefined,
+      items: schemaItem.getItems(),
+    };
+  }, [
+    schemaItem,
+    initialized,
+    injectParams,
+  ]);
 
-  useImperativeHandle($props.ref, () => ref.current);
+  useImperativeHandle(ref, () => ref$.current);
 
   return (
-    <WithMessage
+    <WithMessage$
+      id={errormMessageId}
       hide={hideMessage}
       state={state}
-      result={result}
+      message={message}
     >
+      {!initialized && <LoadingBar />}
       <ComboBox$
+        ref={ref$}
         className={className}
         style={style}
-        label={label}
         state={state}
-        ref={ref}
-        invalid={invalid}
-        placeholder={placeholder}
-        manualWidth={manualWidth}
+        invalid={isInvalid}
         value={value}
         onChangeValue={setValue}
+        placeholder={placeholder}
+        manualWidth={manualWidth}
         name={omitOnSubmit ? undefined : name}
         autoFocus={autoFocus}
       >
@@ -116,7 +106,7 @@ export function ComboBox<D extends Schema.DataItem<ComboBoxSchemaProps>>({
               </ComboBoxItem>
             }
             {
-              source?.map(item => {
+              items?.map(item => {
                 const key = String(item.value);
                 return (
                   <ComboBoxItem
@@ -132,6 +122,6 @@ export function ComboBox<D extends Schema.DataItem<ComboBoxSchemaProps>>({
           </>
         }
       </ComboBox$>
-    </WithMessage>
+    </WithMessage$>
   );
 };

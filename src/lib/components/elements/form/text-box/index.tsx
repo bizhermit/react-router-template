@@ -72,6 +72,7 @@ export function TextBox$({
         disabled={state === "disabled"}
         readOnly={state === "readonly"}
         aria-invalid={invalid}
+        autoComplete="off"
         {...inputProps}
         className={clsx(
           "_ipt-box",

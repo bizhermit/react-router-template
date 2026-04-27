@@ -1,148 +1,105 @@
-import { useImperativeHandle, useRef, useState, type InputHTMLAttributes } from "react";
+import { useFormInput, type FormInputProps, type FormInputStyleProps } from "$/shared/hooks/$schema";
+import type { FormItem } from "$/shared/schema/$/form";
+import type { $NumSchema } from "$/shared/schema/$/number";
+import { useImperativeHandle, useMemo, useRef, type InputHTMLAttributes, type RefObject } from "react";
 import { NumberBox$, type NumberBox$Ref } from ".";
-import { useSource } from "../../../../shared/hooks/data-item-source";
-import { useSchemaItem } from "../../../../shared/hooks/schema";
-import { getValidationValue } from "../../../../shared/schema/utilities";
-import { WithMessage } from "../message";
+import { WithMessage$ } from "../message";
 
-/** 数値ボックス ref オブジェクト */
-export interface NumberBoxRef extends NumberBox$Ref { };
+export interface NumberBoxRef extends NumberBox$Ref { }
 
-/** 数値ボックス Props */
-export type NumberBoxProps<D extends Schema.DataItem<Schema.$Number>> = Overwrite<
-  InputPropsWithDataItem<D>,
-  {
-    /** プレースホルダー */
-    placeholder?: string;
-    /** データリストアイテム（配列） */
-    source?: Schema.Source<Schema.ValueType<D["_"]>>;
-    /** 増減ステップ @default 0 */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type NumberBoxProps<S extends $NumSchema<any>> =
+  & FormInputStyleProps
+  & FormInputProps
+  & {
+    ref?: RefObject<NumberBoxRef | null>;
+    formItem: FormItem<S>;
     step?: number;
-  } & Pick<InputHTMLAttributes<HTMLInputElement>,
+  }
+  & Pick<InputHTMLAttributes<HTMLInputElement>,
+    | "placeholder"
+    | "autoFocus"
     | "autoComplete"
     | "enterKeyHint"
-  >
->;
+    | "list"
+  >;
 
-/**
- * 数値ボックス（スキーマ対応）
- * @param param {@link NumberBoxProps}
- * @returns
- */
-export function NumberBox<D extends Schema.DataItem<Schema.$Number>>({
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function NumberBox<S extends $NumSchema<any>>({
+  ref,
+  formItem,
+  hideMessage,
+  omitOnSubmit,
   className,
   style,
-  placeholder,
-  source: propsSource,
-  step,
-  autoFocus,
-  autoComplete = "off",
-  enterKeyHint,
-  ...$props
-}: NumberBoxProps<D>) {
-  const ref = useRef<NumberBox$Ref>(null!);
+  ...props
+}: NumberBoxProps<S>) {
+  const ref$ = useRef<NumberBox$Ref>(null!);
 
   const {
+    schemaItem,
+    id,
     name,
-    dataItem,
+    label,
     state,
-    required,
     value,
     setValue,
-    result,
-    label,
-    invalid,
+    message,
+    isInvalid,
+    errormMessageId,
     errormessage,
-    getCommonParams,
-    env,
-    omitOnSubmit,
+    injectParams,
+  } = useFormInput(formItem, {
     hideMessage,
-  } = useSchemaItem<Schema.DataItem<Schema.$Number>>($props, {
-    effectContext: function () {
-      setMin(getMin);
-      setMax(getMax);
-      setFloat(getFloat);
-      resetDataItemSource();
-    },
+    omitOnSubmit,
   });
 
-  function getMin() {
-    return getValidationValue(getCommonParams(), dataItem._.min);
-  };
+  const {
+    required,
+    min,
+    max,
+    float,
+  } = useMemo(() => {
+    return {
+      required: schemaItem.getRequired(injectParams) ?? undefined,
+      min: schemaItem.getMin(injectParams) ?? undefined,
+      max: schemaItem.getMax(injectParams) ?? undefined,
+      float: schemaItem.getFloat(injectParams) ?? undefined,
+    };
+  }, [
+    schemaItem,
+    injectParams,
+  ]);
 
-  const [min, setMin] = useState(getMin);
-
-  function getMax() {
-    return getValidationValue(getCommonParams(), dataItem._.max);
-  };
-
-  const [max, setMax] = useState(getMax);
-
-  function getFloat() {
-    return getValidationValue(getCommonParams(), dataItem._.float);
-  };
-
-  const [float, setFloat] = useState(getFloat);
-
-  const { source, resetDataItemSource } = useSource({
-    dataItem,
-    propsSource,
-    env,
-    getCommonParams,
-  });
-
-  const dataListId = source == null ? undefined : `${name}_dl`;
-
-  useImperativeHandle($props.ref, () => ref.current);
+  useImperativeHandle(ref, () => ref$.current);
 
   return (
-    <WithMessage
+    <WithMessage$
+      id={errormMessageId}
       hide={hideMessage}
       state={state}
-      result={result}
+      message={message}
     >
       <NumberBox$
+        ref={ref$}
         className={className}
         style={style}
         state={state}
-        ref={ref}
-        invalid={invalid}
+        invalid={isInvalid}
         value={value}
         onChangeValue={setValue}
         inputProps={{
+          ...props,
+          id,
           name: omitOnSubmit ? undefined : name,
           required,
           min,
           max,
           float,
-          step,
-          placeholder,
           "aria-label": label,
           "aria-errormessage": errormessage,
-          list: dataListId,
-          autoFocus,
-          autoComplete,
-          enterKeyHint,
         }}
-      >
-        {
-          source &&
-          <datalist
-            id={dataListId}
-          >
-            {source.map(item => {
-              return (
-                <option
-                  key={item.value}
-                  value={item.value ?? ""}
-                >
-                  {item.text}
-                </option>
-              );
-            })}
-          </datalist>
-        }
-      </NumberBox$>
-    </WithMessage>
+      />
+    </WithMessage$>
   );
-};
+}

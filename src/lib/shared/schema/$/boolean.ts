@@ -47,7 +47,7 @@ export class $BoolSchema<
   protected falseValue: InferFalse<P>;
 
   constructor(protected props: P = {} as P) {
-    super();
+    super(props);
     this.trueValue = (props.trueValue ?? true) as InferTrue<P>;
     this.falseValue = (props.falseValue ?? false) as InferFalse<P>;
   }
@@ -62,10 +62,6 @@ export class $BoolSchema<
 
   public getActionType(): $Schema.ActionType {
     return this.props.actionType || "select";
-  }
-
-  public getLabel(): string | undefined {
-    return this.props.label;
   }
 
   public parse(
@@ -165,6 +161,14 @@ export class $BoolSchema<
       trueValue: this.trueValue,
       falseValue: this.falseValue,
     });
+  }
+
+  public getRequired(params: $Schema.InjectParams) {
+    const required = getValidationArray(this.props.required)[0];
+    if (typeof required === "function") {
+      return required(params) ?? false;
+    }
+    return required ?? false;
   }
 
 }

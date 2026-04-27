@@ -28,7 +28,7 @@ export type ArraySchemaMessage<Prop extends SchemaItem<any> = SchemaItem<any>> =
     typeof SCHEMA_ITEM_TYPE_ARRAY
   >;
 
-type ArrayProps<Prop extends SchemaItem<any>> =
+export type ArrayProps<Prop extends SchemaItem<any>> =
   & $Schema.SchemaItemAbstractProps
   & $Schema.Validations<ArrayValidations<Prop>>
   & {
@@ -56,16 +56,16 @@ export class $ArrSchema<
   protected child: InferChild<P>;
 
   constructor(protected props: P) {
-    super();
+    super(props);
     this.child = props.prop as InferChild<P>;
+  }
+
+  public initialize(params: $Schema.InjectParams): Promise<void>[] {
+    return this.child.initialize({ ...params });
   }
 
   public getActionType(): $Schema.ActionType {
     return this.props.actionType || "set";
-  }
-
-  public getLabel(): string | undefined {
-    return this.props.label;
   }
 
   public parse(
@@ -290,6 +290,38 @@ export class $ArrSchema<
 
   public getChild() {
     return this.child;
+  }
+
+  public getRequired(params: $Schema.InjectParams) {
+    const required = getValidationArray(this.props.required)[0];
+    if (typeof required === "function") {
+      return required(params) ?? false;
+    }
+    return required ?? false;
+  }
+
+  public getLength(params: $Schema.InjectParams) {
+    const length = getValidationArray(this.props.length)[0];
+    if (typeof length === "function") {
+      return length(params);
+    }
+    return length;
+  }
+
+  public getMinLength(params: $Schema.InjectParams) {
+    const minLength = getValidationArray(this.props.minLength)[0];
+    if (typeof minLength === "function") {
+      return minLength(params);
+    }
+    return minLength;
+  }
+
+  public getMaxLength(params: $Schema.InjectParams) {
+    const maxLength = getValidationArray(this.props.maxLength)[0];
+    if (typeof maxLength === "function") {
+      return maxLength(params);
+    }
+    return maxLength;
   }
 
 }
