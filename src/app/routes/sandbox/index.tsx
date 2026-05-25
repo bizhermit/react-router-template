@@ -12,7 +12,6 @@ import { Dialog, useDialog } from "$/components/elements/dialog";
 import { CheckBox$ } from "$/components/elements/form/check-box";
 import { ComboBox$, ComboBoxItem } from "$/components/elements/form/combo-box";
 import { DateBox$ } from "$/components/elements/form/date-box";
-import { DateSelectBox } from "$/components/elements/form/date-box/date-select-box";
 import { FieldSet } from "$/components/elements/form/fieldset";
 import { FileBox$ } from "$/components/elements/form/file-box";
 import { NumberBox$ } from "$/components/elements/form/number-box";
@@ -742,11 +741,11 @@ function Component2() {
           $={dataItems.datetime}
         />
       </FormItem> */}
-      <FormItem>
+      {/* <FormItem>
         <DateSelectBox
           $={dataItems.birth_year}
         />
-      </FormItem>
+      </FormItem> */}
       <FormItem>
         <TextArea$ textAreaProps={{ rows: "fit" }} />
         {/* <TextArea
