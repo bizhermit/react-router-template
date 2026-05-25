@@ -58,12 +58,13 @@ export class $DateSchema<const P extends DateProps> extends SchemaItem<$Date> {
     if (this.props.parser) {
       const parsed = this.props.parser(value, params);
       return {
-        value: parsed.value?.lock(),
+        value: parsed.value == null ? parsed.value : parsed.value.lock(),
         messages: { [params.name || ""]: parsed.messages },
       };
     }
 
-    if (value == null || value === "") return { value: undefined };
+    if (value == null) return { value };
+    if (value === "") return { value: null };
     try {
       const date = new $Date(value as string);
       return { value: date.lock() };

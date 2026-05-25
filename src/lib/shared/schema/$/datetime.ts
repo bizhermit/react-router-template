@@ -67,12 +67,13 @@ export class $DateTimeSchema<const P extends DateTimeProps> extends SchemaItem<$
     if (this.props.parser) {
       const parsed = this.props.parser(value, params);
       return {
-        value: parsed.value,
+        value: parsed.value == null ? parsed.value : parsed.value.lock(),
         messages: { [params.name || ""]: parsed.messages },
       };
     }
 
-    if (value == null || value === "") return { value: undefined };
+    if (value == null) return { value };
+    if (value === "") return { value: null };
     try {
       const datetime = new $DateTime(value as string);
       switch (this.getTimeBasis()) {

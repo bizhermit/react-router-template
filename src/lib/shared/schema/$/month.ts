@@ -59,12 +59,13 @@ export class $MonthSchema<const P extends MonthProps> extends SchemaItem<$Month>
     if (this.props.parser) {
       const parsed = this.props.parser(value, params);
       return {
-        value: parsed.value,
+        value: parsed.value == null ? parsed.value : parsed.value.lock(),
         messages: { [params.name || ""]: parsed.messages },
       };
     }
 
-    if (value == null || value === "") return { value: undefined };
+    if (value == null) return { value };
+    if (value === "") return { value: null };
     try {
       const month = new $Month(value as string);
       return { value: month.lock() };
