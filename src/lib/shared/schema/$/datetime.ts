@@ -38,6 +38,9 @@ export type DateTimeProps = $Schema.SchemaItemAbstractProps
     parser?: $Schema.Parser<$DateTime>;
     timeBasis?: "minute" | "hour" | "second";
     rules?: $Schema.Rule<$DateTime>[];
+    splits?: [string, string, string, string]
+    | [string, string, string, string, string]
+    | [string, string, string, string, string, string];
   };
 
 const pickMessage = getPickMessageGetter(SCHEMA_ITEM_TYPE_DATETIME);
@@ -72,9 +75,23 @@ export class $DateTimeSchema<const P extends DateTimeProps> extends SchemaItem<$
       };
     }
 
-    if (value == null) return { value };
-    if (value === "") return { value: null };
     try {
+      if (this.props.splits) {
+        const y = getValue(params.values, params.name, this.props.splits[0]);
+        const m = getValue(params.values, params.name, this.props.splits[1]);
+        const d = getValue(params.values, params.name, this.props.splits[2]);
+        const hour = getValue(params.values, params.name, this.props.splits[3]) ?? 0;
+        const minute = getValue(params.values, params.name, this.props.splits[4]) ?? 0;
+        const second = getValue(params.values, params.name, this.props.splits[5]) ?? 0;
+        if (y != null && m != null && d != null) {
+          const date = new $DateTime(`${y}-${m}-${d}T${hour}:${minute}:${second}`);
+          return { value: date.lock() };
+        }
+        return { value: null };
+      }
+
+      if (value == null) return { value };
+      if (value === "") return { value: null };
       const datetime = new $DateTime(value as string);
       switch (this.getTimeBasis()) {
         case "hour":

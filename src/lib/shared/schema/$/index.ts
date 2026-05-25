@@ -16,7 +16,7 @@ export async function parseWithSchema<const S extends $ObjSchema<any, any>>(para
   const inits = params.schema.initialize(injectParams);
   await Promise.all(inits);
 
-  const parsed = params.schema.parse(params.values, injectParams);
+  const parsed = params.schema.parse(injectParams.values, injectParams);
   const validated = params.schema.validate(parsed.value, injectParams);
   const messages = mergeRecordMessages(parsed.messages, validated);
   const hasError = getHasError(messages);

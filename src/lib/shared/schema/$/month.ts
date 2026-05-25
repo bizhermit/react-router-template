@@ -32,6 +32,7 @@ export type MonthProps = $Schema.SchemaItemAbstractProps
   & {
     parser?: $Schema.Parser<$Month>;
     rules?: $Schema.Rule<$Month>[];
+    splits?: [string, string];
   };
 
 export type MonthValidationMessage = MonthSchemaMessage;
@@ -64,9 +65,19 @@ export class $MonthSchema<const P extends MonthProps> extends SchemaItem<$Month>
       };
     }
 
-    if (value == null) return { value };
-    if (value === "") return { value: null };
     try {
+      if (this.props.splits) {
+        const y = getValue(params.values, params.name, this.props.splits[0]);
+        const m = getValue(params.values, params.name, this.props.splits[1]);
+        if (y != null && m != null) {
+          const date = new $Month(`${y}-${m}`);
+          return { value: date.lock() };
+        }
+        return { value: null };
+      }
+
+      if (value == null) return { value };
+      if (value === "") return { value: null };
       const month = new $Month(value as string);
       return { value: month.lock() };
     } catch {

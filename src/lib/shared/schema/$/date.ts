@@ -33,6 +33,7 @@ export type DateProps = $Schema.SchemaItemAbstractProps
   & {
     parser?: $Schema.Parser<$Date>;
     rules?: $Schema.Rule<$Date>[];
+    splits?: [string, string, string];
   };
 
 const pickMessage = getPickMessageGetter(SCHEMA_ITEM_TYPE_DATE);
@@ -63,9 +64,20 @@ export class $DateSchema<const P extends DateProps> extends SchemaItem<$Date> {
       };
     }
 
-    if (value == null) return { value };
-    if (value === "") return { value: null };
     try {
+      if (this.props.splits) {
+        const y = getValue(params.values, params.name, this.props.splits[0]);
+        const m = getValue(params.values, params.name, this.props.splits[1]);
+        const d = getValue(params.values, params.name, this.props.splits[2]);
+        if (y != null && m != null && d != null) {
+          const date = new $Date(`${y}-${m}-${d}`);
+          return { value: date.lock() };
+        }
+        return { value: null };
+      }
+
+      if (value == null) return { value };
+      if (value === "") return { value: null };
       const date = new $Date(value as string);
       return { value: date.lock() };
     } catch {

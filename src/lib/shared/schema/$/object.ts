@@ -92,37 +92,46 @@ export class $ObjSchema<
     }
 
     if (structValue != null) {
+      const retValue: $Schema.Nullable<Struct> = {};
       const prefixName = params.name ? `${params.name}.` : "";
 
-      Object.entries(structValue).forEach(([key, val]) => {
+      const keys = Object.keys(structValue);
+
+      Object.entries(this.children).forEach(([key, prop]) => {
         const name = `${prefixName}${key}`;
+        const idx = keys.findIndex(k => k === key);
+        if (idx < 0) return; // NOTE: キー無し
+        const val = structValue![key];
 
-        const prop = this.children[key];
-        if (prop == null) {
-          messages[params.name || ""] = [{
-            type: "w",
-            label: this.getLabel(),
-            message: `remove not accept property: ${name}`,
-            name,
-            actionType: this.getActionType(),
-          }];
-          delete structValue[key];
-          return;
-        }
-
-        const parsedItem = prop.parse(val, {
+        const parsed = prop.parse(val, {
           ...params,
           name,
         });
 
-        structValue[key] = parsedItem.value;
-        if (parsedItem.messages) {
-          Object.assign(messages, parsedItem.messages);
-          if (!(name in parsedItem.messages)) messages[name] = undefined;
+        retValue[key] = parsed.value;
+        if (parsed.messages) {
+          Object.assign(messages, parsed.messages);
+          if (!(name in parsed.messages)) messages[name] = undefined;
         } else {
           messages[name] = undefined;
         }
+
+        keys.splice(idx, 1);
       });
+
+      // NOTE: 不明なキーは警告
+      keys.forEach(key => {
+        const name = `${prefixName}${key}`;
+        messages[params.name || ""] = [{
+          type: "w",
+          label: this.getLabel(),
+          message: `remove not accept property: ${name}`,
+          name,
+          actionType: this.getActionType(),
+        }];
+      });
+
+      structValue = retValue;
     }
 
     return {
