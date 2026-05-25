@@ -32,6 +32,7 @@ export type SplitDateProps = $Schema.SchemaItemAbstractProps
   & {
     parser?: $Schema.Parser<number>;
     rules?: $Schema.Rule<number>[];
+    step?: number;
   };
 
 export class $SplitDateSchema<
@@ -264,7 +265,7 @@ export class $SplitDateSchema<
 
   public getRequired(params: $Schema.InjectParams) {
     const required = getValidationArray(this.props.required)[0];
-    const req = typeof required === "function" ? required(params) : required;
+    const req = (typeof required === "function" ? required(params) : required) ?? "inherit";
     if (req === "inherit") {
       return this.baseGetters.required(params) ?? false;
     }
@@ -287,6 +288,10 @@ export class $SplitDateSchema<
       return this.baseGetters.max(params);
     }
     return m;
+  }
+
+  public getStep() {
+    return this.props.step ?? 1;
   }
 
 };

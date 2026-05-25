@@ -276,7 +276,7 @@ export class $MonthSchema<const P extends MonthProps> extends SchemaItem<$Month>
     return super.validate(value, params);
   }
 
-  public getSplitYear<const SP extends SplitDateProps>(splitProps: SP = {} as SP) {
+  public getSplitYear<const SP extends Omit<SplitDateProps, "step">>(splitProps: SP = {} as SP) {
     const [required] = getValidationArray(this.props.required);
     const [minMonth] = getValidationArray(this.props.minMonth);
     const [maxMonth] = getValidationArray(this.props.maxMonth);
@@ -299,7 +299,7 @@ export class $MonthSchema<const P extends MonthProps> extends SchemaItem<$Month>
     );
   }
 
-  public getSplitMonth<const SP extends SplitDateProps>(splitProps: SP = {} as SP) {
+  public getSplitMonth<const SP extends Omit<SplitDateProps, "step">>(splitProps: SP = {} as SP) {
     const [required] = getValidationArray(this.props.required);
 
     return new $SplitDateSchema<$MonthSchema<P>, SP>(

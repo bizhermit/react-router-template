@@ -5,6 +5,13 @@ import { $ArrSchema } from "./array";
 import type { SchemaItem } from "./core";
 import { $ObjSchema } from "./object";
 
+/**
+ *
+ * @param formContext
+ * @param props
+ * @param prefixName
+ * @returns
+ */
 export function convertToFormItems(
   formContext: FormContext<any>,
   props: Record<string, SchemaItem<any>>,
@@ -24,6 +31,18 @@ export function convertToFormItems(
   return formItems;
 };
 
+export function equalMessage(
+  msg1: $Schema.Message | null | undefined,
+  msg2: $Schema.Message | null | undefined
+) {
+  if (equals(msg1, msg2)) return true;
+  if (equals(msg1?.code, msg2?.code)) return true;
+  return false;
+};
+
+/**
+ *
+ */
 export class FormContext<S extends $ObjSchema<any, any>> {
 
   protected initialized: boolean;
@@ -211,8 +230,7 @@ export class FormContext<S extends $ObjSchema<any, any>> {
         return prev;
       }
       const current = this.messages.get(name);
-      if (equals(current, message)) return prev;
-      if (equals(current?.code, message?.code)) return prev;
+      if (equalMessage(current, message)) return prev;
       prev.push({ name, message });
       return prev;
     }, [] as ({ name: string; message: $Schema.Message | undefined; }[]));

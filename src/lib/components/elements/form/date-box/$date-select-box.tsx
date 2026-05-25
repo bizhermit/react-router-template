@@ -7,7 +7,7 @@ import { ValidScriptsContext } from "$/shared/providers/valid-scripts";
 import type { SchemaItem } from "$/shared/schema/$/core";
 import { $DateSchema } from "$/shared/schema/$/date";
 import { $DateTimeSchema } from "$/shared/schema/$/datetime";
-import { FormItem } from "$/shared/schema/$/form";
+import { equalMessage, FormItem } from "$/shared/schema/$/form";
 import { $MonthSchema } from "$/shared/schema/$/month";
 import type { $SplitDateSchema } from "$/shared/schema/$/split-date";
 import { getResultMessage$ } from "$/shared/schema/message";
@@ -165,8 +165,9 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
   const minuteName = minute?.getName();
   const secondName = second?.getName();
 
-  const dummySubscribes = useRef<Record<DateSeparateKeys | "core", (() => void) | undefined>>({
+  const dummySubscribes = useRef<Record<DateSeparateKeys | "core" | "coreMessage", (() => void) | undefined>>({
     core: undefined,
+    coreMessage: undefined,
     year: undefined,
     month: undefined,
     day: undefined,
@@ -175,7 +176,8 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
     second: undefined,
   });
 
-  const dateRef = useRef<$DateTime | $Date | $Month | null | undefined>(undefined);
+  const dummyDateRef = useRef<$DateTime | $Date | $Month | null | undefined>(undefined);
+  const dummyMsgRef = useRef<$Schema.Message | null | undefined>(undefined);
 
   const value = useSyncExternalStore<$Schema.Nullable<$DateTime | $Date | $Month>>((callback) => {
     if (!coreName) {
@@ -187,11 +189,28 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
     });
     return () => cleanup();
   }, () => {
-    if (!coreName) return dateRef.current;
+    if (!coreName) return dummyDateRef.current;
     return context.getValue(coreName);
   }, () => {
-    if (!coreName) return dateRef.current;
+    if (!coreName) return dummyDateRef.current;
     return context.getValue(coreName);
+  });
+
+  const coreMessage = useSyncExternalStore<$Schema.Message | null | undefined>((callback) => {
+    if (!coreName) {
+      dummySubscribes.current.coreMessage = callback;
+      return () => { };
+    }
+    const cleanup = context.addMessageSubscribe(coreName, () => {
+      callback();
+    });
+    return () => cleanup();
+  }, () => {
+    if (!coreName) return dummyMsgRef.current;
+    return context.getMessage(coreName);
+  }, () => {
+    if (!coreName) return dummyMsgRef.current;
+    return context.getMessage(coreName);
   });
 
   const [initValue] = useState<Record<DateSeparateKeys, number | undefined>>(() => {
@@ -219,20 +238,6 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
   });
 
   const nums = useRef<Record<DateSeparateKeys, $Schema.Nullable<number>>>(initValue);
-
-  const coreMessage = useSyncExternalStore<$Schema.Message | undefined>((callback) => {
-    if (!coreName) return () => { };
-    const cleanup = context.addMessageSubscribe(coreName, () => {
-      callback();
-    });
-    return () => cleanup();
-  }, () => {
-    if (!coreName) return undefined;
-    return context.getMessage(coreName);
-  }, () => {
-    if (!coreName) return undefined;
-    return context.getMessage(coreName);
-  });
 
   const yearNum = useSyncExternalStore<$Schema.Nullable<number>>((callback) => {
     if (!yearName) {
@@ -445,6 +450,9 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
     maxSecond,
     minTime,
     maxTime,
+    hourStep,
+    minuteStep,
+    secondStep,
   } = useMemo(() => {
     let min = new $DateTime("1900-01-01T00:00:00");
     const minMonth = schemaItem.getMinMonth(injectParams);
@@ -534,6 +542,9 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
       maxSecond: secondSchemaItem?.getMax(injectParams) ?? 59,
       minTime: schemaItem instanceof $DateTimeSchema ? schemaItem.getMinTime(injectParams) : undefined,
       maxTime: schemaItem instanceof $DateTimeSchema ? schemaItem.getMaxTime(injectParams) : undefined,
+      hourStep: hourSchemaItem?.getStep() ?? 1,
+      minuteStep: minuteSchemaItem?.getStep() ?? 1,
+      secondStep: secondSchemaItem?.getStep() ?? 1,
     };
   }, [
     schemaItem,
@@ -762,9 +773,8 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
   const hourOptions = useMemo(() => {
     const options: Array<ReactNode> = [];
     if (type !== "datetime-local") return options;
-    // const step = $hour?._.step ?? 1;
-    const step = 1;
-    for (let i = optionMinHour; i <= optionMaxHour; i += step) {
+    const initAddStep = optionMinHour % hourStep;
+    for (let i = optionMinHour + initAddStep; i <= optionMaxHour; i += hourStep) {
       options.push(
         <option
           key={i}
@@ -777,7 +787,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
     return options;
   }, [
     type,
-    // $hour?._.step,
+    hourStep,
     optionMinHour,
     optionMaxHour,
   ]);
@@ -785,9 +795,8 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
   const minuteOptions = useMemo(() => {
     const options: Array<ReactNode> = [];
     if (type !== "datetime-local" || timeBasis === "hour") return options;
-    // const minuteStep = $minute?._.step ?? 1;
-    const minuteStep = 1;
-    for (let i = optionMinMinute; i <= optionMaxMinute; i += minuteStep) {
+    const initAddStep = optionMinMinute % minuteStep;
+    for (let i = optionMinMinute + initAddStep; i <= optionMaxMinute; i += minuteStep) {
       options.push(
         <option
           key={i}
@@ -801,7 +810,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
   }, [
     type,
     timeBasis,
-    // $minute?._.step,
+    minuteStep,
     optionMinMinute,
     optionMaxMinute,
   ]);
@@ -809,9 +818,8 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
   const secondOptions = useMemo(() => {
     const options: Array<ReactNode> = [];
     if (type !== "datetime-local" || timeBasis !== "second") return options;
-    // const step = $second?._.step ?? 1;
-    const step = 1;
-    for (let i = optionMinSecond; i <= optionMaxSecond; i += step) {
+    const initAddStep = optionMinSecond % secondStep;
+    for (let i = optionMinSecond + initAddStep; i <= optionMaxSecond; i += secondStep) {
       options.push(
         <option
           key={i}
@@ -825,7 +833,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
   }, [
     type,
     timeBasis,
-    // $second?._.step,
+    secondStep,
     optionMinSecond,
     optionMaxSecond,
   ]);
@@ -893,54 +901,56 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
     minute = minuteNum,
     second = secondNum,
   }: Partial<Record<DateSeparateKeys, $Schema.Nullable<number>>>) {
+    function set(v: any) {
+      if (core) {
+        core.setValue(v);
+      } else {
+        const msg = schemaItem.validate(dummyDateRef.current = v, injectParams)[""]?.[0];
+        if (!equalMessage(dummyMsgRef.current, msg)) {
+          dummyMsgRef.current = msg;
+          dummySubscribes.current.coreMessage?.();
+        }
+      }
+    }
+
     if (type === "month") {
       if (year == null || month == null) {
-        if (core) core.setValue(null);
-        else dateRef.current = null;
+        set(null);
         return;
       }
-      if (core) core.setValue(`${year}-${month}`);
-      else dateRef.current = new $Month(`${year}-${month}`);
+      set(new $Month(`${year}-${month}`));
       return;
     }
     if (type === "date") {
       if (year == null || month == null || day == null) {
-        if (core) core.setValue(null);
-        else dateRef.current = null;
+        set(null);
         return;
       }
-      if (core) core.setValue(`${year}-${month}-${day}`);
-      else dateRef.current = new $Date(`${year}-${month}-${day}`);
+      set(new $Date(`${year}-${month}-${day}`));
       return;
     }
     if (type === "datetime-local") {
       if (year == null || month == null || day == null || hour == null) {
-        if (core) core.setValue(null);
-        else dateRef.current = null;
+        set(null);
         return;
       }
       if (timeBasis === "hour") {
-        if (core) core.setValue(`${year}-${month}-${day}T${hour}`);
-        else dateRef.current = new $DateTime(`${year}-${month}-${day}T${hour}`);
+        set(new $DateTime(`${year}-${month}-${day}T${hour}`));
         return;
       }
       if (minute == null) {
-        if (core) core.setValue(null);
-        else dateRef.current = null;
+        set(null);
         return;
       }
       if (timeBasis === "minute") {
-        if (core) core.setValue(`${year}-${month}-${day}T${hour}:${minute}`);
-        else dateRef.current = new $DateTime(`${year}-${month}-${day}T${hour}:${minute}`);
+        set(new $DateTime(`${year}-${month}-${day}T${hour}:${minute}`));
         return;
       }
       if (second == null) {
-        if (core) core.setValue(null);
-        else dateRef.current = null;
+        set(null);
         return;
       }
-      if (core) core.setValue(`${year}-${month}-${day}T${hour}:${minute}:${second}`);
-      else dateRef.current = new $DateTime(`${year}-${month}-${day}T${hour}:${minute}:${second}`);
+      set(new $DateTime(`${year}-${month}-${day}T${hour}:${minute}:${second}`));
       return;
     }
   };

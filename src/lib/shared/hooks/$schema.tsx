@@ -29,6 +29,11 @@ export const SchemaProviderContext = createContext<SchemaProviderContextProps>({
   context: null!,
 });
 
+/**
+ *
+ * @param props
+ * @returns
+ */
 export function useSchema<const S extends $ObjSchema<any, any>>(props: SchemaHookProps<S>) {
   const id = props.id;
 
@@ -88,6 +93,10 @@ export function useSchema<const S extends $ObjSchema<any, any>>(props: SchemaHoo
   } as const;
 };
 
+/**
+ *
+ * @returns
+ */
 export function useHasError() {
   const { context } = use(SchemaProviderContext);
   const hasError = useSyncExternalStore((callback) => {
@@ -101,6 +110,11 @@ export function useHasError() {
   return hasError;
 };
 
+/**
+ *
+ * @param arrayFormItem
+ * @returns
+ */
 export function useFormArrayItem<S extends $ArrSchema<any, any>>(arrayFormItem: FormItem<S>) {
   const { context } = use(SchemaProviderContext);
   const [revision, setRevision] = useState(0);
@@ -191,6 +205,11 @@ export function useFormArrayItem<S extends $ArrSchema<any, any>>(arrayFormItem: 
   } as const;
 };
 
+/**
+ *
+ * @param formItem
+ * @returns
+ */
 export function useFormValue<S extends SchemaItem<any>>(formItem: FormItem<S>) {
   const { context } = use(SchemaProviderContext);
   const value = useSyncExternalStore<$Schema.Nullable<$Schema.InferValue<S>>>((callback) => {
@@ -206,6 +225,11 @@ export function useFormValue<S extends SchemaItem<any>>(formItem: FormItem<S>) {
   return value;
 };
 
+/**
+ *
+ * @param formItem
+ * @returns
+ */
 export function useFormMessage(formItem: FormItem<any>) {
   const { context } = use(SchemaProviderContext);
   const message = useSyncExternalStore<$Schema.Message | undefined>((callback) => {
@@ -231,6 +255,11 @@ export type FormInputProps = {
   omitOnSubmit?: boolean;
 };
 
+/**
+ *
+ * @param schemaItem
+ * @returns
+ */
 export function useSchemaInitizlied(schemaItem: SchemaItem<any>) {
   return useSyncExternalStore((callback) => {
     if (schemaItem.isInitialized()) return () => { };
@@ -251,6 +280,12 @@ export function useSchemaInitizlied(schemaItem: SchemaItem<any>) {
   });
 };
 
+/**
+ *
+ * @param formItem
+ * @param props
+ * @returns
+ */
 export function useFormInput<S extends SchemaItem<any>>(
   formItem: FormItem<S>,
   props: FormInputProps

@@ -449,7 +449,7 @@ export class $DateTimeSchema<const P extends DateTimeProps> extends SchemaItem<$
     return super.validate(value, params);
   }
 
-  public getSplitYear<const SP extends SplitDateProps>(splitProps: SP = {} as SP) {
+  public getSplitYear<const SP extends Omit<SplitDateProps, "step">>(splitProps: SP = {} as SP) {
     const [required] = getValidationArray(this.props.required);
     const [minDateTime] = getValidationArray(this.props.minDateTime);
     const [maxDateTime] = getValidationArray(this.props.maxDateTime);
@@ -511,7 +511,7 @@ export class $DateTimeSchema<const P extends DateTimeProps> extends SchemaItem<$
     );
   }
 
-  public getSplitMonth<const SP extends SplitDateProps>(splitProps: SP = {} as SP) {
+  public getSplitMonth<const SP extends Omit<SplitDateProps, "step">>(splitProps: SP = {} as SP) {
     const [required] = getValidationArray(this.props.required);
 
     return new $SplitDateSchema<$DateTimeSchema<P>, SP>(
@@ -528,7 +528,7 @@ export class $DateTimeSchema<const P extends DateTimeProps> extends SchemaItem<$
     );
   }
 
-  public getSplitDay<const SP extends SplitDateProps>(splitProps: SP = {} as SP) {
+  public getSplitDay<const SP extends Omit<SplitDateProps, "step">>(splitProps: SP = {} as SP) {
     const [required] = getValidationArray(this.props.required);
 
     return new $SplitDateSchema<$DateTimeSchema<P>, SP>(

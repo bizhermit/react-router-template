@@ -224,8 +224,12 @@ const schemaObj = $obj({
     //   label: "dateselect",
     //   required: true,
     // }),
-    date_year: date.getSplitYear(),
-    date_month: date.getSplitMonth(),
+    date_year: date.getSplitYear({
+      // required: true,
+    }),
+    date_month: date.getSplitMonth({
+      // required: true,
+    }),
     date_day: date.getSplitDay(),
     arr: arr,
     arr2: $arr({
