@@ -1,7 +1,7 @@
 import { getValue } from "$/shared/objects/data";
-import { parseNumber } from "$/shared/objects/numeric";
 import { $Clock, $Date, $DateTime } from "$/shared/objects/timestamp";
 import { getPickMessageGetter, getValidationArray, getValidationArrayAsArray, SchemaItem } from "./core";
+import { $SplitDateSchema, type SplitDateProps } from "./split-date";
 
 export const SCHEMA_ITEM_TYPE_DATETIME = "datetime";
 
@@ -32,7 +32,7 @@ export type DateTimeSchemaMessage = $Schema.ValidationMessages<
   typeof SCHEMA_ITEM_TYPE_DATETIME
 >;
 
-type DateTimeProps = $Schema.SchemaItemAbstractProps
+export type DateTimeProps = $Schema.SchemaItemAbstractProps
   & $Schema.Validations<DateTimeValidations>
   & {
     parser?: $Schema.Parser<$DateTime>;
@@ -40,245 +40,7 @@ type DateTimeProps = $Schema.SchemaItemAbstractProps
     rules?: $Schema.Rule<$DateTime>[];
   };
 
-export type SplitDateTimePart = "Y" | "M" | "D" | "h" | "m" | "s";
-
-type SplitDateTimeValidations = {
-  required: $Schema.ValidationEntry<boolean | "inherit", null | undefined>;
-  min: $Schema.ValidationEntry<number | "inherit", number, { min: number; }>;
-  max: $Schema.ValidationEntry<number | "inherit", number, { max: number; }>;
-};
-
-export type SplitDateTimeSchemaMessage = $Schema.ValidationMessages<
-  SplitDateTimeValidations,
-  `split-${SplitDateTimePart}`
->;
-
-type SplitDateTimeProps = $Schema.SchemaItemAbstractProps
-  & $Schema.Validations<SplitDateTimeValidations>
-  & {
-    parser?: $Schema.Parser<number>;
-    rules?: $Schema.Rule<number>[];
-  };
-
 const pickMessage = getPickMessageGetter(SCHEMA_ITEM_TYPE_DATETIME);
-
-export class $SplitDateTimeSchema<
-  const Base extends DateTimeProps,
-  const SP extends SplitDateTimeProps
-> extends SchemaItem<number> {
-
-  protected pickMessage: ReturnType<typeof getPickMessageGetter<`split-${SplitDateTimePart}`>>;
-
-  constructor(
-    protected base: $DateTimeSchema<Base>,
-    protected props: SP,
-    protected key: SplitDateTimePart,
-    protected validations: {
-      isValidRequired: (params: $Schema.RuleArgParams<number>) => boolean;
-      isValidMin: (params: $Schema.RuleArgParams<number>) => [boolean, number];
-      isValidMax: (params: $Schema.RuleArgParams<number>) => [boolean, number];
-    },
-  ) {
-    super(props);
-    this.pickMessage = getPickMessageGetter(`split-${key}`);
-  }
-
-  public getActionType(): $Schema.ActionType {
-    return this.props.actionType || this.base.getActionType();
-  }
-
-  public parse(
-    value: unknown,
-    params: $Schema.ParseArgParams = this.getEmptyInjectParams()
-  ): $Schema.ParseResult<number> {
-    if (this.props.parser) {
-      const parsed = this.props.parser(value, params);
-      return {
-        value: parsed.value,
-        messages: { [params.name || ""]: parsed.messages },
-      };
-    }
-
-    const [num, succeeded] = parseNumber(value);
-    if (succeeded) return { value: num };
-    return {
-      value: num,
-      messages: {
-        [params.name || ""]: [
-          pickMessage("parse", {
-            label: this.getLabel(),
-            actionType: this.getActionType(),
-            name: params.name,
-          }),
-        ],
-      },
-    };
-  }
-
-  public validate(
-    value: $Schema.Nullable<number>,
-    params: $Schema.ValidationArgParams = this.getEmptyInjectParams()
-  ): $Schema.RecordMessages {
-    if (this.validators == null) {
-      this.validators = [];
-
-      // required
-      const [required, getRequiredMessage] = getValidationArray(this.props.required, "inherit");
-      if (required) {
-        const getMessage = getRequiredMessage ?? ((p) => this.pickMessage("required", p));
-
-        if (typeof required === "function") {
-          this.validators.push((p) => {
-            const r = required(p);
-            if (!r) return null;
-            if (r === "inherit") {
-              const isValid = this.validations.isValidRequired(p);
-              if (isValid) return null;
-              return getMessage(p as $Schema.ValidationResultArgParams);
-            }
-            if (p.value == null) {
-              return getMessage(p as $Schema.ValidationResultArgParams);
-            }
-            return null;
-          });
-        } else {
-          if (required === "inherit") {
-            this.validators.push((p) => {
-              const isValid = this.validations.isValidRequired(p);
-              if (isValid) return null;
-              return getMessage(p as $Schema.ValidationResultArgParams);
-            });
-          } else {
-            this.validators.push((p) => {
-              if (p.value == null) {
-                return getMessage(p as $Schema.ValidationResultArgParams);
-              }
-              return null;
-            });
-          }
-        }
-      }
-
-      // min
-      const [min, getMinMessage] = getValidationArray(this.props.min, "inherit");
-      if (min != null) {
-        const getMessage = getMinMessage ?? ((p) => this.pickMessage("min", p));
-
-        if (typeof min === "function") {
-          this.validators.push((p) => {
-            if (p.value == null) return null;
-            const m = min(p);
-            if (m == null) return null;
-            if (m === "inherit") {
-              const [isValid, baseMin] = this.validations.isValidMin(p);
-              if (isValid) return null;
-              return getMessage({
-                ...p as $Schema.RuleArgParamsAsValidation<number>,
-                params: {
-                  min: baseMin,
-                },
-              });
-            }
-            if (m <= p.value) return null;
-            return getMessage({
-              ...p as $Schema.ValidationResultArgParams<number>,
-              params: {
-                min: m,
-              },
-            });
-          });
-        } else {
-          if (min === "inherit") {
-            this.validators.push((p) => {
-              const [isValid, baseMin] = this.validations.isValidMin(p);
-              if (isValid) return null;
-              return getMessage({
-                ...p as $Schema.RuleArgParamsAsValidation<number>,
-                params: {
-                  min: baseMin,
-                },
-              });
-            });
-          } else {
-            this.validators.push((p) => {
-              if (p.value == null) return null;
-              if (min <= p.value) return null;
-              return getMessage({
-                ...p as $Schema.ValidationResultArgParams<number>,
-                params: {
-                  min,
-                },
-              });
-            });
-          }
-        }
-      }
-
-      // max
-      const [max, getMaxMessage] = getValidationArray(this.props.max, "inherit");
-      if (max != null) {
-        const getMessage = getMaxMessage ?? ((p) => this.pickMessage("max", p));
-
-        if (typeof max === "function") {
-          this.validators.push((p) => {
-            if (p.value == null) return null;
-            const m = max(p);
-            if (m == null) return null;
-            if (m === "inherit") {
-              const [isValid, baseMax] = this.validations.isValidMax(p);
-              if (isValid) return null;
-              return getMessage({
-                ...p as $Schema.RuleArgParamsAsValidation<number>,
-                params: {
-                  max: baseMax,
-                },
-              });
-            }
-            if (p.value <= m) return null;
-            return getMessage({
-              ...p as $Schema.ValidationResultArgParams<number>,
-              params: {
-                max: m,
-              },
-            });
-          });
-        } else {
-          if (max === "inherit") {
-            this.validators.push((p) => {
-              const [isValid, baseMax] = this.validations.isValidMax(p);
-              if (isValid) return null;
-              return getMessage({
-                ...p as $Schema.RuleArgParamsAsValidation<number>,
-                params: {
-                  max: baseMax,
-                },
-              });
-            });
-          } else {
-            this.validators.push((p) => {
-              if (p.value == null) return null;
-              if (p.value <= max) return null;
-              return getMessage({
-                ...p as $Schema.ValidationResultArgParams<number>,
-                params: {
-                  max,
-                },
-              });
-            });
-          }
-        }
-      }
-
-      // rules
-      if (this.props.rules) {
-        this.validators.push(...this.props.rules);
-      }
-    }
-
-    return super.validate(value, params);
-  }
-
-}
 
 export function $datetime<const P extends DateTimeProps>(props: P = {} as P) {
   return new $DateTimeSchema(props);
@@ -292,6 +54,10 @@ export class $DateTimeSchema<const P extends DateTimeProps> extends SchemaItem<$
 
   public getActionType(): $Schema.ActionType {
     return this.props.actionType || "input";
+  }
+
+  public getTimeBasis() {
+    return this.props.timeBasis || "minute";
   }
 
   public parse(
@@ -309,7 +75,18 @@ export class $DateTimeSchema<const P extends DateTimeProps> extends SchemaItem<$
     if (value == null || value === "") return { value: undefined };
     try {
       const datetime = new $DateTime(value as string);
-      return { value: datetime };
+      switch (this.getTimeBasis()) {
+        case "hour":
+          datetime.setMinute(0, 0, 0);
+          break;
+        case "minute":
+          datetime.setSecond(0, 0);
+          break;
+        default:
+          datetime.setMillisecond(0);
+          break;
+      }
+      return { value: datetime.lock() };
     } catch {
       return {
         value: null,
@@ -672,35 +449,35 @@ export class $DateTimeSchema<const P extends DateTimeProps> extends SchemaItem<$
     return super.validate(value, params);
   }
 
-  public getSplitYear<const SP extends SplitDateTimeProps>(splitProps: SP = {} as SP) {
+  public getSplitYear<const SP extends SplitDateProps>(splitProps: SP = {} as SP) {
     const [required] = getValidationArray(this.props.required);
     const [minDateTime] = getValidationArray(this.props.minDateTime);
     const [maxDateTime] = getValidationArray(this.props.maxDateTime);
     const [minDate] = getValidationArray(this.props.minDate);
     const [maxDate] = getValidationArray(this.props.maxDate);
 
-    const getMinDateTime = (p: $Schema.RuleArgParams<number>) => {
+    const getMinDateTime = (p: $Schema.InjectParams) => {
       if (minDateTime == null) return null;
       if (typeof minDateTime === "function") {
         return minDateTime(p);
       }
       return minDateTime;
     };
-    const getMaxDateTime = (p: $Schema.RuleArgParams<number>) => {
+    const getMaxDateTime = (p: $Schema.InjectParams) => {
       if (maxDateTime == null) return null;
       if (typeof maxDateTime === "function") {
         return maxDateTime(p);
       }
       return maxDateTime;
     };
-    const getMinDate = (p: $Schema.RuleArgParams<number>) => {
+    const getMinDate = (p: $Schema.InjectParams) => {
       if (minDate == null) return null;
       if (typeof minDate === "function") {
         return minDate(p);
       }
       return minDate;
     };
-    const getMaxDate = (p: $Schema.RuleArgParams<number>) => {
+    const getMaxDate = (p: $Schema.InjectParams) => {
       if (maxDate == null) return null;
       if (typeof maxDate === "function") {
         return maxDate(p);
@@ -708,211 +485,125 @@ export class $DateTimeSchema<const P extends DateTimeProps> extends SchemaItem<$
       return null;
     };
 
-    return new $SplitDateTimeSchema<P, SP>(
+    return new $SplitDateSchema<$DateTimeSchema<P>, SP>(
       this,
       splitProps,
-      "Y",
+      "year",
       {
-        isValidRequired: !required ?
-          () => true :
-          typeof required === "function" ?
-            (p) => {
-              const req = required(p);
-              if (!req) return true;
-              return p.value != null;
-            } :
-            (p) => p.value != null,
-        isValidMin: (p) => {
-          if (p.value == null) return [true, -1];
+        required: typeof required === "function" ?
+          (p: $Schema.InjectParams) => required(p) :
+          () => required,
+        min: (p) => {
           let min = getMinDateTime(p)?.getYear();
           const d = getMinDate(p);
           if (min == null) min = d?.getYear();
           else if (d) min = Math.max(min, d.getYear());
-          if (min == null) return [true, -1];
-          return [min <= p.value, min];
+          return min;
         },
-        isValidMax: (p) => {
-          if (p.value == null) return [true, -1];
+        max: (p) => {
           let max = getMaxDateTime(p)?.getYear();
           const d = getMaxDate(p);
           if (max == null) max = d?.getYear();
           else if (d) max = Math.min(max, d.getYear());
-          if (max == null) return [true, -1];
-          return [p.value <= max, max];
+          return max;
         },
       },
     );
   }
 
-  public getSplitMonth<const SP extends SplitDateTimeProps>(splitProps: SP = {} as SP) {
+  public getSplitMonth<const SP extends SplitDateProps>(splitProps: SP = {} as SP) {
     const [required] = getValidationArray(this.props.required);
 
-    return new $SplitDateTimeSchema<P, SP>(
+    return new $SplitDateSchema<$DateTimeSchema<P>, SP>(
       this,
       splitProps,
-      "M",
+      "month",
       {
-        isValidRequired: !required ?
-          () => true :
-          typeof required === "function" ?
-            (p) => {
-              const req = required(p);
-              if (!req) return true;
-              return p.value != null;
-            } :
-            (p) => p.value != null,
-        isValidMin: (p) => {
-          if (p.value == null) return [true, -1];
-          // NOTE: 最小値および年の値によって変動するため、最小日付と比較を行わない
-          return [1 <= p.value, 1];
-        },
-        isValidMax: (p) => {
-          if (p.value == null) return [true, -1];
-          // NOTE: 最大値および年の値によって変動するため、最大日付と比較を行わない
-          return [p.value <= 12, 12];
-        },
+        required: typeof required === "function" ?
+          (p: $Schema.InjectParams) => required(p) :
+          () => required,
+        min: () => 1, // NOTE: 最小値および年の値によって変動するため、最小日付と比較を行わない
+        max: () => 12, // NOTE: 最大値および年の値によって変動するため、最大日付と比較を行わない
       },
     );
   }
 
-  public getSplitDay<const SP extends SplitDateTimeProps>(splitProps: SP = {} as SP) {
+  public getSplitDay<const SP extends SplitDateProps>(splitProps: SP = {} as SP) {
     const [required] = getValidationArray(this.props.required);
 
-    return new $SplitDateTimeSchema<P, SP>(
+    return new $SplitDateSchema<$DateTimeSchema<P>, SP>(
       this,
       splitProps,
-      "D",
+      "day",
       {
-        isValidRequired: !required ?
-          () => true :
-          typeof required === "function" ?
-            (p) => {
-              const req = required(p);
-              if (!req) return true;
-              return p.value != null;
-            } :
-            (p) => p.value != null,
-        isValidMin: (p) => {
-          if (p.value == null) return [true, -1];
-          // NOTE: 最小値および年月の値によって変動するため、最小日付と比較を行わない
-          return [1 <= p.value, 1];
-        },
-        isValidMax: (p) => {
-          if (p.value == null) return [true, -1];
-          // NOTE: 最大値および年月の値によって変動するため、最大日付と比較を行わない
-          return [p.value <= 31, 31];
-        },
+        required: typeof required === "function" ?
+          (p: $Schema.InjectParams) => required(p) :
+          () => required,
+        min: () => 1, // NOTE: 最小値および年月の値によって変動するため、最小日付と比較を行わない
+        max: () => 31, // NOTE: 最大値および年月の値によって変動するため、最大日付と比較を行わない
       },
     );
   }
 
-  public getSplitHour<const SP extends SplitDateTimeProps>(splitProps: SP = {} as SP) {
+  public getSplitHour<const SP extends SplitDateProps>(splitProps: SP = {} as SP) {
     const [required] = getValidationArray(this.props.required);
     const [minTime] = getValidationArray(this.props.minTime);
     const [maxTime] = getValidationArray(this.props.maxTime);
 
-    return new $SplitDateTimeSchema<P, SP>(
+    return new $SplitDateSchema<$DateTimeSchema<P>, SP>(
       this,
       splitProps,
-      "m",
+      "hour",
       {
-        isValidRequired: !required ?
-          () => true :
-          typeof required === "function" ?
-            (p) => {
-              const req = required(p);
-              if (!req) return true;
-              return p.value != null;
-            } :
-            (p) => p.value != null,
-        isValidMin: !minTime ?
-          () => [true, -1] :
-          typeof minTime === "function" ?
-            (p) => {
-              if (p.value == null) return [true, -1];
-              const m = minTime(p);
-              if (m == null) return [true, -1];
-              const h = m.getHour();
-              return [h <= p.value, h];
-            } :
-            (p) => {
-              if (p.value == null) return [true, -1];
-              const h = minTime.getHour();
-              return [h <= p.value, h];
-            },
-        isValidMax: !maxTime ?
-          () => [true, -1] :
-          typeof maxTime === "function" ?
-            (p) => {
-              if (p.value == null) return [true, -1];
-              const m = maxTime(p);
-              if (m == null) return [true, -1];
-              const h = m.getHour();
-              return [p.value <= h, h];
-            } :
-            (p) => {
-              if (p.value == null) return [true, -1];
-              const h = maxTime.getHour();
-              return [p.value <= h, h];
-            },
-      },
-    );
-  }
-
-  public getSplitMinute<const SP extends SplitDateTimeProps>(splitProps: SP = {} as SP) {
-    const [required] = getValidationArray(this.props.required);
-
-    return new $SplitDateTimeSchema<P, SP>(
-      this,
-      splitProps,
-      "m",
-      {
-        isValidRequired: !required ?
-          () => true :
-          typeof required === "function" ?
-            (p) => {
-              const req = required(p);
-              if (!req) return true;
-              return p.value != null;
-            } :
-            (p) => p.value != null,
-        isValidMin: (p) => {
-          if (p.value == null) return [true, -1];
-          return [0 <= p.value, 0];
+        required: typeof required === "function" ?
+          (p: $Schema.InjectParams) => required(p) :
+          () => required,
+        min: (p) => {
+          if (typeof minTime === "function") {
+            return minTime(p)?.getHour();
+          }
+          return minTime?.getHour();
         },
-        isValidMax: (p) => {
-          if (p.value == null) return [true, -1];
-          return [p.value <= 59, 59];
+        max: (p) => {
+          if (typeof maxTime === "function") {
+            return maxTime(p)?.getHour();
+          }
+          return maxTime?.getHour();
         },
       },
     );
   }
 
-  public getSplitSecond<const SP extends SplitDateTimeProps>(splitProps: SP = {} as SP) {
+  public getSplitMinute<const SP extends SplitDateProps>(splitProps: SP = {} as SP) {
     const [required] = getValidationArray(this.props.required);
 
-    return new $SplitDateTimeSchema<P, SP>(
+    return new $SplitDateSchema<$DateTimeSchema<P>, SP>(
       this,
       splitProps,
-      "s",
+      "minute",
       {
-        isValidRequired: !required ?
-          () => true :
-          typeof required === "function" ?
-            (p) => {
-              const req = required(p);
-              if (!req) return true;
-              return p.value != null;
-            } :
-            (p) => p.value != null,
-        isValidMin: (p) => {
-          if (p.value == null) return [true, -1];
-          return [0 <= p.value, 0];
-        },
-        isValidMax: (p) => {
-          if (p.value == null) return [true, -1];
-          return [p.value <= 59, 59];
-        },
+        required: typeof required === "function" ?
+          (p: $Schema.InjectParams) => required(p) :
+          () => required,
+        min: () => 0,
+        max: () => 59,
+      },
+    );
+  }
+
+  public getSplitSecond<const SP extends SplitDateProps>(splitProps: SP = {} as SP) {
+    const [required] = getValidationArray(this.props.required);
+
+    return new $SplitDateSchema<$DateTimeSchema<P>, SP>(
+      this,
+      splitProps,
+      "second",
+      {
+        required: typeof required === "function" ?
+          (p: $Schema.InjectParams) => required(p) :
+          () => required,
+        min: () => 0,
+        max: () => 59,
       },
     );
   }

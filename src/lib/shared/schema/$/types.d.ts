@@ -50,11 +50,9 @@ namespace $Schema {
     | import("./enum").EnumSchemaMessage
     | import("./boolean").BooleanSchemaMessage
     | import("./date").DateSchemaMessage
-    | import("./date").SplitDateSchemaMessage
     | import("./datetime").DateTimeSchemaMessage
-    | import("./datetime").SplitDateTimeSchemaMessage
     | import("./month").MonthSchemaMessage
-    | import("./month").SplitMonthSchemaMessage
+    | import("./split-date").SplitDateSchemaMessage
     | import("./file").FileSchemaMessage
     | import("./array").ArraySchemaMessage
     | import("./object").ObjectSchemaMessage
@@ -248,19 +246,9 @@ namespace $Schema {
     > :
     P extends import("./boolean").$BoolSchema<any> ? InferRequiredValue<InferRequired<P["props"]["required"]> extends true | "nonFalse" ? true : false, P["trueValue"] | P["falseValue"], Strict> :
     P extends import("./date").$DateSchema<any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, $Date, Strict> :
-    P extends import("./date").$SplitDateSchema<any, any> ? InferRequiredValue<
-      InferRequired<P["props"]["required"]> extends boolean ? InferRequired<P["props"]["required"]> : InferRequired<P["base"]["props"]["required"]>,
-      number,
-      Strict
-    > :
     P extends import("./datetime").$DateTimeSchema<any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, $Date, Strict> :
-    P extends import("./datetime").$SplitDateTimeSchema<any, any> ? InferRequiredValue<
-      InferRequired<P["props"]["required"]> extends boolean ? InferRequired<P["props"]["required"]> : InferRequired<P["base"]["props"]["required"]>,
-      number,
-      Strict
-    > :
     P extends import("./month").$MonthSchema<any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, $Date, Strict> :
-    P extends import("./month").$SplitMonthSchema<any, any> ? InferRequiredValue<
+    P extends import("./split-date").$SplitDateSchema<any, any> ? InferRequiredValue<
       InferRequired<P["props"]["required"]> extends boolean ? InferRequired<P["props"]["required"]> : InferRequired<P["base"]["props"]["required"]>,
       number,
       Strict

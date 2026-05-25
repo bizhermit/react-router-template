@@ -232,8 +232,10 @@ export abstract class Timestamp {
 
   protected offset: number;
   protected ms: number;
+  protected locked: boolean;
 
   constructor(init?: Timestamp | Date | string | number) {
+    this.locked = false;
     this.offset = getOffset();
     if (init == null) {
       this.ms = Date.now() - this.offset;
@@ -283,6 +285,11 @@ export abstract class Timestamp {
     }
   };
 
+  public lock() {
+    this.locked = true;
+    return this;
+  }
+
   public getTime() {
     return this.ms;
   }
@@ -292,6 +299,7 @@ export abstract class Timestamp {
   }
 
   protected setNow() {
+    if (this.locked) throw new Error("this class is locked");
     this.ms = Date.now() - this.offset;
   }
 
@@ -309,6 +317,7 @@ export abstract class Timestamp {
   }
 
   protected setYear(year: number, month?: number, day?: number) {
+    if (this.locked) throw new Error("this class is locked");
     const cur = getAll(this.ms);
     const y = year;
     const m = month ?? cur.month;
@@ -326,6 +335,7 @@ export abstract class Timestamp {
   }
 
   protected setMonth(month: number, day?: number) {
+    if (this.locked) throw new Error("this class is locked");
     const cur = getAll(this.ms);
     const m = month;
     const d = day ?? Math.min(cur.day, daysInMonth(cur.year, m));
@@ -342,6 +352,7 @@ export abstract class Timestamp {
   }
 
   protected setDay(day: number) {
+    if (this.locked) throw new Error("this class is locked");
     const cur = getAll(this.ms);
     const days = daysFromCivil(cur.year, cur.month, day);
     const time = timeToMs(cur.hour, cur.minute, cur.second, cur.millisecond);
@@ -360,6 +371,7 @@ export abstract class Timestamp {
   }
 
   protected setHour(hour: number, minute?: number, second?: number, millisecond?: number) {
+    if (this.locked) throw new Error("this class is locked");
     const cur = getHMS(this.ms);
     const h = hour;
     const m = minute ?? cur.minute;
@@ -375,6 +387,7 @@ export abstract class Timestamp {
   }
 
   protected setMinute(minute: number, second?: number, millisecond?: number) {
+    if (this.locked) throw new Error("this class is locked");
     const cur = getHMS(this.ms);
     const m = minute;
     const s = second ?? cur.second;
@@ -389,6 +402,7 @@ export abstract class Timestamp {
   }
 
   protected setSecond(second: number, millisecond?: number) {
+    if (this.locked) throw new Error("this class is locked");
     const cur = getHMS(this.ms);
     const s = second;
     const ms = millisecond ?? cur.millisecond;
@@ -402,6 +416,7 @@ export abstract class Timestamp {
   }
 
   protected setMillisecond(millisecond: number) {
+    if (this.locked) throw new Error("this class is locked");
     const cur = getHMS(this.ms);
     const days = Math.floor(this.ms / MS_PER_DAY);
     this.ms = days * MS_PER_DAY + timeToMs(cur.hour, cur.minute, cur.second, millisecond);
@@ -441,52 +456,62 @@ export abstract class Timestamp {
   }
 
   protected addYear(diff: number) {
+    if (this.locked) throw new Error("this class is locked");
     this.setYear(this.getYear() + diff);
     return this;
   }
 
   protected addMonth(diff: number) {
+    if (this.locked) throw new Error("this class is locked");
     this.setMonth(this.getMonth() + diff);
     return this;
   }
 
   protected addDay(diff: number) {
+    if (this.locked) throw new Error("this class is locked");
     this.setDay(this.getDay() + diff);
     return this;
   }
 
   protected addHour(diff: number) {
+    if (this.locked) throw new Error("this class is locked");
     this.setHour(this.getHour() + diff);
     return this;
   }
 
   protected addMinute(diff: number) {
+    if (this.locked) throw new Error("this class is locked");
     this.setMinute(this.getMinute() + diff);
     return this;
   }
 
   protected addSecond(diff: number) {
+    if (this.locked) throw new Error("this class is locked");
     this.setSecond(this.getSecond() + diff);
     return this;
   }
 
   protected addMillisecond(diff: number) {
+    if (this.locked) throw new Error("this class is locked");
     this.setMillisecond(this.getMillisecond() + diff);
     return this;
   }
 
   protected moveFirstDay() {
+    if (this.locked) throw new Error("this class is locked");
     this.setDay(1);
     return this;
   }
 
   protected moveLastDay() {
+    if (this.locked) throw new Error("this class is locked");
     this.setMonth(this.getMonth() + 1);
     this.setDay(0);
     return this;
   }
 
   protected removeTime() {
+    if (this.locked) throw new Error("this class is locked");
     this.setHour(0, 0, 0, 0);
     return this;
   }
@@ -764,6 +789,7 @@ export class $DateTime extends Timestamp {
   }
 
   public setTime(time: $Clock | number) {
+    if (this.locked) throw new Error("this class is locked");
     if (typeof time === "number") {
       if (isNaN(time)) {
         throw new Error("Invalid time number");
@@ -890,6 +916,7 @@ export class $DateTime extends Timestamp {
 export class $Time {
 
   private ms: number;
+  protected locked: boolean;
 
   protected static parseInputToMs(time: $Time | Timestamp | Date | string | number) {
     if (time instanceof $Time) {
@@ -918,11 +945,17 @@ export class $Time {
   }
 
   constructor(init?: $Time | Timestamp | Date | string | number) {
+    this.locked = false;
     if (init == null) {
       this.ms = 0;
     } else {
       this.ms = $Time.parseInputToMs(init);
     }
+  }
+
+  public lock() {
+    this.locked = true;
+    return this;
   }
 
   public clone() {
@@ -944,11 +977,13 @@ export class $Time {
   }
 
   public setTime(time: $Time | Timestamp | Date | string | number) {
+    if (this.locked) throw new Error("this class is locked");
     this.ms = $Time.parseInputToMs(time);
     return this;
   }
 
   public setNow() {
+    if (this.locked) throw new Error("this class is locked");
     this.ms = getMsOfDay(Date.now() - getOffset());
     return this;
   }
@@ -958,6 +993,7 @@ export class $Time {
   }
 
   public setHour(hour: number, minute?: number, second?: number, millisecond?: number) {
+    if (this.locked) throw new Error("this class is locked");
     const current = getHMS(this.ms);
     const m = minute ?? current.minute;
     const s = second ?? current.second;
@@ -979,6 +1015,7 @@ export class $Time {
   }
 
   public setMinute(minute: number, second?: number, millisecond?: number) {
+    if (this.locked) throw new Error("this class is locked");
     const current = getDurationHMS(this.ms);
     const s = second ?? current.second;
     const ms = millisecond ?? current.millisecond;
@@ -999,6 +1036,7 @@ export class $Time {
   }
 
   public setSecond(second: number, millisecond?: number) {
+    if (this.locked) throw new Error("this class is locked");
     const current = getDurationHMS(this.ms);
     const ms = millisecond ?? current.millisecond;
     this.ms = timeToMs(current.hour, current.minute, second, ms) * current.sign;
@@ -1018,32 +1056,38 @@ export class $Time {
   }
 
   public setMillisecond(millisecond: number) {
+    if (this.locked) throw new Error("this class is locked");
     const current = getDurationHMS(this.ms);
     this.ms = timeToMs(current.hour, current.minute, current.second, millisecond) * current.sign;
     return this;
   }
 
   public addHour(diff: number) {
+    if (this.locked) throw new Error("this class is locked");
     this.ms += diff * MS_PER_HOUR;
     return this;
   }
 
   public addMinute(diff: number) {
+    if (this.locked) throw new Error("this class is locked");
     this.ms += diff * MS_PER_MINUTE;
     return this;
   }
 
   public addSecond(diff: number) {
+    if (this.locked) throw new Error("this class is locked");
     this.ms += diff * MS_PER_SECOND;
     return this;
   }
 
   public addMillisecond(diff: number) {
+    if (this.locked) throw new Error("this class is locked");
     this.ms += diff;
     return this;
   }
 
   public clear() {
+    if (this.locked) throw new Error("this class is locked");
     this.ms = 0;
     return this;
   }

@@ -1,7 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
+/* eslint-disable no-console */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Button } from "$/components/elements/button/button";
 import { CheckBox } from "$/components/elements/form/check-box/check-box";
 import { CheckList } from "$/components/elements/form/check-box/check-list";
 import { ComboBox } from "$/components/elements/form/combo-box/combo-box";
+import { DateSelectBox$ } from "$/components/elements/form/date-box/$date-select-box";
 import { DateBox } from "$/components/elements/form/date-box/date-box";
 import { FileBox } from "$/components/elements/form/file-box/file-box";
 import { NumberBox } from "$/components/elements/form/number-box/number-box";
@@ -28,7 +32,6 @@ import { $month } from "$/shared/schema/$/month";
 import { $num } from "$/shared/schema/$/number";
 import { $obj } from "$/shared/schema/$/object";
 import { $str } from "$/shared/schema/$/string";
-import sleep from "$/shared/timing/sleep";
 import { use, useEffect, useState } from "react";
 import { data } from "react-router";
 import type { Route } from "./+types/form";
@@ -135,7 +138,7 @@ const schemaObj = $obj({
     select: $enum({
       label: "select",
       items: async () => {
-        await sleep(2000);
+        // await sleep(2000);
         return [
           { value: "0", text: "value-0" },
           { value: "1", text: "value-1" },
@@ -149,7 +152,7 @@ const schemaObj = $obj({
     combo: $enum({
       label: "combo",
       items: async () => {
-        await sleep(5000);
+        // await sleep(5000);
         return [
           { value: 0, text: "無印" },
           { value: 1, text: "AG" },
@@ -174,7 +177,7 @@ const schemaObj = $obj({
     radio: $enum({
       label: "radio",
       items: async () => {
-        await sleep(5000);
+        // await sleep(5000);
         return [
           { value: 0, text: "無印" },
           { value: 1, text: "AG" },
@@ -192,7 +195,7 @@ const schemaObj = $obj({
       maxLength: 3,
       prop: $enum({
         items: async () => {
-          await sleep(1000);
+          // await sleep(1000);
           return [
             { value: 0, text: "無印" },
             { value: 1, text: "AG" },
@@ -217,6 +220,13 @@ const schemaObj = $obj({
       label: "datetime",
       required: true,
     }),
+    // dateselect: $datetime({
+    //   label: "dateselect",
+    //   required: true,
+    // }),
+    date_year: date.getSplitYear(),
+    date_month: date.getSplitMonth(),
+    date_day: date.getSplitDay(),
     arr: arr,
     arr2: $arr({
       prop: $obj({
@@ -253,8 +263,8 @@ type _Enum2 = $Schema.Infer<typeof enum2, true>;
 type _FormItem = $Schema.InferFormItems<typeof schemaObj>["arr2"]["age"];
 type _FormItem2 = $Schema.InferFormItems<typeof schemaObj>["arr"];
 
-// type _Hoge = $Schema.Infer<typeof schemaObject>;
-// type _Fuga = $Schema.Infer<typeof schemaObject, true>;
+type _Hoge = $Schema.Infer<typeof schemaObj>;
+type _Fuga = $Schema.Infer<typeof schemaObj, true>;
 // // type _Fuga = typeof schemaObject["props"]["selectStr"]["items"];
 // // type _Piyo = typeof schemaObject["props"]["selectNum"]["items"];
 // const parsed1 = birth.parse(3124).value;
@@ -275,14 +285,14 @@ type _FormItem2 = $Schema.InferFormItems<typeof schemaObj>["arr"];
 
 export function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
-  // eslint-disable-next-line no-console
+
   console.log("loader", Array.from(url.searchParams.entries()));
   return data({});
 };
 
 export function action({ request }: Route.ActionArgs) {
   const url = new URL(request.url);
-  // eslint-disable-next-line no-console
+
   console.log("action", request.method, Array.from(url.searchParams.entries()));
   return data({});
 };
@@ -442,15 +452,15 @@ function SchemaContent() {
         <FormItem>
           <RadioButtons
             formItem={formItems.radio}
-            color="primary"
+          // color="primary"
           />
         </FormItem>
         <FormItem>
           <CheckList
             formItem={formItems.checklist}
-            // appearance="togglebox"
-            appearance="button"
-            color="primary"
+          // appearance="togglebox"
+          // appearance="button"
+          // color="primary"
           />
         </FormItem>
         <FormItem>
@@ -466,6 +476,16 @@ function SchemaContent() {
         <FormItem>
           <DateBox
             formItem={formItems.datetime}
+          />
+        </FormItem>
+        <FormItem>
+          <DateSelectBox$
+            // formItem={formItems.dateselect}
+            formItem={{
+              year: formItems.date_year,
+              month: formItems.date_month,
+              day: formItems.date_day,
+            }}
           />
         </FormItem>
       </div>

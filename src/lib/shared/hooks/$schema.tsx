@@ -249,7 +249,7 @@ export function useSchemaInitizlied(schemaItem: SchemaItem<any>) {
   }, () => {
     return schemaItem.isInitialized();
   });
-}
+};
 
 export function useFormInput<S extends SchemaItem<any>>(
   formItem: FormItem<S>,
@@ -258,7 +258,11 @@ export function useFormInput<S extends SchemaItem<any>>(
   const t = use(I18nContext).t;
   const fs = useFieldSet();
 
-  const { id: schemaId, context, formState } = use(SchemaProviderContext);
+  const {
+    id: schemaId,
+    context,
+    formState,
+  } = use(SchemaProviderContext);
   const schemaItem = formItem.getSchemaItem();
   const injectParams = useSyncExternalStore((callback) => {
     const cleanup = context.addInjectParamsSubscribe(() => callback);

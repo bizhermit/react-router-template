@@ -298,19 +298,22 @@ export function getResultMessage$(
         default:
           return "";
       }
-    case "split-Y":
-    case "split-M":
-    case "split-D":
-    case "split-h":
-    case "split-m":
-    case "split-s":
+    case "split-year":
+    case "split-month":
+    case "split-day":
+    case "split-hour":
+    case "split-minute":
+    case "split-second":
       switch (message.code) {
         case "parse":
           return t("invalidNumeric", { label });
         case "required":
           return t(`required_${actionType}`, { label });
-        // case "split-required":
-        //   return t(`requiredSplitDate_${actionType}`, { label, target: message.targets.join(",") });
+        case "split-required":
+          return t(`requiredSplitDate_${actionType}`, {
+            label,
+            target: message.targets.map(target => t(target as I18nTextKey)).join(","),
+          });
         case "min":
           return t(`minNum_${actionType}`, { label, min: message.params.min });
         case "max":

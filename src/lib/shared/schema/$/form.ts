@@ -266,7 +266,6 @@ export class FormItem<S extends SchemaItem<any>> {
     protected name: string,
     protected schemaItem: S
   ) {
-
   }
 
   public getName() {
