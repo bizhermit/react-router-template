@@ -32,13 +32,11 @@ type EnumItems<Value> =
   | readonly $Schema.SourceItem<Value>[]
   ;
 
-type DynamicEnumItems<Value> = (params: $Schema.InjectParams) => (EnumItems<Value> | Promise<EnumItems<Value>>);
-
 type EnumProps<Value> = $Schema.SchemaItemAbstractProps
   & $Schema.Validations<EnumValidations>
   & {
     parser?: $Schema.Parser<Value>;
-    items: EnumItems<Value> | DynamicEnumItems<Value>;
+    items: EnumItems<Value> | ((params: $Schema.InjectParams) => EnumItems<Value>);
     notFoundMessage?: $Schema.ValidationCustomMessage<
       unknown,
       { items: $Schema.SourceItem<Value>[] | readonly $Schema.SourceItem<Value>[]; },
@@ -76,23 +74,12 @@ export class $EnumSchema<
     }
   }
 
-  public initialize(params: $Schema.InjectParams): Promise<void>[] {
-    if (typeof this.props.items !== "function" || this.items != null) {
-      this.initialized = true;
-      return [];
+  public initialize(params: $Schema.InjectParams) {
+    if (typeof this.props.items === "function") {
+      this.items = this.props.items(params) as InferItems<P>;
     }
-    const ret = this.props.items(params);
-    if (!("then" in ret)) {
-      this.items = ret as InferItems<P>;
-      this.initialized = true;
-      return [];
-    }
-    return [
-      ret.then((items) => {
-        this.items = items as InferItems<P>;
-        this.initialized = true;
-      }),
-    ];
+    this.initialized = true;
+    return this;
   }
 
   public getActionType(): $Schema.ActionType {

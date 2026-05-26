@@ -1,16 +1,16 @@
-import { useFormInput, useSchemaInitizlied, type FormInputProps, type FormInputStyleProps } from "$/shared/hooks/$schema";
+import { useFormInput, type FormInputProps, type FormInputStyleProps } from "$/shared/hooks/$schema";
 import type { $ArrSchema, ArrayProps } from "$/shared/schema/$/array";
 import type { $EnumSchema } from "$/shared/schema/$/enum";
 import type { FormItem } from "$/shared/schema/$/form";
 import { useImperativeHandle, useMemo, useRef, type InputHTMLAttributes, type RefObject } from "react";
 import { CheckBox$, type CheckBox$Ref, type CheckBoxAppearance } from ".";
-import { LoadingBar } from "../../loading";
 import { WithMessage$ } from "../message";
 import { InputGroupWrapper } from "../wrapper/input-group";
 
 export interface CheckListRef extends InputRef { }
 
 export type CheckListProps<
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   E extends $EnumSchema<any, any>,
   S extends $ArrSchema<E, ArrayProps<E>>
 > =
@@ -27,6 +27,7 @@ export type CheckListProps<
   >;
 
 export function CheckList<
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   E extends $EnumSchema<any, any>,
   S extends $ArrSchema<E, ArrayProps<E>>
 >({
@@ -63,8 +64,6 @@ export function CheckList<
 
   const enumSchema = formItem.getSchemaItem().getChild();
 
-  const initializedEnum = useSchemaInitizlied(enumSchema);
-
   const {
     items,
     required,
@@ -76,7 +75,6 @@ export function CheckList<
   }, [
     schemaItem,
     enumSchema,
-    initializedEnum,
     injectParams,
   ]);
 
@@ -105,7 +103,6 @@ export function CheckList<
       state={state}
       message={message}
     >
-      {!initializedEnum && <LoadingBar />}
       <InputGroupWrapper
         id={id}
         className={className}

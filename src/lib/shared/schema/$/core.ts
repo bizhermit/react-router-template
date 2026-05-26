@@ -18,9 +18,9 @@ export abstract class SchemaItem<Value = any> {
     this.initialized = false;
   }
 
-  public initialize(_params: $Schema.InitializeArgParams): Promise<void>[] {
+  public initialize(_params: $Schema.InitializeArgParams) {
     this.initialized = true;
-    return [];
+    return this;
   }
 
   public isInitialized() {

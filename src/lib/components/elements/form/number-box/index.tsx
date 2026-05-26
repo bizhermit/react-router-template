@@ -46,7 +46,7 @@ export type NumberBox$Props = Overwrite<
     >;
     /** 子要素（ボタン他） */
     children?: ReactNode;
-  } & InputValueProps<number, number | undefined>>
+  } & InputValueProps<number, number | null | undefined>>
 >;
 
 const UP_DOWN_ROOP_WAIT = 500; // 増減ボタンを押下してループ処理に入るまでの猶予

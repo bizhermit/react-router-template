@@ -1,11 +1,8 @@
 import { Button$ } from "$/components/elements/button";
 import { Link } from "$/components/elements/link";
-import { $schema } from "$/shared/schema";
 import { useFetcher } from "react-router";
 import { auth } from "~/auth/server/auth";
 import type { Route } from "./+types/home";
-
-const schema = $schema({});
 
 export const action = async ({ request }: Route.ActionArgs) => {
   try {

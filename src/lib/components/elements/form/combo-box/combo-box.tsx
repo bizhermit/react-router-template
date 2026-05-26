@@ -3,7 +3,6 @@ import type { $EnumSchema } from "$/shared/schema/$/enum";
 import type { FormItem } from "$/shared/schema/$/form";
 import { useImperativeHandle, useMemo, useRef, type InputHTMLAttributes, type RefObject } from "react";
 import { ComboBox$, ComboBoxItem, type ComboBox$Ref } from ".";
-import { LoadingBar } from "../../loading";
 import { WithMessage$ } from "../message";
 
 export interface ComboBoxRef extends ComboBox$Ref { };
@@ -43,7 +42,6 @@ export function ComboBox<S extends $EnumSchema<any, any>>({
 
   const {
     schemaItem,
-    initialized,
     name,
     state,
     value,
@@ -67,7 +65,6 @@ export function ComboBox<S extends $EnumSchema<any, any>>({
     };
   }, [
     schemaItem,
-    initialized,
     injectParams,
   ]);
 
@@ -80,7 +77,6 @@ export function ComboBox<S extends $EnumSchema<any, any>>({
       state={state}
       message={message}
     >
-      {!initialized && <LoadingBar />}
       <ComboBox$
         ref={ref$}
         className={className}

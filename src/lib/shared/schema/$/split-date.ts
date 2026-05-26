@@ -36,6 +36,7 @@ export type SplitDateProps = $Schema.SchemaItemAbstractProps
   };
 
 export class $SplitDateSchema<
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const Base extends $DateSchema<any> | $DateTimeSchema<any> | $MonthSchema<any>,
   const Props extends SplitDateProps
 > extends SchemaItem<number> {

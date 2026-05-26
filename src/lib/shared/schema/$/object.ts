@@ -46,13 +46,12 @@ export class $ObjSchema<
     this.children = props.props as InferChildren<P>;
   }
 
-  public initialize(params: $Schema.InjectParams): Promise<void>[] {
-    const inits: Promise<void>[] = [];
+  public initialize(params: $Schema.InjectParams) {
     Object.entries(this.children).forEach(([_, prop]) => {
-      const init = prop.initialize(params);
-      inits.push(...init);
+      prop.initialize(params);
     });
-    return inits;
+    this.initialized = true;
+    return this;
   }
 
   public getActionType() {

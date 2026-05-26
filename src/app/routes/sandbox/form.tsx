@@ -137,7 +137,8 @@ const schemaObj = $obj({
     }),
     select: $enum({
       label: "select",
-      items: async () => {
+      // items: async () => {
+      items: () => {
         // await sleep(2000);
         return [
           { value: "0", text: "value-0" },
@@ -151,7 +152,8 @@ const schemaObj = $obj({
     }),
     combo: $enum({
       label: "combo",
-      items: async () => {
+      // items: async () => {
+      items: () => {
         // await sleep(5000);
         return [
           { value: 0, text: "無印" },
@@ -176,7 +178,8 @@ const schemaObj = $obj({
     }),
     radio: $enum({
       label: "radio",
-      items: async () => {
+      // items: async () => {
+      items: () => {
         // await sleep(5000);
         return [
           { value: 0, text: "無印" },
@@ -194,7 +197,8 @@ const schemaObj = $obj({
       minLength: 1,
       maxLength: 3,
       prop: $enum({
-        items: async () => {
+        // items: async () => {
+        items: () => {
           // await sleep(1000);
           return [
             { value: 0, text: "無印" },
@@ -224,6 +228,9 @@ const schemaObj = $obj({
     //   label: "dateselect",
     //   required: true,
     // }),
+    split_date: date.overwrite({
+      splits: [".date_year", ".date_month", ".date_day"],
+    }),
     date_year: date.getSplitYear({
       // required: true,
     }),
@@ -598,6 +605,7 @@ export default function Page() {
       ],
       select: "0",
       combo: 3,
+      date_year: 2026,
     } satisfies $Schema.Infer<typeof schemaObj>;
   });
   const schema = useSchema({
@@ -616,6 +624,7 @@ export default function Page() {
               // name: null,
               // name: "hogefugapiyo",
               year: "2027",
+              date_year: 2026,
               // year: null,
               hoge: 132,
             };
@@ -648,9 +657,13 @@ export default function Page() {
                   { name: "fuga" },
                   {},
                 ],
+                date_year: 2026,
+                date_month: 5,
+                date_day: 25,
               } satisfies $Schema.Infer<typeof schemaObj>,
             });
             console.log("-", performance.now() - now);
+            console.log(submission.values);
             if (submission.ok) {
               submission.values.text;
             } else {

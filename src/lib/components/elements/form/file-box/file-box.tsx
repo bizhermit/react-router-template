@@ -9,6 +9,7 @@ import { WithMessage$ } from "../message";
 
 export interface FileBoxRef extends FileBox$Ref { }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type FileBoxProps<S extends $FileSchema<any>> =
   & FormInputStyleProps
   & FormInputProps
@@ -34,6 +35,7 @@ export type FileBoxProps<S extends $FileSchema<any>> =
     | "autoFocus"
   >;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function FileBox<S extends $FileSchema<any>>({
   ref,
   formItem,

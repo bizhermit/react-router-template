@@ -3,7 +3,6 @@ import type { $EnumSchema } from "$/shared/schema/$/enum";
 import type { FormItem } from "$/shared/schema/$/form";
 import { useImperativeHandle, useMemo, useRef, type MouseEvent, type RefObject, type SelectHTMLAttributes } from "react";
 import { RadioButton$, type RadioButton$Ref, type RadioButtonAppearance } from ".";
-import { LoadingBar } from "../../loading";
 import { WithMessage$ } from "../message";
 import { InputGroupWrapper } from "../wrapper/input-group";
 
@@ -40,7 +39,6 @@ export function RadioButtons<S extends $EnumSchema<any, any>>({
 
   const {
     schemaItem,
-    initialized,
     id,
     name,
     label,
@@ -67,7 +65,6 @@ export function RadioButtons<S extends $EnumSchema<any, any>>({
     };
   }, [
     schemaItem,
-    initialized,
     injectParams,
   ]);
 
@@ -92,7 +89,6 @@ export function RadioButtons<S extends $EnumSchema<any, any>>({
       state={state}
       message={message}
     >
-      {!initialized && <LoadingBar />}
       <InputGroupWrapper
         id={id}
         className={className}

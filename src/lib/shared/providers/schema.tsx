@@ -8,6 +8,7 @@ export type SchemaProviderProps = {
   disabled?: boolean;
   formId: string;
   formState: FormState;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   formContext: FormContext<any>;
 };
 

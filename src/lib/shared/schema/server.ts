@@ -1,7 +1,7 @@
-// import { parseWithSchema } from ".";
 import { parseWithSchema } from "./$";
 import type { $ObjSchema } from "./$/object";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 interface PayloadParams<S extends $ObjSchema<any, any>> {
   request: Request;
   schema: S;
@@ -9,6 +9,7 @@ interface PayloadParams<S extends $ObjSchema<any, any>> {
   data?: Record<string, unknown>;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function getPayload<S extends $ObjSchema<any, any>>({
   request,
   schema,

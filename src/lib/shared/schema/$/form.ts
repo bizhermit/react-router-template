@@ -13,10 +13,13 @@ import { $ObjSchema } from "./object";
  * @returns
  */
 export function convertToFormItems(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   formContext: FormContext<any>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   props: Record<string, SchemaItem<any>>,
   prefixName?: string | undefined
 ) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const formItems: Record<string, FormItem<any>> = {};
   const pn = prefixName ? `${prefixName}.` : "";
 
@@ -40,15 +43,12 @@ export function equalMessage(
   return false;
 };
 
-/**
- *
- */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export class FormContext<S extends $ObjSchema<any, any>> {
 
-  protected initialized: boolean;
-
   protected schema: S;
-  protected values: Record<string, any>;
+  protected values: Record<string, unknown>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected formItems: Record<string, FormItem<any>>;
 
   protected injectParams: $Schema.InjectParams;
@@ -64,11 +64,9 @@ export class FormContext<S extends $ObjSchema<any, any>> {
 
   constructor(init: {
     schema: S;
-    values: Record<string, any>;
-    data: Record<string, any>;
+    values: Record<string, unknown>;
+    data: Record<string, unknown>;
   }) {
-    this.initialized = false;
-
     this.schema = init.schema;
     this.values = init.values;
     this.injectParams = {
@@ -87,10 +85,9 @@ export class FormContext<S extends $ObjSchema<any, any>> {
 
     this.valuesSubscribes = new Map();
 
-    const inits = init.schema.initialize(this.injectParams);
-    Promise.all(inits).finally(() => {
-      this.initialized = true;
-    });
+    init.schema.initialize(this.injectParams);
+
+    // TODO: parse values with schema
 
     this.formItems = convertToFormItems(
       this,
@@ -148,8 +145,10 @@ export class FormContext<S extends $ObjSchema<any, any>> {
     };
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public getSchemaItem(name: string): SchemaItem<any> | null {
     const names = splitName(name);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let schemaItem: SchemaItem<any> = this.schema;
     for (const n of names) {
       if (schemaItem == null) {
@@ -275,11 +274,13 @@ export class FormContext<S extends $ObjSchema<any, any>> {
 
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export class FormItem<S extends SchemaItem<any>> {
 
   protected refsCache: string[] | undefined;
 
   constructor(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     protected formContext: FormContext<any>,
     protected name: string,
     protected schemaItem: S

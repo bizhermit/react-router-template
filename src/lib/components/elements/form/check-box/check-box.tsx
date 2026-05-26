@@ -7,6 +7,7 @@ import { WithMessage$ } from "../message";
 
 export interface CheckBoxRef extends CheckBox$Ref { }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type CheckBoxProps<S extends $BoolSchema<any>> =
   & FormInputStyleProps
   & FormInputProps
@@ -21,6 +22,7 @@ export type CheckBoxProps<S extends $BoolSchema<any>> =
     | "children"
   >;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function CheckBox<S extends $BoolSchema<any>>({
   ref,
   formItem,

@@ -8,6 +8,7 @@ import { getResultMessage$ } from "../schema/message";
 import { I18nContext } from "./i18n";
 import { useFieldSet } from "./schema";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type SchemaHookProps<S extends $ObjSchema<any, any>> = {
   id: string;
   schema: S;
@@ -17,6 +18,7 @@ type SchemaHookProps<S extends $ObjSchema<any, any>> = {
 
 export type FormState = "idle" | "loading" | "submitting";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SchemaProviderContextProps<S extends $ObjSchema<any, any> = $ObjSchema<any, any>> = {
   id: string;
   formState: FormState;
@@ -34,6 +36,7 @@ export const SchemaProviderContext = createContext<SchemaProviderContextProps>({
  * @param props
  * @returns
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useSchema<const S extends $ObjSchema<any, any>>(props: SchemaHookProps<S>) {
   const id = props.id;
 
@@ -115,6 +118,7 @@ export function useHasError() {
  * @param arrayFormItem
  * @returns
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useFormArrayItem<S extends $ArrSchema<any, any>>(arrayFormItem: FormItem<S>) {
   const { context } = use(SchemaProviderContext);
   const [revision, setRevision] = useState(0);
@@ -130,6 +134,7 @@ export function useFormArrayItem<S extends $ArrSchema<any, any>>(arrayFormItem: 
     return context.getValue(arrayFormItem.getName());
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   type ArgFormParams = $Schema.InferArrayChild<S> extends $ObjSchema<any, any> ? {
     formItems: $Schema.ObjectFormItems<$Schema.InferArrayChild<S>>;
     formItem: never;
@@ -210,6 +215,7 @@ export function useFormArrayItem<S extends $ArrSchema<any, any>>(arrayFormItem: 
  * @param formItem
  * @returns
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useFormValue<S extends SchemaItem<any>>(formItem: FormItem<S>) {
   const { context } = use(SchemaProviderContext);
   const value = useSyncExternalStore<$Schema.Nullable<$Schema.InferValue<S>>>((callback) => {
@@ -230,6 +236,7 @@ export function useFormValue<S extends SchemaItem<any>>(formItem: FormItem<S>) {
  * @param formItem
  * @returns
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useFormMessage(formItem: FormItem<any>) {
   const { context } = use(SchemaProviderContext);
   const message = useSyncExternalStore<$Schema.Message | undefined>((callback) => {
@@ -260,6 +267,7 @@ export type FormInputProps = {
  * @param schemaItem
  * @returns
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useSchemaInitizlied(schemaItem: SchemaItem<any>) {
   return useSyncExternalStore((callback) => {
     if (schemaItem.isInitialized()) return () => { };
@@ -286,6 +294,7 @@ export function useSchemaInitizlied(schemaItem: SchemaItem<any>) {
  * @param props
  * @returns
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useFormInput<S extends SchemaItem<any>>(
   formItem: FormItem<S>,
   props: FormInputProps
@@ -307,8 +316,6 @@ export function useFormInput<S extends SchemaItem<any>>(
   }, () => {
     return context.getInjectParams();
   });
-
-  const initialized = useSchemaInitizlied(schemaItem);
 
   const name = formItem.getName();
   const label = t(schemaItem.getLabel() as I18nTextKey);
@@ -360,7 +367,6 @@ export function useFormInput<S extends SchemaItem<any>>(
 
   return {
     schemaId,
-    initialized,
     id,
     name,
     label,

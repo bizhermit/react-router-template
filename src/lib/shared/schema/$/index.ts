@@ -13,8 +13,7 @@ export async function parseWithSchema<const S extends $ObjSchema<any, any>>(para
     isServer: params.isServer ?? typeof window === "undefined",
   } as const satisfies $Schema.InjectParams;
 
-  const inits = params.schema.initialize(injectParams);
-  await Promise.all(inits);
+  params.schema.initialize(injectParams);
 
   const parsed = params.schema.parse(injectParams.values, injectParams);
   const validated = params.schema.validate(parsed.value, injectParams);

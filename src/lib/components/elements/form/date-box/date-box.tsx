@@ -8,10 +8,8 @@ import { useImperativeHandle, useMemo, useRef, type InputHTMLAttributes, type Re
 import { DateBox$, type DateBox$Ref } from ".";
 import { WithMessage$ } from "../message";
 
-type DateBoxSchemaItem =
-  | $DateSchema<any>
-  | $DateTimeSchema<any>
-  | $MonthSchema<any>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type DateBoxSchemaItem = $DateSchema<any> | $DateTimeSchema<any> | $MonthSchema<any>;
 
 export interface DateBoxRef extends DateBox$Ref { }
 
@@ -56,7 +54,7 @@ export function DateBox<S extends DateBoxSchemaItem>({
     errormMessageId,
     errormessage,
     injectParams,
-  } = useFormInput(formItem, {
+  } = useFormInput(formItem as FormItem<DateBoxSchemaItem>, {
     hideMessage,
     omitOnSubmit,
   });

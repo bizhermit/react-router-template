@@ -60,8 +60,10 @@ export class $ArrSchema<
     this.child = props.prop as InferChild<P>;
   }
 
-  public initialize(params: $Schema.InjectParams): Promise<void>[] {
-    return this.child.initialize({ ...params });
+  public initialize(params: $Schema.InjectParams) {
+    this.child.initialize({ ...params });
+    this.initialized = true;
+    return this;
   }
 
   public getActionType(): $Schema.ActionType {

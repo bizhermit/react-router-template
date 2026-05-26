@@ -3,7 +3,6 @@ import type { $EnumSchema } from "$/shared/schema/$/enum";
 import type { FormItem } from "$/shared/schema/$/form";
 import { useImperativeHandle, useMemo, useRef, type RefObject, type SelectHTMLAttributes } from "react";
 import { SelectBox$, SelectBoxEmptyOption, type SelectBox$Ref } from ".";
-import { LoadingBar } from "../../loading";
 import { WithMessage$ } from "../message";
 
 export interface SelectBoxRef extends SelectBox$Ref { };
@@ -43,7 +42,6 @@ export function SelectBox<S extends $EnumSchema<any, any>>({
 
   const {
     schemaItem,
-    initialized,
     id,
     name,
     label,
@@ -70,7 +68,6 @@ export function SelectBox<S extends $EnumSchema<any, any>>({
     };
   }, [
     schemaItem,
-    initialized,
     injectParams,
   ]);
 
@@ -83,7 +80,6 @@ export function SelectBox<S extends $EnumSchema<any, any>>({
       state={state}
       message={message}
     >
-      {!initialized && <LoadingBar />}
       <SelectBox$
         ref={ref$}
         className={className}

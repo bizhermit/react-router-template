@@ -24,6 +24,7 @@ export type SliderProps<S extends $NumSchema<any>> =
     | "autoFocus"
   >;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function Slider<S extends $NumSchema<any>>({
   ref,
   formItem,

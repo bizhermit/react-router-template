@@ -18,10 +18,11 @@ import { InputGroupWrapper } from "../wrapper/input-group";
 
 export interface DateSelectBoxRef extends InputRef { };
 
-type DateSelectBoxSchemaItem =
-  | $DateSchema<any>
-  | $DateTimeSchema<any>
-  | $MonthSchema<any>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type DateSelectBoxSchemaItem = $DateSchema<any> | $DateTimeSchema<any> | $MonthSchema<any>;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type DatePartFormItem = FormItem<$SplitDateSchema<DateSelectBoxSchemaItem, any>>;
 
 export type DateSelectBoxProps<S extends DateSelectBoxSchemaItem> =
   & FormInputStyleProps
@@ -32,12 +33,12 @@ export type DateSelectBoxProps<S extends DateSelectBoxSchemaItem> =
     | FormItem<S>
     | {
       core?: FormItem<S>;
-      year: FormItem<$SplitDateSchema<DateSelectBoxSchemaItem, any>>;
-      month: FormItem<$SplitDateSchema<DateSelectBoxSchemaItem, any>>;
-      day?: FormItem<$SplitDateSchema<DateSelectBoxSchemaItem, any>>;
-      hour?: FormItem<$SplitDateSchema<DateSelectBoxSchemaItem, any>>;
-      minute?: FormItem<$SplitDateSchema<DateSelectBoxSchemaItem, any>>;
-      second?: FormItem<$SplitDateSchema<DateSelectBoxSchemaItem, any>>;
+      year: DatePartFormItem;
+      month: DatePartFormItem;
+      day?: DatePartFormItem;
+      hour?: DatePartFormItem;
+      minute?: DatePartFormItem;
+      second?: DatePartFormItem;
     };
     placeholder?:
     | [string, string]
@@ -901,11 +902,14 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
     minute = minuteNum,
     second = secondNum,
   }: Partial<Record<DateSeparateKeys, $Schema.Nullable<number>>>) {
-    function set(v: any) {
+    function set(v: $DateTime | $Date | $Month | null | undefined) {
       if (core) {
         core.setValue(v);
       } else {
-        const msg = schemaItem.validate(dummyDateRef.current = v, injectParams)[""]?.[0];
+        const msg = schemaItem.validate(
+          dummyDateRef.current = v as ($DateTime & $Date & $Month) | null | undefined,
+          injectParams
+        )[""]?.[0];
         if (!equalMessage(dummyMsgRef.current, msg)) {
           dummyMsgRef.current = msg;
           dummySubscribes.current.coreMessage?.();
