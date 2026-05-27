@@ -1,6 +1,6 @@
 import { clone, equals } from "$/shared/objects";
 import { getArrayIndex, getRelativeName, getValue, setValue, splitName } from "$/shared/objects/data";
-import { mergeRecordMessages } from ".";
+import { getHasError, mergeRecordMessages } from ".";
 import { $ArrSchema } from "./array";
 import type { SchemaItem } from "./core";
 import { $ObjSchema } from "./object";
@@ -80,11 +80,11 @@ export class FormContext<S extends $ObjSchema<any, any>> {
     schema: S;
     values: Record<string, unknown>;
     messages?: $Schema.RecordMessages | null | undefined;
-    data: Record<string, unknown>;
+    data?: Record<string, unknown>;
   }) {
     this.schema = init.schema;
     this.injectParams = {
-      data: init.data,
+      data: clone(init.data ?? {}),
       isServer: false,
       values: this.values = init.values,
     };
@@ -96,7 +96,7 @@ export class FormContext<S extends $ObjSchema<any, any>> {
 
     this.messagesSubscribes = new Map();
 
-    this.error = false;
+    this.error = getHasError(init.messages);
     this.errorSubscribes = new Set();
 
     this.valuesSubscribes = new Map();
@@ -127,8 +127,18 @@ export class FormContext<S extends $ObjSchema<any, any>> {
     };
   }
 
-  public setMessages() {
-    // TODO:
+  public setMessages(
+    messages: $Schema.RecordMessages | null | undefined,
+    options?: {
+      preventUpdateOrigin?: boolean;
+    }
+  ) {
+    this.messages = convertToMessageMap(messages);
+    if (!options?.preventUpdateOrigin) {
+      this.originMessages = clone(this.messages);
+    }
+    this.callMessageSubscribes();
+    this.updateHasError();
   }
 
   public getMessage(name: string) {
@@ -165,6 +175,14 @@ export class FormContext<S extends $ObjSchema<any, any>> {
     this.error = error;
     this.errorSubscribes.forEach(fn => fn());
     return this;
+  }
+
+  protected updateHasError() {
+    this.setHasError(
+      Array.from(this.messages.values()).some(
+        message => message?.type === "e"
+      )
+    );
   }
 
   public addErrorSubscribe(listener: () => void) {
@@ -210,7 +228,38 @@ export class FormContext<S extends $ObjSchema<any, any>> {
   }
 
   public getValues() {
-    return this.values;
+    return clone(this.values);
+  }
+
+  public setValues(
+    values: Record<string, unknown>,
+    options?: {
+      preventUpdateOrigin?: boolean;
+      execValidate?: boolean;
+    }
+  ) {
+    this.injectParams.values = this.values = values ?? {};
+    if (options?.execValidate) {
+      this.validate();
+    } else {
+      const parsed = this.schema.parse(this.injectParams.values, this.injectParams);
+      this.injectParams.values = parsed.value ?? {};
+      this.callValuesSubscribes();
+    }
+
+    if (options?.preventUpdateOrigin) {
+      this.originValues = clone(this.values);
+    }
+    return this;
+  }
+
+  public setOriginValue(originValue: Record<string, unknown>) {
+    const parsed = this.schema.parse(originValue, {
+      ...this.injectParams,
+      values: originValue,
+    });
+    this.originValues = parsed.value ?? {};
+    return this;
   }
 
   public getValue<T = unknown>(name: string) {
@@ -278,11 +327,7 @@ export class FormContext<S extends $ObjSchema<any, any>> {
       this.messagesSubscribes.get(name)?.forEach(fn => fn());
     });
 
-    this.setHasError(
-      Array.from(this.messages.values()).some(
-        message => message?.type === "e"
-      )
-    );
+    this.updateHasError();
 
     return {
       value: parsed.value,
@@ -301,16 +346,22 @@ export class FormContext<S extends $ObjSchema<any, any>> {
     };
   }
 
-  private callValuesSubscribes() {
+  protected callValuesSubscribes() {
     this.valuesSubscribes.forEach(listeners => {
       listeners.forEach(listener => listener());
     });
   }
 
-  private callMessageSubscribes() {
+  protected callMessageSubscribes() {
     this.messagesSubscribes.forEach(listeners => {
       listeners.forEach(listener => listener());
     });
+  }
+
+  public setData(data: Record<string, unknown> | null | undefined) {
+    this.injectParams.data = clone(data ?? {});
+    this.injectParamsSubscribes.forEach(listener => listener());
+    return this;
   }
 
   public validate(options?: {
@@ -322,7 +373,7 @@ export class FormContext<S extends $ObjSchema<any, any>> {
     const validated = this.schema.validate(parsed.value, this.injectParams);
 
     const messages = mergeRecordMessages(parsed.messages, validated);
-    const hasError = Object.values(messages).some(msgs => msgs?.some(m => m.type === "e") ?? false);
+    const hasError = getHasError(messages);
 
     if (!options?.preventUpdateValues) {
       this.injectParams.values = this.values = parsed.value ?? {};
@@ -331,7 +382,7 @@ export class FormContext<S extends $ObjSchema<any, any>> {
     if (!options?.preventUpdateMessages) {
       this.messages = convertToMessageMap(messages);
       this.callMessageSubscribes();
-      this.setHasError(hasError);
+      this.updateHasError();
     }
 
     return {
@@ -351,7 +402,7 @@ export class FormContext<S extends $ObjSchema<any, any>> {
       this.messages = clone(this.originMessages);
       this.callValuesSubscribes();
       this.callMessageSubscribes();
-      this.setHasError(false);
+      this.updateHasError();
     }
   }
 

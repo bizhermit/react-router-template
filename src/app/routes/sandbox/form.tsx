@@ -295,38 +295,75 @@ type _Fuga = $Schema.Infer<typeof schemaObj, true>;
 // };
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const url = new URL(request.url);
-  const searchParams = Object.fromEntries(url.searchParams);
-  console.log("loader", request.method, searchParams);
+  console.log("action", request.method, request.url);
 
   const submission = await getPayload({
     request,
     schema: schemaObj,
-    data: {},
-    values: searchParams,
   });
   return data(submission);
 };
 
 export async function action({ request }: Route.ActionArgs) {
-  const url = new URL(request.url);
-
-  console.log("action", request.method, Object.fromEntries(url.searchParams));
+  console.log("action", request.method, request.url);
   const method = request.method.toUpperCase();
 
   if (method === "POST") {
     const submission = await getPayload({
       request,
       schema: schemaObj,
-      data: {},
     });
     return data(submission);
   }
   return data({ values: {}, messages: {} });
 };
 
+export default function Page({ loaderData, actionData }: Route.ComponentProps) {
+  const fetcher = useFetcher();
+
+  const schema = useSchema({
+    id: "sandbox",
+    schema: schemaObj,
+    values: fetcher.data?.values ?? actionData?.values ?? loaderData.values,
+    messages: fetcher.data?.messages ?? actionData?.messages ?? loaderData.messages,
+    state: fetcher.state,
+  });
+
+  return (
+    <fetcher.Form
+      {...schema.formProps}
+      method="POST"
+    >
+      form sandbox
+      <div className="flex flex-row flex-wrap gap-2">
+        <Button type="submit">submit</Button>
+        <Button type="reset">reset</Button>
+        <LinkButton
+          to={{
+            pathname: ".",
+          }}
+        >
+          no query
+        </LinkButton>
+        <LinkButton
+          to={{
+            search: `combo=3&select=0&date_year=2026`,
+          }}
+        >
+          to query
+        </LinkButton>
+      </div>
+      <SchemaProvider {...schema.providerProps}>
+        <DisplayHasError />
+        <SchemaContent />
+      </SchemaProvider>
+      <DateComponent />
+    </fetcher.Form>
+  );
+};
+
 function SchemaContent() {
-  console.log("** render schema content");
+  // console.log("** render schema content");
 
   const render = useRender();
 
@@ -356,7 +393,7 @@ function SchemaContent() {
 
   // console.log("render: ", str2, str2Msg);
 
-  console.log("render");
+  // console.log("render");
   useEffect(() => {
     console.log("mount", formItems);
     return () => {
@@ -607,56 +644,12 @@ export function DisplayHasError() {
   );
 };
 
-export default function Page({ loaderData, actionData }: Route.ComponentProps) {
+function DateComponent() {
   const [dateValue, setDateValue] = useState<$DateTime>(() => new $DateTime());
   const render = useRender();
 
-  const fetcher = useFetcher();
-
-  useEffect(() => {
-    console.log("effect loaderData");
-  }, [loaderData.values]);
-
-  useEffect(() => {
-    console.log("effect actionData");
-  }, [actionData?.values]);
-
-  const schema = useSchema({
-    id: "sandbox",
-    schema: schemaObj,
-    values: actionData?.values ?? loaderData.values,
-    state: fetcher.state,
-  });
-
   return (
-    <fetcher.Form
-      {...schema.formProps}
-      method="post"
-    >
-      form sandbox
-      <div className="flex flex-row flex-wrap gap-2">
-        <Button type="submit">submit</Button>
-        <Button type="reset">reset</Button>
-        <LinkButton
-          to={{
-            pathname: ".",
-          }}
-        >
-          no query
-        </LinkButton>
-        <LinkButton
-          to={{
-            pathname: ".",
-            search: `combo=3&select=0&date_year=2026`,
-          }}
-        >
-          to query
-        </LinkButton>
-      </div>
-      <SchemaProvider {...schema.providerProps}>
-        <DisplayHasError />
-        <SchemaContent />
-      </SchemaProvider>
+    <>
       <div className="flex flex-row flex-wrap gap-2">
         <Button
           onClick={() => {
@@ -894,6 +887,6 @@ export default function Page({ loaderData, actionData }: Route.ComponentProps) {
           <li>{JSON.stringify({ value: dateValue })}</li>
         </ul>
       }
-    </fetcher.Form>
+    </>
   );
-};
+}

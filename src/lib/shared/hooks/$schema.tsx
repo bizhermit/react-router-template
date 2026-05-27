@@ -1,4 +1,4 @@
-import { createContext, use, useState, useSyncExternalStore, type CSSProperties, type FormHTMLAttributes, type SubmitEvent, type SyntheticEvent } from "react";
+import { createContext, use, useEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type FormHTMLAttributes, type SubmitEvent, type SyntheticEvent } from "react";
 import type { SchemaProviderProps } from "../providers/schema";
 import type { $ArrSchema } from "../schema/$/array";
 import type { SchemaItem } from "../schema/$/core";
@@ -14,6 +14,7 @@ type SchemaHookProps<S extends $ObjSchema<any, any>> = {
   schema: S;
   values?: Record<string, unknown>;
   messages?: $Schema.RecordMessages;
+  data?: Record<string, unknown>;
   state?: "idle" | "submitting" | "loading";
   submit?: {
     callback?: (error: boolean) => (void | boolean);
@@ -47,12 +48,17 @@ export const SchemaProviderContext = createContext<SchemaProviderContextProps>({
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useSchema<const S extends $ObjSchema<any, any>>(props: SchemaHookProps<S>) {
   const id = props.id;
+  const initialized = useRef({
+    values: false,
+    messages: false,
+    data: false,
+  });
 
   const [formContext] = useState(() => {
     const ret = new FormContext<S>({
       values: props.values ?? {},
       messages: props.messages,
-      data: {},
+      data: props.data ?? {},
       schema: props.schema,
     });
     return ret;
@@ -103,17 +109,26 @@ export function useSchema<const S extends $ObjSchema<any, any>>(props: SchemaHoo
     reset(props.reset);
   };
 
-  function getFormProps(method: "get" | "post" | "put", options?: {
-    encType?: "application/x-www-form-urlencoded" | "multipart/form-data";
-  }) {
-    return {
-      method,
-      noValidate: true,
-      encType: options?.encType,
-      onSubmit: handleSubmit,
-      onReset: handleReset,
-    } satisfies FormHTMLAttributes<HTMLFormElement>;
-  };
+  useEffect(() => {
+    if (initialized.current.values) {
+      formContext.setValues(props.values ?? {});
+    }
+    initialized.current.values = true;
+  }, [props.values]);
+
+  useEffect(() => {
+    if (initialized.current.messages) {
+      formContext.setMessages(props.messages);
+    }
+    initialized.current.messages = true;
+  }, [props.messages]);
+
+  useEffect(() => {
+    if (initialized.current.data) {
+      formContext.setData(props.data);
+    }
+    initialized.current.data = true;
+  }, [props.data]);
 
   return {
     id,
@@ -133,7 +148,6 @@ export function useSchema<const S extends $ObjSchema<any, any>>(props: SchemaHoo
     handleSubmit,
     handleReset,
     reset,
-    getFormProps,
   } as const;
 };
 

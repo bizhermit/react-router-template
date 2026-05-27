@@ -14,17 +14,19 @@ import { authSchema } from "~/auth/shared/schema";
 import type { Route } from "./+types/sign-in";
 
 export async function action({ request }: Route.ActionArgs) {
-  const result = await signInByEmail(request);
-  if (!result.ok) {
-    return data({
-      messageKey: result.messageKey,
-    });
-  }
+  if (request.method.toUpperCase() === "POST") {
+    const result = await signInByEmail(request);
+    if (!result.ok) {
+      return data({
+        messageKey: result.messageKey,
+      });
+    }
 
-  return redirect(
-    result.redirectTo,
-    { headers: result.headers }
-  );
+    return redirect(
+      result.redirectTo,
+      { headers: result.headers }
+    );
+  }
 };
 
 export default function Page({ actionData }: Route.ComponentProps) {
@@ -33,8 +35,8 @@ export default function Page({ actionData }: Route.ComponentProps) {
 
   const {
     formItems,
-    getFormProps,
     providerProps,
+    formProps,
   } = useSchema({
     id: "sign-in",
     schema: authSchema,
@@ -55,7 +57,8 @@ export default function Page({ actionData }: Route.ComponentProps) {
       <h1>{t("signIn_title")}</h1>
       <SchemaProvider {...providerProps}>
         <fetcher.Form
-          {...getFormProps("post")}
+          {...formProps}
+          method="POST"
           className="grid place-items-center gap-4"
         >
           <FormItem>

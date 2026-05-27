@@ -7,6 +7,7 @@ interface PayloadParams<S extends $ObjSchema<any, any>> {
   schema: S;
   values?: FormData | Record<string, unknown>;
   data?: Record<string, unknown>;
+  preventValidate?: boolean;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -15,12 +16,20 @@ export async function getPayload<S extends $ObjSchema<any, any>>({
   schema,
   values,
   data = {},
+  preventValidate,
 }: PayloadParams<S>) {
-  const formData = values ?? await request.formData();
-  const struct = formData instanceof FormData ?
+  const method = request.method.toUpperCase();
+
+  const argValues = values ?? (
+    method === "GET" ?
+      Object.fromEntries(new URL(request.url).searchParams) :
+      await request.formData()
+  );
+
+  const struct = argValues instanceof FormData ?
     (() => {
       const obj: Record<string, unknown> = {};
-      for (const [key, value] of formData.entries()) {
+      for (const [key, value] of argValues.entries()) {
         if (obj[key]) {
           obj[key] = Array.isArray(obj[key])
             ? [...obj[key], value]
@@ -31,7 +40,7 @@ export async function getPayload<S extends $ObjSchema<any, any>>({
       }
       return obj;
     })() :
-    formData
+    argValues
     ;
 
   return parseWithSchema({
@@ -39,5 +48,6 @@ export async function getPayload<S extends $ObjSchema<any, any>>({
     values: struct,
     data,
     isServer: true,
+    preventValidate: preventValidate ?? method === "GET",
   });
 }
