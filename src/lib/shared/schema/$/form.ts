@@ -247,7 +247,7 @@ export class FormContext<S extends $ObjSchema<any, any>> {
       this.callValuesSubscribes();
     }
 
-    if (options?.preventUpdateOrigin) {
+    if (!options?.preventUpdateOrigin) {
       this.originValues = clone(this.values);
     }
     return this;
