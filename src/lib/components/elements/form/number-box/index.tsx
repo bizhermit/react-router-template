@@ -6,7 +6,7 @@ import { clsx } from "../../utilities";
 import { InputFieldWrapper, type InputFieldProps, type InputFieldWrapperProps } from "../wrapper/input-field";
 
 /** 数値ボックス */
-export interface NumberBox$Ref extends InputRef {
+export interface NumberBoxRef extends InputRef {
   /** DOM input */
   inputElement: HTMLInputElement;
   /**
@@ -24,7 +24,7 @@ export interface NumberBox$Ref extends InputRef {
 };
 
 /** 数値ボックス Props */
-export type NumberBox$Props = Overwrite<
+export type NumberBoxProps = Overwrite<
   InputFieldWrapperProps,
   InputFieldProps<{
     /** input Props */
@@ -54,10 +54,10 @@ const UP_DOWN_INTERVAL = 50; // 増減処理間隔
 
 /**
  * 数値ボックス
- * @param param {@link NumberBox$Props}
+ * @param param {@link NumberBoxProps}
  * @returns
  */
-export function NumberBox$({
+export function NumberBox({
   ref,
   invalid,
   inputProps,
@@ -67,7 +67,7 @@ export function NumberBox$({
   defaultValue,
   onChangeValue,
   ...props
-}: NumberBox$Props) {
+}: NumberBoxProps) {
   const validScripts = use(ValidScriptsContext).valid;
 
   const isControlled = "value" in props;
@@ -304,7 +304,7 @@ export function NumberBox$({
     focus: () => iref.current.focus(),
     format,
     parse,
-  } as const satisfies NumberBox$Ref));
+  } as const satisfies NumberBoxRef));
 
   return (
     <InputFieldWrapper

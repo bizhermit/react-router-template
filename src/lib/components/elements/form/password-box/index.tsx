@@ -5,7 +5,7 @@ import { clsx } from "../../utilities";
 import { InputFieldWrapper, type InputFieldProps, type InputFieldWrapperProps } from "../wrapper/input-field";
 
 /** パスワードボックス ref オブジェクト */
-export interface PasswordBox$Ref extends InputRef {
+export interface PasswordBoxRef extends InputRef {
   /** DOM input */
   inputElement: HTMLInputElement;
   /**
@@ -16,7 +16,7 @@ export interface PasswordBox$Ref extends InputRef {
 };
 
 /** パスワードボックス Props */
-export type PasswordBox$Props = Overwrite<
+export type PasswordBoxProps = Overwrite<
   InputFieldWrapperProps,
   InputFieldProps<{
     /** input Props */
@@ -29,10 +29,10 @@ export type PasswordBox$Props = Overwrite<
 
 /**
  * パスワードボックス
- * @param param {@link PasswordBox$Props}
+ * @param param {@link PasswordBoxProps}
  * @returns
  */
-export function PasswordBox$({
+export function PasswordBox({
   ref,
   invalid,
   inputProps,
@@ -41,7 +41,7 @@ export function PasswordBox$({
   defaultValue,
   onChangeValue,
   ...props
-}: PasswordBox$Props) {
+}: PasswordBoxProps) {
   const validScripts = use(ValidScriptsContext).valid;
 
   const isControlled = "value" in props;
@@ -72,7 +72,7 @@ export function PasswordBox$({
     inputElement: iref.current,
     focus: () => iref.current.focus(),
     toggleMask,
-  } as const satisfies PasswordBox$Ref));
+  } as const satisfies PasswordBoxRef));
 
   return (
     <InputFieldWrapper

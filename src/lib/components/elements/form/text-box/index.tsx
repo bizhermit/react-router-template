@@ -3,13 +3,13 @@ import { clsx } from "../../utilities";
 import { InputFieldWrapper, type InputFieldProps, type InputFieldWrapperProps } from "../wrapper/input-field";
 
 /** テキストボックス ref オブジェクト  */
-export interface TextBox$Ref extends InputRef {
+export interface TextBoxRef extends InputRef {
   /** DOM input */
   inputElement: HTMLInputElement;
 };
 
 /** テキストボックス Props */
-export type TextBox$Props = Overwrite<
+export type TextBoxProps = Overwrite<
   InputFieldWrapperProps,
   InputFieldProps<{
     /** input Props */
@@ -24,10 +24,10 @@ export type TextBox$Props = Overwrite<
 
 /**
  * テキストボックス
- * @param param {@link TextBox$Props}
+ * @param param {@link TextBoxProps}
  * @returns
  */
-export function TextBox$({
+export function TextBox({
   ref,
   invalid,
   inputProps,
@@ -37,7 +37,7 @@ export function TextBox$({
   defaultValue,
   onChangeValue,
   ...props
-}: TextBox$Props) {
+}: TextBoxProps) {
   const isControlled = "value" in props;
   const { value, ...wrapperProps } = props;
 
@@ -55,7 +55,7 @@ export function TextBox$({
     element: wref.current,
     inputElement: iref.current,
     focus: () => iref.current.focus(),
-  } as const satisfies TextBox$Ref));
+  } as const satisfies TextBoxRef));
 
   return (
     <InputFieldWrapper

@@ -6,13 +6,13 @@ import { Placeholder } from "../placeholder";
 import { InputFieldWrapper, type InputFieldProps, type InputFieldWrapperProps } from "../wrapper/input-field";
 
 /** セレクトボックス ref オブジェクト */
-export interface SelectBox$Ref extends InputRef {
+export interface SelectBoxRef extends InputRef {
   /** DOM select */
   selectElement: HTMLSelectElement;
 };
 
 /** セレクトボックス Props */
-export type SelectBox$Props = Overwrite<
+export type SelectBoxProps = Overwrite<
   InputFieldWrapperProps,
   InputFieldProps<{
     /** select Props */
@@ -29,10 +29,10 @@ export type SelectBox$Props = Overwrite<
 
 /**
  * セレクトボックス
- * @param param {@link SelectBox$Props}
+ * @param param {@link SelectBoxProps}
  * @returns
  */
-export function SelectBox$({
+export function SelectBox({
   ref,
   invalid,
   selectProps,
@@ -42,7 +42,7 @@ export function SelectBox$({
   defaultValue,
   onChangeValue,
   ...props
-}: SelectBox$Props) {
+}: SelectBoxProps) {
   const isControlled = "value" in props;
   const { value, ...wrapperProps } = props;
 
@@ -61,7 +61,7 @@ export function SelectBox$({
     element: wref.current,
     selectElement: sref.current,
     focus: () => (dref.current ?? sref.current)?.focus(),
-  } as const satisfies SelectBox$Ref));
+  } as const satisfies SelectBoxRef));
 
   return (
     <InputFieldWrapper

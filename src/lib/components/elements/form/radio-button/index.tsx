@@ -5,7 +5,7 @@ import { InputLabelText } from "../input-label-text";
 import { InputLabelWrapper, type InputLabelProps, type InputLabelWrapperProps } from "../wrapper/input-label";
 
 /** ラジオボタン ref オブジェクト */
-export interface RadioButton$Ref extends InputRef {
+export interface RadioButtonRef extends InputRef {
   /** DOM input */
   inputElement: HTMLInputElement;
 };
@@ -17,7 +17,7 @@ export type RadioButtonAppearance =
   ;
 
 /** ラジオボタン Props */
-export type RadioButton$Props = Overwrite<
+export type RadioButtonProps = Overwrite<
   InputLabelWrapperProps,
   InputLabelProps<{
     /** input Props */
@@ -39,7 +39,7 @@ export type RadioButton$Props = Overwrite<
  * @param param {@link Radiobuttonpro}
  * @returns
  */
-export function RadioButton$({
+export function RadioButton({
   ref,
   invalid,
   inputProps,
@@ -52,7 +52,7 @@ export function RadioButton$({
   onChangeChecked,
   value,
   ...props
-}: RadioButton$Props) {
+}: RadioButtonProps) {
   const isControlled = "checked" in props;
   const { checked, ...wrapperProps } = props;
 
@@ -73,7 +73,7 @@ export function RadioButton$({
     element: wref.current,
     inputElement: iref.current,
     focus: () => (dref.current ?? iref.current).focus(),
-  } as const satisfies RadioButton$Ref));
+  } as const satisfies RadioButtonRef));
 
   return (
     <InputLabelWrapper

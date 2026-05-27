@@ -1,11 +1,11 @@
-import { useFormInput, type FormInputProps, type FormInputStyleProps } from "$/shared/hooks/$schema";
-import type { $BoolSchema } from "$/shared/schema/$/boolean";
-import type { FormItem } from "$/shared/schema/$/form";
 import { useImperativeHandle, useMemo, useRef, type InputHTMLAttributes, type RefObject } from "react";
-import { CheckBox$, type CheckBox$Ref, type CheckBoxAppearance } from ".";
+import { CheckBox, type CheckBoxAppearance, type CheckBoxRef } from ".";
+import { useFormInput, type FormInputProps, type FormInputStyleProps } from "../../../../shared/hooks/$schema";
+import type { $BoolSchema } from "../../../../shared/schema/$/boolean";
+import type { FormItem } from "../../../../shared/schema/$/form";
 import { WithMessage$ } from "../message";
 
-export interface CheckBoxRef extends CheckBox$Ref { }
+export interface CheckBox$Ref extends CheckBoxRef { }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type CheckBoxProps<S extends $BoolSchema<any>> =
@@ -23,7 +23,7 @@ export type CheckBoxProps<S extends $BoolSchema<any>> =
   >;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function CheckBox<S extends $BoolSchema<any>>({
+export function CheckBox$<S extends $BoolSchema<any>>({
   ref,
   formItem,
   hideMessage,
@@ -35,7 +35,7 @@ export function CheckBox<S extends $BoolSchema<any>>({
   children,
   ...props
 }: CheckBoxProps<S>) {
-  const ref$ = useRef<CheckBox$Ref>(null!);
+  const ref$ = useRef<CheckBoxRef>(null!);
 
   const {
     schemaItem,
@@ -80,7 +80,7 @@ export function CheckBox<S extends $BoolSchema<any>>({
       state={state}
       message={message}
     >
-      <CheckBox$
+      <CheckBox
         ref={ref$}
         className={className}
         style={style}
@@ -102,7 +102,7 @@ export function CheckBox<S extends $BoolSchema<any>>({
         }}
       >
         {children}
-      </CheckBox$>
+      </CheckBox>
     </WithMessage$>
   );
 };

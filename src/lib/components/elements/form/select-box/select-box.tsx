@@ -1,14 +1,14 @@
-import { useFormInput, type FormInputProps, type FormInputStyleProps } from "$/shared/hooks/$schema";
-import type { $EnumSchema } from "$/shared/schema/$/enum";
-import type { FormItem } from "$/shared/schema/$/form";
 import { useImperativeHandle, useMemo, useRef, type RefObject, type SelectHTMLAttributes } from "react";
-import { SelectBox$, SelectBoxEmptyOption, type SelectBox$Ref } from ".";
+import { SelectBox, SelectBoxEmptyOption, type SelectBoxRef } from ".";
+import { useFormInput, type FormInputProps, type FormInputStyleProps } from "../../../../shared/hooks/$schema";
+import type { $EnumSchema } from "../../../../shared/schema/$/enum";
+import type { FormItem } from "../../../../shared/schema/$/form";
 import { WithMessage$ } from "../message";
 
-export interface SelectBoxRef extends SelectBox$Ref { };
+export interface SelectBox$Ref extends SelectBoxRef { };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type SelectBoxProps<S extends $EnumSchema<any, any>> =
+export type SelectBox$Props<S extends $EnumSchema<any, any>> =
   & FormInputStyleProps
   & FormInputProps
   & {
@@ -26,7 +26,7 @@ export type SelectBoxProps<S extends $EnumSchema<any, any>> =
   >;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function SelectBox<S extends $EnumSchema<any, any>>({
+export function SelectBox$<S extends $EnumSchema<any, any>>({
   ref,
   formItem,
   hideMessage,
@@ -37,8 +37,8 @@ export function SelectBox<S extends $EnumSchema<any, any>>({
   emptyText,
   children,
   ...props
-}: SelectBoxProps<S>) {
-  const ref$ = useRef<SelectBox$Ref>(null!);
+}: SelectBox$Props<S>) {
+  const ref$ = useRef<SelectBoxRef>(null!);
 
   const {
     schemaItem,
@@ -80,7 +80,7 @@ export function SelectBox<S extends $EnumSchema<any, any>>({
       state={state}
       message={message}
     >
-      <SelectBox$
+      <SelectBox
         ref={ref$}
         className={className}
         style={style}
@@ -120,7 +120,7 @@ export function SelectBox<S extends $EnumSchema<any, any>>({
             }
           </>
         }
-      </SelectBox$>
+      </SelectBox>
     </WithMessage$>
   );
 };

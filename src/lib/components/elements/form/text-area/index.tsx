@@ -3,7 +3,7 @@ import { clsx } from "../../utilities";
 import { InputFieldWrapper, type InputFieldProps, type InputFieldWrapperProps } from "../wrapper/input-field";
 
 /** テキストエリア ref オブジェクト */
-export interface TextArea$Ref extends InputRef {
+export interface TextAreaRef extends InputRef {
   /** DOM textarea */
   textAreaElement: HTMLTextAreaElement;
   /** テキストエリア高さ再計算 */
@@ -19,7 +19,7 @@ export type TextAreaResize =
   ;
 
 /** テキストエリア Props */
-export type TextArea$Props = Overwrite<
+export type TextAreaProps = Overwrite<
   InputFieldWrapperProps,
   InputFieldProps<{
     /** textarea Props */
@@ -60,10 +60,10 @@ function getResizeClassName(resize: TextAreaResize | undefined) {
 
 /**
  * テキストエリア
- * @param param {@link TextArea$Props}
+ * @param param {@link TextAreaProps}
  * @returns
  */
-export function TextArea$({
+export function TextArea({
   ref,
   invalid,
   textAreaProps,
@@ -75,7 +75,7 @@ export function TextArea$({
   defaultValue,
   onChangeValue,
   ...props
-}: TextArea$Props) {
+}: TextAreaProps) {
   const isControlled = "value" in props;
   const { value, ...wrapperProps } = props;
 
@@ -145,7 +145,7 @@ export function TextArea$({
     textAreaElement: iref.current,
     focus: () => iref.current.focus(),
     calcFitContentHeight,
-  } as const satisfies TextArea$Ref));
+  } as const satisfies TextAreaRef));
 
   return (
     <InputFieldWrapper

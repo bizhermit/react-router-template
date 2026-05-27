@@ -1,14 +1,14 @@
-import { useFormInput, type FormInputProps, type FormInputStyleProps } from "$/shared/hooks/$schema";
-import type { FormItem } from "$/shared/schema/$/form";
-import type { $NumSchema } from "$/shared/schema/$/number";
 import { useMemo, useRef, type InputHTMLAttributes, type RefObject } from "react";
-import { Slider$, type Slider$Ref } from ".";
+import { Slider, type SliderRef } from ".";
+import { useFormInput, type FormInputProps, type FormInputStyleProps } from "../../../../shared/hooks/$schema";
+import type { FormItem } from "../../../../shared/schema/$/form";
+import type { $NumSchema } from "../../../../shared/schema/$/number";
 import { WithMessage$ } from "../message";
 
-export interface SliderRef extends Slider$Ref { }
+export interface Slider$Ref extends SliderRef { }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type SliderProps<S extends $NumSchema<any>> =
+export type Slider$Props<S extends $NumSchema<any>> =
   & FormInputStyleProps
   & FormInputProps
   & {
@@ -25,7 +25,7 @@ export type SliderProps<S extends $NumSchema<any>> =
   >;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function Slider<S extends $NumSchema<any>>({
+export function Slider$<S extends $NumSchema<any>>({
   ref,
   formItem,
   hideMessage,
@@ -37,8 +37,8 @@ export function Slider<S extends $NumSchema<any>>({
   scales,
   hideScales,
   ...props
-}: SliderProps<S>) {
-  const ref$ = useRef<Slider$Ref>(null!);
+}: Slider$Props<S>) {
+  const ref$ = useRef<SliderRef>(null!);
 
   const {
     schemaItem,
@@ -80,7 +80,7 @@ export function Slider<S extends $NumSchema<any>>({
       state={state}
       message={message}
     >
-      <Slider$
+      <Slider
         ref={ref$}
         className={className}
         style={style}

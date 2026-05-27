@@ -1,11 +1,11 @@
-import { useFormInput, type FormInputProps, type FormInputStyleProps } from "$/shared/hooks/$schema";
-import type { $EnumSchema } from "$/shared/schema/$/enum";
-import type { FormItem } from "$/shared/schema/$/form";
 import { useImperativeHandle, useMemo, useRef, type InputHTMLAttributes, type RefObject } from "react";
-import { ComboBox$, ComboBoxItem, type ComboBox$Ref } from ".";
+import { ComboBox, ComboBoxItem, type ComboBoxRef } from ".";
+import { useFormInput, type FormInputProps, type FormInputStyleProps } from "../../../../shared/hooks/$schema";
+import type { $EnumSchema } from "../../../../shared/schema/$/enum";
+import type { FormItem } from "../../../../shared/schema/$/form";
 import { WithMessage$ } from "../message";
 
-export interface ComboBoxRef extends ComboBox$Ref { };
+export interface ComboBox$Ref extends ComboBoxRef { };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ComboBoxProps<S extends $EnumSchema<any, any>> =
@@ -25,7 +25,7 @@ export type ComboBoxProps<S extends $EnumSchema<any, any>> =
   >;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function ComboBox<S extends $EnumSchema<any, any>>({
+export function ComboBox$<S extends $EnumSchema<any, any>>({
   ref,
   formItem,
   hideMessage,
@@ -38,7 +38,7 @@ export function ComboBox<S extends $EnumSchema<any, any>>({
   autoFocus,
   children,
 }: ComboBoxProps<S>) {
-  const ref$ = useRef<ComboBox$Ref>(null!);
+  const ref$ = useRef<ComboBoxRef>(null!);
 
   const {
     schemaItem,
@@ -77,7 +77,7 @@ export function ComboBox<S extends $EnumSchema<any, any>>({
       state={state}
       message={message}
     >
-      <ComboBox$
+      <ComboBox
         ref={ref$}
         className={className}
         style={style}
@@ -117,7 +117,7 @@ export function ComboBox<S extends $EnumSchema<any, any>>({
             }
           </>
         }
-      </ComboBox$>
+      </ComboBox>
     </WithMessage$>
   );
 };

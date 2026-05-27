@@ -1,14 +1,14 @@
-import { useFormInput, type FormInputProps, type FormInputStyleProps } from "$/shared/hooks/$schema";
-import type { FormItem } from "$/shared/schema/$/form";
-import type { $NumSchema } from "$/shared/schema/$/number";
 import { useImperativeHandle, useMemo, useRef, type InputHTMLAttributes, type RefObject } from "react";
-import { NumberBox$, type NumberBox$Ref } from ".";
+import { NumberBox, type NumberBoxRef } from ".";
+import { useFormInput, type FormInputProps, type FormInputStyleProps } from "../../../../shared/hooks/$schema";
+import type { FormItem } from "../../../../shared/schema/$/form";
+import type { $NumSchema } from "../../../../shared/schema/$/number";
 import { WithMessage$ } from "../message";
 
-export interface NumberBoxRef extends NumberBox$Ref { }
+export interface NumberBox$Ref extends NumberBoxRef { }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type NumberBoxProps<S extends $NumSchema<any>> =
+export type NumberBox$Props<S extends $NumSchema<any>> =
   & FormInputStyleProps
   & FormInputProps
   & {
@@ -26,7 +26,7 @@ export type NumberBoxProps<S extends $NumSchema<any>> =
   >;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function NumberBox<S extends $NumSchema<any>>({
+export function NumberBox$<S extends $NumSchema<any>>({
   ref,
   formItem,
   hideMessage,
@@ -35,8 +35,8 @@ export function NumberBox<S extends $NumSchema<any>>({
   style,
   children,
   ...props
-}: NumberBoxProps<S>) {
-  const ref$ = useRef<NumberBox$Ref>(null!);
+}: NumberBox$Props<S>) {
+  const ref$ = useRef<NumberBoxRef>(null!);
 
   const {
     schemaItem,
@@ -82,7 +82,7 @@ export function NumberBox<S extends $NumSchema<any>>({
       state={state}
       message={message}
     >
-      <NumberBox$
+      <NumberBox
         ref={ref$}
         className={className}
         style={style}
@@ -103,7 +103,7 @@ export function NumberBox<S extends $NumSchema<any>>({
         }}
       >
         {children}
-      </NumberBox$>
+      </NumberBox>
     </WithMessage$>
   );
 }

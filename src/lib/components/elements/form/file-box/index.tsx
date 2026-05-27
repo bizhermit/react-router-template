@@ -5,13 +5,13 @@ import { Placeholder } from "../placeholder";
 import { InputFieldWrapper, type InputFieldProps, type InputFieldWrapperProps } from "../wrapper/input-field";
 
 /** ファイルボックス ref オブジェクト */
-export interface FileBox$Ref extends InputRef {
+export interface FileBoxRef extends InputRef {
   /** DOM input */
   inputElement: HTMLInputElement;
 };
 
 /** ファイルボックス Props */
-export type FileBox$Props = Overwrite<
+export type FileBoxProps = Overwrite<
   InputFieldWrapperProps,
   InputFieldProps<{
     /** input Props */
@@ -35,17 +35,17 @@ const DRAGGING_CLASSNAME = [
 
 /**
  * ファイルボックス
- * @param param {@link FileBox$Props}
+ * @param param {@link FileBoxProps}
  * @returns
  */
-export function FileBox$({
+export function FileBox({
   ref,
   invalid,
   inputProps,
   state = "enabled",
   children,
   ...props
-}: FileBox$Props) {
+}: FileBoxProps) {
   const validScripts = use(ValidScriptsContext).valid;
 
   const wref = useRef<HTMLDivElement>(null!);
@@ -90,7 +90,7 @@ export function FileBox$({
     element: wref.current,
     inputElement: iref.current,
     focus: () => iref.current.focus(),
-  } as const satisfies FileBox$Ref));
+  } as const satisfies FileBoxRef));
 
   return (
     <InputFieldWrapper

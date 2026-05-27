@@ -1,14 +1,14 @@
-import { useFormInput, type FormInputProps, type FormInputStyleProps } from "$/shared/hooks/$schema";
-import type { FormItem } from "$/shared/schema/$/form";
-import type { $StrSchema, StrPattern } from "$/shared/schema/$/string";
 import { useImperativeHandle, useMemo, useRef, type HTMLAttributes, type HTMLInputTypeAttribute, type InputHTMLAttributes, type RefObject } from "react";
-import { TextBox$, type TextBox$Ref } from ".";
+import { TextBox, type TextBoxRef } from ".";
+import { useFormInput, type FormInputProps, type FormInputStyleProps } from "../../../../shared/hooks/$schema";
+import type { FormItem } from "../../../../shared/schema/$/form";
+import type { $StrSchema, StrPattern } from "../../../../shared/schema/$/string";
 import { WithMessage$ } from "../message";
 
-export interface TextBoxRef extends TextBox$Ref { }
+export interface TextBox$Ref extends TextBoxRef { }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type TextBoxProps<S extends $StrSchema<any>> =
+export type TextBox$Props<S extends $StrSchema<any>> =
   & FormInputStyleProps
   & FormInputProps
   & {
@@ -52,7 +52,7 @@ function getPatternInputProps(pattern: StrPattern | undefined): PatternProps {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function TextBox<S extends $StrSchema<any>>({
+export function TextBox$<S extends $StrSchema<any>>({
   ref,
   formItem,
   hideMessage,
@@ -61,8 +61,8 @@ export function TextBox<S extends $StrSchema<any>>({
   style,
   children,
   ...props
-}: TextBoxProps<S>) {
-  const ref$ = useRef<TextBox$Ref>(null!);
+}: TextBox$Props<S>) {
+  const ref$ = useRef<TextBoxRef>(null!);
 
   const {
     schemaItem,
@@ -112,7 +112,7 @@ export function TextBox<S extends $StrSchema<any>>({
       state={state}
       message={message}
     >
-      <TextBox$
+      <TextBox
         ref={ref$}
         className={className}
         style={style}
@@ -134,7 +134,7 @@ export function TextBox<S extends $StrSchema<any>>({
         }}
       >
         {children}
-      </TextBox$>
+      </TextBox>
     </WithMessage$>
   );
 };

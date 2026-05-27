@@ -1,4 +1,4 @@
-import { createContext, use, useState, useSyncExternalStore, type CSSProperties, type FormHTMLAttributes } from "react";
+import { createContext, use, useState, useSyncExternalStore, type CSSProperties, type FormHTMLAttributes, type SubmitEvent, type SyntheticEvent } from "react";
 import type { SchemaProviderProps } from "../providers/schema";
 import type { $ArrSchema } from "../schema/$/array";
 import type { SchemaItem } from "../schema/$/core";
@@ -13,8 +13,15 @@ type SchemaHookProps<S extends $ObjSchema<any, any>> = {
   id: string;
   schema: S;
   values?: Record<string, unknown>;
-  messages?: $Schema.Message[];
+  messages?: $Schema.RecordMessages;
   state?: "idle" | "submitting" | "loading";
+  submit?: {
+    callback?: (error: boolean) => (void | boolean);
+  };
+  reset?: {
+    execValidate?: boolean;
+    callback?: () => void;
+  };
 };
 
 export type FormState = "idle" | "loading" | "submitting";
@@ -44,6 +51,7 @@ export function useSchema<const S extends $ObjSchema<any, any>>(props: SchemaHoo
   const [formContext] = useState(() => {
     const ret = new FormContext<S>({
       values: props.values ?? {},
+      messages: props.messages,
       data: {},
       schema: props.schema,
     });
@@ -61,12 +69,38 @@ export function useSchema<const S extends $ObjSchema<any, any>>(props: SchemaHoo
 
   const state = props.state || "idle";
 
-  function handleSubmit() {
-    // TODO:
+  function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
+    if (state !== "idle") {
+      console.warn(`supress submit event. state: ${state}`);
+      e.preventDefault();
+      return;
+    }
+    const { hasError } = formContext.validate();
+    if (hasError) {
+      e.preventDefault();
+      props.submit?.callback?.(true);
+      return;
+    }
+    const ret = props.submit?.callback?.(false);
+    if (ret === false) e.preventDefault();
   };
 
-  function handleReset() {
-    // TODO:
+  function reset(options?: {
+    execValidate?: boolean;
+  }) {
+    if (state !== "idle") {
+      console.warn(`supress reset event. state: ${state}`);
+      return;
+    }
+    formContext.reset({
+      execValidate: options?.execValidate ?? props.reset?.execValidate,
+    });
+    props.reset?.callback?.();
+  }
+
+  function handleReset(e: SyntheticEvent<HTMLFormElement>) {
+    e.preventDefault();
+    reset(props.reset);
   };
 
   function getFormProps(method: "get" | "post" | "put", options?: {
@@ -88,11 +122,17 @@ export function useSchema<const S extends $ObjSchema<any, any>>(props: SchemaHoo
       formContext,
       formState: state,
     } as const satisfies SchemaProviderProps,
+    formProps: {
+      noValidate: true,
+      onSubmit: handleSubmit,
+      onReset: handleReset,
+    } as const satisfies FormHTMLAttributes<HTMLFormElement>,
     formItems: formContext.getFormItems(),
     hasError,
     state,
     handleSubmit,
     handleReset,
+    reset,
     getFormProps,
   } as const;
 };
@@ -261,32 +301,6 @@ export type FormInputStyleProps = {
 export type FormInputProps = {
   hideMessage?: boolean;
   omitOnSubmit?: boolean;
-};
-
-/**
- *
- * @param schemaItem
- * @returns
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function useSchemaInitizlied(schemaItem: SchemaItem<any>) {
-  return useSyncExternalStore((callback) => {
-    if (schemaItem.isInitialized()) return () => { };
-    const monitoring = setInterval(() => {
-      if (schemaItem.isInitialized()) {
-        callback();
-        schemaItem.isInitialized();
-        clearInterval(monitoring);
-      }
-    }, 200);
-    return () => {
-      clearInterval(monitoring);
-    };
-  }, () => {
-    return schemaItem.isInitialized();
-  }, () => {
-    return schemaItem.isInitialized();
-  });
 };
 
 /**

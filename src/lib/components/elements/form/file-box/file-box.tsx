@@ -1,16 +1,16 @@
-import { useFormInput, type FormInputProps, type FormInputStyleProps } from "$/shared/hooks/$schema";
-import { convertBase64ToFile } from "$/shared/objects/file";
-import { ValidScriptsContext } from "$/shared/providers/valid-scripts";
-import type { $FileSchema } from "$/shared/schema/$/file";
-import type { FormItem } from "$/shared/schema/$/form";
 import { use, useEffect, useImperativeHandle, useMemo, useRef, useState, type ChangeEvent, type InputHTMLAttributes, type MouseEvent, type ReactNode, type RefObject } from "react";
-import { FileBox$, type FileBox$Ref } from ".";
+import { FileBox, type FileBoxRef } from ".";
+import { useFormInput, type FormInputProps, type FormInputStyleProps } from "../../../../shared/hooks/$schema";
+import { convertBase64ToFile } from "../../../../shared/objects/file";
+import { ValidScriptsContext } from "../../../../shared/providers/valid-scripts";
+import type { $FileSchema } from "../../../../shared/schema/$/file";
+import type { FormItem } from "../../../../shared/schema/$/form";
 import { WithMessage$ } from "../message";
 
-export interface FileBoxRef extends FileBox$Ref { }
+export interface FileBox$Ref extends FileBoxRef { }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type FileBoxProps<S extends $FileSchema<any>> =
+export type FileBox$Props<S extends $FileSchema<any>> =
   & FormInputStyleProps
   & FormInputProps
   & {
@@ -36,7 +36,7 @@ export type FileBoxProps<S extends $FileSchema<any>> =
   >;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function FileBox<S extends $FileSchema<any>>({
+export function FileBox$<S extends $FileSchema<any>>({
   ref,
   formItem,
   hideMessage,
@@ -46,8 +46,8 @@ export function FileBox<S extends $FileSchema<any>>({
   viewMode,
   onViewClick,
   ...props
-}: FileBoxProps<S>) {
-  const ref$ = useRef<FileBox$Ref>(null!);
+}: FileBox$Props<S>) {
+  const ref$ = useRef<FileBoxRef>(null!);
 
   const {
     schemaItem,
@@ -105,7 +105,7 @@ export function FileBox<S extends $FileSchema<any>>({
         state={state}
         message={message}
       >
-        <FileBox$
+        <FileBox
           className={className}
           style={style}
           ref={ref}

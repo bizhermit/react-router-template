@@ -1,15 +1,15 @@
-import { useFormInput, type FormInputProps, type FormInputStyleProps } from "$/shared/hooks/$schema";
-import type { $ArrSchema, ArrayProps } from "$/shared/schema/$/array";
-import type { $EnumSchema } from "$/shared/schema/$/enum";
-import type { FormItem } from "$/shared/schema/$/form";
 import { useImperativeHandle, useMemo, useRef, type InputHTMLAttributes, type RefObject } from "react";
-import { CheckBox$, type CheckBox$Ref, type CheckBoxAppearance } from ".";
+import { CheckBox, type CheckBoxAppearance, type CheckBoxRef } from ".";
+import { useFormInput, type FormInputProps, type FormInputStyleProps } from "../../../../shared/hooks/$schema";
+import type { $ArrSchema, ArrayProps } from "../../../../shared/schema/$/array";
+import type { $EnumSchema } from "../../../../shared/schema/$/enum";
+import type { FormItem } from "../../../../shared/schema/$/form";
 import { WithMessage$ } from "../message";
 import { InputGroupWrapper } from "../wrapper/input-group";
 
-export interface CheckListRef extends InputRef { }
+export interface CheckList$Ref extends InputRef { }
 
-export type CheckListProps<
+export type CheckList$Props<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   E extends $EnumSchema<any, any>,
   S extends $ArrSchema<E, ArrayProps<E>>
@@ -26,7 +26,7 @@ export type CheckListProps<
     | "autoFocus"
   >;
 
-export function CheckList<
+export function CheckList$<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   E extends $EnumSchema<any, any>,
   S extends $ArrSchema<E, ArrayProps<E>>
@@ -40,9 +40,9 @@ export function CheckList<
   appearance,
   color,
   autoFocus,
-}: CheckListProps<E, S>) {
+}: CheckList$Props<E, S>) {
   const wref = useRef<HTMLDivElement>(null!);
-  const firstRef = useRef<CheckBox$Ref | null>(null);
+  const firstRef = useRef<CheckBoxRef | null>(null);
 
   const {
     schemaItem,
@@ -94,7 +94,7 @@ export function CheckList<
   useImperativeHandle(ref, () => ({
     element: wref.current,
     focus: () => firstRef.current?.focus(),
-  } as const satisfies CheckListRef));
+  } as const satisfies CheckList$Ref));
 
   return (
     <WithMessage$
@@ -115,7 +115,7 @@ export function CheckList<
           const isChecked = value?.some(v => v === item.value);
 
           return (
-            <CheckBox$
+            <CheckBox
               key={key}
               ref={index === 0 ? firstRef : undefined}
               state={state}
@@ -134,7 +134,7 @@ export function CheckList<
               }}
             >
               {item.node ?? item.text}
-            </CheckBox$>
+            </CheckBox>
           );
         })}
       </InputGroupWrapper>

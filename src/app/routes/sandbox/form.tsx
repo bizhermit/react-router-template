@@ -1,28 +1,26 @@
-/* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Button } from "$/components/elements/button";
-import { CheckBox } from "$/components/elements/form/check-box/check-box";
-import { CheckList } from "$/components/elements/form/check-box/check-list";
-import { ComboBox } from "$/components/elements/form/combo-box/combo-box";
-import { DateBox } from "$/components/elements/form/date-box/date-box";
+import { LinkButton } from "$/components/elements/button/link-button";
+import { CheckBox$ } from "$/components/elements/form/check-box/check-box";
+import { CheckList$ } from "$/components/elements/form/check-box/check-list";
+import { ComboBox$ } from "$/components/elements/form/combo-box/combo-box";
+import { DateBox$ } from "$/components/elements/form/date-box/date-box";
 import { DateSelectBox$ } from "$/components/elements/form/date-box/date-select-box";
-import { FileBox } from "$/components/elements/form/file-box/file-box";
-import { NumberBox } from "$/components/elements/form/number-box/number-box";
-import { PasswordBox } from "$/components/elements/form/password-box/password-box";
-import { RadioButtons } from "$/components/elements/form/radio-button/radio-buttons";
-import { SelectBox } from "$/components/elements/form/select-box/select-box";
-import { Slider } from "$/components/elements/form/slider/slider";
-import { TextArea } from "$/components/elements/form/text-area/text-area";
-import { TextBox } from "$/components/elements/form/text-box/text-box";
+import { FileBox$ } from "$/components/elements/form/file-box/file-box";
+import { NumberBox$ } from "$/components/elements/form/number-box/number-box";
+import { PasswordBox$ } from "$/components/elements/form/password-box/password-box";
+import { RadioButtons$ } from "$/components/elements/form/radio-button/radio-buttons";
+import { SelectBox$ } from "$/components/elements/form/select-box/select-box";
+import { Slider$ } from "$/components/elements/form/slider/slider";
+import { TextArea$ } from "$/components/elements/form/text-area/text-area";
+import { TextBox$ } from "$/components/elements/form/text-box/text-box";
 import { FormItem } from "$/components/elements/form/wrapper/form-item";
 import { DeleteIcon } from "$/components/elements/icon";
 import { SchemaProviderContext, useFormArrayItem, useHasError, useSchema, type SchemaProviderContextProps } from "$/shared/hooks/$schema";
-import { useClickButton } from "$/shared/hooks/click-button";
 import { useRender } from "$/shared/hooks/render";
 import { $Date, $DateTime } from "$/shared/objects/timestamp";
 import { SchemaProvider } from "$/shared/providers/schema";
-import { parseWithSchema } from "$/shared/schema/$";
 import { $arr } from "$/shared/schema/$/array";
 import { $bool } from "$/shared/schema/$/boolean";
 import { $date } from "$/shared/schema/$/date";
@@ -33,6 +31,7 @@ import { $month } from "$/shared/schema/$/month";
 import { $num } from "$/shared/schema/$/number";
 import { $obj } from "$/shared/schema/$/object";
 import { $str } from "$/shared/schema/$/string";
+import { getPayload } from "$/shared/schema/server";
 import { use, useEffect, useState } from "react";
 import { data, useFetcher } from "react-router";
 import type { Route } from "./+types/form";
@@ -295,33 +294,35 @@ type _Fuga = $Schema.Infer<typeof schemaObj, true>;
 //   actionType: "input",
 // };
 
-export function loader({ request }: Route.LoaderArgs) {
+export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
+  const searchParams = Object.fromEntries(url.searchParams);
+  console.log("loader", request.method, searchParams);
 
-  console.log("loader", Array.from(url.searchParams.entries()));
-  return data(
-    {
-      arr: [
-        "hoge",
-        "fuga",
-      ],
-      arr2: [
-        { name: "hoge", age: 1 },
-        { name: "fuga" },
-        {},
-      ],
-      select: "0",
-      combo: 3,
-      date_year: 2026,
-    } satisfies $Schema.Infer<typeof schemaObj>
-  );
+  const submission = await getPayload({
+    request,
+    schema: schemaObj,
+    data: {},
+    values: searchParams,
+  });
+  return data(submission);
 };
 
-export function action({ request }: Route.ActionArgs) {
+export async function action({ request }: Route.ActionArgs) {
   const url = new URL(request.url);
 
-  console.log("action", request.method, Array.from(url.searchParams.entries()));
-  return data({});
+  console.log("action", request.method, Object.fromEntries(url.searchParams));
+  const method = request.method.toUpperCase();
+
+  if (method === "POST") {
+    const submission = await getPayload({
+      request,
+      schema: schemaObj,
+      data: {},
+    });
+    return data(submission);
+  }
+  return data({ values: {}, messages: {} });
 };
 
 function SchemaContent() {
@@ -406,17 +407,17 @@ function SchemaContent() {
       </div>
       <div className="flex flex-row flex-wrap gap-2">
         <FormItem>
-          <TextBox
+          <TextBox$
             formItem={formItems.text}
           />
         </FormItem>
         <FormItem>
-          <PasswordBox
+          <PasswordBox$
             formItem={formItems.password}
           />
         </FormItem>
         <FormItem>
-          <TextArea
+          <TextArea$
             formItem={formItems.note}
             rows="fit"
             minRows={3}
@@ -424,12 +425,12 @@ function SchemaContent() {
           />
         </FormItem>
         <FormItem>
-          <NumberBox
+          <NumberBox$
             formItem={formItems.num}
           />
         </FormItem>
         <FormItem>
-          <Slider
+          <Slider$
             formItem={formItems.rate}
             scales={[
               { value: 1, text: "1%" },
@@ -438,52 +439,52 @@ function SchemaContent() {
               { value: 99, text: "99%" },
             ]}
           />
-          <NumberBox
+          <NumberBox$
             formItem={formItems.rate}
             omitOnSubmit
           />
         </FormItem>
         <FormItem>
-          <FileBox
+          <FileBox$
             formItem={formItems.file}
             placeholder="ファイルを選択してください"
             viewMode="link"
           />
         </FormItem>
         <FormItem>
-          <SelectBox
+          <SelectBox$
             formItem={formItems.select}
           />
         </FormItem>
         <FormItem>
-          <ComboBox
+          <ComboBox$
             formItem={formItems.combo}
           />
         </FormItem>
         <FormItem>
-          <CheckBox
+          <CheckBox$
             formItem={formItems.check}
           >
             CheckBox
-          </CheckBox>
+          </CheckBox$>
         </FormItem>
         <FormItem>
-          <CheckBox
+          <CheckBox$
             formItem={formItems.toggle}
             appearance="togglebox"
             color="danger"
           >
             ToggleBox
-          </CheckBox>
+          </CheckBox$>
         </FormItem>
         <FormItem>
-          <RadioButtons
+          <RadioButtons$
             formItem={formItems.radio}
           // color="primary"
           />
         </FormItem>
         <FormItem>
-          <CheckList
+          <CheckList$
             formItem={formItems.checklist}
           // appearance="togglebox"
           // appearance="button"
@@ -491,17 +492,17 @@ function SchemaContent() {
           />
         </FormItem>
         <FormItem>
-          <DateBox
+          <DateBox$
             formItem={formItems.date}
           />
         </FormItem>
         <FormItem>
-          <DateBox
+          <DateBox$
             formItem={formItems.month}
           />
         </FormItem>
         <FormItem>
-          <DateBox
+          <DateBox$
             formItem={formItems.datetime}
           />
         </FormItem>
@@ -509,6 +510,8 @@ function SchemaContent() {
           <DateSelectBox$
             // formItem={formItems.dateselect}
             formItem={{
+              id: formItems.split_date.getName(),
+              // id: "_dateselect",
               year: formItems.date_year,
               month: formItems.date_month,
               day: formItems.date_day,
@@ -610,82 +613,45 @@ export default function Page({ loaderData, actionData }: Route.ComponentProps) {
 
   const fetcher = useFetcher();
 
+  useEffect(() => {
+    console.log("effect loaderData");
+  }, [loaderData.values]);
+
+  useEffect(() => {
+    console.log("effect actionData");
+  }, [actionData?.values]);
+
   const schema = useSchema({
     id: "sandbox",
     schema: schemaObj,
-    values: actionData ?? loaderData,
+    values: actionData?.values ?? loaderData.values,
     state: fetcher.state,
   });
 
   return (
     <fetcher.Form
+      {...schema.formProps}
       method="post"
-      noValidate
     >
       form sandbox
       <div className="flex flex-row flex-wrap gap-2">
         <Button type="submit">submit</Button>
         <Button type="reset">reset</Button>
-        <Button
-          {...useClickButton({
-            onClick: async ({ unlock }) => {
-              const dummyValues = {
-                // name: null,
-                // name: "hogefugapiyo",
-                year: "2027",
-                date_year: 2026,
-                // year: null,
-                hoge: 132,
-              };
-              console.log("--------");
-              const now = performance.now();
-              // const params: $Schema.InjectParams = {
-              //   data: {},
-              //   isServer: false,
-              //   values: dummyValues,
-              // };
-              // const parsed = schemaObject.parse(
-              //   dummyValues,
-              //   params
-              // );
-              // console.log(parsed);
-              // const submission = schemaObj.validate(parsed.value, params);
-              // console.log(submission.reduce((prev, msg) => {
-              //   prev[msg.name || "_root"] = msg;
-              //   return prev;
-              // }, {} as Record<string, $Schema.Message>));
-              // schemaObject.props.name.required = false;
-              const submission = await parseWithSchema({
-                schema: schemaObj,
-                values: {
-                  // name: "ghoe",
-                  // age: 100,
-                  // agreement: false,
-                  arr2: [
-                    { name: "hoge", age: 1 },
-                    { name: "fuga" },
-                    {},
-                  ],
-                  date_year: 2026,
-                  date_month: 5,
-                  date_day: 25,
-                } satisfies $Schema.Infer<typeof schemaObj>,
-              });
-              console.log("-", performance.now() - now);
-              console.log(submission.values);
-              if (submission.ok) {
-                submission.values.text;
-              } else {
-                submission.values?.text;
-              }
-              // console.log(JSON.stringify(submission, null, 2));
-              // console.log("-", validationMessage);
-              unlock();
-            },
-          })}
+        <LinkButton
+          to={{
+            pathname: ".",
+          }}
         >
-          validate
-        </Button>
+          no query
+        </LinkButton>
+        <LinkButton
+          to={{
+            pathname: ".",
+            search: `combo=3&select=0&date_year=2026`,
+          }}
+        >
+          to query
+        </LinkButton>
       </div>
       <SchemaProvider {...schema.providerProps}>
         <DisplayHasError />

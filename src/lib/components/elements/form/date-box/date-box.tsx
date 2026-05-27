@@ -5,15 +5,15 @@ import { $DateTimeSchema } from "$/shared/schema/$/datetime";
 import type { FormItem } from "$/shared/schema/$/form";
 import { $MonthSchema } from "$/shared/schema/$/month";
 import { useImperativeHandle, useMemo, useRef, type InputHTMLAttributes, type RefObject } from "react";
-import { DateBox$, type DateBox$Ref } from ".";
+import { DateBox, type DateBoxRef } from ".";
 import { WithMessage$ } from "../message";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type DateBoxSchemaItem = $DateSchema<any> | $DateTimeSchema<any> | $MonthSchema<any>;
 
-export interface DateBoxRef extends DateBox$Ref { }
+export interface DateBox$Ref extends DateBoxRef { }
 
-export type DateBoxProps<S extends DateBoxSchemaItem> =
+export type DateBox$Props<S extends DateBoxSchemaItem> =
   & FormInputStyleProps
   & FormInputProps
   & {
@@ -28,7 +28,7 @@ export type DateBoxProps<S extends DateBoxSchemaItem> =
     | "children"
   >;
 
-export function DateBox<S extends DateBoxSchemaItem>({
+export function DateBox$<S extends DateBoxSchemaItem>({
   ref,
   formItem,
   hideMessage,
@@ -38,8 +38,8 @@ export function DateBox<S extends DateBoxSchemaItem>({
   placeholder,
   children,
   ...props
-}: DateBoxProps<S>) {
-  const ref$ = useRef<DateBox$Ref>(null!);
+}: DateBox$Props<S>) {
+  const ref$ = useRef<DateBoxRef>(null!);
 
   const {
     schemaItem,
@@ -125,7 +125,7 @@ export function DateBox<S extends DateBoxSchemaItem>({
       state={state}
       message={message}
     >
-      <DateBox$
+      <DateBox
         ref={ref$}
         className={className}
         style={style}
@@ -147,7 +147,7 @@ export function DateBox<S extends DateBoxSchemaItem>({
         }}
       >
         {children}
-      </DateBox$>
+      </DateBox>
     </WithMessage$>
   );
 }

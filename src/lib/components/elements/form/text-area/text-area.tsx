@@ -1,14 +1,14 @@
-import { useFormInput, type FormInputProps, type FormInputStyleProps } from "$/shared/hooks/$schema";
-import type { FormItem } from "$/shared/schema/$/form";
-import type { $StrSchema } from "$/shared/schema/$/string";
 import { useImperativeHandle, useMemo, useRef, type RefObject, type TextareaHTMLAttributes } from "react";
-import { TextArea$, type TextArea$Ref, type TextAreaResize } from ".";
+import { TextArea, type TextAreaRef, type TextAreaResize } from ".";
+import { useFormInput, type FormInputProps, type FormInputStyleProps } from "../../../../shared/hooks/$schema";
+import type { FormItem } from "../../../../shared/schema/$/form";
+import type { $StrSchema } from "../../../../shared/schema/$/string";
 import { WithMessage$ } from "../message";
 
-export interface TextAreaRef extends TextArea$Ref { }
+export interface TextArea$Ref extends TextAreaRef { }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type TextAreaProps<S extends $StrSchema<any>> =
+export type TextArea$Props<S extends $StrSchema<any>> =
   & FormInputStyleProps
   & FormInputProps
   & {
@@ -35,7 +35,7 @@ export type TextAreaProps<S extends $StrSchema<any>> =
   >;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function TextArea<S extends $StrSchema<any>>({
+export function TextArea$<S extends $StrSchema<any>>({
   ref,
   formItem,
   hideMessage,
@@ -46,8 +46,8 @@ export function TextArea<S extends $StrSchema<any>>({
   minRows,
   maxRows,
   ...props
-}: TextAreaProps<S>) {
-  const ref$ = useRef<TextArea$Ref>(null!);
+}: TextArea$Props<S>) {
+  const ref$ = useRef<TextAreaRef>(null!);
 
   const {
     schemaItem,
@@ -91,7 +91,7 @@ export function TextArea<S extends $StrSchema<any>>({
       state={state}
       message={message}
     >
-      <TextArea$
+      <TextArea
         ref={ref$}
         className={className}
         style={style}

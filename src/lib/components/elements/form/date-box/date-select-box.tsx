@@ -1,22 +1,22 @@
-import { SchemaProviderContext, type FormInputProps, type FormInputStyleProps } from "$/shared/hooks/$schema";
-import { I18nContext } from "$/shared/hooks/i18n";
-import { useFieldSet } from "$/shared/hooks/schema";
-import { parseNumber } from "$/shared/objects/numeric";
-import { $Date, $DateTime, $Month } from "$/shared/objects/timestamp";
-import { ValidScriptsContext } from "$/shared/providers/valid-scripts";
-import type { SchemaItem } from "$/shared/schema/$/core";
-import { $DateSchema } from "$/shared/schema/$/date";
-import { $DateTimeSchema } from "$/shared/schema/$/datetime";
-import { equalMessage, FormItem } from "$/shared/schema/$/form";
-import { $MonthSchema } from "$/shared/schema/$/month";
-import type { $SplitDateSchema } from "$/shared/schema/$/split-date";
-import { getResultMessage$ } from "$/shared/schema/message";
 import { use, useImperativeHandle, useMemo, useRef, useState, useSyncExternalStore, type ReactNode, type RefObject, type SelectHTMLAttributes } from "react";
+import { SchemaProviderContext, type FormInputProps, type FormInputStyleProps } from "../../../../shared/hooks/$schema";
+import { I18nContext } from "../../../../shared/hooks/i18n";
+import { useFieldSet } from "../../../../shared/hooks/schema";
+import { parseNumber } from "../../../../shared/objects/numeric";
+import { $Date, $DateTime, $Month } from "../../../../shared/objects/timestamp";
+import { ValidScriptsContext } from "../../../../shared/providers/valid-scripts";
+import type { SchemaItem } from "../../../../shared/schema/$/core";
+import { $DateSchema } from "../../../../shared/schema/$/date";
+import { $DateTimeSchema } from "../../../../shared/schema/$/datetime";
+import { FormItem } from "../../../../shared/schema/$/form";
+import { $MonthSchema } from "../../../../shared/schema/$/month";
+import type { $SplitDateSchema } from "../../../../shared/schema/$/split-date";
+import { getResultMessage$ } from "../../../../shared/schema/message";
 import { WithMessage$ } from "../message";
-import { SelectBox$, SelectBoxEmptyOption, type SelectBox$Ref } from "../select-box";
+import { SelectBox, SelectBoxEmptyOption, type SelectBoxRef } from "../select-box";
 import { InputGroupWrapper } from "../wrapper/input-group";
 
-export interface DateSelectBoxRef extends InputRef { };
+export interface DateSelectBox$Ref extends InputRef { };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type DateSelectBoxSchemaItem = $DateSchema<any> | $DateTimeSchema<any> | $MonthSchema<any>;
@@ -24,22 +24,30 @@ type DateSelectBoxSchemaItem = $DateSchema<any> | $DateTimeSchema<any> | $MonthS
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type DatePartFormItem = FormItem<$SplitDateSchema<DateSelectBoxSchemaItem, any>>;
 
-export type DateSelectBoxProps<S extends DateSelectBoxSchemaItem> =
+export type DateSelectBox$Props<S extends DateSelectBoxSchemaItem> =
   & FormInputStyleProps
   & FormInputProps
   & {
     ref?: RefObject<InputRef | null>;
     formItem:
     | FormItem<S>
-    | {
-      core?: FormItem<S>;
+    | ({
       year: DatePartFormItem;
       month: DatePartFormItem;
       day?: DatePartFormItem;
       hour?: DatePartFormItem;
       minute?: DatePartFormItem;
       second?: DatePartFormItem;
-    };
+    } & (
+        | {
+          core: FormItem<S>;
+          id?: never;
+        }
+        | {
+          core?: never;
+          id: string;
+        }
+      ));
     placeholder?:
     | [string, string]
     | [string, string, string]
@@ -116,13 +124,13 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
   style,
   placeholder,
   autoFocus,
-}: DateSelectBoxProps<S>) {
+}: DateSelectBox$Props<S>) {
   const t = use(I18nContext).t;
   const fs = useFieldSet();
   const validScripts = use(ValidScriptsContext).valid;
 
   const wref = useRef<HTMLDivElement>(null!);
-  const ref$ = useRef<SelectBox$Ref>(null!);
+  const ref$ = useRef<SelectBoxRef>(null!);
 
   const {
     id: schemaId,
@@ -131,6 +139,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
   } = use(SchemaProviderContext);
   const {
     core,
+    id: coreId,
     year,
     month,
     day,
@@ -165,6 +174,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
   const hourName = hour?.getName();
   const minuteName = minute?.getName();
   const secondName = second?.getName();
+  const id = `${schemaId}_${coreName || `${coreId}_${yearName}`}`;
 
   const dummySubscribes = useRef<Record<DateSeparateKeys | "core" | "coreMessage", (() => void) | undefined>>({
     core: undefined,
@@ -178,7 +188,6 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
   });
 
   const dummyDateRef = useRef<$DateTime | $Date | $Month | null | undefined>(undefined);
-  const dummyMsgRef = useRef<$Schema.Message | null | undefined>(undefined);
 
   const value = useSyncExternalStore<$Schema.Nullable<$DateTime | $Date | $Month>>((callback) => {
     if (!coreName) {
@@ -207,10 +216,10 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
     });
     return () => cleanup();
   }, () => {
-    if (!coreName) return dummyMsgRef.current;
+    if (!coreName) return undefined;
     return context.getMessage(coreName);
   }, () => {
-    if (!coreName) return dummyMsgRef.current;
+    if (!coreName) return undefined;
     return context.getMessage(coreName);
   });
 
@@ -910,10 +919,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
           dummyDateRef.current = v as ($DateTime & $Date & $Month) | null | undefined,
           injectParams
         )[""]?.[0];
-        if (!equalMessage(dummyMsgRef.current, msg)) {
-          dummyMsgRef.current = msg;
-          dummySubscribes.current.coreMessage?.();
-        }
+        context.setMessage(id, msg);
       }
     }
 
@@ -1027,7 +1033,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
   useImperativeHandle(ref, () => ({
     element: wref.current,
     focus: () => ref$.current.focus(),
-  } as const satisfies DateSelectBoxRef));
+  } as const satisfies DateSelectBox$Ref));
 
   return (
     <WithMessage$
@@ -1037,7 +1043,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
       message={displayMessage}
     >
       <InputGroupWrapper
-        id={coreName ? `${schemaId}_${coreName}` : undefined}
+        id={id}
         className={className}
         style={style}
         ref={wref}
@@ -1246,7 +1252,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
 };
 
 type PartSelectBoxProps = {
-  ref?: RefObject<SelectBox$Ref>;
+  ref?: RefObject<SelectBoxRef>;
   id: string;
   name: string | undefined;
   label: string | undefined;
@@ -1275,7 +1281,7 @@ function PartSelectBox({
   else if (props.coreState === "readonly" || splitMode === "readonly") state = "readonly";
 
   return (
-    <SelectBox$
+    <SelectBox
       ref={ref}
       invalid={props.invalid}
       state={state}
@@ -1294,6 +1300,6 @@ function PartSelectBox({
         required={props.required}
       />
       {props.children}
-    </SelectBox$>
+    </SelectBox>
   );
 };

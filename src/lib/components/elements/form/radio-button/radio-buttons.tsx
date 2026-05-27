@@ -1,15 +1,15 @@
-import { useFormInput, type FormInputProps, type FormInputStyleProps } from "$/shared/hooks/$schema";
-import type { $EnumSchema } from "$/shared/schema/$/enum";
-import type { FormItem } from "$/shared/schema/$/form";
 import { useImperativeHandle, useMemo, useRef, type MouseEvent, type RefObject, type SelectHTMLAttributes } from "react";
-import { RadioButton$, type RadioButton$Ref, type RadioButtonAppearance } from ".";
+import { RadioButton, type RadioButtonAppearance, type RadioButtonRef } from ".";
+import { useFormInput, type FormInputProps, type FormInputStyleProps } from "../../../../shared/hooks/$schema";
+import type { $EnumSchema } from "../../../../shared/schema/$/enum";
+import type { FormItem } from "../../../../shared/schema/$/form";
 import { WithMessage$ } from "../message";
 import { InputGroupWrapper } from "../wrapper/input-group";
 
-export interface RadioButtonsRef extends InputRef { };
+export interface RadioButtons$Ref extends InputRef { };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type RadioButtonsProps<S extends $EnumSchema<any, any>> =
+export type RadioButtons$Props<S extends $EnumSchema<any, any>> =
   & FormInputStyleProps
   & FormInputProps
   & {
@@ -23,7 +23,7 @@ export type RadioButtonsProps<S extends $EnumSchema<any, any>> =
   >;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function RadioButtons<S extends $EnumSchema<any, any>>({
+export function RadioButtons$<S extends $EnumSchema<any, any>>({
   ref,
   formItem,
   hideMessage,
@@ -33,9 +33,9 @@ export function RadioButtons<S extends $EnumSchema<any, any>>({
   appearance = "radio",
   color,
   autoFocus,
-}: RadioButtonsProps<S>) {
+}: RadioButtons$Props<S>) {
   const wref = useRef<HTMLDivElement>(null!);
-  const firstRef = useRef<RadioButton$Ref | null>(null);
+  const firstRef = useRef<RadioButtonRef | null>(null);
 
   const {
     schemaItem,
@@ -80,7 +80,7 @@ export function RadioButtons<S extends $EnumSchema<any, any>>({
   useImperativeHandle(ref, () => ({
     element: wref.current,
     focus: () => firstRef.current?.focus(),
-  } as const satisfies RadioButtonsRef));
+  } as const satisfies RadioButtons$Ref));
 
   return (
     <WithMessage$
@@ -101,7 +101,7 @@ export function RadioButtons<S extends $EnumSchema<any, any>>({
           const isSelected = item.value === value;
 
           return (
-            <RadioButton$
+            <RadioButton
               key={key}
               ref={index === 0 ? firstRef : undefined}
               invalid={isInvalid}
@@ -123,7 +123,7 @@ export function RadioButtons<S extends $EnumSchema<any, any>>({
               }}
             >
               {item.node ?? item.text}
-            </RadioButton$>
+            </RadioButton>
           );
         })}
         {

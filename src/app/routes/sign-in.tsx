@@ -1,8 +1,8 @@
 import { Button } from "$/components/elements/button";
 import { useFormItem } from "$/components/elements/form/hooks";
 import { InputMessageSpan } from "$/components/elements/form/message";
-import { PasswordBox } from "$/components/elements/form/password-box/password-box";
-import { TextBox } from "$/components/elements/form/text-box/text-box";
+import { PasswordBox$ } from "$/components/elements/form/password-box/password-box";
+import { TextBox$ } from "$/components/elements/form/text-box/text-box";
 import { FormItem } from "$/components/elements/form/wrapper/form-item";
 import { useSchema } from "$/shared/hooks/$schema";
 import { useText } from "$/shared/hooks/i18n";
@@ -59,14 +59,14 @@ export default function Page({ actionData }: Route.ComponentProps) {
           className="grid place-items-center gap-4"
         >
           <FormItem>
-            <TextBox
+            <TextBox$
               formItem={formItems.email}
               hideMessage
               ref={userId}
             />
           </FormItem>
           <FormItem>
-            <PasswordBox
+            <PasswordBox$
               formItem={formItems.password}
               hideMessage
             />

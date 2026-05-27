@@ -1,14 +1,14 @@
-import { useFormInput, type FormInputProps, type FormInputStyleProps } from "$/shared/hooks/$schema";
-import type { FormItem } from "$/shared/schema/$/form";
-import type { $StrSchema } from "$/shared/schema/$/string";
 import { useImperativeHandle, useMemo, useRef, type InputHTMLAttributes, type RefObject } from "react";
-import { PasswordBox$, type PasswordBox$Ref } from ".";
+import { PasswordBox, type PasswordBoxRef } from ".";
+import { useFormInput, type FormInputProps, type FormInputStyleProps } from "../../../../shared/hooks/$schema";
+import type { FormItem } from "../../../../shared/schema/$/form";
+import type { $StrSchema } from "../../../../shared/schema/$/string";
 import { WithMessage$ } from "../message";
 
-export interface PasswordBoxRef extends PasswordBox$Ref { }
+export interface PasswordBox$Ref extends PasswordBoxRef { }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type PasswordBoxProps<S extends $StrSchema<any>> =
+export type PasswordBox$Props<S extends $StrSchema<any>> =
   & FormInputStyleProps
   & FormInputProps
   & {
@@ -25,7 +25,7 @@ export type PasswordBoxProps<S extends $StrSchema<any>> =
   >;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function PasswordBox<S extends $StrSchema<any>>({
+export function PasswordBox$<S extends $StrSchema<any>>({
   ref,
   formItem,
   hideMessage,
@@ -34,8 +34,8 @@ export function PasswordBox<S extends $StrSchema<any>>({
   style,
   children,
   ...props
-}: PasswordBoxProps<S>) {
-  const ref$ = useRef<PasswordBox$Ref>(null!);
+}: PasswordBox$Props<S>) {
+  const ref$ = useRef<PasswordBoxRef>(null!);
 
   const {
     schemaItem,
@@ -79,7 +79,7 @@ export function PasswordBox<S extends $StrSchema<any>>({
       state={state}
       message={message}
     >
-      <PasswordBox$
+      <PasswordBox
         ref={ref$}
         className={className}
         style={style}
@@ -99,7 +99,7 @@ export function PasswordBox<S extends $StrSchema<any>>({
         }}
       >
         {children}
-      </PasswordBox$>
+      </PasswordBox>
     </WithMessage$>
   );
 };

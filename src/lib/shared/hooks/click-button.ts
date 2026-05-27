@@ -59,3 +59,5 @@ export function useClickButton(props: ButtonActionProps) {
     processing,
   } as const;
 };
+
+export type ClickButtonProps = ReturnType<typeof useClickButton>;

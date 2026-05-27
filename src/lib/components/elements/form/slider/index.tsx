@@ -6,13 +6,13 @@ import { InputDummyFocus } from "../dummy-focus";
 import { InputLabelWrapper, type InputLabelProps, type InputLabelWrapperProps } from "../wrapper/input-label";
 
 /** スライダー ref オブジェクト */
-export interface Slider$Ref extends InputRef {
+export interface SliderRef extends InputRef {
   /** DOM input[type="slider"] */
   inputElement: HTMLInputElement;
 };
 
 /** スライダー Props */
-export type Slider$Props = Overwrite<
+export type SliderProps = Overwrite<
   InputLabelWrapperProps,
   InputLabelProps<{
     /** input Props */
@@ -53,10 +53,10 @@ const DEFAULT_MAX = 100; // デフォルト最大値
 
 /**
  * スライダー
- * @param param {@link Slider$Props}
+ * @param param {@link SliderProps}
  * @returns
  */
-export function Slider$({
+export function Slider({
   ref,
   invalid,
   inputProps,
@@ -70,7 +70,7 @@ export function Slider$({
   defaultValue,
   onChangeValue,
   ...props
-}: Slider$Props) {
+}: SliderProps) {
   const validScripts = use(ValidScriptsContext);
 
   const isControlled = "value" in props;
@@ -125,7 +125,7 @@ export function Slider$({
     element: wref.current,
     inputElement: iref.current,
     focus: () => (dref.current ?? iref.current).focus(),
-  } as const satisfies Slider$Ref));
+  } as const satisfies SliderRef));
 
   return (
     <InputLabelWrapper

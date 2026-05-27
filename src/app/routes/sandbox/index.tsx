@@ -8,17 +8,17 @@ import { LinkButton } from "$/components/elements/button/link-button";
 import { Carousel, type CarouselOptions, type CarouselRef } from "$/components/elements/carousel";
 import { Details } from "$/components/elements/details";
 import { Dialog, useDialog } from "$/components/elements/dialog";
-import { CheckBox$ } from "$/components/elements/form/check-box";
-import { ComboBox$, ComboBoxItem } from "$/components/elements/form/combo-box";
-import { DateBox$ } from "$/components/elements/form/date-box";
+import { CheckBox } from "$/components/elements/form/check-box";
+import { ComboBox, ComboBoxItem } from "$/components/elements/form/combo-box";
+import { DateBox } from "$/components/elements/form/date-box";
 import { FieldSet } from "$/components/elements/form/fieldset";
-import { FileBox$ } from "$/components/elements/form/file-box";
-import { NumberBox$ } from "$/components/elements/form/number-box";
-import { PasswordBox$ } from "$/components/elements/form/password-box";
-import { SelectBox$, SelectBoxEmptyOption } from "$/components/elements/form/select-box";
-import { Slider$ } from "$/components/elements/form/slider";
-import { TextArea$ } from "$/components/elements/form/text-area";
-import { TextBox$ } from "$/components/elements/form/text-box";
+import { FileBox } from "$/components/elements/form/file-box";
+import { NumberBox } from "$/components/elements/form/number-box";
+import { PasswordBox } from "$/components/elements/form/password-box";
+import { SelectBox, SelectBoxEmptyOption } from "$/components/elements/form/select-box";
+import { Slider } from "$/components/elements/form/slider";
+import { TextArea } from "$/components/elements/form/text-area";
+import { TextBox } from "$/components/elements/form/text-box";
 import { FormItem } from "$/components/elements/form/wrapper/form-item";
 import { Text } from "$/components/elements/i18n-text";
 import { ArrowDownIcon, ArrowLeftIcon, ArrowRightIcon, ArrowUpIcon, BadgeIcon, BookmarkFillIcon, BookmarkIcon, ButtonIcon, CalendarFillIcon, CalendarIcon, CameraFillIcon, CameraIcon, CardIcon, CheckCircleFillIcon, CheckCircleIcon, CheckIcon, ChocolateMenuFillIcon, ChocolateMenuIcon, CircleFillIcon, CircleIcon, ClearAllIcon, ClockFillIcon, ClockIcon, CloudDownloadIcon, CloudFillIcon, CloudIcon, CloudUploadIcon, ContainerIcon, CrossCircleFillIcon, CrossCircleIcon, CrossIcon, DeleteBackFillIcon, DeleteBackIcon, DeleteFillIcon, DeleteIcon, DocumentFillIcon, DocumentIcon, DoubleDownFillIcon, DoubleDownIcon, DoubleLeftFillIcon, DoubleLeftIcon, DoubleRightFillIcon, DoubleRightIcon, DoubleUpFillIcon, DoubleUpIcon, DownFillIcon, DownIcon, DownloadIcon, ElementIcon, ExclamationCircleFillIcon, ExclamationCircleIcon, ExclamationDiamondFillIcon, ExclamationDiamondIcon, ExclamationIcon, ExclamationTriangleFillIcon, ExclamationTriangleIcon, ExLinkIcon, FileAddFillIcon, FileAddIcon, FileDeleteFillIcon, FileDeleteIcon, FileFillIcon, FileIcon, FilterFillIcon, FilterIcon, FolderAddFillIcon, FolderAddIcon, FolderDeleteFillIcon, FolderDeleteIcon, FolderFillIcon, FolderIcon, FormIcon, FormItemIcon, GearFillIcon, GearIcon, GridFillIcon, GridIcon, HeartFillIcon, HeartHalfFillIcon, HeartIcon, HomeFillIcon, HomeIcon, HorizontalDividerIcon, KebabMenuIcon, LabelFillIcon, LabelIcon, LeftFillIcon, LeftIcon, LeftRightIcon, LinkIcon, ListFilterIcon, ListIcon, LoadingIcon, LocationFillIcon, LocationIcon, MagnifyingGlassIcon, MagnifyingGlassMinusFillIcon, MagnifyingGlassMinusIcon, MagnifyingGlassPlusFillIcon, MagnifyingGlassPlusIcon, MailFillIcon, MailIcon, MeatballsMenuIcon, MenuIcon, MenuLeftIcon, MenuLeftRightIcon, MenuRightIcon, MinusCircleFillIcon, MinusCircleIcon, MinusIcon, NavContainerIcon, OrderListIcon, PinFillIcon, PinIcon, PlusCircleFillIcon, PlusCircleIcon, PlusIcon, PopupIcon, PowerIcon, QuestionCircleFillIcon, QuestionCircleIcon, QuestionIcon, RedoIcon, ReloadIcon, RightFillIcon, RightIcon, SaveFillIcon, SaveIcon, ShareFillIcon, ShareIcon, SignInIcon, SignOutIcon, SlideContainerIcon, SmileFillIcon, SmileIcon, SplitContainerIcon, StarFillIcon, StarHalfFillIcon, StarIcon, StepperIcon, SyncIcon, TabContainerIcon, TextBoxIcon, TodayFillIcon, TodayIcon, TooltipIcon, TrashCanFillIcon, TrashCanIcon, UndoIcon, UnloadIcon, UpDownIcon, UpFillIcon, UpIcon, UploadIcon, UserAddIcon, UserFillIcon, UserIcon, UserMinusIcon, UsersFillIcon, UsersIcon, VerticalDividerIcon, type IconProps } from "$/components/elements/icon";
@@ -625,21 +625,21 @@ function Component2() {
           $={dataItems.text}
           placeholder="テキスト"
         /> */}
-        <TextBox$ inputProps={{ placeholder: "テキスト" }} />
+        <TextBox inputProps={{ placeholder: "テキスト" }} />
       </FormItem>
       <FormItem>
         {/* <PasswordBox
           $={dataItems.password}
           placeholder="パスワード"
         /> */}
-        <PasswordBox$ inputProps={{ placeholder: "パスワード" }} />
+        <PasswordBox inputProps={{ placeholder: "パスワード" }} />
       </FormItem>
       <FormItem>
         {/* <NumberBox
           $={dataItems.count}
           placeholder="数値"
         /> */}
-        <NumberBox$ inputProps={{ placeholder: "数値", min: 0 }} />
+        <NumberBox inputProps={{ placeholder: "数値", min: 0 }} />
       </FormItem>
       <FormItem>
         {/* <ComboBox
@@ -647,7 +647,7 @@ function Component2() {
           placeholder="世代"
           emptyText
         /> */}
-        <ComboBox$
+        <ComboBox
           onChangeValue={console.log}
           // multiple
           initValue="3"
@@ -666,14 +666,14 @@ function Component2() {
               </ComboBoxItem>
             );
           })}
-        </ComboBox$>
+        </ComboBox>
       </FormItem>
       <FormItem>
         {/* <SelectBox
           $={dataItems.generation}
           placeholder="世代"
         /> */}
-        <SelectBox$ placeholder="世代">
+        <SelectBox placeholder="世代">
           <SelectBoxEmptyOption>
             {/* (世代) */}
           </SelectBoxEmptyOption>
@@ -687,7 +687,7 @@ function Component2() {
               </option>
             );
           })}
-        </SelectBox$>
+        </SelectBox>
       </FormItem>
       <DynamicSelectBoxComponent />
       <FormItem>
@@ -698,9 +698,9 @@ function Component2() {
         >
           <HeartFillIcon className="text-pink-400 dark:text-pink-400" />
         </CheckBox> */}
-        <CheckBox$>
+        <CheckBox>
           CheckBox
-        </CheckBox$>
+        </CheckBox>
       </FormItem>
       <FormItem>
         {/* <CheckBox
@@ -709,9 +709,9 @@ function Component2() {
         >
           Switch(Num)
         </CheckBox> */}
-        <CheckBox$ appearance="togglebox">
+        <CheckBox appearance="togglebox">
           CheckBox
-        </CheckBox$>
+        </CheckBox>
       </FormItem>
       {/* <FormItem>
         <RadioButtons
@@ -721,7 +721,7 @@ function Component2() {
         />
       </FormItem> */}
       <FormItem>
-        <DateBox$ />
+        <DateBox />
         {/* <DateBox
           $={dataItems.date}
         /> */}
@@ -747,7 +747,7 @@ function Component2() {
         />
       </FormItem> */}
       <FormItem>
-        <TextArea$ textAreaProps={{ rows: "fit" }} />
+        <TextArea textAreaProps={{ rows: "fit" }} />
         {/* <TextArea
           $={dataItems.customMessageText}
           rows="fit"
@@ -756,7 +756,7 @@ function Component2() {
         /> */}
       </FormItem>
       <FormItem>
-        <FileBox$ inputProps={{ placeholder: "ファイルを選択してください。" }} />
+        <FileBox inputProps={{ placeholder: "ファイルを選択してください。" }} />
         {/* <FileBox
           $={dataItems.file}
           placeholder="ファイルを選択してください。"
@@ -771,7 +771,7 @@ function Component2() {
         />
       </FormItem> */}
       <FormItem>
-        <Slider$ showValueText />
+        <Slider showValueText />
         {/* <Slider
           $={dataItems.range}
           omitOnSubmit
@@ -1417,34 +1417,34 @@ function DialogComponent() {
     <section>
       <Details summary="Dialog">
         <div className="flex flex-row flex-wrap gap-2">
-          <CheckBox$
+          <CheckBox
             appearance="togglebox"
             checked={closeWhenScrolled.flag}
             onChangeChecked={closeWhenScrolled.toggle}
           >
             closeWhenScrolled
-          </CheckBox$>
-          <CheckBox$
+          </CheckBox>
+          <CheckBox
             appearance="togglebox"
             checked={preventEscapeClose.flag}
             onChangeChecked={preventEscapeClose.toggle}
           >
             preventEscapeClose
-          </CheckBox$>
-          <CheckBox$
+          </CheckBox>
+          <CheckBox
             appearance="togglebox"
             checked={preventCloseWhenClickOuter.flag}
             onChangeChecked={preventCloseWhenClickOuter.toggle}
           >
             preventCloseWhenClickOuter
-          </CheckBox$>
-          <CheckBox$
+          </CheckBox>
+          <CheckBox
             appearance="togglebox"
             checked={preventRootScroll.flag}
             onChangeChecked={preventRootScroll.toggle}
           >
             preventRootScroll
-          </CheckBox$>
+          </CheckBox>
         </div>
         <div className="flex flex-row flex-wrap gap-2">
           <Button
@@ -1550,7 +1550,7 @@ function DialogComponent() {
           preventRootScroll={preventRootScroll.flag}
         >
           <span>{count}</span>
-          <NumberBox$
+          <NumberBox
             value={count}
             onChangeValue={v => setCount(v ?? 0)}
           />

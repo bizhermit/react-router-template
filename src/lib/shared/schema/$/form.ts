@@ -1,4 +1,4 @@
-import { equals } from "$/shared/objects";
+import { clone, equals } from "$/shared/objects";
 import { getArrayIndex, getRelativeName, getValue, setValue, splitName } from "$/shared/objects/data";
 import { mergeRecordMessages } from ".";
 import { $ArrSchema } from "./array";
@@ -34,6 +34,17 @@ export function convertToFormItems(
   return formItems;
 };
 
+export function convertToMessageMap(messages: $Schema.RecordMessages | null | undefined) {
+  const ret = new Map<string, $Schema.Message | undefined>();
+  if (messages == null) return ret;
+  Object.entries(messages).forEach(([name, msgs]) => {
+    if (!msgs || msgs.length === 0) return;
+    const msg = msgs.find(msg => msg.type === "e") ?? msgs[0];
+    ret.set(name, msg);
+  });
+  return ret;
+};
+
 export function equalMessage(
   msg1: $Schema.Message | null | undefined,
   msg2: $Schema.Message | null | undefined
@@ -47,13 +58,16 @@ export function equalMessage(
 export class FormContext<S extends $ObjSchema<any, any>> {
 
   protected schema: S;
-  protected values: Record<string, unknown>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected formItems: Record<string, FormItem<any>>;
+
+  protected originValues: Record<string, unknown>;
+  protected values: Record<string, unknown>;
 
   protected injectParams: $Schema.InjectParams;
   protected injectParamsSubscribes: Set<() => void>;
 
+  protected originMessages: Map<string, $Schema.Message | undefined>;
   protected messages: Map<string, $Schema.Message | undefined>;
   protected messagesSubscribes: Map<string, Set<() => void>>;
 
@@ -65,19 +79,21 @@ export class FormContext<S extends $ObjSchema<any, any>> {
   constructor(init: {
     schema: S;
     values: Record<string, unknown>;
+    messages?: $Schema.RecordMessages | null | undefined;
     data: Record<string, unknown>;
   }) {
     this.schema = init.schema;
-    this.values = init.values;
     this.injectParams = {
       data: init.data,
       isServer: false,
-      values: init.values,
+      values: this.values = init.values,
     };
 
     this.injectParamsSubscribes = new Set();
 
-    this.messages = new Map();
+    this.messages = convertToMessageMap(init.messages);
+    this.originMessages = clone(this.messages);
+
     this.messagesSubscribes = new Map();
 
     this.error = false;
@@ -85,13 +101,14 @@ export class FormContext<S extends $ObjSchema<any, any>> {
 
     this.valuesSubscribes = new Map();
 
-    init.schema.initialize(this.injectParams);
-
-    // TODO: parse values with schema
+    this.schema.initialize(this.injectParams);
+    const parsed = this.schema.parse(this.injectParams.values, this.injectParams);
+    this.injectParams.values = this.values = parsed.value ?? {};
+    this.originValues = clone(this.values);
 
     this.formItems = convertToFormItems(
       this,
-      init.schema.getChildren()
+      this.schema.getChildren()
     );
   }
 
@@ -116,6 +133,18 @@ export class FormContext<S extends $ObjSchema<any, any>> {
 
   public getMessage(name: string) {
     return this.messages.get(name);
+  }
+
+  public setMessage(name: string, message: $Schema.Message | null | undefined) {
+    const current = this.messages.get(name);
+    if (equalMessage(current, message)) return false;
+    if (message) {
+      this.messages.set(name, message);
+    } else {
+      this.messages.delete(name);
+    }
+    this.messagesSubscribes.get(name)?.forEach(fn => fn());
+    return true;
   }
 
   public addMessageSubscribe(name: string, listener: () => void) {
@@ -270,6 +299,60 @@ export class FormContext<S extends $ObjSchema<any, any>> {
     return () => {
       listeners.delete(listener);
     };
+  }
+
+  private callValuesSubscribes() {
+    this.valuesSubscribes.forEach(listeners => {
+      listeners.forEach(listener => listener());
+    });
+  }
+
+  private callMessageSubscribes() {
+    this.messagesSubscribes.forEach(listeners => {
+      listeners.forEach(listener => listener());
+    });
+  }
+
+  public validate(options?: {
+    preventUpdateValues?: boolean;
+    preventUpdateMessages?: boolean;
+  }) {
+    const parsed = this.schema.parse(this.injectParams.values, this.injectParams);
+    this.injectParams.values = parsed.value ?? {};
+    const validated = this.schema.validate(parsed.value, this.injectParams);
+
+    const messages = mergeRecordMessages(parsed.messages, validated);
+    const hasError = Object.values(messages).some(msgs => msgs?.some(m => m.type === "e") ?? false);
+
+    if (!options?.preventUpdateValues) {
+      this.injectParams.values = this.values = parsed.value ?? {};
+      this.callValuesSubscribes();
+    }
+    if (!options?.preventUpdateMessages) {
+      this.messages = convertToMessageMap(messages);
+      this.callMessageSubscribes();
+      this.setHasError(hasError);
+    }
+
+    return {
+      hasError,
+      messages,
+    } as const;
+  }
+
+  public reset(options?: {
+    execValidate?: boolean;
+  }) {
+    this.injectParams.values = this.values = clone(this.originValues);
+
+    if (options?.execValidate) {
+      this.validate();
+    } else {
+      this.messages = clone(this.originMessages);
+      this.callValuesSubscribes();
+      this.callMessageSubscribes();
+      this.setHasError(false);
+    }
   }
 
 };
