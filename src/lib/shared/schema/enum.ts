@@ -21,9 +21,6 @@ export type EnumSchemaMessage = $Schema.ValidationMessages<
   typeof SCHEMA_ITEM_TYPE_ENUM,
   {
     code: "notFound";
-    params: {
-      items: $Schema.SourceItem<unknown>[] | readonly $Schema.SourceItem<unknown>[];
-    };
   }
 >;
 
@@ -39,7 +36,7 @@ type EnumProps<Value> = $Schema.SchemaItemAbstractProps
     items: EnumItems<Value> | ((params: $Schema.InjectParams) => EnumItems<Value>);
     notFoundMessage?: $Schema.ValidationCustomMessage<
       unknown,
-      { items: $Schema.SourceItem<Value>[] | readonly $Schema.SourceItem<Value>[]; },
+      {},
       $Schema.Message
     >;
     rules?: $Schema.Rule<Value>[];
@@ -173,9 +170,6 @@ export class $EnumSchema<
         if (item) return null;
         return getSourceMessage({
           ...p as $Schema.ValidationResultArgParams<unknown>,
-          params: {
-            items: this.items as unknown as $Schema.SourceItem<Value>[],
-          },
         });
       });
 

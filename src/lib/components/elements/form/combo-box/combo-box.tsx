@@ -1,9 +1,9 @@
 import { useImperativeHandle, useMemo, useRef, type InputHTMLAttributes, type RefObject } from "react";
 import { ComboBox, ComboBoxItem, type ComboBoxRef } from ".";
 import { useFormInput, type FormInputProps, type FormInputStyleProps } from "../../../../shared/hooks/$schema";
-import type { $EnumSchema } from "../../../../shared/schema/$/enum";
-import type { FormItem } from "../../../../shared/schema/$/form";
-import { WithMessage$ } from "../message";
+import type { $EnumSchema } from "../../../../shared/schema/enum";
+import type { FormItem } from "../../../../shared/schema/form";
+import { WithMessage } from "../message";
 
 export interface ComboBox$Ref extends ComboBoxRef { };
 
@@ -71,7 +71,7 @@ export function ComboBox$<S extends $EnumSchema<any, any>>({
   useImperativeHandle(ref, () => ref$.current);
 
   return (
-    <WithMessage$
+    <WithMessage
       id={errormMessageId}
       hide={hideMessage}
       state={state}
@@ -118,6 +118,6 @@ export function ComboBox$<S extends $EnumSchema<any, any>>({
           </>
         }
       </ComboBox>
-    </WithMessage$>
+    </WithMessage>
   );
 };

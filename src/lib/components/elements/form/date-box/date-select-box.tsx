@@ -1,18 +1,18 @@
+import { FieldSetContext } from "$/shared/providers/field-set";
 import { use, useImperativeHandle, useMemo, useRef, useState, useSyncExternalStore, type ReactNode, type RefObject, type SelectHTMLAttributes } from "react";
 import { SchemaProviderContext, type FormInputProps, type FormInputStyleProps } from "../../../../shared/hooks/$schema";
 import { I18nContext } from "../../../../shared/hooks/i18n";
-import { useFieldSet } from "../../../../shared/hooks/schema";
 import { parseNumber } from "../../../../shared/objects/numeric";
 import { $Date, $DateTime, $Month } from "../../../../shared/objects/timestamp";
 import { ValidScriptsContext } from "../../../../shared/providers/valid-scripts";
-import type { SchemaItem } from "../../../../shared/schema/$/core";
-import { $DateSchema } from "../../../../shared/schema/$/date";
-import { $DateTimeSchema } from "../../../../shared/schema/$/datetime";
-import { FormItem } from "../../../../shared/schema/$/form";
-import { $MonthSchema } from "../../../../shared/schema/$/month";
-import type { $SplitDateSchema } from "../../../../shared/schema/$/split-date";
-import { getResultMessage$ } from "../../../../shared/schema/message";
-import { WithMessage$ } from "../message";
+import type { SchemaItem } from "../../../../shared/schema/core";
+import { $DateSchema } from "../../../../shared/schema/date";
+import { $DateTimeSchema } from "../../../../shared/schema/datetime";
+import { FormItem } from "../../../../shared/schema/form";
+import { getResultMessage } from "../../../../shared/schema/message";
+import { $MonthSchema } from "../../../../shared/schema/month";
+import type { $SplitDateSchema } from "../../../../shared/schema/split-date";
+import { WithMessage } from "../message";
 import { SelectBox, SelectBoxEmptyOption, type SelectBoxRef } from "../select-box";
 import { InputGroupWrapper } from "../wrapper/input-group";
 
@@ -126,7 +126,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
   autoFocus,
 }: DateSelectBox$Props<S>) {
   const t = use(I18nContext).t;
-  const fs = useFieldSet();
+  const fs = use(FieldSetContext);
   const validScripts = use(ValidScriptsContext).valid;
 
   const wref = useRef<HTMLDivElement>(null!);
@@ -897,7 +897,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
   let errormessage: string | undefined;
   if (isInvalid) {
     if (hideMessage) {
-      errormessage = getResultMessage$(use(I18nContext).t, displayMessage);
+      errormessage = getResultMessage(use(I18nContext).t, displayMessage);
     } else {
       errormMessageId = errormessage = `${schemaId}_${displayMessage.name}__msg`;
     }
@@ -1036,7 +1036,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
   } as const satisfies DateSelectBox$Ref));
 
   return (
-    <WithMessage$
+    <WithMessage
       id={errormMessageId}
       hide={hideMessage}
       state={state}
@@ -1247,7 +1247,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
           </>
         }
       </InputGroupWrapper>
-    </WithMessage$>
+    </WithMessage>
   );
 };
 

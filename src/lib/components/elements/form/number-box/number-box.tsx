@@ -1,9 +1,9 @@
 import { useImperativeHandle, useMemo, useRef, type InputHTMLAttributes, type RefObject } from "react";
 import { NumberBox, type NumberBoxRef } from ".";
 import { useFormInput, type FormInputProps, type FormInputStyleProps } from "../../../../shared/hooks/$schema";
-import type { FormItem } from "../../../../shared/schema/$/form";
-import type { $NumSchema } from "../../../../shared/schema/$/number";
-import { WithMessage$ } from "../message";
+import type { FormItem } from "../../../../shared/schema/form";
+import type { $NumSchema } from "../../../../shared/schema/number";
+import { WithMessage } from "../message";
 
 export interface NumberBox$Ref extends NumberBoxRef { }
 
@@ -76,7 +76,7 @@ export function NumberBox$<S extends $NumSchema<any>>({
   useImperativeHandle(ref, () => ref$.current);
 
   return (
-    <WithMessage$
+    <WithMessage
       id={errormMessageId}
       hide={hideMessage}
       state={state}
@@ -104,6 +104,6 @@ export function NumberBox$<S extends $NumSchema<any>>({
       >
         {children}
       </NumberBox>
-    </WithMessage$>
+    </WithMessage>
   );
 }

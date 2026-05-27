@@ -1,12 +1,12 @@
 import { createContext, use, useEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type FormHTMLAttributes, type SubmitEvent, type SyntheticEvent } from "react";
+import { FieldSetContext } from "../providers/field-set";
 import type { SchemaProviderProps } from "../providers/schema";
-import type { $ArrSchema } from "../schema/$/array";
-import type { SchemaItem } from "../schema/$/core";
-import { convertToFormItems, FormContext, FormItem } from "../schema/$/form";
-import { $ObjSchema } from "../schema/$/object";
-import { getResultMessage$ } from "../schema/message";
+import type { $ArrSchema } from "../schema/array";
+import type { SchemaItem } from "../schema/core";
+import { convertToFormItems, FormContext, FormItem } from "../schema/form";
+import { getResultMessage } from "../schema/message";
+import { $ObjSchema } from "../schema/object";
 import { I18nContext } from "./i18n";
-import { useFieldSet } from "./schema";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type SchemaHookProps<S extends $ObjSchema<any, any>> = {
@@ -353,7 +353,7 @@ export function useFormInput<S extends SchemaItem<any>>(
   props: FormInputProps
 ) {
   const t = use(I18nContext).t;
-  const fs = useFieldSet();
+  const fs = use(FieldSetContext);
 
   const {
     id: schemaId,
@@ -412,7 +412,7 @@ export function useFormInput<S extends SchemaItem<any>>(
   let errormessage: string | undefined;
   if (isInvalid) {
     if (props.hideMessage) {
-      errormessage = getResultMessage$(use(I18nContext).t, message);
+      errormessage = getResultMessage(use(I18nContext).t, message);
     } else {
       errormMessageId = errormessage = `${id}__msg`;
     }

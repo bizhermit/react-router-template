@@ -1,12 +1,12 @@
 import { useFormInput, type FormInputProps, type FormInputStyleProps } from "$/shared/hooks/$schema";
 import { $DateTime } from "$/shared/objects/timestamp";
-import { $DateSchema } from "$/shared/schema/$/date";
-import { $DateTimeSchema } from "$/shared/schema/$/datetime";
-import type { FormItem } from "$/shared/schema/$/form";
-import { $MonthSchema } from "$/shared/schema/$/month";
+import { $DateSchema } from "$/shared/schema/date";
+import { $DateTimeSchema } from "$/shared/schema/datetime";
+import type { FormItem } from "$/shared/schema/form";
+import { $MonthSchema } from "$/shared/schema/month";
 import { useImperativeHandle, useMemo, useRef, type InputHTMLAttributes, type RefObject } from "react";
 import { DateBox, type DateBoxRef } from ".";
-import { WithMessage$ } from "../message";
+import { WithMessage } from "../message";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type DateBoxSchemaItem = $DateSchema<any> | $DateTimeSchema<any> | $MonthSchema<any>;
@@ -119,7 +119,7 @@ export function DateBox$<S extends DateBoxSchemaItem>({
   useImperativeHandle(ref, () => ref$.current);
 
   return (
-    <WithMessage$
+    <WithMessage
       id={errormMessageId}
       hide={hideMessage}
       state={state}
@@ -148,6 +148,6 @@ export function DateBox$<S extends DateBoxSchemaItem>({
       >
         {children}
       </DateBox>
-    </WithMessage$>
+    </WithMessage>
   );
 }

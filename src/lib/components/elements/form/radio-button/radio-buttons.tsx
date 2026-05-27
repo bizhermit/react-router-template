@@ -1,9 +1,9 @@
 import { useImperativeHandle, useMemo, useRef, type MouseEvent, type RefObject, type SelectHTMLAttributes } from "react";
 import { RadioButton, type RadioButtonAppearance, type RadioButtonRef } from ".";
 import { useFormInput, type FormInputProps, type FormInputStyleProps } from "../../../../shared/hooks/$schema";
-import type { $EnumSchema } from "../../../../shared/schema/$/enum";
-import type { FormItem } from "../../../../shared/schema/$/form";
-import { WithMessage$ } from "../message";
+import type { $EnumSchema } from "../../../../shared/schema/enum";
+import type { FormItem } from "../../../../shared/schema/form";
+import { WithMessage } from "../message";
 import { InputGroupWrapper } from "../wrapper/input-group";
 
 export interface RadioButtons$Ref extends InputRef { };
@@ -83,7 +83,7 @@ export function RadioButtons$<S extends $EnumSchema<any, any>>({
   } as const satisfies RadioButtons$Ref));
 
   return (
-    <WithMessage$
+    <WithMessage
       id={errormMessageId}
       hide={hideMessage}
       state={state}
@@ -135,6 +135,6 @@ export function RadioButtons$<S extends $EnumSchema<any, any>>({
           />
         }
       </InputGroupWrapper>
-    </WithMessage$>
+    </WithMessage>
   );
 };

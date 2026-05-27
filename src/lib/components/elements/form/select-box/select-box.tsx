@@ -1,9 +1,9 @@
 import { useImperativeHandle, useMemo, useRef, type RefObject, type SelectHTMLAttributes } from "react";
 import { SelectBox, SelectBoxEmptyOption, type SelectBoxRef } from ".";
 import { useFormInput, type FormInputProps, type FormInputStyleProps } from "../../../../shared/hooks/$schema";
-import type { $EnumSchema } from "../../../../shared/schema/$/enum";
-import type { FormItem } from "../../../../shared/schema/$/form";
-import { WithMessage$ } from "../message";
+import type { $EnumSchema } from "../../../../shared/schema/enum";
+import type { FormItem } from "../../../../shared/schema/form";
+import { WithMessage } from "../message";
 
 export interface SelectBox$Ref extends SelectBoxRef { };
 
@@ -74,7 +74,7 @@ export function SelectBox$<S extends $EnumSchema<any, any>>({
   useImperativeHandle(ref, () => ref$.current);
 
   return (
-    <WithMessage$
+    <WithMessage
       id={errormMessageId}
       hide={hideMessage}
       state={state}
@@ -121,6 +121,6 @@ export function SelectBox$<S extends $EnumSchema<any, any>>({
           </>
         }
       </SelectBox>
-    </WithMessage$>
+    </WithMessage>
   );
 };

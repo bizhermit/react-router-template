@@ -7,7 +7,7 @@ export type InputFieldWrapperProps = Overwrite<
   {
     ref?: RefObject<HTMLDivElement>;
     label?: ReactNode;
-    state?: Schema.Mode;
+    state?: $Schema.Mode;
   }
 >;
 

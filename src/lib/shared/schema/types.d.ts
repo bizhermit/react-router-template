@@ -1,637 +1,294 @@
-/* eslint-disable @stylistic/indent */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+namespace $Schema {
 
-namespace Schema {
+  type $Date = import("../objects/timestamp").$Date;
+  type $Month = import("../objects/timestamp").$Month;
+  type $DateTime = import("../objects/timestamp").$DateTime;
 
-  type Data = import("../objects/data").ProxyData;
-  type Eval<T> = { [K in keyof T]: T[K] };
-  type Cast<T, U> = T extends U ? T : U;
+  type SchemaItem = import("./core").SchemaItem;
+  type FormItem<S extends SchemaItem> = import("./form").FormItem<S>;
 
-  interface Env {
-    isServer: boolean;
-  };
+  type Nullable<T> = T | null | undefined;
+  type JSON<T> =
+    T extends (infer U)[] ? JSON<U>[] :
+    T extends readonly (infer U)[] ? readonly JSON<U>[] :
+    T extends { toJSON: (...args: any[]) => string; } ? string :
+    T extends { [x: string]: unknown; } ? { [x in keyof T]: JSON<T[x]> } :
+    T extends string | number | boolean | null | undefined ? T :
+    undefined
+    ;
 
-  interface BaseResult {
-    type: "e" | "w" | "i";
-    label?: string | undefined;
-    params?: {};
-    message?: string;
-    actionType?: ActionType;
-  }
-
-  type CommonValidationResult<K extends I18nTextKey = I18nTextKey> = BaseResult & (
-    | {
-      otype: "i18n";
-      code: K;
-      key: I18nTextKey;
-      params?: Omit<I18nReplaceParams<K>, "label">;
-    }
-    | {
-      otype?: undefined;
-      code?: undefined;
-      message: string;
-    }
-  );
-
-  type Result =
-    | CommonValidationResult
-    | StringValidationResult
-    | NumberValidationResult
-    | BooleanValidationResult
-    | DateValidationResult
-    | SplitDateValidationResult
-    | FileValidationResult
-    | ArrayValidationResult
-    | StructValidationResult
+  type JSON<T> =
+    [Extract<T, $Date | $Month | $DateTime>] extends [never] ? JSONCore<T> :
+    [Extract<T, null | undefined>] extends [never] ? JSONCore<T> :
+    (Exclude<T, $Date | $Month | $DateTime> | string)
     ;
 
   type Mode = "enabled" | "disabled" | "readonly" | "hidden";
+  type ActionType = "input" | "select" | "set";
 
-  interface ModeParams {
-    data: Data;
-    dep: Record<string, unknown>;
-    env: Env;
+  type InjectParams = {
+    values: Record<string, unknown>;
+    data: Record<string, unknown>;
+    isServer: boolean;
   };
 
-  interface ModeFunction {
-    (params: ModeParams): Mode;
-  };
-
-  interface ParserParams {
-    value: unknown;
-    dep: Record<string, unknown>;
-    env: Env;
+  type SchemaItemArgParams = {
     label: string | undefined;
+    actionType: ActionType;
   };
 
-  interface ParserResult<V, R = Result> {
-    value: V | null | undefined;
-    result?: R | null | undefined;
-  };
-
-  interface Parser<V> {
-    (params: ParserParams): ParserResult<V>;
-  };
-
-  interface ValidationParams<V> {
-    name: string;
+  type AbstractMessage = {
+    type: "e" | "w" | "i";
     label: string | undefined;
-    value: V | null | undefined;
-    data: Data;
-    dep: Record<string, unknown>;
-    env: Env;
-    getSource: () => (Source<V> | undefined);
+    name: string | undefined;
+    actionType: ActionType | undefined;
   };
 
-  interface Validator<V, R = Result> {
-    (params: ValidationParams<V>): R | null | undefined;
+  type I18nMessageMap = {
+    [K in I18nTextKey]: AbstractMessage & {
+      key: K;
+      code?: string;
+      params?: Omit<I18nReplaceParams<K>, "label">;
+      otype: "i18n";
+      message?: never;
+    };
   };
 
-  interface CustomValidationMessage<V, P = {}> {
-    (params: ValidationParams<V> & P): Result | null | undefined;
+  type I18nMessage<K extends I18nTextKey = I18nTextKey> = I18nMessageMap[K];
+
+  type CustomMessage = AbstractMessage & {
+    code?: string;
+    message: string;
+    otype?: never;
   };
 
-  interface DynamicValidationValueParams {
-    name: string;
-    label: string | undefined;
-    data: Data;
-    dep: Record<string, unknown>;
-    env: Env;
-  };
-
-  interface DynamicValidationValue<T> {
-    (params: Schema.DynamicValidationValueParams): T;
-  };
-
-  type Validation<T, V, P = {}> =
-    | T
-    | DynamicValidationValue<T>
-    | [T | DynamicValidationValue<T>, (CustomValidationMessage<V, P> | Result | string)?]
+  type ValidationMessage =
+    | import("./string").StringSchemaMessage
+    | import("./number").NumberSchemaMessage
+    | import("./enum").EnumSchemaMessage
+    | import("./boolean").BooleanSchemaMessage
+    | import("./date").DateSchemaMessage
+    | import("./datetime").DateTimeSchemaMessage
+    | import("./month").MonthSchemaMessage
+    | import("./split-date").SplitDateSchemaMessage
+    | import("./file").FileSchemaMessage
+    | import("./array").ArraySchemaMessage
+    | import("./object").ObjectSchemaMessage
     ;
 
-  type CustomValidationMessageOrDefault<T> =
-    (p: Exclude<Parameters<Exclude<T, undefined>>[0], undefined>) => (Result | null | undefined);
+  type Message =
+    | I18nMessage
+    | CustomMessage
+    | ValidationMessage
+    ;
 
-  type ParseValidationResultFunction<T> =
-    T extends string ? () => { type: "e"; message: T; } :
-    T extends Result ? () => Result : T;
+  type InitializeArgParams = InjectParams & { name?: string; };
 
-  type ValidationArray<T extends Validation<unknown, unknown>> =
-    T extends Array<unknown> ? [T[0], ParseValidationResultFunction<T[1]>] : [Exclude<T, undefined>];
-
-  type PickCustomValidationMessageAddonParams<T extends CustomValidationMessage<unknown, unknown> | undefined> =
-    Omit<Parameters<Exclude<T, undefined>>[0], keyof ValidationParams<unknown>>;
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  interface MessageGetter<T extends CustomValidationMessage<any, any> | undefined> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (params: ValidationParams<any> & PickCustomValidationMessageAddonParams<T>): string;
+  type ParserResult<Value> = {
+    value: Nullable<Value>;
+    messages?: Message[];
   };
 
-  type $ValidationValue<T> = undefined | T | DynamicValidationValue<T>;
+  type ParseArgParams = InjectParams & { name?: string; };
 
-  type GetValidationValue<Props, Key extends keyof Props> =
-    Props extends { [K in Key]: infer R } ? ValidationArray<R>[0] : undefined;
+  type Parser<Value> =
+    (value: unknown, params: ParseArgParams) => ParserResult<Value>;
 
-  type GetSource<T extends Source<unknown> | DynamicValidationValue<Source<unknown>> | undefined> =
-    T extends Array<unknown> ? T : T extends () => unknown ? T : undefined;
+  type RecordMessages = Record<string, Message[] | undefined>;
 
-  interface SourceItem<V> {
-    value: V;
+  type ParseResult<Value> = {
+    value: Nullable<Value>;
+    messages?: RecordMessages;
+  };
+
+  type ValidationArgParams = InjectParams & { name?: string; };
+
+  type ValidationValue<SettingsValue> =
+    | Nullable<SettingsValue>
+    | ((params: InjectParams) => Nullable<SettingsValue>)
+    ;
+
+  type ParamsField<Params extends Record<string, unknown>> = keyof Params extends never
+    ? { params?: JSON<Params>; } // キー0個なら任意
+    : { params: JSON<Params>; }; // キー1個以上なら必須
+
+  type ValidationResultArgParams<
+    const Value = null | undefined,
+    const Params extends Record<string, unknown> = {}
+  > =
+    & ValidationArgParams
+    & SchemaItemArgParams
+    & { value: Value; }
+    & ParamsField<Params>
+    ;
+
+  type ValidationCustomMessage<
+    const Value,
+    const Params extends Record<string, unknown> = {},
+    const Msg extends Message = Message
+  > =
+    | string
+    | I18nMessage
+    | CustomMessage
+    | ((params: ValidationResultArgParams<Value, Params>) => (string | Message | Msg | null));
+
+  type Validation<
+    const SettingsValue,
+    const ResultArgValue,
+    const UsedParams extends Record<string, unknown> = {}
+  > =
+    | ValidationValue<SettingsValue>
+    | [
+      ValidationValue<SettingsValue>,
+      ValidationCustomMessage<ResultArgValue, UsedParams>?
+    ];
+
+  type ValidationEntry<
+    const SettingsValue = unknown,
+    const ResultArgValue = unknown,
+    const Params extends Record<string, unknown> = {}
+  > = {
+    settings: SettingsValue;
+    result: ResultArgValue;
+    params: Params;
+  };
+
+  type ValidationSchema = Record<string, ValidationEntry>;
+
+  type Validations<
+    Schema extends ValidationSchema
+  > = { [K in keyof Schema]?: Validation<Schema[K]["settings"], Schema[K]["result"], Schema[K]["params"]>; };
+
+  type ValidationMessages<
+    Schema extends ValidationSchema,
+    OType extends string,
+    Extra extends Record<string, unknown> = never
+  > =
+    | (AbstractMessage & {
+      code: "parse";
+      otype: OType;
+      message?: never;
+    })
+    | (AbstractMessage & {
+      otype: OType;
+      message?: never;
+    } & Extra)
+    | {
+      [K in keyof Schema]: AbstractMessage & {
+        code: K;
+        otype: OType;
+        message?: never;
+      } & ParamsField<Schema[K]["params"]>;
+    }[keyof Schema];
+
+  type ExtractCodeFromOType<OType extends ValidationMessage["otype"]> = Extract<ValidationMessage, { otype: OType; }> extends infer M
+    ? (M extends { code: infer C extends string; } ? C : never)
+    : never;
+
+  type ExtractParamsFromOTypeAndCode<
+    OType extends Message["otype"],
+    Code extends string
+  > = Extract<ValidationMessage, { otype: OType; code: Code; }> extends infer M
+    ? (M extends { params: infer P; } ? P : {})
+    : {};
+
+  type ValidationResult<T> =
+    T extends string | I18nMessage | CustomMessage | undefined ? undefined :
+    (p: Parameters<T>[0]) => (Exclude<ReturnType<T>, string | I18nMessage | CustomMessage> | null)
+    ;
+
+  type ValidationArray<T extends Validation<unknown, unknown>> =
+    T extends Array<unknown> ? [T[0], ValidationResult<T[1]>] : [T];
+
+  type ValidationArrayAsArray<T extends Validation<unknown | Array<unknown>, never>> =
+    T extends ((params: never) => unknown) ? [T] :
+    T extends Array<unknown> ? (
+      T[0] extends ((params: never) => unknown) ? [T[0]] :
+      [T[0], ValidationResult<Exclude<T[1], T[0]>>]
+    ) : [undefined];
+
+  type RuleArgParamsAsValidation<Value> = InjectParams & SchemaItemArgParams & {
+    value: Value;
+    name?: string | undefined;
+  };
+
+  type RuleArgParams<Value> = InjectParams & SchemaItemArgParams & {
+    value: Nullable<Value>;
+    name?: string | undefined;
+  };
+
+  type Rule<Value> = (params: RuleArgParams<Value>) => (Message | null);
+
+  type SchemaItemAbstractProps = Partial<SchemaItemArgParams> & {
+    refs?: string[];
+    mode?: (params: InjectParams) => Mode;
+  };
+
+  type SourceItem<const Value> = {
+    value: Value;
     text?: string;
     node?: React.ReactNode;
   };
 
-  type Source<V> = SourceItem<V>[];
+  type InferRequired<R> = R extends Array<unknown> ? R[0] : R;
 
-  type ActionType = "input" | "select" | "set";
-
-  interface BaseProps {
-    label?: string;
-    refs?: string[];
-    mode?: ModeFunction;
-    actionType?: ActionType;
+  type RemoveIndexSignature<T> = {
+    [K in keyof T as (
+      string extends K ? never :
+      number extends K ? never :
+      symbol extends K ? never :
+      K
+    )]: T[K];
   };
 
-  interface $Base {
-    mode?: ModeFunction;
-    refs?: string[];
-    actionType: ActionType;
-  };
+  type InferRequiredValue<R, V, Strict> =
+    R extends true ? (Strict extends true ? V : Nullable<V>) : Nullable<V>;
 
-  type StrPattern =
-    | "int"
-    | "h-num"
-    | "num"
-    | "h-alpha"
-    | "alpha"
-    | "h-alpha-num"
-    | "h-alpha-num-syn"
-    | "h-katakana"
-    | "f-katakana"
-    | "katakana"
-    | "hiragana"
-    | "half"
-    | "full"
-    | "email"
-    | "tel"
-    | "url"
-    | "post-num"
+  type InferArrayChild<S extends import("./array").$ArrSchema<any, any>> = S["child"];
+  type InferObjectChildren<S extends import("./object").$ObjSchema<any, any>> = S["children"];
+
+  type InferValue<P extends SchemaItem, Strict extends boolean = false> =
+    P extends import("./string").$StrSchema<any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, string, Strict> :
+    P extends import("./number").$NumSchema<any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, number, Strict> :
+    P extends import("./enum").$EnumSchema<any, any> ? InferRequiredValue<
+      InferRequired<P["props"]["required"]>,
+      Exclude<P["items"], undefined>[number]["value"],
+      Strict
+    > :
+    P extends import("./boolean").$BoolSchema<any> ? InferRequiredValue<InferRequired<P["props"]["required"]> extends true | "nonFalse" ? true : false, P["trueValue"] | P["falseValue"], Strict> :
+    P extends import("./date").$DateSchema<any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, $Date, Strict> :
+    P extends import("./datetime").$DateTimeSchema<any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, $Date, Strict> :
+    P extends import("./month").$MonthSchema<any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, $Date, Strict> :
+    P extends import("./split-date").$SplitDateSchema<any, any> ? InferRequiredValue<
+      InferRequired<P["props"]["required"]> extends boolean ? InferRequired<P["props"]["required"]> : InferRequired<P["base"]["props"]["required"]>,
+      number,
+      Strict
+    > :
+    P extends import("./file").$FileSchema<any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, File | string, Strict> :
+    P extends import("./array").$ArrSchema<any, any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, InferValue<InferArrayChild<P>, Strict>[], Strict> :
+    P extends import("./object").$ObjSchema<any, any> ? InferRequiredValue<InferRequired<P["props"]["required"]>, Infer<InferObjectChildren<P>, Strict>, Strict> :
+    never
     ;
 
-  type StringValidationResult = Schema.BaseResult & {
-    otype: "str";
-  } & (
-      | { code: "required"; }
-      | { code: "length"; length: number; currentLength: number; }
-      | { code: "minLength"; minLength: number; currentLength: number; }
-      | { code: "maxLength"; maxLength: number; currentLength: number; }
-      | { code: "pattern"; pattern: Schema.StrPattern | RegExp | null; }
-      | { code: "source"; }
-    );
-
-  interface StringProps<V extends string = string> extends BaseProps {
-    parser?: Parser<V>;
-    required?: Validation<boolean, V>;
-    source?: Source<V> | DynamicValidationValue<Source<V>>;
-    sourceValidation?: Validation<boolean, V, { source: Source<V>; }>;
-    len?: Validation<number, V, { length: number; currentLength: number; }>;
-    min?: Validation<number, V, { minLength: number; currentLength: number; }>;
-    max?: Validation<number, V, { maxLength: number; currentLength: number; }>;
-    pattern?: Validation<RegExp | StrPattern, V, { pattern: RegExp | StrPattern; }>;
-    validators?: Array<Validator<V, StringValidationResult | CommonValidationResult>>;
-  };
-
-  interface $String<V extends string = string> extends $Base {
-    type: "str";
-    label: string | undefined;
-    parser: Parser<V>;
-    source: Source<V> | DynamicValidationValue<Source<V>> | undefined;
-    sourceValidation: $ValidationValue<boolean>;
-    validators: Array<Validator<V>>;
-    required: $ValidationValue<boolean>;
-    length: $ValidationValue<number>;
-    minLength: $ValidationValue<number>;
-    maxLength: $ValidationValue<number>;
-    pattern: $ValidationValue<RegExp | StrPattern>;
-  };
-
-  type NumberValidationResult = Schema.BaseResult & {
-    otype: "num";
-  } & (
-      | { code: "parse"; }
-      | { code: "required"; }
-      | { code: "min"; min: number; }
-      | { code: "max"; max: number; }
-      | { code: "float"; float: number; currentFloat: number; }
-      | { code: "source"; }
-    );
-
-  interface NumberProps<V extends number = number> extends BaseProps {
-    parser?: Parser<V>;
-    required?: Validation<boolean, V>;
-    source?: Source<V> | DynamicValidationValue<Source<V>>;
-    sourceValidation?: Validation<boolean, V, { source: Source<V>; }>;
-    min?: Validation<number, V, { min: number; }>;
-    max?: Validation<number, V, { max: number; }>;
-    float?: Validation<number, V, { float: number; currentFloat: number; }>;
-    validators?: Array<Validator<V, NumberValidationResult | CommonValidationResult>>;
-  };
-
-  interface $Number<V extends number = number> extends $Base {
-    type: "num";
-    label: string | undefined;
-    parser: Parser<V>;
-    source: Source<V> | DynamicValidationValue<Source<V>> | undefined;
-    sourceValidation: $ValidationValue<boolean>;
-    validators: Array<Validator<V>>;
-    required: $ValidationValue<boolean>;
-    min: $ValidationValue<number>;
-    max: $ValidationValue<number>;
-    float: $ValidationValue<number>;
-  };
-
-  type BooleanValue = boolean | number | string;
-
-  type BooleanValidationResult = Schema.BaseResult & {
-    otype: "bool";
-  } & (
-      | { code: "parse"; }
-      | { code: "required"; }
-      | { code: "source"; }
-    );
-
-  interface BooleanProps<
-    TV extends BooleanValue = BooleanValue,
-    FV extends BooleanValue = BooleanValue
-  > extends BaseProps {
-    trueValue?: TV;
-    falseValue?: FV;
-    trueText?: string;
-    falseText?: string;
-    parser?: Parser<TV | FV>;
-    required?: Validation<boolean, TV | FV>;
-    requiredAllowFalse?: boolean;
-    validators?: Array<Validator<TV | FV, BooleanValidationResult | CommonValidationResult>>;
-  };
-
-  interface $Boolean<
-    TV extends BooleanValue = BooleanValue,
-    FV extends BooleanValue = BooleanValue
-  > extends $Base {
-    type: "bool";
-    label: string | undefined;
-    trueValue: TV;
-    falseValue: FV;
-    trueText: string | undefined;
-    falseText: string | undefined;
-    parser: Parser<TV | FV>;
-    validators: Array<Validator<TV | FV>>;
-    required: $ValidationValue<boolean>;
-  };
-
-  type MonthString = `${number}-${number}`;
-  type DateString = `${number}-${number}-${number}`;
-  type TimeHMString = `${number}:${number}`;
-  type TimeHMSString = `${number}:${number}:${number}`;
-  type DateTime_HM_String = `${DateString}T${TimeHMString}`;
-  type DateTime_HMS_String = `${DateString}T${TimeHMSString}`;
-  type TimeString = TimeHMString | TimeHMSString;
-  type DateTimeString = `${DateString}T${TimeHMString | TimeHMSString}`;
-  type SplitDateTarget = "Y" | "M" | "D" | "h" | "m" | "s";
-
-  type DateValueString =
-    | MonthString
-    | DateString
-    | DateTimeString
-    ;
-
-  type DateValidationResult = Schema.BaseResult & {
-    otype: "month" | "date" | "datetime";
-    formatPattern: string;
-  } & (
-      | { code: "parse"; }
-      | { code: "required"; }
-      | { code: "minDate"; minDate: Date; }
-      | { code: "maxDate"; maxDate: Date; }
-      | { code: "minTime"; minTime: TimeString; }
-      | { code: "maxTime"; maxTime: TimeString; }
-      | { code: "pair"; position: "before" | "after"; pairDate: Date; }
-      | { code: "source"; }
-    );
-
-  interface DateBaseProps<V extends DateValueString = DateValueString> extends BaseProps {
-    parser?: Parser<V>;
-    required?: Validation<boolean, V>;
-    source?: Source<V> | DynamicValidationValue<Source<V>>;
-    sourceValidation?: Validation<boolean, V, { source: Source<V>; }>;
-    minDate?: Validation<Date | V, V, { minDate: Date; date: Date; }>;
-    maxDate?: Validation<Date | V, V, { maxDate: Date; date: Date; }>;
-    pair?: Validation<{
-      name: string;
-      position: "before" | "after";
-      same?: boolean;
-    }, V, { pairDate: Date; position: "before" | "after"; date: Date; }>;
-    validators?: Array<Validator<V, DateValidationResult | CommonValidationResult>>;
-  };
-
-  interface MonthProps<V extends MonthString = MonthString> extends DateBaseProps<V> { };
-
-  interface DateProps<V extends DateString = DateString> extends DateBaseProps<V> { };
-
-  interface DateTimeProps<V extends DateTimeString = DateTimeString> extends DateBaseProps<V> {
-    time?: "hm" | "hms";
-    minTime?: Validation<TimeString, V, { minTime: TimeString; }>;
-    maxTime?: Validation<TimeString, V, { maxTime: TimeString; }>;
-  };
-
-  type SplitDateValidationResult = Schema.BaseResult & {
-    otype: `sdate-${SplitDateTarget}` | "sdate";
-  } & (
-      | { code: "parse"; }
-      | { code: "required"; }
-      | { code: "split-required"; targets: SplitDateTarget[]; }
-      | { code: "min"; min: number; }
-      | { code: "max"; max: number; }
-    );
-
-  interface SplitDateProps<V extends number = number> extends BaseProps {
-    parser?: Parser<V>;
-    required?: Validation<boolean, V>;
-    min?: Validation<number, V, { min: number; }>;
-    max?: Validation<number, V, { max: number; }>;
-    step?: number;
-    validators?: Array<Validator<V, SplitDateValidationResult>>;
-  };
-
-  interface $BaseDate<V extends DateValueString = DateValueString> extends $Base {
-    source: Source<V> | DynamicValidationValue<Source<V>> | undefined;
-    parser: Parser<V>;
-    validators: Array<Validator<V>>;
-    required: $ValidationValue<boolean>;
-    minDate: $ValidationValue<Date | V>;
-    maxDate: $ValidationValue<Date | V>;
-    pair: $ValidationValue<{
-      name: string;
-      position: "before" | "after";
-      same?: boolean;
-    }>;
-    formatPattern: string;
-    splitYear: <Props extends SplitDateProps>(props: Props) => $SplitDate<"Y">;
-    splitMonth: <Props extends SplitDateProps>(props: Props) => $SplitDate<"M">;
-  };
-
-  type DateSplits<T extends SplitDateTarget> = Partial<Record<T, $SplitDate<T>>>;
-
-  interface $Month<V extends MonthString = MonthString> extends $BaseDate<V> {
-    type: "month";
-    label: string | undefined;
-    splits: DateSplits<"Y" | "M">;
-    _splits: Partial<Record<SplitDateTarget, DataItem<$SplitDate>>>;
-  };
-
-  interface $Date<V extends DateString = DateString> extends $BaseDate<V> {
-    type: "date";
-    label: string | undefined;
-    splits: DateSplits<"Y" | "M" | "D">;
-    _splits: Partial<Record<SplitDateTarget, DataItem<$SplitDate>>>;
-    splitDay: <Props extends SplitDateProps>(props: Props) => $SplitDate<"D">;
-  };
-
-  interface $DateTime<V extends DateTimeString = DateTimeString> extends $BaseDate<V> {
-    type: "datetime";
-    time: "hm" | "hms";
-    label: string | undefined;
-    minTime: $ValidationValue<TimeString>;
-    maxTime: $ValidationValue<TimeString>;
-    splits: DateSplits<"Y" | "M" | "D" | "h" | "m" | "s">;
-    _splits: Partial<Record<SplitDateTarget, DataItem<$SplitDate>>>;
-    splitDay: <Props extends SplitDateProps>(props: Props) => $SplitDate<"D">;
-    splitHour: <Props extends SplitDateProps>(props: Props) => $SplitDate<"h">;
-    splitMinute: <Props extends SplitDateProps>(props: Props) => $SplitDate<"m">;
-    splitSecond: <Props extends SplitDateProps>(props: Props) => $SplitDate<"s">;
-  };
-
-  interface $SplitDate<
-    T extends SplitDateTarget = SplitDateTarget,
-    V extends number = number
-  > extends $Base {
-    type: `sdate-${T}`;
-    label: string | undefined;
-    parser: Parser<V>;
-    core: $Date | $Month | $DateTime;
-    _core: DataItem<$Date | $Month | $DateTime>;
-    validators: Array<Validator<V>>;
-    required: $ValidationValue<boolean>;
-    min: $ValidationValue<number>;
-    max: $ValidationValue<number>;
-    step: number;
-  };
-
-  type FileValidationResult = Schema.BaseResult & {
-    otype: "file";
-  } & (
-      | { code: "parse"; }
-      | { code: "required"; }
-      | { code: "accept"; accept: string; currentAccept: string; }
-      | { code: "maxSize"; maxSize: number; currentSize: number; }
-    );
-
-  interface FileProps<V extends File | string = File | string> extends BaseProps {
-    parser?: Parser<V>;
-    required?: Validation<boolean, V>;
-    accept?: Validation<string, V, { accept: string; currentAccept: string; }>;
-    maxSize?: Validation<number, V, { maxSize: number; currentSize: number; }>;
-    validators?: Array<Validator<V, FileValidationResult | CommonValidationResult>>;
-  };
-
-  interface $File<V extends File | string = File | string> extends $Base {
-    type: "file";
-    label: string | undefined;
-    parser: Parser<V>;
-    validators: Array<Validator<V>>;
-    required: $ValidationValue<boolean>;
-    accept: $ValidationValue<string>;
-    maxSize: $ValidationValue<number>;
-  };
-
-  type ArrayValidationResult = Schema.BaseResult & {
-    otype: "arr";
-  } & (
-      | { code: "required"; }
-      | { code: "length"; length: number; currentLength: number; }
-      | { code: "minLength"; minLength: number; currentLength: number; }
-      | { code: "maxLength"; maxLength: number; currentLength: number; }
-      | { code: "source"; }
-    );
-
-  interface ArrayProps<Prop extends $Any = $Any> extends BaseProps {
-    prop: Prop;
-    parser?: Parser<ValueType<Prop>[]>;
-    required?: Validation<boolean, ValueType<Prop>[]>;
-    source?: Source<ValueType<Prop>> | DynamicValidationValue<Source<ValueType<Prop>>>;
-    sourceValidation?: Validation<boolean, ValueType<Prop>, { source: Source<ValueType<Prop>>; }>;
-    len?: Validation<number, ValueType<Prop>[], { length: number; currentLength: number; }>;
-    min?: Validation<number, ValueType<Prop>[], { minLength: number; currentLength: number; }>;
-    max?: Validation<number, ValueType<Prop>[], { maxLength: number; currentLength: number; }>;
-    validators?: Array<Validator<ValueType<Prop>[], ArrayValidationResult | CommonValidationResult>>;
-  };
-
-  interface $Array<Prop extends $Any = $Any> extends $Base {
-    type: "arr";
-    label: string | undefined;
-    prop: Prop;
-    source: Source<unknown> | DynamicValidationValue<Source<unknown>> | undefined;
-    sourceValidation: $ValidationValue<boolean>;
-    key: ((value: Record<string, unknown>) => string) | undefined;
-    parser: Parser<unknown[]>;
-    validators: Array<Validator<unknown[]>>;
-    required: $ValidationValue<boolean>;
-    length: $ValidationValue<number>;
-    minLength: $ValidationValue<number>;
-    maxLength: $ValidationValue<number>;
-  };
-
-  type StructValidationResult = Schema.BaseResult & {
-    otype: "struct";
-  } & (
-      | { code: "required"; }
-    );
-
-  interface StructProps<
-    Props extends Record<string, $Any> = Record<string, $Any>
-  > extends BaseProps {
-    props: Props;
-    key?: string | ((value: Record<string, unknown> | null | undefined) => string);
-    parser?: Parser<SchemaValue<Props>>;
-    required?: Validation<boolean, SchemaValue<Props>>;
-    validators?: Array<Validator<SchemaValue<Props>, StructValidationResult | CommonValidationResult>>;
-  };
-
-  interface $Struct<Props extends Record<string, $Any> = Record<string, $Any>> extends $Base {
-    type: "struct";
-    label: string | undefined;
-    key: ((value: Record<string, unknown> | null | undefined) => string) | undefined;
-    props: Props;
-    parser: Parser<SchemaValue<unknown>>;
-    validators: Array<Validator<SchemaValue<unknown>>>;
-    required: $ValidationValue<boolean>;
-  };
-
-  type $Any =
-    | $String
-    | $Number
-    | $Boolean
-    | $Date
-    | $Month
-    | $DateTime
-    | $SplitDate
-    | $File
-    | $Array
-    | $Struct
-    ;
-
-  type DataItem<P extends $Any = $Any> = {
-    label: string | undefined;
-    name: string;
-    parent?: DataItem<$Struct | $Array>;
-    _: P;
-  } & (P extends { type: infer T; } ? (
-    T extends "struct" ? {
-      dataItems: { [K in keyof P["props"]]: DataItem<P["props"][K]> };
-    } : T extends "arr" ? {
-      generateDataItem: (index: number) => DataItem<P["prop"]>;
-    } : T extends "date" | "month" | "datetime" ? {
-      splits: Partial<Record<SplitDateTarget, DataItem<$SplitDate>>>;
-    } : T extends `sdate-${SplitDateTarget}` ? {
-      core: DataItem<$Date | $Month | $DateTime>;
-    } : {}
-  ) : never);
-
-  type DataItems<Props extends Record<string, $Any>> =
-    { -readonly [K in keyof Props]: DataItem<Props[K]> };
-
-  type RequiredValue<
-    V,
-    R extends boolean | DynamicValidationValue<boolean>,
-    O extends boolean = false
-  > =
-    O extends true ? V | null | undefined :
-    R extends true ? V :
-    R extends ((...args?: unknown[]) => true) ? V :
-    V | null | undefined;
-
-  type ValueType<
-    Props extends $Any,
-    Strict extends boolean = true,
-    Optional extends boolean = false
-  > =
-    Props extends {
-      source: Array<{ value: infer V; }>;
-      type: "str" | "num" | "date" | "month" | "datetime";
-      sourceValidation: true | [true, unknown?] | null | undefined;
-    } ? (
-      RequiredValue<V, Props["required"], Optional>
-    ) : Props extends { type: infer T; } ? (
-      T extends "str" ? (
-        Strict extends true ? RequiredValue<string, Props["required"], Optional> :
-        string | number | null | undefined
-      ) :
-      T extends "num" ? (
-        Strict extends true ?
-        RequiredValue<number, Props["required"], Optional> :
-        number | `${number}` | null | undefined
-      ) :
-      T extends "bool" ? (
-        Strict extends true ? RequiredValue<Props["trueValue"] | Props["falseValue"], Props["required"], Optional> :
-        BooleanValue | null | undefined
-      ) :
-      T extends "date" ? (
-        Strict extends true ? RequiredValue<DateString, Props["required"], Optional> :
-        string | Date | null | undefined
-      ) :
-      T extends "month" ? (
-        Strict extends true ? RequiredValue<MonthString, Props["required"], Optional> :
-        string | Date | null | undefined
-      ) :
-      T extends "datetime" ? (
-        Strict extends true ? RequiredValue<Props["time"] extends "hms" ? DateTime_HMS_String : DateTime_HM_String, Props["required"], Optional> :
-        string | Date | null | undefined
-      ) :
-      T extends `sdate-${SplitDateTarget}` ? (
-        Strict extends true ? RequiredValue<number, Props["required"], Optional> :
-        number | `${number}` | null | undefined
-      ) :
-      T extends "file" ? (
-        Strict extends true ? RequiredValue<File | string, Props["required"], Optional> :
-        File | Blob | string | null | undefined
-      ) :
-      T extends "arr" ? (
-        Props extends {
-          source: Array<{ value: infer V; }>;
-          sourceValidation: true | [true, unknown?] | null | undefined;
-        } ? (
-          Strict extends true ? RequiredValue<V[], Props["required"], Optional> :
-          V[] | null | undefined
-        ) :
-        Strict extends true ? RequiredValue<ValueType<Props["prop"], Strict, Optional>[], Props["required"], Optional> :
-        ValueType<Props["prop"], Strict, Optional>[] | null | undefined
-      ) :
-      T extends "struct" ? (
-        Strict extends true ? RequiredValue<SchemaValue<Props["props"], Optional>, Props["required"], Optional> :
-        TolerantSchemaValue<Props["props"]> | null | undefined
+  type Infer<
+    const P extends SchemaItem | Record<string, SchemaItem>,
+    Strict extends boolean = false
+  > = P extends SchemaItem
+    ? InferValue<P, Strict>
+    : (
+      Strict extends true ? (
+        { [K in keyof RemoveIndexSignature<P>]: InferValue<RemoveIndexSignature<P>[K], Strict> }
       ) : (
-        Props extends Record<string, unknown> ?
-        Strict extends true ? SchemaValue<Props, Optional> : TolerantSchemaValue<Props> :
-        never
+        { [K in keyof RemoveIndexSignature<P>]?: InferValue<RemoveIndexSignature<P>[K], Strict> }
       )
-    ) : never;
+    );
 
-  type SchemaValue<Props extends Record<string, $Any>, Optional extends boolean = false> =
-    Eval<{ -readonly [K in keyof Props]: ValueType<Props[K], true, Optional> }>;
+  type ObjectFormItems<S extends import("./object").$ObjSchema<any, any>> = { [K in keyof InferObjectChildren<S>]: FormItem<InferObjectChildren<S>[K]> };
 
-  type PartialSchemaValue<Props extends Record<string, $Any>> = SchemaValue<Props, true>;
+  type InferFormItems<S extends SchemaItem> =
+    S extends import("./object").$ObjSchema<any, any> ? { [K in keyof InferObjectChildren<S>]: InferFormItems<InferObjectChildren<S>[K]> } :
+    S extends import("./array").$ArrSchema<any, any> ? InferFormItems<InferArrayChild<S>> :
+    FormItem<S>;
 
-  type TolerantSchemaValue<Props extends Record<string, $Any>> =
-    Eval<{ -readonly [K in keyof Props]?: ValueType<Props[K], false> }>;
-
-};
+}

@@ -143,7 +143,7 @@ export class $MonthSchema<const P extends MonthProps> extends SchemaItem<$Month>
                 return getMessage({
                   ...p as $Schema.ValidationResultArgParams<$Month>,
                   params: {
-                    minMonth: m,
+                    minMonth: m.toJSON(),
                   },
                 });
               }
@@ -156,7 +156,7 @@ export class $MonthSchema<const P extends MonthProps> extends SchemaItem<$Month>
                 return getMessage({
                   ...p as $Schema.ValidationResultArgParams<$Month>,
                   params: {
-                    minMonth,
+                    minMonth: minMonth.toJSON(),
                   },
                 });
               }
@@ -181,7 +181,7 @@ export class $MonthSchema<const P extends MonthProps> extends SchemaItem<$Month>
                 return getMessage({
                   ...p as $Schema.ValidationResultArgParams<$Month>,
                   params: {
-                    maxMonth: m,
+                    maxMonth: m.toJSON(),
                   },
                 });
               }
@@ -194,7 +194,7 @@ export class $MonthSchema<const P extends MonthProps> extends SchemaItem<$Month>
                 return getMessage({
                   ...p as $Schema.ValidationResultArgParams<$Month>,
                   params: {
-                    maxMonth,
+                    maxMonth: maxMonth.toJSON(),
                   },
                 });
               }
@@ -234,7 +234,7 @@ export class $MonthSchema<const P extends MonthProps> extends SchemaItem<$Month>
                       pairName: pair.name,
                       position: pair.position,
                       disallowSame: pair.disallowSame ?? false,
-                      pairMonth,
+                      pairMonth: pairMonth.toJSON(),
                     },
                   });
                 } catch {
@@ -265,7 +265,7 @@ export class $MonthSchema<const P extends MonthProps> extends SchemaItem<$Month>
                       pairName: pair.name,
                       position: pair.position,
                       disallowSame: pair.disallowSame ?? false,
-                      pairMonth,
+                      pairMonth: pairMonth.toJSON(),
                     },
                   });
                 } catch {

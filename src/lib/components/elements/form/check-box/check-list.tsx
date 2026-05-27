@@ -1,10 +1,10 @@
 import { useImperativeHandle, useMemo, useRef, type InputHTMLAttributes, type RefObject } from "react";
 import { CheckBox, type CheckBoxAppearance, type CheckBoxRef } from ".";
 import { useFormInput, type FormInputProps, type FormInputStyleProps } from "../../../../shared/hooks/$schema";
-import type { $ArrSchema, ArrayProps } from "../../../../shared/schema/$/array";
-import type { $EnumSchema } from "../../../../shared/schema/$/enum";
-import type { FormItem } from "../../../../shared/schema/$/form";
-import { WithMessage$ } from "../message";
+import type { $ArrSchema, ArrayProps } from "../../../../shared/schema/array";
+import type { $EnumSchema } from "../../../../shared/schema/enum";
+import type { FormItem } from "../../../../shared/schema/form";
+import { WithMessage } from "../message";
 import { InputGroupWrapper } from "../wrapper/input-group";
 
 export interface CheckList$Ref extends InputRef { }
@@ -97,7 +97,7 @@ export function CheckList$<
   } as const satisfies CheckList$Ref));
 
   return (
-    <WithMessage$
+    <WithMessage
       id={errormMessageId}
       hide={hideMessage}
       state={state}
@@ -138,6 +138,6 @@ export function CheckList$<
           );
         })}
       </InputGroupWrapper>
-    </WithMessage$>
+    </WithMessage>
   );
 };

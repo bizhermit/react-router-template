@@ -1,9 +1,9 @@
 import { useImperativeHandle, useMemo, useRef, type RefObject, type TextareaHTMLAttributes } from "react";
 import { TextArea, type TextAreaRef, type TextAreaResize } from ".";
 import { useFormInput, type FormInputProps, type FormInputStyleProps } from "../../../../shared/hooks/$schema";
-import type { FormItem } from "../../../../shared/schema/$/form";
-import type { $StrSchema } from "../../../../shared/schema/$/string";
-import { WithMessage$ } from "../message";
+import type { FormItem } from "../../../../shared/schema/form";
+import type { $StrSchema } from "../../../../shared/schema/string";
+import { WithMessage } from "../message";
 
 export interface TextArea$Ref extends TextAreaRef { }
 
@@ -85,7 +85,7 @@ export function TextArea$<S extends $StrSchema<any>>({
   useImperativeHandle(ref, () => ref$.current);
 
   return (
-    <WithMessage$
+    <WithMessage
       id={errormMessageId}
       hide={hideMessage}
       state={state}
@@ -114,6 +114,6 @@ export function TextArea$<S extends $StrSchema<any>>({
         }}
 
       />
-    </WithMessage$>
+    </WithMessage>
   );
 }

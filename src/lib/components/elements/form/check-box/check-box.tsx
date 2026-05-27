@@ -1,9 +1,9 @@
 import { useImperativeHandle, useMemo, useRef, type InputHTMLAttributes, type RefObject } from "react";
 import { CheckBox, type CheckBoxAppearance, type CheckBoxRef } from ".";
 import { useFormInput, type FormInputProps, type FormInputStyleProps } from "../../../../shared/hooks/$schema";
-import type { $BoolSchema } from "../../../../shared/schema/$/boolean";
-import type { FormItem } from "../../../../shared/schema/$/form";
-import { WithMessage$ } from "../message";
+import type { $BoolSchema } from "../../../../shared/schema/boolean";
+import type { FormItem } from "../../../../shared/schema/form";
+import { WithMessage } from "../message";
 
 export interface CheckBox$Ref extends CheckBoxRef { }
 
@@ -74,7 +74,7 @@ export function CheckBox$<S extends $BoolSchema<any>>({
   useImperativeHandle(ref, () => ref$.current);
 
   return (
-    <WithMessage$
+    <WithMessage
       id={errormMessageId}
       hide={hideMessage}
       state={state}
@@ -103,6 +103,6 @@ export function CheckBox$<S extends $BoolSchema<any>>({
       >
         {children}
       </CheckBox>
-    </WithMessage$>
+    </WithMessage>
   );
 };

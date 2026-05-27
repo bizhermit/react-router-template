@@ -6,7 +6,7 @@ export type InputLabelWrapperProps = Overwrite<
   Omit<LabelHTMLAttributes<HTMLLabelElement>, InputOmitProps>,
   {
     ref?: RefObject<HTMLLabelElement>;
-    state?: Schema.Mode;
+    state?: $Schema.Mode;
   }
 >;
 

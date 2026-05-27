@@ -1,9 +1,9 @@
 import { useImperativeHandle, useMemo, useRef, type InputHTMLAttributes, type RefObject } from "react";
 import { PasswordBox, type PasswordBoxRef } from ".";
 import { useFormInput, type FormInputProps, type FormInputStyleProps } from "../../../../shared/hooks/$schema";
-import type { FormItem } from "../../../../shared/schema/$/form";
-import type { $StrSchema } from "../../../../shared/schema/$/string";
-import { WithMessage$ } from "../message";
+import type { FormItem } from "../../../../shared/schema/form";
+import type { $StrSchema } from "../../../../shared/schema/string";
+import { WithMessage } from "../message";
 
 export interface PasswordBox$Ref extends PasswordBoxRef { }
 
@@ -73,7 +73,7 @@ export function PasswordBox$<S extends $StrSchema<any>>({
   useImperativeHandle(ref, () => ref$.current);
 
   return (
-    <WithMessage$
+    <WithMessage
       id={errormMessageId}
       hide={hideMessage}
       state={state}
@@ -100,6 +100,6 @@ export function PasswordBox$<S extends $StrSchema<any>>({
       >
         {children}
       </PasswordBox>
-    </WithMessage$>
+    </WithMessage>
   );
 };

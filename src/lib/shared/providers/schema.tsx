@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { SchemaProviderContext, type FormState } from "../hooks/$schema";
-import { FieldSetContext } from "../hooks/schema";
-import type { FormContext } from "../schema/$/form";
+import type { FormContext } from "../schema/form";
+import { FieldSetContext } from "./field-set";
 
 export type SchemaProviderProps = {
   readOnly?: boolean;

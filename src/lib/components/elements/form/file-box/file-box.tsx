@@ -3,9 +3,9 @@ import { FileBox, type FileBoxRef } from ".";
 import { useFormInput, type FormInputProps, type FormInputStyleProps } from "../../../../shared/hooks/$schema";
 import { convertBase64ToFile } from "../../../../shared/objects/file";
 import { ValidScriptsContext } from "../../../../shared/providers/valid-scripts";
-import type { $FileSchema } from "../../../../shared/schema/$/file";
-import type { FormItem } from "../../../../shared/schema/$/form";
-import { WithMessage$ } from "../message";
+import type { $FileSchema } from "../../../../shared/schema/file";
+import type { FormItem } from "../../../../shared/schema/form";
+import { WithMessage } from "../message";
 
 export interface FileBox$Ref extends FileBoxRef { }
 
@@ -99,7 +99,7 @@ export function FileBox$<S extends $FileSchema<any>>({
 
   return (
     <>
-      <WithMessage$
+      <WithMessage
         id={errormMessageId}
         hide={hideMessage}
         state={state}
@@ -129,7 +129,7 @@ export function FileBox$<S extends $FileSchema<any>>({
             onChange: handleChange,
           }}
         />
-      </WithMessage$>
+      </WithMessage>
       {
         value && (
           viewMode === "link"

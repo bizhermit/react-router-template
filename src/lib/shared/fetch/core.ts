@@ -1,7 +1,18 @@
 import { getObjectType } from "../objects";
 import { formatDate } from "../objects/date";
 import { convertBlobToFile, convertFileToBase64 } from "../objects/file";
-import { trimStruct } from "../schema/struct";
+
+export function trimStruct<T extends Record<string, unknown> = Record<string, unknown>>(
+  struct: Record<string, unknown> | null | undefined
+) {
+  const ret: Record<string, unknown> = {};
+  if (!struct) return ret as T;
+  Object.entries(struct).forEach(([k, v]) => {
+    if (v == null) return;
+    ret[k] = v;
+  });
+  return ret as T;
+};
 
 /**
  * パスパラメータを置換する

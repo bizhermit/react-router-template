@@ -1,9 +1,9 @@
 import { useMemo, useRef, type InputHTMLAttributes, type RefObject } from "react";
 import { Slider, type SliderRef } from ".";
 import { useFormInput, type FormInputProps, type FormInputStyleProps } from "../../../../shared/hooks/$schema";
-import type { FormItem } from "../../../../shared/schema/$/form";
-import type { $NumSchema } from "../../../../shared/schema/$/number";
-import { WithMessage$ } from "../message";
+import type { FormItem } from "../../../../shared/schema/form";
+import type { $NumSchema } from "../../../../shared/schema/number";
+import { WithMessage } from "../message";
 
 export interface Slider$Ref extends SliderRef { }
 
@@ -74,7 +74,7 @@ export function Slider$<S extends $NumSchema<any>>({
   ]);
 
   return (
-    <WithMessage$
+    <WithMessage
       id={errormMessageId}
       hide={hideMessage}
       state={state}
@@ -106,6 +106,6 @@ export function Slider$<S extends $NumSchema<any>>({
           "aria-errormessage": errormessage,
         }}
       />
-    </WithMessage$>
+    </WithMessage>
   );
 }

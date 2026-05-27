@@ -1,5 +1,5 @@
 import { use, type FieldsetHTMLAttributes } from "react";
-import { FieldSetContext } from "../../../shared/hooks/schema";
+import { FieldSetContext } from "../../../shared/providers/field-set";
 
 /** フィールドセット Props  */
 type FieldSetProps = Overwrite<

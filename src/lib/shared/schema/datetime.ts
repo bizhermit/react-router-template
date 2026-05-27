@@ -168,7 +168,7 @@ export class $DateTimeSchema<const P extends DateTimeProps> extends SchemaItem<$
                 return getMessage({
                   ...p as $Schema.ValidationResultArgParams<$DateTime>,
                   params: {
-                    minDateTime: m,
+                    minDateTime: m.toJSON(),
                   },
                 });
               }
@@ -181,7 +181,7 @@ export class $DateTimeSchema<const P extends DateTimeProps> extends SchemaItem<$
                 return getMessage({
                   ...p as $Schema.ValidationResultArgParams<$DateTime>,
                   params: {
-                    minDateTime,
+                    minDateTime: minDateTime.toJSON(),
                   },
                 });
               }
@@ -206,7 +206,7 @@ export class $DateTimeSchema<const P extends DateTimeProps> extends SchemaItem<$
                 return getMessage({
                   ...p as $Schema.ValidationResultArgParams<$DateTime>,
                   params: {
-                    maxDateTime: m,
+                    maxDateTime: m.toJSON(),
                   },
                 });
               }
@@ -219,7 +219,7 @@ export class $DateTimeSchema<const P extends DateTimeProps> extends SchemaItem<$
                 return getMessage({
                   ...p as $Schema.ValidationResultArgParams<$DateTime>,
                   params: {
-                    maxDateTime,
+                    maxDateTime: maxDateTime.toJSON(),
                   },
                 });
               }
@@ -244,7 +244,7 @@ export class $DateTimeSchema<const P extends DateTimeProps> extends SchemaItem<$
                 return getMessage({
                   ...p as $Schema.ValidationResultArgParams<$DateTime>,
                   params: {
-                    minDate: m,
+                    minDate: m.toJSON(),
                   },
                 });
               }
@@ -257,7 +257,7 @@ export class $DateTimeSchema<const P extends DateTimeProps> extends SchemaItem<$
                 return getMessage({
                   ...p as $Schema.ValidationResultArgParams<$DateTime>,
                   params: {
-                    minDate,
+                    minDate: minDate.toJSON(),
                   },
                 });
               }
@@ -282,7 +282,7 @@ export class $DateTimeSchema<const P extends DateTimeProps> extends SchemaItem<$
                 return getMessage({
                   ...p as $Schema.ValidationResultArgParams<$DateTime>,
                   params: {
-                    maxDate: m,
+                    maxDate: m.toJSON(),
                   },
                 });
               }
@@ -295,7 +295,7 @@ export class $DateTimeSchema<const P extends DateTimeProps> extends SchemaItem<$
                 return getMessage({
                   ...p as $Schema.ValidationResultArgParams<$DateTime>,
                   params: {
-                    maxDate,
+                    maxDate: maxDate.toJSON(),
                   },
                 });
               }
@@ -320,7 +320,7 @@ export class $DateTimeSchema<const P extends DateTimeProps> extends SchemaItem<$
                 return getMessage({
                   ...p as $Schema.ValidationResultArgParams<$DateTime>,
                   params: {
-                    minTime: m,
+                    minTime: m.toJSON(),
                   },
                 });
               }
@@ -333,7 +333,7 @@ export class $DateTimeSchema<const P extends DateTimeProps> extends SchemaItem<$
                 return getMessage({
                   ...p as $Schema.ValidationResultArgParams<$DateTime>,
                   params: {
-                    minTime,
+                    minTime: minTime.toJSON(),
                   },
                 });
               }
@@ -358,7 +358,7 @@ export class $DateTimeSchema<const P extends DateTimeProps> extends SchemaItem<$
                 return getMessage({
                   ...p as $Schema.ValidationResultArgParams<$DateTime>,
                   params: {
-                    maxTime: m,
+                    maxTime: m.toJSON(),
                   },
                 });
               }
@@ -371,7 +371,7 @@ export class $DateTimeSchema<const P extends DateTimeProps> extends SchemaItem<$
                 return getMessage({
                   ...p as $Schema.ValidationResultArgParams<$DateTime>,
                   params: {
-                    maxTime,
+                    maxTime: maxTime.toJSON(),
                   },
                 });
               }
@@ -411,7 +411,7 @@ export class $DateTimeSchema<const P extends DateTimeProps> extends SchemaItem<$
                       pairName: pair.name,
                       position: pair.position,
                       disallowSame: pair.disallowSame ?? false,
-                      pairDateTime,
+                      pairDateTime: pairDateTime.toJSON(),
                       basis: pair.basis || "datetime",
                     },
                   });
@@ -443,7 +443,7 @@ export class $DateTimeSchema<const P extends DateTimeProps> extends SchemaItem<$
                       pairName: pair.name,
                       position: pair.position,
                       disallowSame: pair.disallowSame ?? false,
-                      pairDateTime,
+                      pairDateTime: pairDateTime.toJSON(),
                       basis: pair.basis || "datetime",
                     },
                   });

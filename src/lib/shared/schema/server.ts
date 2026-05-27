@@ -1,5 +1,5 @@
-import { parseWithSchema } from "./$";
-import type { $ObjSchema } from "./$/object";
+import { parseWithSchema } from ".";
+import type { $ObjSchema } from "./object";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 interface PayloadParams<S extends $ObjSchema<any, any>> {

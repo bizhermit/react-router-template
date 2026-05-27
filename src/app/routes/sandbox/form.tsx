@@ -21,17 +21,17 @@ import { SchemaProviderContext, useFormArrayItem, useHasError, useSchema, type S
 import { useRender } from "$/shared/hooks/render";
 import { $Date, $DateTime } from "$/shared/objects/timestamp";
 import { SchemaProvider } from "$/shared/providers/schema";
-import { $arr } from "$/shared/schema/$/array";
-import { $bool } from "$/shared/schema/$/boolean";
-import { $date } from "$/shared/schema/$/date";
-import { $datetime } from "$/shared/schema/$/datetime";
-import { $enum } from "$/shared/schema/$/enum";
-import { $file } from "$/shared/schema/$/file";
-import { $month } from "$/shared/schema/$/month";
-import { $num } from "$/shared/schema/$/number";
-import { $obj } from "$/shared/schema/$/object";
-import { $str } from "$/shared/schema/$/string";
+import { $arr } from "$/shared/schema/array";
+import { $bool } from "$/shared/schema/boolean";
+import { $date } from "$/shared/schema/date";
+import { $datetime } from "$/shared/schema/datetime";
+import { $enum } from "$/shared/schema/enum";
+import { $file } from "$/shared/schema/file";
+import { $month } from "$/shared/schema/month";
+import { $num } from "$/shared/schema/number";
+import { $obj } from "$/shared/schema/object";
 import { getPayload } from "$/shared/schema/server";
+import { $str } from "$/shared/schema/string";
 import { use, useEffect, useState } from "react";
 import { data, useFetcher } from "react-router";
 import type { Route } from "./+types/form";
@@ -215,6 +215,7 @@ const schemaObj = $obj({
     date: $date({
       label: "date",
       required: true,
+      minDate: new $Date("2026-05-27"),
     }),
     month: $month({
       label: "month",
@@ -319,7 +320,7 @@ export async function action({ request }: Route.ActionArgs) {
 };
 
 export default function Page({ loaderData, actionData }: Route.ComponentProps) {
-  const fetcher = useFetcher();
+  const fetcher = useFetcher<typeof actionData>();
 
   const schema = useSchema({
     id: "sandbox",
