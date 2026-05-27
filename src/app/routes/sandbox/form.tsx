@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Button } from "$/components/elements/button/button";
+import { Button } from "$/components/elements/button";
 import { CheckBox } from "$/components/elements/form/check-box/check-box";
 import { CheckList } from "$/components/elements/form/check-box/check-list";
 import { ComboBox } from "$/components/elements/form/combo-box/combo-box";
@@ -18,6 +18,7 @@ import { TextBox } from "$/components/elements/form/text-box/text-box";
 import { FormItem } from "$/components/elements/form/wrapper/form-item";
 import { DeleteIcon } from "$/components/elements/icon";
 import { SchemaProviderContext, useFormArrayItem, useHasError, useSchema, type SchemaProviderContextProps } from "$/shared/hooks/$schema";
+import { useClickButton } from "$/shared/hooks/click-button";
 import { useRender } from "$/shared/hooks/render";
 import { $Date, $DateTime } from "$/shared/objects/timestamp";
 import { SchemaProvider } from "$/shared/providers/schema";
@@ -33,7 +34,7 @@ import { $num } from "$/shared/schema/$/number";
 import { $obj } from "$/shared/schema/$/object";
 import { $str } from "$/shared/schema/$/string";
 import { use, useEffect, useState } from "react";
-import { data } from "react-router";
+import { data, useFetcher } from "react-router";
 import type { Route } from "./+types/form";
 
 const items = [
@@ -298,7 +299,22 @@ export function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
 
   console.log("loader", Array.from(url.searchParams.entries()));
-  return data({});
+  return data(
+    {
+      arr: [
+        "hoge",
+        "fuga",
+      ],
+      arr2: [
+        { name: "hoge", age: 1 },
+        { name: "fuga" },
+        {},
+      ],
+      select: "0",
+      combo: 3,
+      date_year: 2026,
+    } satisfies $Schema.Infer<typeof schemaObj>
+  );
 };
 
 export function action({ request }: Route.ActionArgs) {
@@ -588,99 +604,87 @@ export function DisplayHasError() {
   );
 };
 
-export default function Page() {
+export default function Page({ loaderData, actionData }: Route.ComponentProps) {
   const [dateValue, setDateValue] = useState<$DateTime>(() => new $DateTime());
   const render = useRender();
 
-  const [values, setValues] = useState(() => {
-    return {
-      arr: [
-        "hoge",
-        "fuga",
-      ],
-      arr2: [
-        { name: "hoge", age: 1 },
-        { name: "fuga" },
-        {},
-      ],
-      select: "0",
-      combo: 3,
-      date_year: 2026,
-    } satisfies $Schema.Infer<typeof schemaObj>;
-  });
+  const fetcher = useFetcher();
+
   const schema = useSchema({
     id: "sandbox",
     schema: schemaObj,
-    values,
+    values: actionData ?? loaderData,
+    state: fetcher.state,
   });
 
   return (
-    <div>
+    <fetcher.Form
+      method="post"
+      noValidate
+    >
       form sandbox
       <div className="flex flex-row flex-wrap gap-2">
+        <Button type="submit">submit</Button>
+        <Button type="reset">reset</Button>
         <Button
-          onClick={async ({ unlock }) => {
-            const dummyValues = {
-              // name: null,
-              // name: "hogefugapiyo",
-              year: "2027",
-              date_year: 2026,
-              // year: null,
-              hoge: 132,
-            };
-            console.log("--------");
-            const now = performance.now();
-            // const params: $Schema.InjectParams = {
-            //   data: {},
-            //   isServer: false,
-            //   values: dummyValues,
-            // };
-            // const parsed = schemaObject.parse(
-            //   dummyValues,
-            //   params
-            // );
-            // console.log(parsed);
-            // const submission = schemaObj.validate(parsed.value, params);
-            // console.log(submission.reduce((prev, msg) => {
-            //   prev[msg.name || "_root"] = msg;
-            //   return prev;
-            // }, {} as Record<string, $Schema.Message>));
-            // schemaObject.props.name.required = false;
-            const submission = await parseWithSchema({
-              schema: schemaObj,
-              values: {
-                // name: "ghoe",
-                // age: 100,
-                // agreement: false,
-                arr2: [
-                  { name: "hoge", age: 1 },
-                  { name: "fuga" },
-                  {},
-                ],
+          {...useClickButton({
+            onClick: async ({ unlock }) => {
+              const dummyValues = {
+                // name: null,
+                // name: "hogefugapiyo",
+                year: "2027",
                 date_year: 2026,
-                date_month: 5,
-                date_day: 25,
-              } satisfies $Schema.Infer<typeof schemaObj>,
-            });
-            console.log("-", performance.now() - now);
-            console.log(submission.values);
-            if (submission.ok) {
-              submission.values.text;
-            } else {
-              submission.values?.text;
-            }
-            // console.log(JSON.stringify(submission, null, 2));
-            // console.log("-", validationMessage);
-            unlock();
-          }}
+                // year: null,
+                hoge: 132,
+              };
+              console.log("--------");
+              const now = performance.now();
+              // const params: $Schema.InjectParams = {
+              //   data: {},
+              //   isServer: false,
+              //   values: dummyValues,
+              // };
+              // const parsed = schemaObject.parse(
+              //   dummyValues,
+              //   params
+              // );
+              // console.log(parsed);
+              // const submission = schemaObj.validate(parsed.value, params);
+              // console.log(submission.reduce((prev, msg) => {
+              //   prev[msg.name || "_root"] = msg;
+              //   return prev;
+              // }, {} as Record<string, $Schema.Message>));
+              // schemaObject.props.name.required = false;
+              const submission = await parseWithSchema({
+                schema: schemaObj,
+                values: {
+                  // name: "ghoe",
+                  // age: 100,
+                  // agreement: false,
+                  arr2: [
+                    { name: "hoge", age: 1 },
+                    { name: "fuga" },
+                    {},
+                  ],
+                  date_year: 2026,
+                  date_month: 5,
+                  date_day: 25,
+                } satisfies $Schema.Infer<typeof schemaObj>,
+              });
+              console.log("-", performance.now() - now);
+              console.log(submission.values);
+              if (submission.ok) {
+                submission.values.text;
+              } else {
+                submission.values?.text;
+              }
+              // console.log(JSON.stringify(submission, null, 2));
+              // console.log("-", validationMessage);
+              unlock();
+            },
+          })}
         >
           validate
-        </Button>
-        <Button onClick={() => schema.setFormState("idle")}>
-          idle
-        </Button>
-        <Button onClick={() => schema.setFormState("submitting")}>
-          submitting
         </Button>
       </div>
       <SchemaProvider {...schema.providerProps}>
@@ -893,7 +897,6 @@ export default function Page() {
         >
           move first day
         </Button>
-
         <Button
           onClick={() => {
             dateValue.moveLastDay();
@@ -925,6 +928,6 @@ export default function Page() {
           <li>{JSON.stringify({ value: dateValue })}</li>
         </ul>
       }
-    </div>
+    </fetcher.Form>
   );
 };

@@ -1,4 +1,4 @@
-import { Button$ } from "$/components/elements/button";
+import { Button } from "$/components/elements/button";
 import { useFormItem } from "$/components/elements/form/hooks";
 import { InputMessageSpan } from "$/components/elements/form/message";
 import { PasswordBox } from "$/components/elements/form/password-box/password-box";
@@ -71,13 +71,13 @@ export default function Page({ actionData }: Route.ComponentProps) {
               hideMessage
             />
           </FormItem>
-          <Button$
+          <Button
             type="submit"
             color="primary"
             disabled={fetcher.state === "submitting"}
           >
             {t("signIn_submit")}
-          </Button$>
+          </Button>
         </fetcher.Form>
         {
           errorMessageKey &&

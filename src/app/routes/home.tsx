@@ -1,4 +1,4 @@
-import { Button$ } from "$/components/elements/button";
+import { Button } from "$/components/elements/button";
 import { Link } from "$/components/elements/link";
 import { useFetcher } from "react-router";
 import { auth } from "~/auth/server/auth";
@@ -36,11 +36,11 @@ export default function Page() {
       <fetcher.Form
         method="post"
       >
-        <Button$
+        <Button
           type="submit"
         >
           submit
-        </Button$>
+        </Button>
       </fetcher.Form>
     </div>
   );

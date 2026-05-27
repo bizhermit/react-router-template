@@ -3,8 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import getIndexedDB, { type IndexedDBController, type IndexedDBStores } from "$/client/indexeddb";
-import { Button$ } from "$/components/elements/button";
-import { Button } from "$/components/elements/button/button";
+import { Button } from "$/components/elements/button";
 import { LinkButton } from "$/components/elements/button/link-button";
 import { Carousel, type CarouselOptions, type CarouselRef } from "$/components/elements/carousel";
 import { Details } from "$/components/elements/details";
@@ -30,6 +29,7 @@ import { NavLayout, useNavLayout } from "$/components/elements/nav-layout";
 import { Style } from "$/components/elements/style";
 import { clsx } from "$/components/elements/utilities";
 import { useAbortController } from "$/shared/hooks/abort-controller";
+import { useClickButton } from "$/shared/hooks/click-button";
 import { useLocale, useText } from "$/shared/hooks/i18n";
 import { useInterval } from "$/shared/hooks/interval";
 import { usePageExitPrompt } from "$/shared/hooks/page-exit-prompt";
@@ -481,19 +481,19 @@ function Contents(props: Route.ComponentProps) {
               <Component2 />
             </FieldSet>
             <div className="flex gap-2">
-              <Button$
+              <Button
                 type="submit"
                 round
               >
                 submit
-              </Button$>
-              <Button$
+              </Button>
+              <Button
                 type="reset"
                 color="mute"
                 round
               >
                 reset
-              </Button$>
+              </Button>
             </div>
           </fetcher.Form>
         </SchemaProvider>
@@ -867,12 +867,14 @@ function ThemeComponent() {
             <h2>default</h2>
             <div className="flex flex-row flex-wrap gap-2">
               <Button
-                disabled={flag}
-                onClick={async ({ unlock }) => {
-                  console.log("click");
-                  await sleep(3000);
-                  unlock();
-                }}
+                {...useClickButton({
+                  disabled: flag,
+                  onClick: async ({ unlock }) => {
+                    console.log("click");
+                    await sleep(3000);
+                    unlock();
+                  },
+                })}
               >
                 OutlineButton
               </Button>
@@ -990,6 +992,82 @@ function IndexedDBComponent() {
     });
   }, []);
 
+  const showButtonClickProps = useClickButton({
+    onClick: async ({ unlock }) => {
+      if (!db) return unlock();
+      const value = await db.read({
+        storeNames: "hoge",
+      }, async ({ hoge }) => {
+        return await hoge.getByKey("hoge@example.com");
+      });
+      console.log("get", value);
+      unlock();
+    },
+  });
+
+  const addButtonClickProps = useClickButton({
+    onClick: async ({ unlock }) => {
+      if (!db) return unlock();
+      const key = await db.write({
+        storeNames: "hoge",
+      }, async ({ hoge }) => {
+        return await hoge.insert({
+          email: "hoge@example.com",
+          age: 18,
+          name: "Tarou",
+        });
+      });
+      console.log("insert", key);
+      unlock();
+    },
+  });
+
+  const updateButtonClickProps = useClickButton({
+    onClick: async ({ unlock }) => {
+      if (!db) return unlock();
+      const key = await db.write({
+        storeNames: "hoge",
+      }, async ({ hoge }) => {
+        const value = await hoge.getByKey("hoge@example.com");
+        if (value == null) return;
+        value.age = 88;
+        return await hoge.update(value);
+      });
+      console.log("update", key);
+      unlock();
+    },
+  });
+
+  const upsertButtonClickProps = useClickButton({
+    onClick: async ({ unlock }) => {
+      if (!db) return unlock();
+      const key = await db.write({
+        storeNames: "hoge",
+      }, async ({ hoge }) => {
+        hoge.upsert({
+          email: "fuga@example.com",
+          age: 0,
+          name: formatDate(new Date(), "yyyy-MM-dd hh:mm:ss") || "",
+        });
+      });
+      console.log("upsert", key);
+      unlock();
+    },
+  });
+
+  const deleteButtonClickProps = useClickButton({
+    onClick: async ({ unlock }) => {
+      if (!db) return unlock();
+      const result = await db.write({
+        storeNames: "hoge",
+      }, async ({ hoge }) => {
+        return await hoge.deleteByKey("hoge@example.com");
+      });
+      console.log("delete", result);
+      unlock();
+    },
+  });
+
   return (
     <section>
       <Details summary="IndexedDB">
@@ -997,80 +1075,19 @@ function IndexedDBComponent() {
           ? "loading..."
           : <>
             <div className="flex flex-row flex-wrap gap-2">
-              <Button
-                onClick={async ({ unlock }) => {
-                  const value = await db.read({
-                    storeNames: "hoge",
-                  }, async ({ hoge }) => {
-                    return await hoge.getByKey("hoge@example.com");
-                  });
-                  console.log("get", value);
-                  unlock();
-                }}
-              >
+              <Button {...showButtonClickProps}>
                 show
               </Button>
-              <Button
-                onClick={async ({ unlock }) => {
-                  const key = await db.write({
-                    storeNames: "hoge",
-                  }, async ({ hoge }) => {
-                    return await hoge.insert({
-                      email: "hoge@example.com",
-                      age: 18,
-                      name: "Tarou",
-                    });
-                  });
-                  console.log("insert", key);
-                  unlock();
-                }}
-              >
+              <Button{...addButtonClickProps}>
                 add
               </Button>
-              <Button
-                onClick={async ({ unlock }) => {
-                  const key = await db.write({
-                    storeNames: "hoge",
-                  }, async ({ hoge }) => {
-                    const value = await hoge.getByKey("hoge@example.com");
-                    if (value == null) return;
-                    value.age = 88;
-                    return await hoge.update(value);
-                  });
-                  console.log("update", key);
-                  unlock();
-                }}
-              >
+              <Button {...updateButtonClickProps}>
                 update
               </Button>
-              <Button
-                onClick={async ({ unlock }) => {
-                  const key = await db.write({
-                    storeNames: "hoge",
-                  }, async ({ hoge }) => {
-                    hoge.upsert({
-                      email: "fuga@example.com",
-                      age: 0,
-                      name: formatDate(new Date(), "yyyy-MM-dd hh:mm:ss") || "",
-                    });
-                  });
-                  console.log("upsert", key);
-                  unlock();
-                }}
-              >
+              <Button {...upsertButtonClickProps}>
                 upsert
               </Button>
-              <Button
-                onClick={async ({ unlock }) => {
-                  const result = await db.write({
-                    storeNames: "hoge",
-                  }, async ({ hoge }) => {
-                    return await hoge.deleteByKey("hoge@example.com");
-                  });
-                  console.log("delete", result);
-                  unlock();
-                }}
-              >
+              <Button {...deleteButtonClickProps}>
                 delete
               </Button>
             </div>
@@ -1137,20 +1154,24 @@ function StreamCompoment() {
       <Details summary="Stream Response">
         <div className="flex flex-row flex-wrap gap-2">
           <Button
-            disabled={isProcessing}
-            onClick={async ({ unlock }) => {
-              await fetchStream();
-              unlock();
-            }}
+            {...useClickButton({
+              disabled: isProcessing,
+              onClick: async ({ unlock }) => {
+                await fetchStream();
+                unlock();
+              },
+            })}
           >
             start
           </Button>
           <Button
-            disabled={isProcessing}
-            onClick={async ({ unlock }) => {
-              await fetchStream(5000);
-              unlock();
-            }}
+            {...useClickButton({
+              disabled: isProcessing,
+              onClick: async ({ unlock }) => {
+                await fetchStream(5000);
+                unlock();
+              },
+            })}
           >
             start(timeout: 5s)
           </Button>
@@ -1456,53 +1477,61 @@ function DialogComponent() {
             countup
           </Button>
           <Button
-            onClick={async ({ unlock }) => {
-              await $alert({
-                body: "Alert",
-                color: "danger",
-              });
-              unlock();
-            }}
+            {...useClickButton({
+              onClick: async ({ unlock }) => {
+                await $alert({
+                  body: "Alert",
+                  color: "danger",
+                });
+                unlock();
+              },
+            })}
           >
             alert
           </Button>
           <Button
-            onClick={async ({ unlock }) => {
-              const ret = await $confirm({
-                header: "Confirm",
-                body: (
-                  <>
-                    <span className="w-full text-left">confirm</span>
-                    <span className="w-full text-center">confirm</span>
-                    <span className="w-full text-right">confirm</span>
-                  </>
-                ),
-                color: "mute",
-                t,
-              });
-              console.log("confirm", ret);
-              unlock();
-            }}
+            {...useClickButton({
+              onClick: async ({ unlock }) => {
+                const ret = await $confirm({
+                  header: "Confirm",
+                  body: (
+                    <>
+                      <span className="w-full text-left">confirm</span>
+                      <span className="w-full text-center">confirm</span>
+                      <span className="w-full text-right">confirm</span>
+                    </>
+                  ),
+                  color: "mute",
+                  t,
+                });
+                console.log("confirm", ret);
+                unlock();
+              },
+            })}
           >
             confirm
           </Button>
           <Button
-            onClick={() => {
-              $alert({
-                header: "Alert",
-                body: "1\n2\n3\n4\n",
-              });
-            }}
+            {...useClickButton({
+              onClick: async () => {
+                await $alert({
+                  header: "Alert",
+                  body: "1\n2\n3\n4\n",
+                });
+              },
+            })}
           >
             alert eol
           </Button>
           <Button
-            onClick={() => {
-              setCount(c => c + 1);
-              $toast({ body: `Toast ${count}` }).then(() => {
-                console.log("toast closed.");
-              });
-            }}
+            {...useClickButton({
+              onClick: async () => {
+                setCount(c => c + 1);
+                await $toast({ body: `Toast ${count}` }).then(() => {
+                  console.log("toast closed.");
+                });
+              },
+            })}
           >
             toast
           </Button>
@@ -1544,107 +1573,117 @@ function FetchComponent() {
       <Details summary="Fetch">
         <div className="flex flex-row flex-wrap gap-2">
           <Button
-            onClick={async ({ unlock }) => {
-              try {
-                const res = await api.get("/health");
-                if (!res.ok) {
-                  return;
+            {...useClickButton({
+              onClick: async ({ unlock }) => {
+                try {
+                  const res = await api.get("/health");
+                  if (!res.ok) {
+                    return;
+                  }
+                  console.log(res.data.now);
+                } catch (e) {
+                  console.error(e);
+                } finally {
+                  unlock();
                 }
-                console.log(res.data.now);
-              } catch (e) {
-                console.error(e);
-              } finally {
-                unlock();
-              }
-            }}
+              },
+            })}
           >
             health
           </Button>
           <Button
-            onClick={async ({ unlock }) => {
-              try {
-                const res = await api.get("/sandbox/api/{id}", {
-                  path: {
-                    id: "1",
-                  },
-                });
-                console.log(res);
-                if (!res.ok) {
-                  return;
-                }
+            {...useClickButton({
+              onClick: async ({ unlock }) => {
+                try {
+                  const res = await api.get("/sandbox/api/{id}", {
+                    path: {
+                      id: "1",
+                    },
+                  });
+                  console.log(res);
+                  if (!res.ok) {
+                    return;
+                  }
 
-                if (res.status === 200) {
-                  res.data;
-                } else {
-                  // res.data
+                  if (res.status === 200) {
+                    res.data;
+                  } else {
+                    // res.data
+                  }
+                } catch (e) {
+                  console.error(e);
+                } finally {
+                  unlock();
                 }
-              } catch (e) {
-                console.error(e);
-              } finally {
-                unlock();
-              }
-            }}
+              },
+            })}
           >
             get
           </Button>
           <Button
-            onClick={async ({ unlock }) => {
-              try {
-                const res = await api.post("/sandbox/api", {
-                  body: {
-                    title: "sample title",
-                    body: "sample body",
-                    updatedAt: "",
-                  },
-                });
-                console.log(res);
-              } catch (e) {
-                console.error(e);
-              } finally {
-                unlock();
-              }
-            }}
+            {...useClickButton({
+              onClick: async ({ unlock }) => {
+                try {
+                  const res = await api.post("/sandbox/api", {
+                    body: {
+                      title: "sample title",
+                      body: "sample body",
+                      updatedAt: "",
+                    },
+                  });
+                  console.log(res);
+                } catch (e) {
+                  console.error(e);
+                } finally {
+                  unlock();
+                }
+              },
+            })}
           >
             post
           </Button>
           <Button
-            onClick={async ({ unlock }) => {
-              try {
-                const res = await api.put("/sandbox/api/{id}", {
-                  path: {
-                    id: "1",
-                  },
-                  body: {
-                    title: "sample",
-                    body: "sample",
-                    updatedAt: "2025-11-11T11:11:11.111",
-                  },
-                });
-                console.log(res);
-              } catch (e) {
-                console.error(e);
-              } finally {
-                unlock();
-              }
-            }}
+            {...useClickButton({
+              onClick: async ({ unlock }) => {
+                try {
+                  const res = await api.put("/sandbox/api/{id}", {
+                    path: {
+                      id: "1",
+                    },
+                    body: {
+                      title: "sample",
+                      body: "sample",
+                      updatedAt: "2025-11-11T11:11:11.111",
+                    },
+                  });
+                  console.log(res);
+                } catch (e) {
+                  console.error(e);
+                } finally {
+                  unlock();
+                }
+              },
+            })}
           >
             put
           </Button>
           <Button
-            onClick={async ({ unlock }) => {
-              try {
-                const res = await api.delete("/sandbox/api/{id}", {
-                  path: {
-                    id: "1",
-                  },
-                });
-                console.log(res);
-              } catch (e) {
-                console.error(e);
-              } finally {
-                unlock();
-              }
-            }}
+            {...useClickButton({
+              onClick: async ({ unlock }) => {
+                try {
+                  const res = await api.delete("/sandbox/api/{id}", {
+                    path: {
+                      id: "1",
+                    },
+                  });
+                  console.log(res);
+                } catch (e) {
+                  console.error(e);
+                } finally {
+                  unlock();
+                }
+              },
+            })}
           >
             delete
           </Button>

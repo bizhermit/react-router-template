@@ -1,4 +1,4 @@
-import { Button$ } from "$/components/elements/button";
+import { Button } from "$/components/elements/button";
 import { redirect, useFetcher } from "react-router";
 import { auth } from "~/auth/server/auth";
 import { SIGN_IN_PATHNAME } from "~/auth/shared/consts";
@@ -38,12 +38,12 @@ export default function Page() {
       method="post"
       className="grow min-h-0 grid place-items-center"
     >
-      <Button$
+      <Button
         type="submit"
         color="primary"
       >
         Sign Out
-      </Button$>
+      </Button>
     </fetcher.Form>
   );
 };

@@ -1,7 +1,8 @@
+import { useClickButton } from "$/shared/hooks/click-button";
 import { type HTMLAttributes, type ReactNode, type RefObject } from "react";
 import { createRoot } from "react-dom/client";
 import { preventScroll } from "../../client/dom/prevent-scroll";
-import { Button } from "./button/button";
+import { Button } from "./button";
 import { FocusTrap } from "./focus-trap";
 import { parseToReactNode } from "./i18n-text";
 import { CrossIcon } from "./icon";
@@ -262,9 +263,12 @@ export function $alert(props: AlertProps) {
                 autoFocus
                 color={props.color}
                 appearance="fill"
-                onClick={async () => {
-                  close();
-                }}
+                // eslint-disable-next-line react-hooks/rules-of-hooks
+                {...useClickButton({
+                  onClick: async () => {
+                    close();
+                  },
+                })}
               >
                 {props.buttonText ?? (props.t?.("OK") || "OK")}
               </Button>
@@ -327,9 +331,12 @@ export function $confirm(props: ConfirmProps) {
                 <Button
                   color={props.color}
                   appearance="fill"
-                  onClick={async () => {
-                    close(true);
-                  }}
+                  // eslint-disable-next-line react-hooks/rules-of-hooks
+                  {...useClickButton({
+                    onClick: async () => {
+                      close(true);
+                    },
+                  })}
                 >
                   {props.positiveButtonText ?? (props.t?.("OK") || "OK")}
                 </Button>
@@ -337,9 +344,12 @@ export function $confirm(props: ConfirmProps) {
                   autoFocus
                   color={props.color}
                   appearance="outline"
-                  onClick={async () => {
-                    close(false);
-                  }}
+                  // eslint-disable-next-line react-hooks/rules-of-hooks
+                  {...useClickButton({
+                    onClick: async () => {
+                      close(false);
+                    },
+                  })}
                 >
                   {props.nevativeButtonText ?? (props.t?.("Cancel") || "キャンセル")}
                 </Button>
@@ -406,9 +416,12 @@ export function $toast({
             <Button
               appearance="text"
               color={props.color}
-              onClick={() => {
-                close();
-              }}
+              // eslint-disable-next-line react-hooks/rules-of-hooks
+              {...useClickButton({
+                onClick: () => {
+                  close();
+                },
+              })}
             >
               <CrossIcon />
             </Button>

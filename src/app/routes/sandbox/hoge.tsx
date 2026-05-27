@@ -1,4 +1,4 @@
-import { Button } from "$/components/elements/button/button";
+import { Button } from "$/components/elements/button";
 import { Link } from "$/components/elements/link";
 
 export default function Page() {

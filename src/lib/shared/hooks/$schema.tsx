@@ -14,6 +14,7 @@ type SchemaHookProps<S extends $ObjSchema<any, any>> = {
   schema: S;
   values?: Record<string, unknown>;
   messages?: $Schema.Message[];
+  state?: "idle" | "submitting" | "loading";
 };
 
 export type FormState = "idle" | "loading" | "submitting";
@@ -58,7 +59,7 @@ export function useSchema<const S extends $ObjSchema<any, any>>(props: SchemaHoo
     return formContext.hasError();
   });
 
-  const [formState, setFormState] = useState<FormState>("idle");
+  const state = props.state || "idle";
 
   function handleSubmit() {
     // TODO:
@@ -81,15 +82,15 @@ export function useSchema<const S extends $ObjSchema<any, any>>(props: SchemaHoo
   };
 
   return {
+    id,
     providerProps: {
       formId: id,
       formContext,
-      formState,
+      formState: state,
     } as const satisfies SchemaProviderProps,
     formItems: formContext.getFormItems(),
     hasError,
-    formState,
-    setFormState,
+    state,
     handleSubmit,
     handleReset,
     getFormProps,
