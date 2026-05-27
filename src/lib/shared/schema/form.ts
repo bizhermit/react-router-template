@@ -64,17 +64,19 @@ export class FormContext<S extends $ObjSchema<any, any>> {
   protected originValues: Record<string, unknown>;
   protected values: Record<string, unknown>;
 
-  protected injectParams: Schema.InjectParams;
-  protected injectParamsSubscribes: Set<() => void>;
-
   protected originMessages: Map<string, Schema.Message | undefined>;
   protected messages: Map<string, Schema.Message | undefined>;
-  protected messagesSubscribes: Map<string, Set<() => void>>;
 
   protected error: boolean;
-  protected errorSubscribes: Set<() => void>;
+
+  protected injectParams: Schema.InjectParams;
 
   protected valuesSubscribes: Map<string, Set<() => void>>;
+  protected messagesSubscribes: Map<string, Set<() => void>>;
+  protected errorSubscribes: Set<() => void>;
+  protected injectParamsSubscribes: Set<() => void>;
+  protected dirtyFiels: Set<string>;
+  protected dirtySubscribes: Set<() => void>;
 
   constructor(init: {
     schema: S;
@@ -89,17 +91,9 @@ export class FormContext<S extends $ObjSchema<any, any>> {
       values: this.values = init.values,
     };
 
-    this.injectParamsSubscribes = new Set();
-
     this.messages = convertToMessageMap(init.messages);
     this.originMessages = clone(this.messages);
-
-    this.messagesSubscribes = new Map();
-
     this.error = getHasError(init.messages);
-    this.errorSubscribes = new Set();
-
-    this.valuesSubscribes = new Map();
 
     this.schema.initialize(this.injectParams);
     const parsed = this.schema.parse(this.injectParams.values, this.injectParams);
@@ -110,6 +104,13 @@ export class FormContext<S extends $ObjSchema<any, any>> {
       this,
       this.schema.getChildren()
     );
+
+    this.valuesSubscribes = new Map();
+    this.messagesSubscribes = new Map();
+    this.errorSubscribes = new Set();
+    this.injectParamsSubscribes = new Set();
+    this.dirtyFiels = new Set();
+    this.dirtySubscribes = new Set();
   }
 
   public getFormItems() {
@@ -249,6 +250,8 @@ export class FormContext<S extends $ObjSchema<any, any>> {
 
     if (!options?.preventUpdateOrigin) {
       this.originValues = clone(this.values);
+      this.dirtyFiels = new Set();
+      this.dirtySubscribes.forEach(listener => listener());
     }
     return this;
   }
@@ -264,6 +267,10 @@ export class FormContext<S extends $ObjSchema<any, any>> {
 
   public getValue<T = unknown>(name: string) {
     return getValue<T>(this.values, name)[0];
+  }
+
+  public getOriginValue<T = unknown>(name: string) {
+    return getValue<T>(this.originValues, name)[0];
   }
 
   public setValue(name: string, value: unknown, options?: {
@@ -328,6 +335,10 @@ export class FormContext<S extends $ObjSchema<any, any>> {
     });
 
     this.updateHasError();
+    if (!this.dirtyFiels.has(name)) {
+      this.dirtyFiels.add(name);
+      this.dirtySubscribes.forEach(listener => listener());
+    }
 
     return {
       value: parsed.value,
@@ -395,6 +406,8 @@ export class FormContext<S extends $ObjSchema<any, any>> {
     execValidate?: boolean;
   }) {
     this.injectParams.values = this.values = clone(this.originValues);
+    this.dirtyFiels = new Set();
+    this.dirtySubscribes.forEach(listener => listener());
 
     if (options?.execValidate) {
       this.validate();
@@ -406,12 +419,24 @@ export class FormContext<S extends $ObjSchema<any, any>> {
     }
   }
 
+  public addDirtySubscribe(listener: () => void) {
+    this.dirtySubscribes.add(listener);
+    return () => {
+      this.dirtySubscribes.delete(listener);
+    };
+  };
+
+  public isDirty(name?: string) {
+    if (!name) return this.dirtyFiels.size > 0;
+    return this.dirtyFiels.has(name);
+  }
+
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export class FormItem<S extends SchemaItem<any>> {
 
-  protected refsCache: string[] | undefined;
+  protected refs: string[];
 
   constructor(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -419,6 +444,8 @@ export class FormItem<S extends SchemaItem<any>> {
     protected name: string,
     protected schemaItem: S
   ) {
+    const refs = schemaItem.getRefs();
+    this.refs = refs?.map(ref => getRelativeName(name, ref)) ?? [];
   }
 
   public getName() {
@@ -434,12 +461,7 @@ export class FormItem<S extends SchemaItem<any>> {
   }
 
   public getRefs() {
-    if (!this.refsCache) {
-      this.refsCache = this.schemaItem.getRefs()?.map(ref => {
-        return getRelativeName(this.name, ref);
-      }) ?? [];
-    }
-    return this.refsCache;
+    return this.refs;
   }
 
   public getMode(params: Schema.InjectParams) {
@@ -462,6 +484,10 @@ export class FormItem<S extends SchemaItem<any>> {
     this.formContext.setValue(this.name, this.getValue(), {
       skipValidate: true,
     });
+  }
+
+  public validate() {
+    this.formContext.validate();
   }
 
 };

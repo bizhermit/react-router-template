@@ -70,14 +70,23 @@ export function useSchema<const S extends $ObjSchema<any, any>>(props: SchemaHoo
     return ret;
   });
 
+  function getHasError() {
+    return formContext.hasError();
+  };
+
   const hasError = useSyncExternalStore((callback) => {
     const cleanup = formContext.addErrorSubscribe(callback);
     return () => cleanup();
-  }, () => {
-    return formContext.hasError();
-  }, () => {
-    return formContext.hasError();
-  });
+  }, getHasError, getHasError,);
+
+  function getIsDirty() {
+    return formContext.isDirty();
+  }
+
+  const isDirty = useSyncExternalStore((callback) => {
+    const cleanup = formContext.addDirtySubscribe(callback);
+    return () => cleanup;
+  }, getIsDirty, getIsDirty);
 
   const state = props.state || "idle";
 
@@ -172,6 +181,7 @@ export function useSchema<const S extends $ObjSchema<any, any>>(props: SchemaHoo
     handleSubmit,
     handleReset,
     reset,
+    isDirty,
   } as const;
 };
 
@@ -361,39 +371,56 @@ export function useFormInput<S extends SchemaItem<any>>(
     formState,
   } = use(SchemaProviderContext);
   const schemaItem = formItem.getSchemaItem();
+
+  function getInjectParams() {
+    return context.getInjectParams();
+  };
+
   const injectParams = useSyncExternalStore((callback) => {
     const cleanup = context.addInjectParamsSubscribe(() => callback);
     return () => cleanup();
-  }, () => {
-    return context.getInjectParams();
-  }, () => {
-    return context.getInjectParams();
-  });
+  }, getInjectParams, getInjectParams);
+
+  function getRefValuesString() {
+    return JSON.stringify(formItem.getRefs().reduce((refVals, ref) => {
+      refVals[ref] = context.getValue(ref);
+      return refVals;
+    }, {} as Record<string, unknown>));
+  }
+
+  const refValuesString = useSyncExternalStore((callback) => {
+    const cleanups = formItem.getRefs().map(ref => {
+      return context.addValuesSubscribe(ref, callback);
+    });
+    return () => {
+      cleanups.forEach(cleanup => cleanup());
+    };
+  }, getRefValuesString, getRefValuesString);
 
   const name = formItem.getName();
   const label = t(schemaItem.getLabel() as I18nTextKey);
 
-  const value = useSyncExternalStore<Schema.Nullable<Schema.InferValue<S>>>((callback) => {
+  function getValue() {
+    return context.getValue<Schema.Nullable<Schema.InferValue<S>>>(name);
+  };
+
+  const value = useSyncExternalStore((callback) => {
     const cleanup = context.addValuesSubscribe(name, () => {
       callback();
     });
     return () => cleanup();
-  }, () => {
-    return context.getValue(name);
-  }, () => {
-    return context.getValue(name);
-  });
+  }, getValue, getValue);
+
+  function getMessage() {
+    return context.getMessage(name);
+  };
 
   const message = useSyncExternalStore<Schema.Message | undefined>((callback) => {
     const cleanup = context.addMessageSubscribe(name, () => {
       callback();
     });
     return () => cleanup();
-  }, () => {
-    return context.getMessage(name);
-  }, () => {
-    return context.getMessage(name);
-  });
+  }, getMessage, getMessage);
 
   function setValue(value: unknown) {
     return formItem.setValue(value);
@@ -418,6 +445,10 @@ export function useFormInput<S extends SchemaItem<any>>(
     }
   }
 
+  useEffect(() => {
+    // formItem.validate();
+  }, [refValuesString]);
+
   return {
     schemaId,
     id,
@@ -432,5 +463,6 @@ export function useFormInput<S extends SchemaItem<any>>(
     errormMessageId,
     errormessage,
     injectParams,
+    refValuesString,
   } as const;
 };

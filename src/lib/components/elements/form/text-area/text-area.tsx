@@ -62,6 +62,7 @@ export function TextArea$<S extends $StrSchema<any>>({
     errormMessageId,
     errormessage,
     injectParams,
+    refValuesString,
   } = useFormInput(formItem, {
     hideMessage,
     omitOnSubmit,
@@ -80,6 +81,7 @@ export function TextArea$<S extends $StrSchema<any>>({
   }, [
     schemaItem,
     injectParams,
+    refValuesString,
   ]);
 
   useImperativeHandle(ref, () => ref$.current);
