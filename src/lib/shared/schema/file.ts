@@ -6,25 +6,25 @@ export const SCHEMA_ITEM_TYPE_FILE = "file";
 type FileValue = File | string;
 
 type FileValidations = {
-  required: $Schema.ValidationEntry<boolean, null | undefined>;
-  accept: $Schema.ValidationEntry<
+  required: Schema.ValidationEntry<boolean, null | undefined>;
+  accept: Schema.ValidationEntry<
     string,
     File,
     { accept: string; currentFileType: string; currentFileName: string; }
   >;
-  maxSize: $Schema.ValidationEntry<number, File, { maxSize: number; currentSize: number; }>;
+  maxSize: Schema.ValidationEntry<number, File, { maxSize: number; currentSize: number; }>;
 };
 
-export type FileSchemaMessage = $Schema.ValidationMessages<
+export type FileSchemaMessage = Schema.ValidationMessages<
   FileValidations,
   typeof SCHEMA_ITEM_TYPE_FILE
 >;
 
-type FileProps = $Schema.SchemaItemAbstractProps
-  & $Schema.Validations<FileValidations>
+type FileProps = Schema.SchemaItemAbstractProps
+  & Schema.Validations<FileValidations>
   & {
-    parser?: $Schema.Parser<FileValue>;
-    rules?: $Schema.Rule<FileValue>[];
+    parser?: Schema.Parser<FileValue>;
+    rules?: Schema.Rule<FileValue>[];
   };
 
 function isEmpty(value: unknown) {
@@ -107,14 +107,14 @@ export class $FileSchema<const P extends FileProps> extends SchemaItem<FileValue
     super(props);
   }
 
-  public getActionType(): $Schema.ActionType {
+  public getActionType(): Schema.ActionType {
     return this.props.actionType || "select";
   }
 
   public parse(
     value: unknown,
-    params: $Schema.ParseArgParams = this.getEmptyInjectParams()
-  ): $Schema.ParseResult<FileValue> {
+    params: Schema.ParseArgParams = this.getEmptyInjectParams()
+  ): Schema.ParseResult<FileValue> {
     if (this.props.parser) {
       const parsed = this.props.parser(value, params);
       return {
@@ -166,9 +166,9 @@ export class $FileSchema<const P extends FileProps> extends SchemaItem<FileValue
   }
 
   public validate(
-    value: $Schema.Nullable<FileValue>,
-    params: $Schema.ValidationArgParams = this.getEmptyInjectParams()
-  ): $Schema.RecordMessages {
+    value: Schema.Nullable<FileValue>,
+    params: Schema.ValidationArgParams = this.getEmptyInjectParams()
+  ): Schema.RecordMessages {
     if (this.validators == null) {
       this.validators = [];
 
@@ -182,14 +182,14 @@ export class $FileSchema<const P extends FileProps> extends SchemaItem<FileValue
             this.validators.push((p) => {
               if (!required(p)) return null;
               if (isEmpty(p.value)) {
-                return getMessage(p as $Schema.ValidationResultArgParams);
+                return getMessage(p as Schema.ValidationResultArgParams);
               }
               return null;
             });
           } else {
             this.validators.push((p) => {
               if (isEmpty(p.value)) {
-                return getMessage(p as $Schema.ValidationResultArgParams);
+                return getMessage(p as Schema.ValidationResultArgParams);
               }
               return null;
             });
@@ -212,7 +212,7 @@ export class $FileSchema<const P extends FileProps> extends SchemaItem<FileValue
               const ctx = getAcceptChecker(ac);
               if (ctx.check(p.value)) return null;
               return getMessage({
-                ...p as $Schema.ValidationResultArgParams<File>,
+                ...p as Schema.ValidationResultArgParams<File>,
                 params: {
                   accept: ctx.accept,
                   currentFileType: p.value.type,
@@ -227,7 +227,7 @@ export class $FileSchema<const P extends FileProps> extends SchemaItem<FileValue
               if (!isFile(p.value)) return null;
               if (ctx.check(p.value)) return null;
               return getMessage({
-                ...p as $Schema.ValidationResultArgParams<File>,
+                ...p as Schema.ValidationResultArgParams<File>,
                 params: {
                   accept: ctx.accept,
                   currentFileType: p.value.type,
@@ -253,7 +253,7 @@ export class $FileSchema<const P extends FileProps> extends SchemaItem<FileValue
               if (m == null) return null;
               if (p.value.size <= m) return null;
               return getMessage({
-                ...p as $Schema.ValidationResultArgParams<File>,
+                ...p as Schema.ValidationResultArgParams<File>,
                 params: {
                   maxSize: m,
                   currentSize: p.value.size,
@@ -266,7 +266,7 @@ export class $FileSchema<const P extends FileProps> extends SchemaItem<FileValue
               if (!isFile(p.value)) return null;
               if (p.value.size <= maxSize) return null;
               return getMessage({
-                ...p as $Schema.ValidationResultArgParams<File>,
+                ...p as Schema.ValidationResultArgParams<File>,
                 params: {
                   maxSize,
                   currentSize: p.value.size,
@@ -293,7 +293,7 @@ export class $FileSchema<const P extends FileProps> extends SchemaItem<FileValue
     });
   }
 
-  public getRequired(params: $Schema.InjectParams) {
+  public getRequired(params: Schema.InjectParams) {
     const required = getValidationArray(this.props.required)[0];
     if (typeof required === "function") {
       return required(params) ?? false;
@@ -301,7 +301,7 @@ export class $FileSchema<const P extends FileProps> extends SchemaItem<FileValue
     return required ?? false;
   }
 
-  public getAccept(params: $Schema.InjectParams) {
+  public getAccept(params: Schema.InjectParams) {
     const accept = getValidationArray(this.props.accept)[0];
     if (typeof accept === "function") {
       return accept(params);
@@ -309,7 +309,7 @@ export class $FileSchema<const P extends FileProps> extends SchemaItem<FileValue
     return accept;
   }
 
-  public getMaxSize(params: $Schema.InjectParams) {
+  public getMaxSize(params: Schema.InjectParams) {
     const maxSize = getValidationArray(this.props.maxSize)[0];
     if (typeof maxSize === "function") {
       return maxSize(params);

@@ -1,6 +1,6 @@
 import { useImperativeHandle, useMemo, useRef, type InputHTMLAttributes, type RefObject } from "react";
 import { CheckBox, type CheckBoxAppearance, type CheckBoxRef } from ".";
-import { useFormInput, type FormInputProps, type FormInputStyleProps } from "../../../../shared/hooks/$schema";
+import { useFormInput, type FormInputProps, type FormInputStyleProps } from "../../../../shared/hooks/schema";
 import type { $BoolSchema } from "../../../../shared/schema/boolean";
 import type { FormItem } from "../../../../shared/schema/form";
 import { WithMessage } from "../message";

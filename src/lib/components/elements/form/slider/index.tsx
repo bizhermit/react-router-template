@@ -41,7 +41,7 @@ export type SliderProps = Overwrite<
       /** id */
       id: string;
       /** 目盛りアイテム（配列） */
-      source: $Schema.SourceItem<number | null | undefined>[];
+      source: Schema.SourceItem<number | null | undefined>[];
       /** 目盛り非表示 @default false */
       hideScales?: boolean;
     };

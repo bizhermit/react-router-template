@@ -4,22 +4,22 @@ import { getPickMessageGetter, getValidationArray, SchemaItem } from "./core";
 export const SCHEMA_ITEM_TYPE_NUMBER = "num";
 
 type NumberValidations = {
-  required: $Schema.ValidationEntry<boolean, null | undefined>;
-  min: $Schema.ValidationEntry<number, number, { min: number; }>;
-  max: $Schema.ValidationEntry<number, number, { max: number; }>;
-  float: $Schema.ValidationEntry<number, number, { float: number; currentFloat: number; }>;
+  required: Schema.ValidationEntry<boolean, null | undefined>;
+  min: Schema.ValidationEntry<number, number, { min: number; }>;
+  max: Schema.ValidationEntry<number, number, { max: number; }>;
+  float: Schema.ValidationEntry<number, number, { float: number; currentFloat: number; }>;
 };
 
-export type NumberSchemaMessage = $Schema.ValidationMessages<
+export type NumberSchemaMessage = Schema.ValidationMessages<
   NumberValidations,
   typeof SCHEMA_ITEM_TYPE_NUMBER
 >;
 
-type NumberProps = $Schema.SchemaItemAbstractProps
-  & $Schema.Validations<NumberValidations>
+type NumberProps = Schema.SchemaItemAbstractProps
+  & Schema.Validations<NumberValidations>
   & {
-    parser?: $Schema.Parser<number>;
-    rules?: $Schema.Rule<number>[];
+    parser?: Schema.Parser<number>;
+    rules?: Schema.Rule<number>[];
   };
 ;
 
@@ -40,14 +40,14 @@ export class $NumSchema<const P extends NumberProps> extends SchemaItem<number> 
     super(props);
   }
 
-  public getActionType(): $Schema.ActionType {
+  public getActionType(): Schema.ActionType {
     return this.props.actionType || "input";
   }
 
   public parse(
     value: unknown,
-    params: $Schema.ParseArgParams = this.getEmptyInjectParams()
-  ): $Schema.ParseResult<number> {
+    params: Schema.ParseArgParams = this.getEmptyInjectParams()
+  ): Schema.ParseResult<number> {
     if (this.props.parser) {
       const parsed = this.props.parser(value, params);
       return {
@@ -73,9 +73,9 @@ export class $NumSchema<const P extends NumberProps> extends SchemaItem<number> 
   }
 
   public validate(
-    value: $Schema.Nullable<number>,
-    params: $Schema.ValidationArgParams = this.getEmptyInjectParams()
-  ): $Schema.RecordMessages {
+    value: Schema.Nullable<number>,
+    params: Schema.ValidationArgParams = this.getEmptyInjectParams()
+  ): Schema.RecordMessages {
     if (this.validators == null) {
       this.validators = [];
 
@@ -89,14 +89,14 @@ export class $NumSchema<const P extends NumberProps> extends SchemaItem<number> 
             this.validators.push((p) => {
               if (!required(p)) return null;
               if (p.value == null) {
-                return getMessage(p as $Schema.RuleArgParamsAsValidation<null | undefined>);
+                return getMessage(p as Schema.RuleArgParamsAsValidation<null | undefined>);
               }
               return null;
             });
           } else {
             this.validators.push((p) => {
               if (p.value == null) {
-                return getMessage(p as $Schema.RuleArgParamsAsValidation<null | undefined>);
+                return getMessage(p as Schema.RuleArgParamsAsValidation<null | undefined>);
               }
               return null;
             });
@@ -116,7 +116,7 @@ export class $NumSchema<const P extends NumberProps> extends SchemaItem<number> 
               const m = min(p);
               if (m == null || m <= p.value) return null;
               return getMessage({
-                ...p as $Schema.RuleArgParamsAsValidation<number>,
+                ...p as Schema.RuleArgParamsAsValidation<number>,
                 params: {
                   min: m,
                 },
@@ -127,7 +127,7 @@ export class $NumSchema<const P extends NumberProps> extends SchemaItem<number> 
               if (p.value == null) return null;
               if (min <= p.value) return null;
               return getMessage({
-                ...p as $Schema.RuleArgParamsAsValidation<number>,
+                ...p as Schema.RuleArgParamsAsValidation<number>,
                 params: {
                   min,
                 },
@@ -149,7 +149,7 @@ export class $NumSchema<const P extends NumberProps> extends SchemaItem<number> 
               const m = max(p);
               if (m == null || p.value <= m) return null;
               return getMessage({
-                ...p as $Schema.RuleArgParamsAsValidation<number>,
+                ...p as Schema.RuleArgParamsAsValidation<number>,
                 params: {
                   max: m,
                 },
@@ -160,7 +160,7 @@ export class $NumSchema<const P extends NumberProps> extends SchemaItem<number> 
               if (p.value == null) return null;
               if (p.value <= max) return null;
               return getMessage({
-                ...p as $Schema.RuleArgParamsAsValidation<number>,
+                ...p as Schema.RuleArgParamsAsValidation<number>,
                 params: {
                   max,
                 },
@@ -184,7 +184,7 @@ export class $NumSchema<const P extends NumberProps> extends SchemaItem<number> 
               const cur = getFloatPosition(p.value);
               if (cur <= f) return null;
               return getMessage({
-                ...p as $Schema.RuleArgParamsAsValidation<number>,
+                ...p as Schema.RuleArgParamsAsValidation<number>,
                 params: {
                   float: f,
                   currentFloat: cur,
@@ -197,7 +197,7 @@ export class $NumSchema<const P extends NumberProps> extends SchemaItem<number> 
               const cur = getFloatPosition(p.value);
               if (cur <= float) return null;
               return getMessage({
-                ...p as $Schema.RuleArgParamsAsValidation<number>,
+                ...p as Schema.RuleArgParamsAsValidation<number>,
                 params: {
                   float,
                   currentFloat: cur,
@@ -224,7 +224,7 @@ export class $NumSchema<const P extends NumberProps> extends SchemaItem<number> 
     });
   }
 
-  public getRequired(params: $Schema.InjectParams) {
+  public getRequired(params: Schema.InjectParams) {
     const required = getValidationArray(this.props.required)[0];
     if (typeof required === "function") {
       return required(params) ?? false;
@@ -232,7 +232,7 @@ export class $NumSchema<const P extends NumberProps> extends SchemaItem<number> 
     return required ?? false;
   }
 
-  public getMin(params: $Schema.InjectParams) {
+  public getMin(params: Schema.InjectParams) {
     const min = getValidationArray(this.props.min)[0];
     if (typeof min === "function") {
       return min(params);
@@ -240,7 +240,7 @@ export class $NumSchema<const P extends NumberProps> extends SchemaItem<number> 
     return min;
   }
 
-  public getMax(params: $Schema.InjectParams) {
+  public getMax(params: Schema.InjectParams) {
     const max = getValidationArray(this.props.max)[0];
     if (typeof max === "function") {
       return max(params);
@@ -248,7 +248,7 @@ export class $NumSchema<const P extends NumberProps> extends SchemaItem<number> 
     return max;
   }
 
-  public getFloat(params: $Schema.InjectParams) {
+  public getFloat(params: Schema.InjectParams) {
     const float = getValidationArray(this.props.float)[0];
     if (typeof float === "function") {
       return float(params);

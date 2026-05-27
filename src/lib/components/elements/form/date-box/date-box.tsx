@@ -1,4 +1,4 @@
-import { useFormInput, type FormInputProps, type FormInputStyleProps } from "$/shared/hooks/$schema";
+import { useFormInput, type FormInputProps, type FormInputStyleProps } from "$/shared/hooks/schema";
 import { $DateTime } from "$/shared/objects/timestamp";
 import { $DateSchema } from "$/shared/schema/date";
 import { $DateTimeSchema } from "$/shared/schema/datetime";

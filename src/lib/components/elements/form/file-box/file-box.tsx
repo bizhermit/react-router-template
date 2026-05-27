@@ -1,6 +1,6 @@
 import { use, useEffect, useImperativeHandle, useMemo, useRef, useState, type ChangeEvent, type InputHTMLAttributes, type MouseEvent, type ReactNode, type RefObject } from "react";
 import { FileBox, type FileBoxRef } from ".";
-import { useFormInput, type FormInputProps, type FormInputStyleProps } from "../../../../shared/hooks/$schema";
+import { useFormInput, type FormInputProps, type FormInputStyleProps } from "../../../../shared/hooks/schema";
 import { convertBase64ToFile } from "../../../../shared/objects/file";
 import { ValidScriptsContext } from "../../../../shared/providers/valid-scripts";
 import type { $FileSchema } from "../../../../shared/schema/file";

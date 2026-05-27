@@ -17,8 +17,8 @@ import { TextArea$ } from "$/components/elements/form/text-area/text-area";
 import { TextBox$ } from "$/components/elements/form/text-box/text-box";
 import { FormItem } from "$/components/elements/form/wrapper/form-item";
 import { DeleteIcon } from "$/components/elements/icon";
-import { SchemaProviderContext, useFormArrayItem, useHasError, useSchema, type SchemaProviderContextProps } from "$/shared/hooks/$schema";
 import { useRender } from "$/shared/hooks/render";
+import { SchemaProviderContext, useFormArrayItem, useHasError, useSchema, type SchemaProviderContextProps } from "$/shared/hooks/schema";
 import { $Date, $DateTime } from "$/shared/objects/timestamp";
 import { SchemaProvider } from "$/shared/providers/schema";
 import { $arr } from "$/shared/schema/array";
@@ -54,9 +54,9 @@ const birth_year = birth.getSplitYear({
   // required: false,
   // required: "inherit",
 });
-type _Birth = $Schema.Infer<typeof birth>;
+type _Birth = Schema.Infer<typeof birth>;
 type __BirthYear = typeof birth_year;
-type _BirthYear = $Schema.Infer<typeof birth_year, true>;
+type _BirthYear = Schema.Infer<typeof birth_year, true>;
 
 const str = $str({
   // required: true,
@@ -118,7 +118,9 @@ const schemaObj = $obj({
     }),
     note: $str({
       label: "note",
-      required: true,
+      required: ({ values }) => {
+        return !!values.text;
+      },
       minLength: 120,
     }),
     num: $num({
@@ -262,21 +264,21 @@ type F = typeof bool["falseValue"];
 type T2 = typeof bool2["trueValue"];
 type F2 = typeof bool2["falseValue"];
 
-type _Str = $Schema.Infer<typeof str, true>;
-type _Str2 = $Schema.Infer<typeof str2, true>;
-type _Bool = $Schema.Infer<typeof bool, true>;
-type _Bool2 = $Schema.Infer<typeof bool2, true>;
-type _Obj = $Schema.Infer<typeof schemaObj, true>;
-type _Date = $Schema.Infer<typeof date, true>;
-type _Year = $Schema.Infer<typeof year, true>;
-type _Enum = $Schema.Infer<typeof enum1, true>;
-type _Enum2 = $Schema.Infer<typeof enum2, true>;
+type _Str = Schema.Infer<typeof str, true>;
+type _Str2 = Schema.Infer<typeof str2, true>;
+type _Bool = Schema.Infer<typeof bool, true>;
+type _Bool2 = Schema.Infer<typeof bool2, true>;
+type _Obj = Schema.Infer<typeof schemaObj, true>;
+type _Date = Schema.Infer<typeof date, true>;
+type _Year = Schema.Infer<typeof year, true>;
+type _Enum = Schema.Infer<typeof enum1, true>;
+type _Enum2 = Schema.Infer<typeof enum2, true>;
 
-type _FormItem = $Schema.InferFormItems<typeof schemaObj>["arr2"]["age"];
-type _FormItem2 = $Schema.InferFormItems<typeof schemaObj>["arr"];
+type _FormItem = Schema.InferFormItems<typeof schemaObj>["arr2"]["age"];
+type _FormItem2 = Schema.InferFormItems<typeof schemaObj>["arr"];
 
-type _Hoge = $Schema.Infer<typeof schemaObj>;
-type _Fuga = $Schema.Infer<typeof schemaObj, true>;
+type _Hoge = Schema.Infer<typeof schemaObj>;
+type _Fuga = Schema.Infer<typeof schemaObj, true>;
 // // type _Fuga = typeof schemaObject["props"]["selectStr"]["items"];
 // // type _Piyo = typeof schemaObject["props"]["selectNum"]["items"];
 // const parsed1 = birth.parse(3124).value;

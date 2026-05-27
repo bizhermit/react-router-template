@@ -4,37 +4,37 @@ import { getPickMessageGetter, getValidationArray, SchemaItem } from "./core";
 export const SCHEMA_ITEM_TYPE_ARRAY = "arr";
 
 type ArrayValidations<Prop extends SchemaItem<any>> = {
-  required: $Schema.ValidationEntry<boolean, null | undefined>;
-  length: $Schema.ValidationEntry<
+  required: Schema.ValidationEntry<boolean, null | undefined>;
+  length: Schema.ValidationEntry<
     number,
-    $Schema.InferValue<Prop>[],
+    Schema.InferValue<Prop>[],
     { length: number; currentLength: number; }
   >;
-  minLength: $Schema.ValidationEntry<
+  minLength: Schema.ValidationEntry<
     number,
-    $Schema.InferValue<Prop>[],
+    Schema.InferValue<Prop>[],
     { minLength: number; currentLength: number; }
   >;
-  maxLength: $Schema.ValidationEntry<
+  maxLength: Schema.ValidationEntry<
     number,
-    $Schema.InferValue<Prop>[],
+    Schema.InferValue<Prop>[],
     { maxLength: number; currentLength: number; }
   >;
 };
 
 export type ArraySchemaMessage<Prop extends SchemaItem<any> = SchemaItem<any>> =
-  $Schema.ValidationMessages<
+  Schema.ValidationMessages<
     ArrayValidations<Prop>,
     typeof SCHEMA_ITEM_TYPE_ARRAY
   >;
 
 export type ArrayProps<Prop extends SchemaItem<any>> =
-  & $Schema.SchemaItemAbstractProps
-  & $Schema.Validations<ArrayValidations<Prop>>
+  & Schema.SchemaItemAbstractProps
+  & Schema.Validations<ArrayValidations<Prop>>
   & {
     prop: Prop;
-    parser?: $Schema.Parser<$Schema.InferValue<Prop>[]>;
-    rules?: $Schema.Rule<$Schema.InferValue<Prop>[]>[];
+    parser?: Schema.Parser<Schema.InferValue<Prop>[]>;
+    rules?: Schema.Rule<Schema.InferValue<Prop>[]>[];
   };
 
 const pickMessage = getPickMessageGetter(SCHEMA_ITEM_TYPE_ARRAY);
@@ -51,7 +51,7 @@ export function $arr<
 export class $ArrSchema<
   const Prop extends SchemaItem<any>,
   const P extends ArrayProps<Prop>
-> extends SchemaItem<$Schema.InferValue<InferChild<P>>[]> {
+> extends SchemaItem<Schema.InferValue<InferChild<P>>[]> {
 
   protected child: InferChild<P>;
 
@@ -60,22 +60,22 @@ export class $ArrSchema<
     this.child = props.prop as InferChild<P>;
   }
 
-  public initialize(params: $Schema.InjectParams) {
+  public initialize(params: Schema.InjectParams) {
     this.child.initialize({ ...params });
     this.initialized = true;
     return this;
   }
 
-  public getActionType(): $Schema.ActionType {
+  public getActionType(): Schema.ActionType {
     return this.props.actionType || "set";
   }
 
   public parse(
     value: unknown,
-    params: $Schema.ParseArgParams = this.getEmptyInjectParams()
-  ): $Schema.ParseResult<$Schema.InferValue<InferChild<P>>[]> {
-    let arrValue: $Schema.Nullable<$Schema.InferValue<InferChild<P>>[]> = undefined;
-    const messages: $Schema.RecordMessages = {
+    params: Schema.ParseArgParams = this.getEmptyInjectParams()
+  ): Schema.ParseResult<Schema.InferValue<InferChild<P>>[]> {
+    let arrValue: Schema.Nullable<Schema.InferValue<InferChild<P>>[]> = undefined;
+    const messages: Schema.RecordMessages = {
       [params.name || ""]: undefined,
     };
 
@@ -117,12 +117,12 @@ export class $ArrSchema<
   }
 
   public validate(
-    value: $Schema.Nullable<$Schema.InferValue<InferChild<P>>[]>,
-    params: $Schema.ValidationArgParams = this.getEmptyInjectParams()
-  ): $Schema.RecordMessages {
+    value: Schema.Nullable<Schema.InferValue<InferChild<P>>[]>,
+    params: Schema.ValidationArgParams = this.getEmptyInjectParams()
+  ): Schema.RecordMessages {
     if (this.validators == null) {
       this.validators = [];
-      type Value = $Schema.InferValue<InferChild<P>>[];
+      type Value = Schema.InferValue<InferChild<P>>[];
 
       // required
       if (this.props.required != null) {
@@ -134,14 +134,14 @@ export class $ArrSchema<
             this.validators.push((p) => {
               if (!required(p)) return null;
               if (p.value == null) {
-                return getMessage(p as $Schema.ValidationResultArgParams);
+                return getMessage(p as Schema.ValidationResultArgParams);
               }
               return null;
             });
           } else {
             this.validators.push((p) => {
               if (p.value == null) {
-                return getMessage(p as $Schema.ValidationResultArgParams);
+                return getMessage(p as Schema.ValidationResultArgParams);
               }
               return null;
             });
@@ -162,7 +162,7 @@ export class $ArrSchema<
               if (len == null) return null;
               if (p.value.length === len) return null;
               return getMessage({
-                ...p as $Schema.RuleArgParamsAsValidation<Value>,
+                ...p as Schema.RuleArgParamsAsValidation<Value>,
                 params: {
                   length: len,
                   currentLength: p.value.length,
@@ -174,7 +174,7 @@ export class $ArrSchema<
               if (p.value == null) return null;
               if (p.value.length === length) return null;
               return getMessage({
-                ...p as $Schema.RuleArgParamsAsValidation<Value>,
+                ...p as Schema.RuleArgParamsAsValidation<Value>,
                 params: {
                   length,
                   currentLength: p.value.length,
@@ -198,7 +198,7 @@ export class $ArrSchema<
               if (minLen == null) return null;
               if (minLen <= p.value.length) return null;
               return getMessage({
-                ...p as $Schema.RuleArgParamsAsValidation<Value>,
+                ...p as Schema.RuleArgParamsAsValidation<Value>,
                 params: {
                   minLength: minLen,
                   currentLength: p.value.length,
@@ -210,7 +210,7 @@ export class $ArrSchema<
               if (p.value == null) return null;
               if (minLength <= p.value.length) return null;
               return getMessage({
-                ...p as $Schema.RuleArgParamsAsValidation<Value>,
+                ...p as Schema.RuleArgParamsAsValidation<Value>,
                 params: {
                   minLength,
                   currentLength: p.value.length,
@@ -234,7 +234,7 @@ export class $ArrSchema<
               if (maxLen == null) return null;
               if (p.value.length <= maxLen) return null;
               return getMessage({
-                ...p as $Schema.RuleArgParamsAsValidation<Value>,
+                ...p as Schema.RuleArgParamsAsValidation<Value>,
                 params: {
                   maxLength: maxLen,
                   currentLength: p.value.length,
@@ -246,7 +246,7 @@ export class $ArrSchema<
               if (p.value == null) return null;
               if (p.value.length <= maxLength) return null;
               return getMessage({
-                ...p as $Schema.RuleArgParamsAsValidation<Value>,
+                ...p as Schema.RuleArgParamsAsValidation<Value>,
                 params: {
                   maxLength: maxLength,
                   currentLength: p.value.length,
@@ -294,7 +294,7 @@ export class $ArrSchema<
     return this.child;
   }
 
-  public getRequired(params: $Schema.InjectParams) {
+  public getRequired(params: Schema.InjectParams) {
     const required = getValidationArray(this.props.required)[0];
     if (typeof required === "function") {
       return required(params) ?? false;
@@ -302,7 +302,7 @@ export class $ArrSchema<
     return required ?? false;
   }
 
-  public getLength(params: $Schema.InjectParams) {
+  public getLength(params: Schema.InjectParams) {
     const length = getValidationArray(this.props.length)[0];
     if (typeof length === "function") {
       return length(params);
@@ -310,7 +310,7 @@ export class $ArrSchema<
     return length;
   }
 
-  public getMinLength(params: $Schema.InjectParams) {
+  public getMinLength(params: Schema.InjectParams) {
     const minLength = getValidationArray(this.props.minLength)[0];
     if (typeof minLength === "function") {
       return minLength(params);
@@ -318,7 +318,7 @@ export class $ArrSchema<
     return minLength;
   }
 
-  public getMaxLength(params: $Schema.InjectParams) {
+  public getMaxLength(params: Schema.InjectParams) {
     const maxLength = getValidationArray(this.props.maxLength)[0];
     if (typeof maxLength === "function") {
       return maxLength(params);

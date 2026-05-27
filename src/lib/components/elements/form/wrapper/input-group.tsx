@@ -6,7 +6,7 @@ export type InputGroupWrapperProps = Overwrite<
   Omit<HTMLAttributes<HTMLDivElement>, InputOmitProps>,
   {
     ref?: RefObject<HTMLDivElement>;
-    state?: $Schema.Mode;
+    state?: Schema.Mode;
   }
 >;
 

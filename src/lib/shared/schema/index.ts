@@ -12,7 +12,7 @@ export async function parseWithSchema<const S extends $ObjSchema<any, any>>(para
     values: params.values ?? {},
     data: params.data ?? {},
     isServer: params.isServer ?? typeof window === "undefined",
-  } as const satisfies $Schema.InjectParams;
+  } as const satisfies Schema.InjectParams;
 
   params.schema.initialize(injectParams);
 
@@ -27,20 +27,20 @@ export async function parseWithSchema<const S extends $ObjSchema<any, any>>(para
   if (hasError) {
     return {
       ok: false,
-      values: parsed.value as Exclude<$Schema.Infer<typeof params.schema>, null | undefined>,
+      values: parsed.value as Exclude<Schema.Infer<typeof params.schema>, null | undefined>,
       messages,
     } as const;
   }
   return {
     ok: true,
-    values: parsed.value as Exclude<$Schema.Infer<typeof params.schema, true>, null | undefined>,
+    values: parsed.value as Exclude<Schema.Infer<typeof params.schema, true>, null | undefined>,
     messages,
   } as const;
 };
 
 export function mergeRecordMessages(
-  parsedMessages: $Schema.RecordMessages | undefined,
-  validatedMessages: $Schema.RecordMessages | undefined
+  parsedMessages: Schema.RecordMessages | undefined,
+  validatedMessages: Schema.RecordMessages | undefined
 ) {
   const messages = parsedMessages ?? {};
   if (validatedMessages) {
@@ -58,7 +58,7 @@ export function mergeRecordMessages(
   return messages;
 };
 
-export function getHasError(messages: $Schema.RecordMessages | null | undefined) {
+export function getHasError(messages: Schema.RecordMessages | null | undefined) {
   if (messages == null) return false;
   return Object.entries(messages).some(([_, msgs]) => msgs && msgs.some(msg => msg.type === "e"));
 };

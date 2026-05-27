@@ -12,26 +12,26 @@ type MonthPair = {
 };
 
 type MonthValidations = {
-  required: $Schema.ValidationEntry<boolean, null | undefined>;
-  minMonth: $Schema.ValidationEntry<$Month, $Month, { minMonth: $Month; }>;
-  maxMonth: $Schema.ValidationEntry<$Month, $Month, { maxMonth: $Month; }>;
-  pairs: $Schema.ValidationEntry<
+  required: Schema.ValidationEntry<boolean, null | undefined>;
+  minMonth: Schema.ValidationEntry<$Month, $Month, { minMonth: $Month; }>;
+  maxMonth: Schema.ValidationEntry<$Month, $Month, { maxMonth: $Month; }>;
+  pairs: Schema.ValidationEntry<
     MonthPair | MonthPair[],
     $Month,
     Omit<Required<MonthPair>, "name"> & { pairName: string; pairMonth: $Month; }
   >;
 };
 
-export type MonthSchemaMessage = $Schema.ValidationMessages<
+export type MonthSchemaMessage = Schema.ValidationMessages<
   MonthValidations,
   typeof SCHEMA_ITEM_TYPE_MONTH
 >;
 
-export type MonthProps = $Schema.SchemaItemAbstractProps
-  & $Schema.Validations<MonthValidations>
+export type MonthProps = Schema.SchemaItemAbstractProps
+  & Schema.Validations<MonthValidations>
   & {
-    parser?: $Schema.Parser<$Month>;
-    rules?: $Schema.Rule<$Month>[];
+    parser?: Schema.Parser<$Month>;
+    rules?: Schema.Rule<$Month>[];
     splits?: [string, string];
   };
 
@@ -49,14 +49,14 @@ export class $MonthSchema<const P extends MonthProps> extends SchemaItem<$Month>
     super(props);
   }
 
-  public getActionType(): $Schema.ActionType {
+  public getActionType(): Schema.ActionType {
     return this.props.actionType || "input";
   }
 
   public parse(
     value: unknown,
-    params: $Schema.ParseArgParams = this.getEmptyInjectParams()
-  ): $Schema.ParseResult<$Month> {
+    params: Schema.ParseArgParams = this.getEmptyInjectParams()
+  ): Schema.ParseResult<$Month> {
     if (this.props.parser) {
       const parsed = this.props.parser(value, params);
       return {
@@ -97,9 +97,9 @@ export class $MonthSchema<const P extends MonthProps> extends SchemaItem<$Month>
   }
 
   public validate(
-    value: $Schema.Nullable<$Month>,
-    params: $Schema.ValidationArgParams = this.getEmptyInjectParams()
-  ): $Schema.RecordMessages {
+    value: Schema.Nullable<$Month>,
+    params: Schema.ValidationArgParams = this.getEmptyInjectParams()
+  ): Schema.RecordMessages {
     if (this.validators == null) {
       this.validators = [];
 
@@ -113,14 +113,14 @@ export class $MonthSchema<const P extends MonthProps> extends SchemaItem<$Month>
             this.validators.push((p) => {
               if (!required(p)) return null;
               if (p.value == null) {
-                return getMessage(p as $Schema.ValidationResultArgParams);
+                return getMessage(p as Schema.ValidationResultArgParams);
               }
               return null;
             });
           } else {
             this.validators.push((p) => {
               if (p.value == null) {
-                return getMessage(p as $Schema.ValidationResultArgParams);
+                return getMessage(p as Schema.ValidationResultArgParams);
               }
               return null;
             });
@@ -141,7 +141,7 @@ export class $MonthSchema<const P extends MonthProps> extends SchemaItem<$Month>
               if (m == null) return null;
               if (p.value.isBefore(m)) {
                 return getMessage({
-                  ...p as $Schema.ValidationResultArgParams<$Month>,
+                  ...p as Schema.ValidationResultArgParams<$Month>,
                   params: {
                     minMonth: m.toJSON(),
                   },
@@ -154,7 +154,7 @@ export class $MonthSchema<const P extends MonthProps> extends SchemaItem<$Month>
               if (p.value == null) return null;
               if (p.value.isBefore(minMonth)) {
                 return getMessage({
-                  ...p as $Schema.ValidationResultArgParams<$Month>,
+                  ...p as Schema.ValidationResultArgParams<$Month>,
                   params: {
                     minMonth: minMonth.toJSON(),
                   },
@@ -179,7 +179,7 @@ export class $MonthSchema<const P extends MonthProps> extends SchemaItem<$Month>
               if (m == null) return null;
               if (p.value.isAfter(m)) {
                 return getMessage({
-                  ...p as $Schema.ValidationResultArgParams<$Month>,
+                  ...p as Schema.ValidationResultArgParams<$Month>,
                   params: {
                     maxMonth: m.toJSON(),
                   },
@@ -192,7 +192,7 @@ export class $MonthSchema<const P extends MonthProps> extends SchemaItem<$Month>
               if (p.value == null) return null;
               if (p.value.isAfter(maxMonth)) {
                 return getMessage({
-                  ...p as $Schema.ValidationResultArgParams<$Month>,
+                  ...p as Schema.ValidationResultArgParams<$Month>,
                   params: {
                     maxMonth: maxMonth.toJSON(),
                   },
@@ -229,7 +229,7 @@ export class $MonthSchema<const P extends MonthProps> extends SchemaItem<$Month>
                     if (p.value.isAfter(pairMonth)) continue;
                   }
                   return getMessage({
-                    ...p as $Schema.ValidationResultArgParams<$Month>,
+                    ...p as Schema.ValidationResultArgParams<$Month>,
                     params: {
                       pairName: pair.name,
                       position: pair.position,
@@ -260,7 +260,7 @@ export class $MonthSchema<const P extends MonthProps> extends SchemaItem<$Month>
                     if (p.value.isAfter(pairMonth)) continue;
                   }
                   return getMessage({
-                    ...p as $Schema.ValidationResultArgParams<$Month>,
+                    ...p as Schema.ValidationResultArgParams<$Month>,
                     params: {
                       pairName: pair.name,
                       position: pair.position,
@@ -299,7 +299,7 @@ export class $MonthSchema<const P extends MonthProps> extends SchemaItem<$Month>
       "year",
       {
         required: typeof required === "function" ?
-          (p: $Schema.InjectParams) => required(p) :
+          (p: Schema.InjectParams) => required(p) :
           () => required,
         min: typeof minMonth === "function" ?
           (p) => minMonth(p)?.getYear() :
@@ -320,7 +320,7 @@ export class $MonthSchema<const P extends MonthProps> extends SchemaItem<$Month>
       "month",
       {
         required: typeof required === "function" ?
-          (p: $Schema.InjectParams) => required(p) :
+          (p: Schema.InjectParams) => required(p) :
           () => required,
         min: () => 1, // NOTE: 最小値および年の値によって変動するため、最小日付と比較を行わない
         max: () => 12, // NOTE: 最大値および年の値によって変動するため、最大日付と比較を行わない
@@ -335,7 +335,7 @@ export class $MonthSchema<const P extends MonthProps> extends SchemaItem<$Month>
     });
   }
 
-  public getRequired(params: $Schema.InjectParams) {
+  public getRequired(params: Schema.InjectParams) {
     const required = getValidationArray(this.props.required)[0];
     if (typeof required === "function") {
       return required(params) ?? false;
@@ -343,7 +343,7 @@ export class $MonthSchema<const P extends MonthProps> extends SchemaItem<$Month>
     return required ?? false;
   }
 
-  public getMinMonth(params: $Schema.InjectParams) {
+  public getMinMonth(params: Schema.InjectParams) {
     const minMonth = getValidationArray(this.props.minMonth)[0];
     if (typeof minMonth === "function") {
       return minMonth(params);
@@ -351,7 +351,7 @@ export class $MonthSchema<const P extends MonthProps> extends SchemaItem<$Month>
     return minMonth;
   }
 
-  public getMaxMonth(params: $Schema.InjectParams) {
+  public getMaxMonth(params: Schema.InjectParams) {
     const maxMonth = getValidationArray(this.props.maxMonth)[0];
     if (typeof maxMonth === "function") {
       return maxMonth(params);

@@ -1,6 +1,6 @@
 import { useImperativeHandle, useMemo, useRef, type HTMLAttributes, type HTMLInputTypeAttribute, type InputHTMLAttributes, type RefObject } from "react";
 import { TextBox, type TextBoxRef } from ".";
-import { useFormInput, type FormInputProps, type FormInputStyleProps } from "../../../../shared/hooks/$schema";
+import { useFormInput, type FormInputProps, type FormInputStyleProps } from "../../../../shared/hooks/schema";
 import type { FormItem } from "../../../../shared/schema/form";
 import type { $StrSchema, StrPattern } from "../../../../shared/schema/string";
 import { WithMessage } from "../message";

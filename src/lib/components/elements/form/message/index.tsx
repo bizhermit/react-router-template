@@ -44,9 +44,9 @@ type WithMessageProps = {
   /** 非表示 @default false */
   hide?: boolean;
   /** 状態 @default "enabled" */
-  state: $Schema.Mode;
+  state: Schema.Mode;
   /** メッセージ */
-  message: $Schema.Message | null | undefined;
+  message: Schema.Message | null | undefined;
   /** メッセージ表示対象要素 */
   children?: ReactNode;
 };

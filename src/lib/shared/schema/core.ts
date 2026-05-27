@@ -3,13 +3,13 @@
 export abstract class SchemaItem<Value = any> {
 
   protected refs: (string[] | undefined);
-  protected mode: ((params: $Schema.InjectParams) => $Schema.Mode) | undefined;
-  protected validators: $Schema.Rule<Value>[] | null;
+  protected mode: ((params: Schema.InjectParams) => Schema.Mode) | undefined;
+  protected validators: Schema.Rule<Value>[] | null;
   protected label: string | undefined;
-  protected actionType: $Schema.ActionType | undefined;
+  protected actionType: Schema.ActionType | undefined;
   protected initialized: boolean;
 
-  constructor(props: $Schema.SchemaItemAbstractProps) {
+  constructor(props: Schema.SchemaItemAbstractProps) {
     this.validators = null;
     this.refs = props.refs;
     this.mode = props.mode;
@@ -18,7 +18,7 @@ export abstract class SchemaItem<Value = any> {
     this.initialized = false;
   }
 
-  public initialize(_params: $Schema.InitializeArgParams) {
+  public initialize(_params: Schema.InitializeArgParams) {
     this.initialized = true;
     return this;
   }
@@ -32,14 +32,14 @@ export abstract class SchemaItem<Value = any> {
       data: {},
       isServer: typeof window === "undefined",
       values: {},
-    } as const satisfies $Schema.InjectParams;
+    } as const satisfies Schema.InjectParams;
   }
 
   public getRefs() {
     return this.refs;
   }
 
-  public getMode(params: $Schema.InjectParams): $Schema.Mode {
+  public getMode(params: Schema.InjectParams): Schema.Mode {
     return this.mode ? this.mode(params) : "enabled";
   }
 
@@ -47,14 +47,14 @@ export abstract class SchemaItem<Value = any> {
     return this.label;
   }
 
-  abstract getActionType(): $Schema.ActionType;
+  abstract getActionType(): Schema.ActionType;
 
-  abstract parse(value: any, params?: $Schema.ParseArgParams): $Schema.ParseResult<Value>;
+  abstract parse(value: any, params?: Schema.ParseArgParams): Schema.ParseResult<Value>;
 
   public validate(
-    value: $Schema.Nullable<Value>,
-    params: $Schema.ValidationArgParams = this.getEmptyInjectParams()
-  ): $Schema.RecordMessages {
+    value: Schema.Nullable<Value>,
+    params: Schema.ValidationArgParams = this.getEmptyInjectParams()
+  ): Schema.RecordMessages {
     if (this.validators == null) throw new Error("not initialized: validators");
 
     const ruleArgParams = {
@@ -62,7 +62,7 @@ export abstract class SchemaItem<Value = any> {
       label: this.getLabel(),
       actionType: this.getActionType(),
       value: value,
-    } as const satisfies $Schema.RuleArgParams<Value>;
+    } as const satisfies Schema.RuleArgParams<Value>;
 
     for (const validator of this.validators) {
       const msg = validator(ruleArgParams);
@@ -74,13 +74,13 @@ export abstract class SchemaItem<Value = any> {
 };
 
 export function optimizeValidationMessage<
-  T extends string | $Schema.Message | ((params: never) => unknown)
->(m: T | null | undefined): $Schema.ValidationResult<T> | undefined {
+  T extends string | Schema.Message | ((params: never) => unknown)
+>(m: T | null | undefined): Schema.ValidationResult<T> | undefined {
   if (m == null) return undefined;
-  type U = $Schema.ValidationResult<T>;
+  type U = Schema.ValidationResult<T>;
   type Params = T extends (params: infer P) => unknown
     ? P
-    : $Schema.ValidationResultArgParams<Record<string, unknown>>;
+    : Schema.ValidationResultArgParams<Record<string, unknown>>;
   if (typeof m === "string") {
     return ((params: Params) => {
       return {
@@ -89,11 +89,11 @@ export function optimizeValidationMessage<
         message: m,
         name: params.name,
         actionType: params.actionType,
-      } as const satisfies $Schema.Message;
+      } as const satisfies Schema.Message;
     }) as U;
   }
   if (typeof m === "function") {
-    const fn = m as unknown as (params: Params) => string | $Schema.Message | null;
+    const fn = m as unknown as (params: Params) => string | Schema.Message | null;
     return ((params: Params) => {
       const ret = fn(params);
       if (typeof ret === "string") {
@@ -103,7 +103,7 @@ export function optimizeValidationMessage<
           message: ret,
           name: params.name,
           actionType: params.actionType,
-        } as const satisfies $Schema.Message;
+        } as const satisfies Schema.Message;
       }
       return ret;
     }) as U;
@@ -112,9 +112,9 @@ export function optimizeValidationMessage<
 };
 
 export function getValidationArray<
-  T extends $Schema.Validation<unknown, unknown>
->(validation: T, initValue?: $Schema.ValidationArray<T>[0]): $Schema.ValidationArray<T> {
-  type U = $Schema.ValidationArray<T>;
+  T extends Schema.Validation<unknown, unknown>
+>(validation: T, initValue?: Schema.ValidationArray<T>[0]): Schema.ValidationArray<T> {
+  type U = Schema.ValidationArray<T>;
   if (validation == null) return [initValue] as U;
   if (Array.isArray(validation)) {
     const [v, m] = validation;
@@ -124,16 +124,16 @@ export function getValidationArray<
 };
 
 export function getValidationArrayAsArray<
-  T extends $Schema.Validation<unknown | Array<unknown>, never> = $Schema.Validation<Array<unknown>, unknown>
->(validation: T): $Schema.ValidationArrayAsArray<T> {
-  type U = $Schema.ValidationArrayAsArray<T>;
+  T extends Schema.Validation<unknown | Array<unknown>, never> = Schema.Validation<Array<unknown>, unknown>
+>(validation: T): Schema.ValidationArrayAsArray<T> {
+  type U = Schema.ValidationArrayAsArray<T>;
   if (validation == null) return [undefined] as U;
   if (typeof validation === "function") return [validation] as U;
   if (Array.isArray(validation)) {
     const [v, m] = validation;
     if (Array.isArray(v) || typeof v === "function") {
       return [v, optimizeValidationMessage(
-        m as string | $Schema.Message | ((params: never) => unknown) | undefined
+        m as string | Schema.Message | ((params: never) => unknown) | undefined
       )] as unknown as U;
     }
     return [validation] as U;
@@ -141,10 +141,10 @@ export function getValidationArrayAsArray<
   throw new Error(`validation value is not array type`);
 };
 
-export function getPickMessageGetter<const OType extends $Schema.ValidationMessage["otype"]>(otype: OType) {
+export function getPickMessageGetter<const OType extends Schema.ValidationMessage["otype"]>(otype: OType) {
   return function pickMessage<
-    const Code extends $Schema.ExtractCodeFromOType<OType>,
-    const Params extends Pick<$Schema.ValidationResultArgParams<unknown, $Schema.ExtractParamsFromOTypeAndCode<OType, Code>>, "actionType" | "name" | "label" | "params">
+    const Code extends Schema.ExtractCodeFromOType<OType>,
+    const Params extends Pick<Schema.ValidationResultArgParams<unknown, Schema.ExtractParamsFromOTypeAndCode<OType, Code>>, "actionType" | "name" | "label" | "params">
   >(code: Code, params: Params) {
     return {
       type: "e",
@@ -154,7 +154,7 @@ export function getPickMessageGetter<const OType extends $Schema.ValidationMessa
       label: params.label,
       name: params.name,
       params: params.params as Params["params"],
-    } as const satisfies $Schema.AbstractMessage & {
+    } as const satisfies Schema.AbstractMessage & {
       code: Code;
       otype: OType;
       params: Params["params"];

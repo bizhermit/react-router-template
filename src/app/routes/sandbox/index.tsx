@@ -2,6 +2,8 @@
 // /* eslint-disable no-console */
 // /* eslint-disable @typescript-eslint/no-unused-vars */
 
+import { Link } from "$/components/elements/link";
+
 // import getIndexedDB, { type IndexedDBController, type IndexedDBStores } from "$/client/indexeddb";
 // import { Button } from "$/components/elements/button";
 // import { LinkButton } from "$/components/elements/button/link-button";
@@ -1888,5 +1890,13 @@
 // };
 
 export default function Page() {
-  return null;
+  return (
+    <div>
+      <ul>
+        <li>
+          <Link to={{ pathname: "/sandbox/form" }}>form</Link>
+        </li>
+      </ul>
+    </div>
+  );
 }

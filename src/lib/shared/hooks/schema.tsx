@@ -17,8 +17,8 @@ type SchemaHookProps<S extends $ObjSchema<any, any>> = {
     action?: Record<string, unknown> | null | undefined;
   };
   messages?: {
-    loader?: $Schema.RecordMessages | null | undefined;
-    action?: $Schema.RecordMessages | null | undefined;
+    loader?: Schema.RecordMessages | null | undefined;
+    action?: Schema.RecordMessages | null | undefined;
   };
   data?: Record<string, unknown>;
   state?: "idle" | "submitting" | "loading";
@@ -201,7 +201,7 @@ export function useHasError() {
 export function useFormArrayItem<S extends $ArrSchema<any, any>>(arrayFormItem: FormItem<S>) {
   const { context } = use(SchemaProviderContext);
   const [revision, setRevision] = useState(0);
-  const value = useSyncExternalStore<$Schema.Nullable<$Schema.InferValue<S>>>((callback) => {
+  const value = useSyncExternalStore<Schema.Nullable<Schema.InferValue<S>>>((callback) => {
     const cleanup = context.addValuesSubscribe(arrayFormItem.getName(), () => {
       setRevision(c => c + 1);
       callback();
@@ -214,11 +214,11 @@ export function useFormArrayItem<S extends $ArrSchema<any, any>>(arrayFormItem: 
   });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  type ArgFormParams = $Schema.InferArrayChild<S> extends $ObjSchema<any, any> ? {
-    formItems: $Schema.ObjectFormItems<$Schema.InferArrayChild<S>>;
+  type ArgFormParams = Schema.InferArrayChild<S> extends $ObjSchema<any, any> ? {
+    formItems: Schema.ObjectFormItems<Schema.InferArrayChild<S>>;
     formItem: never;
   } : {
-    formItem: FormItem<$Schema.InferArrayChild<S>>;
+    formItem: FormItem<Schema.InferArrayChild<S>>;
     formItems: never;
   };
 
@@ -256,7 +256,7 @@ export function useFormArrayItem<S extends $ArrSchema<any, any>>(arrayFormItem: 
     arrayFormItem.setValue(nv);
   };
 
-  function add(value: $Schema.InferValue<$Schema.InferArrayChild<S>>) {
+  function add(value: Schema.InferValue<Schema.InferArrayChild<S>>) {
     const v = [...arrayFormItem.getValue() ?? [], value];
     arrayFormItem.setValue(v);
   };
@@ -265,7 +265,7 @@ export function useFormArrayItem<S extends $ArrSchema<any, any>>(arrayFormItem: 
     key: string;
     index: number;
     name: string;
-    value: $Schema.InferValue<$Schema.InferArrayChild<S>>;
+    value: Schema.InferValue<Schema.InferArrayChild<S>>;
     remove: () => void;
   } & ArgFormParams) => T) {
     return value?.map((val, index) => {
@@ -297,7 +297,7 @@ export function useFormArrayItem<S extends $ArrSchema<any, any>>(arrayFormItem: 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useFormValue<S extends SchemaItem<any>>(formItem: FormItem<S>) {
   const { context } = use(SchemaProviderContext);
-  const value = useSyncExternalStore<$Schema.Nullable<$Schema.InferValue<S>>>((callback) => {
+  const value = useSyncExternalStore<Schema.Nullable<Schema.InferValue<S>>>((callback) => {
     const cleanup = context.addValuesSubscribe(formItem.getName(), () => {
       callback();
     });
@@ -318,7 +318,7 @@ export function useFormValue<S extends SchemaItem<any>>(formItem: FormItem<S>) {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useFormMessage(formItem: FormItem<any>) {
   const { context } = use(SchemaProviderContext);
-  const message = useSyncExternalStore<$Schema.Message | undefined>((callback) => {
+  const message = useSyncExternalStore<Schema.Message | undefined>((callback) => {
     const cleanup = context.addMessageSubscribe(formItem.getName(), () => {
       callback();
     });
@@ -373,7 +373,7 @@ export function useFormInput<S extends SchemaItem<any>>(
   const name = formItem.getName();
   const label = t(schemaItem.getLabel() as I18nTextKey);
 
-  const value = useSyncExternalStore<$Schema.Nullable<$Schema.InferValue<S>>>((callback) => {
+  const value = useSyncExternalStore<Schema.Nullable<Schema.InferValue<S>>>((callback) => {
     const cleanup = context.addValuesSubscribe(name, () => {
       callback();
     });
@@ -384,7 +384,7 @@ export function useFormInput<S extends SchemaItem<any>>(
     return context.getValue(name);
   });
 
-  const message = useSyncExternalStore<$Schema.Message | undefined>((callback) => {
+  const message = useSyncExternalStore<Schema.Message | undefined>((callback) => {
     const cleanup = context.addMessageSubscribe(name, () => {
       callback();
     });
@@ -402,7 +402,7 @@ export function useFormInput<S extends SchemaItem<any>>(
   const id = `${schemaId}_${name}`;
 
   const mode = formItem.getMode(injectParams);
-  let state: $Schema.Mode = "enabled";
+  let state: Schema.Mode = "enabled";
   if (mode === "hidden") state = "hidden";
   else if (fs.disabled || mode === "disabled") state = "disabled";
   else if (fs.readOnly || mode === "readonly" || formState === "loading" || formState === "submitting") state = "readonly";

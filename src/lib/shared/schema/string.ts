@@ -3,7 +3,7 @@ import { getPickMessageGetter, getValidationArray, SchemaItem } from "./core";
 
 export const SCHEMA_ITEM_TYPE_STRING = "str" as const;
 
-function isEmpty(value: $Schema.Nullable<string>): value is (null | undefined) {
+function isEmpty(value: Schema.Nullable<string>): value is (null | undefined) {
   return value == null || value === "";
 };
 
@@ -136,23 +136,23 @@ const STR_PATTERN_TEST = {
 export type StrPattern = keyof typeof STR_PATTERN_TEST;
 
 type StringValidations = {
-  required: $Schema.ValidationEntry<boolean, null | undefined>;
-  length: $Schema.ValidationEntry<number, string, { length: number; currentLength: number; }>;
-  minLength: $Schema.ValidationEntry<number, string, { minLength: number; currentLength: number; }>;
-  maxLength: $Schema.ValidationEntry<number, string, { maxLength: number; currentLength: number; }>;
-  pattern: $Schema.ValidationEntry<StrPattern, string, { pattern: StrPattern; }>;
+  required: Schema.ValidationEntry<boolean, null | undefined>;
+  length: Schema.ValidationEntry<number, string, { length: number; currentLength: number; }>;
+  minLength: Schema.ValidationEntry<number, string, { minLength: number; currentLength: number; }>;
+  maxLength: Schema.ValidationEntry<number, string, { maxLength: number; currentLength: number; }>;
+  pattern: Schema.ValidationEntry<StrPattern, string, { pattern: StrPattern; }>;
 };
 
-export type StringSchemaMessage = $Schema.ValidationMessages<
+export type StringSchemaMessage = Schema.ValidationMessages<
   StringValidations,
   typeof SCHEMA_ITEM_TYPE_STRING
 >;
 
-type StringProps = $Schema.SchemaItemAbstractProps
-  & $Schema.Validations<StringValidations>
+type StringProps = Schema.SchemaItemAbstractProps
+  & Schema.Validations<StringValidations>
   & {
-    parser?: $Schema.Parser<string>;
-    rules?: $Schema.Rule<string>[];
+    parser?: Schema.Parser<string>;
+    rules?: Schema.Rule<string>[];
   };
 
 const pickMessage = getPickMessageGetter(SCHEMA_ITEM_TYPE_STRING);
@@ -167,14 +167,14 @@ export class $StrSchema<const P extends StringProps> extends SchemaItem<string> 
     super(props);
   }
 
-  public getActionType(): $Schema.ActionType {
+  public getActionType(): Schema.ActionType {
     return this.actionType || "input";
   }
 
   public parse(
     value: unknown,
-    params: $Schema.ParseArgParams = this.getEmptyInjectParams()
-  ): $Schema.ParseResult<string> {
+    params: Schema.ParseArgParams = this.getEmptyInjectParams()
+  ): Schema.ParseResult<string> {
     if (this.props.parser) {
       const parsed = this.props.parser(value, params);
       return {
@@ -189,9 +189,9 @@ export class $StrSchema<const P extends StringProps> extends SchemaItem<string> 
   }
 
   public validate(
-    value: $Schema.Nullable<string>,
-    params?: $Schema.ValidationArgParams
-  ): $Schema.RecordMessages {
+    value: Schema.Nullable<string>,
+    params?: Schema.ValidationArgParams
+  ): Schema.RecordMessages {
     if (this.validators == null) {
       this.validators = [];
 
@@ -205,14 +205,14 @@ export class $StrSchema<const P extends StringProps> extends SchemaItem<string> 
             this.validators.push((p) => {
               if (!required(p)) return null;
               if (isEmpty(p.value)) {
-                return getMessage(p as $Schema.RuleArgParamsAsValidation<null | undefined>);
+                return getMessage(p as Schema.RuleArgParamsAsValidation<null | undefined>);
               }
               return null;
             });
           } else {
             this.validators.push((p) => {
               if (isEmpty(p.value)) {
-                return getMessage(p as $Schema.RuleArgParamsAsValidation<null | undefined>);
+                return getMessage(p as Schema.RuleArgParamsAsValidation<null | undefined>);
               }
               return null;
             });
@@ -235,7 +235,7 @@ export class $StrSchema<const P extends StringProps> extends SchemaItem<string> 
               const cur = getLength(p.value);
               if (cur === len) return null;
               return getMessage({
-                ...p as $Schema.RuleArgParamsAsValidation<string>,
+                ...p as Schema.RuleArgParamsAsValidation<string>,
                 params: {
                   length: len,
                   currentLength: cur,
@@ -248,7 +248,7 @@ export class $StrSchema<const P extends StringProps> extends SchemaItem<string> 
               const cur = getLength(p.value);
               if (cur === length) return null;
               return getMessage({
-                ...p as $Schema.RuleArgParamsAsValidation<string>,
+                ...p as Schema.RuleArgParamsAsValidation<string>,
                 params: {
                   length,
                   currentLength: cur,
@@ -273,7 +273,7 @@ export class $StrSchema<const P extends StringProps> extends SchemaItem<string> 
               const cur = getLength(p.value);
               if (minLen <= cur) return null;
               return getMessage({
-                ...p as $Schema.RuleArgParamsAsValidation<string>,
+                ...p as Schema.RuleArgParamsAsValidation<string>,
                 params: {
                   minLength: minLen,
                   currentLength: cur,
@@ -286,7 +286,7 @@ export class $StrSchema<const P extends StringProps> extends SchemaItem<string> 
               const cur = getLength(p.value);
               if (minLength <= cur) return null;
               return getMessage({
-                ...p as $Schema.RuleArgParamsAsValidation<string>,
+                ...p as Schema.RuleArgParamsAsValidation<string>,
                 params: {
                   minLength,
                   currentLength: cur,
@@ -311,7 +311,7 @@ export class $StrSchema<const P extends StringProps> extends SchemaItem<string> 
               const cur = getLength(p.value);
               if (cur <= maxLen) return null;
               return getMessage({
-                ...p as $Schema.RuleArgParamsAsValidation<string>,
+                ...p as Schema.RuleArgParamsAsValidation<string>,
                 params: {
                   maxLength: maxLen,
                   currentLength: cur,
@@ -324,7 +324,7 @@ export class $StrSchema<const P extends StringProps> extends SchemaItem<string> 
               const cur = getLength(p.value);
               if (cur <= maxLength) return null;
               return getMessage({
-                ...p as $Schema.RuleArgParamsAsValidation<string>,
+                ...p as Schema.RuleArgParamsAsValidation<string>,
                 params: {
                   maxLength: maxLength,
                   currentLength: cur,
@@ -350,7 +350,7 @@ export class $StrSchema<const P extends StringProps> extends SchemaItem<string> 
               const test = STR_PATTERN_TEST[ptn];
               if (test(p.value)) return null;
               return getMessage({
-                ...p as $Schema.RuleArgParamsAsValidation<string>,
+                ...p as Schema.RuleArgParamsAsValidation<string>,
                 params: {
                   pattern: ptn,
                 },
@@ -362,7 +362,7 @@ export class $StrSchema<const P extends StringProps> extends SchemaItem<string> 
               if (isEmpty(p.value)) return null;
               if (test(p.value)) return null;
               return getMessage({
-                ...p as $Schema.RuleArgParamsAsValidation<string>,
+                ...p as Schema.RuleArgParamsAsValidation<string>,
                 params: {
                   pattern,
                 },
@@ -388,7 +388,7 @@ export class $StrSchema<const P extends StringProps> extends SchemaItem<string> 
     });
   }
 
-  public getRequired(params: $Schema.InjectParams) {
+  public getRequired(params: Schema.InjectParams) {
     const required = getValidationArray(this.props.required)[0];
     if (typeof required === "function") {
       return required(params) ?? false;
@@ -396,7 +396,7 @@ export class $StrSchema<const P extends StringProps> extends SchemaItem<string> 
     return required ?? false;
   }
 
-  public getLength(params: $Schema.InjectParams) {
+  public getLength(params: Schema.InjectParams) {
     const length = getValidationArray(this.props.length)[0];
     if (typeof length === "function") {
       return length(params);
@@ -404,7 +404,7 @@ export class $StrSchema<const P extends StringProps> extends SchemaItem<string> 
     return length;
   }
 
-  public getMinLength(params: $Schema.InjectParams) {
+  public getMinLength(params: Schema.InjectParams) {
     const minLength = getValidationArray(this.props.minLength)[0];
     if (typeof minLength === "function") {
       return minLength(params);
@@ -412,7 +412,7 @@ export class $StrSchema<const P extends StringProps> extends SchemaItem<string> 
     return minLength;
   }
 
-  public getMaxLength(params: $Schema.InjectParams) {
+  public getMaxLength(params: Schema.InjectParams) {
     const maxLength = getValidationArray(this.props.maxLength)[0];
     if (typeof maxLength === "function") {
       return maxLength(params);
@@ -420,7 +420,7 @@ export class $StrSchema<const P extends StringProps> extends SchemaItem<string> 
     return maxLength;
   }
 
-  public getPattern(params: $Schema.InjectParams) {
+  public getPattern(params: Schema.InjectParams) {
     const pattern = getValidationArray(this.props.pattern)[0];
     if (typeof pattern === "function") {
       return pattern(params);

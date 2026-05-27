@@ -13,12 +13,12 @@ export type DateSplitPart =
   | "second";
 
 type SplitDateValidations = {
-  required: $Schema.ValidationEntry<boolean | "inherit", null | undefined>;
-  min: $Schema.ValidationEntry<number | "inherit", number, { min: number; }>;
-  max: $Schema.ValidationEntry<number | "inherit", number, { max: number; }>;
+  required: Schema.ValidationEntry<boolean | "inherit", null | undefined>;
+  min: Schema.ValidationEntry<number | "inherit", number, { min: number; }>;
+  max: Schema.ValidationEntry<number | "inherit", number, { max: number; }>;
 };
 
-export type SplitDateSchemaMessage = $Schema.ValidationMessages<
+export type SplitDateSchemaMessage = Schema.ValidationMessages<
   SplitDateValidations,
   `split-${DateSplitPart}`,
   {
@@ -27,11 +27,11 @@ export type SplitDateSchemaMessage = $Schema.ValidationMessages<
   }
 >;
 
-export type SplitDateProps = $Schema.SchemaItemAbstractProps
-  & $Schema.Validations<SplitDateValidations>
+export type SplitDateProps = Schema.SchemaItemAbstractProps
+  & Schema.Validations<SplitDateValidations>
   & {
-    parser?: $Schema.Parser<number>;
-    rules?: $Schema.Rule<number>[];
+    parser?: Schema.Parser<number>;
+    rules?: Schema.Rule<number>[];
     step?: number;
   };
 
@@ -48,23 +48,23 @@ export class $SplitDateSchema<
     protected props: Props,
     protected part: DateSplitPart,
     protected baseGetters: {
-      required: (params: $Schema.InjectParams) => $Schema.Nullable<boolean>;
-      min: (params: $Schema.InjectParams) => $Schema.Nullable<number>;
-      max: (params: $Schema.InjectParams) => $Schema.Nullable<number>;
+      required: (params: Schema.InjectParams) => Schema.Nullable<boolean>;
+      min: (params: Schema.InjectParams) => Schema.Nullable<number>;
+      max: (params: Schema.InjectParams) => Schema.Nullable<number>;
     }
   ) {
     super(props);
     this.pickMessage = getPickMessageGetter(`split-${part}`);
   }
 
-  public getActionType(): $Schema.ActionType {
+  public getActionType(): Schema.ActionType {
     return this.props.actionType || this.base.getActionType();
   }
 
   public parse(
     value: unknown,
-    params: $Schema.ParseArgParams = this.getEmptyInjectParams()
-  ): $Schema.ParseResult<number> {
+    params: Schema.ParseArgParams = this.getEmptyInjectParams()
+  ): Schema.ParseResult<number> {
     if (this.props.parser) {
       const parsed = this.props.parser(value, params);
       return {
@@ -90,9 +90,9 @@ export class $SplitDateSchema<
   }
 
   public validate(
-    value: $Schema.Nullable<number>,
-    params: $Schema.ValidationArgParams = this.getEmptyInjectParams()
-  ): $Schema.RecordMessages {
+    value: Schema.Nullable<number>,
+    params: Schema.ValidationArgParams = this.getEmptyInjectParams()
+  ): Schema.RecordMessages {
     if (this.validators == null) {
       this.validators = [];
 
@@ -108,13 +108,13 @@ export class $SplitDateSchema<
             if (r === "inherit") {
               if (this.baseGetters.required(p)) {
                 if (p.value == null) {
-                  return getMessage(p as $Schema.ValidationResultArgParams);
+                  return getMessage(p as Schema.ValidationResultArgParams);
                 }
               }
               return null;
             }
             if (p.value == null) {
-              return getMessage(p as $Schema.ValidationResultArgParams);
+              return getMessage(p as Schema.ValidationResultArgParams);
             }
             return null;
           });
@@ -123,7 +123,7 @@ export class $SplitDateSchema<
             this.validators.push((p) => {
               if (this.baseGetters.required(p)) {
                 if (p.value == null) {
-                  return getMessage(p as $Schema.ValidationResultArgParams);
+                  return getMessage(p as Schema.ValidationResultArgParams);
                 }
               }
               return null;
@@ -131,7 +131,7 @@ export class $SplitDateSchema<
           } else {
             this.validators.push((p) => {
               if (p.value == null) {
-                return getMessage(p as $Schema.ValidationResultArgParams);
+                return getMessage(p as Schema.ValidationResultArgParams);
               }
               return null;
             });
@@ -153,7 +153,7 @@ export class $SplitDateSchema<
               const baseMin = this.baseGetters.min(p);
               if (baseMin == null || baseMin <= p.value) return null;
               return getMessage({
-                ...p as $Schema.RuleArgParamsAsValidation<number>,
+                ...p as Schema.RuleArgParamsAsValidation<number>,
                 params: {
                   min: baseMin,
                 },
@@ -161,7 +161,7 @@ export class $SplitDateSchema<
             }
             if (m <= p.value) return null;
             return getMessage({
-              ...p as $Schema.ValidationResultArgParams<number>,
+              ...p as Schema.ValidationResultArgParams<number>,
               params: {
                 min: m,
               },
@@ -174,7 +174,7 @@ export class $SplitDateSchema<
               const baseMin = this.baseGetters.min(p);
               if (baseMin == null || baseMin <= p.value) return null;
               return getMessage({
-                ...p as $Schema.RuleArgParamsAsValidation<number>,
+                ...p as Schema.RuleArgParamsAsValidation<number>,
                 params: {
                   min: baseMin,
                 },
@@ -185,7 +185,7 @@ export class $SplitDateSchema<
               if (p.value == null) return null;
               if (min <= p.value) return null;
               return getMessage({
-                ...p as $Schema.ValidationResultArgParams<number>,
+                ...p as Schema.ValidationResultArgParams<number>,
                 params: {
                   min,
                 },
@@ -209,7 +209,7 @@ export class $SplitDateSchema<
               const baseMax = this.baseGetters.max(p);
               if (baseMax == null || p.value <= baseMax) return null;
               return getMessage({
-                ...p as $Schema.RuleArgParamsAsValidation<number>,
+                ...p as Schema.RuleArgParamsAsValidation<number>,
                 params: {
                   max: baseMax,
                 },
@@ -217,7 +217,7 @@ export class $SplitDateSchema<
             }
             if (p.value <= m) return null;
             return getMessage({
-              ...p as $Schema.ValidationResultArgParams<number>,
+              ...p as Schema.ValidationResultArgParams<number>,
               params: {
                 max: m,
               },
@@ -230,7 +230,7 @@ export class $SplitDateSchema<
               const baseMax = this.baseGetters.max(p);
               if (baseMax == null || p.value <= baseMax) return null;
               return getMessage({
-                ...p as $Schema.RuleArgParamsAsValidation<number>,
+                ...p as Schema.RuleArgParamsAsValidation<number>,
                 params: {
                   max: baseMax,
                 },
@@ -241,7 +241,7 @@ export class $SplitDateSchema<
               if (p.value == null) return null;
               if (p.value <= max) return null;
               return getMessage({
-                ...p as $Schema.ValidationResultArgParams<number>,
+                ...p as Schema.ValidationResultArgParams<number>,
                 params: {
                   max,
                 },
@@ -264,7 +264,7 @@ export class $SplitDateSchema<
     return this.base;
   }
 
-  public getRequired(params: $Schema.InjectParams) {
+  public getRequired(params: Schema.InjectParams) {
     const required = getValidationArray(this.props.required)[0];
     const req = (typeof required === "function" ? required(params) : required) ?? "inherit";
     if (req === "inherit") {
@@ -273,7 +273,7 @@ export class $SplitDateSchema<
     return req ?? false;
   }
 
-  public getMin(params: $Schema.InjectParams) {
+  public getMin(params: Schema.InjectParams) {
     const min = getValidationArray(this.props.min)[0];
     const m = typeof min === "function" ? min(params) : min;
     if (m === "inherit") {
@@ -282,7 +282,7 @@ export class $SplitDateSchema<
     return m;
   }
 
-  public getMax(params: $Schema.InjectParams) {
+  public getMax(params: Schema.InjectParams) {
     const max = getValidationArray(this.props.max)[0];
     const m = typeof max === "function" ? max(params) : max;
     if (m === "inherit") {

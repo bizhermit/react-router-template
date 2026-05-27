@@ -34,8 +34,8 @@ export function convertToFormItems(
   return formItems;
 };
 
-export function convertToMessageMap(messages: $Schema.RecordMessages | null | undefined) {
-  const ret = new Map<string, $Schema.Message | undefined>();
+export function convertToMessageMap(messages: Schema.RecordMessages | null | undefined) {
+  const ret = new Map<string, Schema.Message | undefined>();
   if (messages == null) return ret;
   Object.entries(messages).forEach(([name, msgs]) => {
     if (!msgs || msgs.length === 0) return;
@@ -46,8 +46,8 @@ export function convertToMessageMap(messages: $Schema.RecordMessages | null | un
 };
 
 export function equalMessage(
-  msg1: $Schema.Message | null | undefined,
-  msg2: $Schema.Message | null | undefined
+  msg1: Schema.Message | null | undefined,
+  msg2: Schema.Message | null | undefined
 ) {
   if (equals(msg1, msg2)) return true;
   if (equals(msg1?.code, msg2?.code)) return true;
@@ -64,11 +64,11 @@ export class FormContext<S extends $ObjSchema<any, any>> {
   protected originValues: Record<string, unknown>;
   protected values: Record<string, unknown>;
 
-  protected injectParams: $Schema.InjectParams;
+  protected injectParams: Schema.InjectParams;
   protected injectParamsSubscribes: Set<() => void>;
 
-  protected originMessages: Map<string, $Schema.Message | undefined>;
-  protected messages: Map<string, $Schema.Message | undefined>;
+  protected originMessages: Map<string, Schema.Message | undefined>;
+  protected messages: Map<string, Schema.Message | undefined>;
   protected messagesSubscribes: Map<string, Set<() => void>>;
 
   protected error: boolean;
@@ -79,7 +79,7 @@ export class FormContext<S extends $ObjSchema<any, any>> {
   constructor(init: {
     schema: S;
     values: Record<string, unknown>;
-    messages?: $Schema.RecordMessages | null | undefined;
+    messages?: Schema.RecordMessages | null | undefined;
     data?: Record<string, unknown>;
   }) {
     this.schema = init.schema;
@@ -113,7 +113,7 @@ export class FormContext<S extends $ObjSchema<any, any>> {
   }
 
   public getFormItems() {
-    return this.formItems as $Schema.ObjectFormItems<S>;
+    return this.formItems as Schema.ObjectFormItems<S>;
   }
 
   public getInjectParams() {
@@ -128,7 +128,7 @@ export class FormContext<S extends $ObjSchema<any, any>> {
   }
 
   public setMessages(
-    messages: $Schema.RecordMessages | null | undefined,
+    messages: Schema.RecordMessages | null | undefined,
     options?: {
       preventUpdateOrigin?: boolean;
     }
@@ -145,7 +145,7 @@ export class FormContext<S extends $ObjSchema<any, any>> {
     return this.messages.get(name);
   }
 
-  public setMessage(name: string, message: $Schema.Message | null | undefined) {
+  public setMessage(name: string, message: Schema.Message | null | undefined) {
     const current = this.messages.get(name);
     if (equalMessage(current, message)) return false;
     if (message) {
@@ -310,7 +310,7 @@ export class FormContext<S extends $ObjSchema<any, any>> {
       if (equalMessage(current, message)) return prev;
       prev.push({ name, message });
       return prev;
-    }, [] as ({ name: string; message: $Schema.Message | undefined; }[]));
+    }, [] as ({ name: string; message: Schema.Message | undefined; }[]));
 
     if (isReplace) {
       const keys = Array.from(this.messages.keys());
@@ -442,7 +442,7 @@ export class FormItem<S extends SchemaItem<any>> {
     return this.refsCache;
   }
 
-  public getMode(params: $Schema.InjectParams) {
+  public getMode(params: Schema.InjectParams) {
     return this.schemaItem.getMode(params);
   }
 
@@ -451,7 +451,7 @@ export class FormItem<S extends SchemaItem<any>> {
   }
 
   public getValue() {
-    return this.formContext.getValue<$Schema.Infer<S>>(this.name);
+    return this.formContext.getValue<Schema.Infer<S>>(this.name);
   }
 
   public setValue(value: unknown) {

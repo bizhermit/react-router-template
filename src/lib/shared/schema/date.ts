@@ -13,26 +13,26 @@ type DatePair = {
 };
 
 type DateValidations = {
-  required: $Schema.ValidationEntry<boolean, null | undefined>;
-  minDate: $Schema.ValidationEntry<$Date, $Date, { minDate: $Date; }>;
-  maxDate: $Schema.ValidationEntry<$Date, $Date, { maxDate: $Date; }>;
-  pairs: $Schema.ValidationEntry<
+  required: Schema.ValidationEntry<boolean, null | undefined>;
+  minDate: Schema.ValidationEntry<$Date, $Date, { minDate: $Date; }>;
+  maxDate: Schema.ValidationEntry<$Date, $Date, { maxDate: $Date; }>;
+  pairs: Schema.ValidationEntry<
     DatePair | DatePair[],
     $Date,
     Omit<Required<DatePair>, "name"> & { pairName: string; pairDate: $Date; }
   >;
 };
 
-export type DateSchemaMessage = $Schema.ValidationMessages<
+export type DateSchemaMessage = Schema.ValidationMessages<
   DateValidations,
   typeof SCHEMA_ITEM_TYPE_DATE
 >;
 
-export type DateProps = $Schema.SchemaItemAbstractProps
-  & $Schema.Validations<DateValidations>
+export type DateProps = Schema.SchemaItemAbstractProps
+  & Schema.Validations<DateValidations>
   & {
-    parser?: $Schema.Parser<$Date>;
-    rules?: $Schema.Rule<$Date>[];
+    parser?: Schema.Parser<$Date>;
+    rules?: Schema.Rule<$Date>[];
     splits?: [string, string, string];
   };
 
@@ -48,14 +48,14 @@ export class $DateSchema<const P extends DateProps> extends SchemaItem<$Date> {
     super(props);
   }
 
-  public getActionType(): $Schema.ActionType {
+  public getActionType(): Schema.ActionType {
     return this.props.actionType || "input";
   }
 
   public parse(
     value: unknown,
-    params: $Schema.ParseArgParams = this.getEmptyInjectParams()
-  ): $Schema.ParseResult<$Date> {
+    params: Schema.ParseArgParams = this.getEmptyInjectParams()
+  ): Schema.ParseResult<$Date> {
     if (this.props.parser) {
       const parsed = this.props.parser(value, params);
       return {
@@ -97,9 +97,9 @@ export class $DateSchema<const P extends DateProps> extends SchemaItem<$Date> {
   }
 
   public validate(
-    value: $Schema.Nullable<$Date>,
-    params: $Schema.ValidationArgParams = this.getEmptyInjectParams()
-  ): $Schema.RecordMessages {
+    value: Schema.Nullable<$Date>,
+    params: Schema.ValidationArgParams = this.getEmptyInjectParams()
+  ): Schema.RecordMessages {
     if (this.validators == null) {
       this.validators = [];
 
@@ -113,14 +113,14 @@ export class $DateSchema<const P extends DateProps> extends SchemaItem<$Date> {
             this.validators.push((p) => {
               if (!required(p)) return null;
               if (p.value == null) {
-                return getMessage(p as $Schema.ValidationResultArgParams);
+                return getMessage(p as Schema.ValidationResultArgParams);
               }
               return null;
             });
           } else {
             this.validators.push((p) => {
               if (p.value == null) {
-                return getMessage(p as $Schema.ValidationResultArgParams);
+                return getMessage(p as Schema.ValidationResultArgParams);
               }
               return null;
             });
@@ -140,7 +140,7 @@ export class $DateSchema<const P extends DateProps> extends SchemaItem<$Date> {
               if (m == null) return null;
               if (p.value.isBefore(m)) {
                 return getMessage({
-                  ...p as $Schema.RuleArgParamsAsValidation<$Date>,
+                  ...p as Schema.RuleArgParamsAsValidation<$Date>,
                   params: {
                     minDate: m.toJSON(),
                   },
@@ -153,7 +153,7 @@ export class $DateSchema<const P extends DateProps> extends SchemaItem<$Date> {
               if (p.value == null) return null;
               if (p.value.isBefore(minDate)) {
                 return getMessage({
-                  ...p as $Schema.RuleArgParamsAsValidation<$Date>,
+                  ...p as Schema.RuleArgParamsAsValidation<$Date>,
                   params: {
                     minDate: minDate.toJSON(),
                   },
@@ -178,7 +178,7 @@ export class $DateSchema<const P extends DateProps> extends SchemaItem<$Date> {
               if (m == null) return null;
               if (p.value.isAfter(m)) {
                 return getMessage({
-                  ...p as $Schema.RuleArgParamsAsValidation<$Date>,
+                  ...p as Schema.RuleArgParamsAsValidation<$Date>,
                   params: {
                     maxDate: m.toJSON(),
                   },
@@ -191,7 +191,7 @@ export class $DateSchema<const P extends DateProps> extends SchemaItem<$Date> {
               if (p.value == null) return null;
               if (p.value.isAfter(maxDate)) {
                 return getMessage({
-                  ...p as $Schema.RuleArgParamsAsValidation<$Date>,
+                  ...p as Schema.RuleArgParamsAsValidation<$Date>,
                   params: {
                     maxDate: maxDate.toJSON(),
                   },
@@ -237,7 +237,7 @@ export class $DateSchema<const P extends DateProps> extends SchemaItem<$Date> {
                     }
                   }
                   return getMessage({
-                    ...p as $Schema.RuleArgParamsAsValidation<$Date>,
+                    ...p as Schema.RuleArgParamsAsValidation<$Date>,
                     params: {
                       pairName: pair.name,
                       position: pair.position,
@@ -279,7 +279,7 @@ export class $DateSchema<const P extends DateProps> extends SchemaItem<$Date> {
                     }
                   }
                   return getMessage({
-                    ...p as $Schema.RuleArgParamsAsValidation<$Date>,
+                    ...p as Schema.RuleArgParamsAsValidation<$Date>,
                     params: {
                       pairName: pair.name,
                       position: pair.position,
@@ -319,7 +319,7 @@ export class $DateSchema<const P extends DateProps> extends SchemaItem<$Date> {
       "year",
       {
         required: typeof required === "function" ?
-          (p: $Schema.InjectParams) => required(p) :
+          (p: Schema.InjectParams) => required(p) :
           () => required,
         min: typeof minDate === "function" ?
           (p) => minDate(p)?.getYear() :
@@ -340,7 +340,7 @@ export class $DateSchema<const P extends DateProps> extends SchemaItem<$Date> {
       "month",
       {
         required: typeof required === "function" ?
-          (p: $Schema.InjectParams) => required(p) :
+          (p: Schema.InjectParams) => required(p) :
           () => required,
         min: () => 1, // NOTE: 最小値および年の値によって変動するため、最小日付と比較を行わない
         max: () => 12, // NOTE: 最大値および年の値によって変動するため、最大日付と比較を行わない
@@ -357,7 +357,7 @@ export class $DateSchema<const P extends DateProps> extends SchemaItem<$Date> {
       "day",
       {
         required: typeof required === "function" ?
-          (p: $Schema.InjectParams) => required(p) :
+          (p: Schema.InjectParams) => required(p) :
           () => required,
         min: () => 1, // NOTE: 最小値および年月の値によって変動するため、最小日付と比較を行わない
         max: () => 31, // NOTE: 最大値および年月の値によって変動するため、最大日付と比較を行わない
@@ -372,7 +372,7 @@ export class $DateSchema<const P extends DateProps> extends SchemaItem<$Date> {
     });
   }
 
-  public getRequired(params: $Schema.InjectParams) {
+  public getRequired(params: Schema.InjectParams) {
     const required = getValidationArray(this.props.required)[0];
     if (typeof required === "function") {
       return required(params) ?? false;
@@ -388,7 +388,7 @@ export class $DateSchema<const P extends DateProps> extends SchemaItem<$Date> {
     return undefined;
   }
 
-  public getMinDate(params: $Schema.InjectParams) {
+  public getMinDate(params: Schema.InjectParams) {
     const minDate = getValidationArray(this.props.minDate)[0];
     if (typeof minDate === "function") {
       return minDate(params);
@@ -396,7 +396,7 @@ export class $DateSchema<const P extends DateProps> extends SchemaItem<$Date> {
     return minDate;
   }
 
-  public getMaxDate(params: $Schema.InjectParams) {
+  public getMaxDate(params: Schema.InjectParams) {
     const maxDate = getValidationArray(this.props.maxDate)[0];
     if (typeof maxDate === "function") {
       return maxDate(params);

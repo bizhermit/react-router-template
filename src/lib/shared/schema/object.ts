@@ -4,21 +4,21 @@ import { getPickMessageGetter, getValidationArray, SchemaItem } from "./core";
 export const SCHEMA_ITEM_TYPE_OBJECT = "obj";
 
 type ObjectValidations = {
-  required: $Schema.ValidationEntry<boolean, null | undefined>;
+  required: Schema.ValidationEntry<boolean, null | undefined>;
 };
 
-export type ObjectSchemaMessage = $Schema.ValidationMessages<
+export type ObjectSchemaMessage = Schema.ValidationMessages<
   ObjectValidations,
   typeof SCHEMA_ITEM_TYPE_OBJECT
 >;
 
 type ObjectProps<Props extends Record<string, SchemaItem<any>>> =
-  & $Schema.SchemaItemAbstractProps
-  & $Schema.Validations<ObjectValidations>
+  & Schema.SchemaItemAbstractProps
+  & Schema.Validations<ObjectValidations>
   & {
     props: Props;
-    parser?: $Schema.Parser<$Schema.Infer<Props>>;
-    rules?: $Schema.Rule<$Schema.Infer<Props>>[];
+    parser?: Schema.Parser<Schema.Infer<Props>>;
+    rules?: Schema.Rule<Schema.Infer<Props>>[];
   };
 
 type Struct = Record<string, unknown>;
@@ -37,7 +37,7 @@ export function $obj<
 export class $ObjSchema<
   const Props extends Record<string, SchemaItem<any>>,
   const P extends ObjectProps<Props>
-> extends SchemaItem<$Schema.Infer<InferChildren<P>>> {
+> extends SchemaItem<Schema.Infer<InferChildren<P>>> {
 
   protected children: InferChildren<P>;
 
@@ -46,7 +46,7 @@ export class $ObjSchema<
     this.children = props.props as InferChildren<P>;
   }
 
-  public initialize(params: $Schema.InjectParams) {
+  public initialize(params: Schema.InjectParams) {
     Object.entries(this.children).forEach(([_, prop]) => {
       prop.initialize(params);
     });
@@ -60,10 +60,10 @@ export class $ObjSchema<
 
   public parse(
     value: unknown,
-    params: $Schema.ParseArgParams = this.getEmptyInjectParams()
-  ): $Schema.ParseResult<$Schema.Infer<InferChildren<P>>> {
-    let structValue: $Schema.Nullable<Struct> = undefined;
-    const messages: Record<string, $Schema.Message[] | undefined> = {
+    params: Schema.ParseArgParams = this.getEmptyInjectParams()
+  ): Schema.ParseResult<Schema.Infer<InferChildren<P>>> {
+    let structValue: Schema.Nullable<Struct> = undefined;
+    const messages: Record<string, Schema.Message[] | undefined> = {
       [params.name || ""]: undefined,
     };
 
@@ -91,7 +91,7 @@ export class $ObjSchema<
     }
 
     if (structValue != null) {
-      const retValue: $Schema.Nullable<Struct> = {};
+      const retValue: Schema.Nullable<Struct> = {};
       const prefixName = params.name ? `${params.name}.` : "";
 
       const keys = Object.keys(structValue);
@@ -134,15 +134,15 @@ export class $ObjSchema<
     }
 
     return {
-      value: structValue as $Schema.Nullable<$Schema.Infer<InferChildren<P>>>,
+      value: structValue as Schema.Nullable<Schema.Infer<InferChildren<P>>>,
       messages,
     };
   }
 
   public validate(
-    value: $Schema.Nullable<$Schema.Infer<InferChildren<P>>>,
-    params: $Schema.ValidationArgParams = this.getEmptyInjectParams()
-  ): $Schema.RecordMessages {
+    value: Schema.Nullable<Schema.Infer<InferChildren<P>>>,
+    params: Schema.ValidationArgParams = this.getEmptyInjectParams()
+  ): Schema.RecordMessages {
     if (this.validators == null) {
       this.validators = [];
 
@@ -156,14 +156,14 @@ export class $ObjSchema<
             this.validators.push((p) => {
               if (!required(p)) return null;
               if (p.value == null) {
-                return getMessage(p as $Schema.ValidationResultArgParams);
+                return getMessage(p as Schema.ValidationResultArgParams);
               }
               return null;
             });
           } else {
             this.validators.push((p) => {
               if (p.value == null) {
-                return getMessage(p as $Schema.ValidationResultArgParams);
+                return getMessage(p as Schema.ValidationResultArgParams);
               }
               return null;
             });

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-namespace $Schema {
+namespace Schema {
 
   type $Date = import("../objects/timestamp").$Date;
   type $Month = import("../objects/timestamp").$Month;

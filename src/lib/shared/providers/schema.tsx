@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { SchemaProviderContext, type FormState } from "../hooks/$schema";
+import { SchemaProviderContext, type FormState } from "../hooks/schema";
 import type { FormContext } from "../schema/form";
 import { FieldSetContext } from "./field-set";
 

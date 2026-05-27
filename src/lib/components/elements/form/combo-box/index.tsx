@@ -55,7 +55,7 @@ export interface ComboBoxContextProps {
   /** 複数選択制御 */
   multiple: boolean;
   /** 状態 */
-  state: $Schema.Mode;
+  state: Schema.Mode;
   /** 選択中の値（複数選択対応のため常時配列） */
   value: AtomValueType[];
   /** valueをReact状態管理制御 */

@@ -2,7 +2,7 @@ import { $Date, $DateTime, $Month, $Time } from "../objects/timestamp";
 
 export function getResultMessage(
   t: I18nGetter,
-  message: $Schema.Message | null | undefined
+  message: Schema.Message | null | undefined
 ): string | undefined {
   if (!message) return undefined;
   if (message.message) return message.message;

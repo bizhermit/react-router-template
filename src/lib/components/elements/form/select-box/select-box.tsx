@@ -1,6 +1,6 @@
 import { useImperativeHandle, useMemo, useRef, type RefObject, type SelectHTMLAttributes } from "react";
 import { SelectBox, SelectBoxEmptyOption, type SelectBoxRef } from ".";
-import { useFormInput, type FormInputProps, type FormInputStyleProps } from "../../../../shared/hooks/$schema";
+import { useFormInput, type FormInputProps, type FormInputStyleProps } from "../../../../shared/hooks/schema";
 import type { $EnumSchema } from "../../../../shared/schema/enum";
 import type { FormItem } from "../../../../shared/schema/form";
 import { WithMessage } from "../message";

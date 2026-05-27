@@ -1,7 +1,7 @@
 import { FieldSetContext } from "$/shared/providers/field-set";
 import { use, useImperativeHandle, useMemo, useRef, useState, useSyncExternalStore, type ReactNode, type RefObject, type SelectHTMLAttributes } from "react";
-import { SchemaProviderContext, type FormInputProps, type FormInputStyleProps } from "../../../../shared/hooks/$schema";
 import { I18nContext } from "../../../../shared/hooks/i18n";
+import { SchemaProviderContext, type FormInputProps, type FormInputStyleProps } from "../../../../shared/hooks/schema";
 import { parseNumber } from "../../../../shared/objects/numeric";
 import { $Date, $DateTime, $Month } from "../../../../shared/objects/timestamp";
 import { ValidScriptsContext } from "../../../../shared/providers/valid-scripts";
@@ -71,13 +71,13 @@ function SepSpan(props: { children: ReactNode; }) {
 type DisplayMessagePartParams = {
   name: string | undefined;
   schemaItem: SchemaItem | undefined;
-  message: $Schema.Message | null | undefined;
+  message: Schema.Message | null | undefined;
 };
 
 /**
  * 表示リザルトオブジェクト判定
  */
-function selectBoxDisplayMessage(params: Record<DateSeparateKeys | "core", DisplayMessagePartParams>): $Schema.Message | null | undefined {
+function selectBoxDisplayMessage(params: Record<DateSeparateKeys | "core", DisplayMessagePartParams>): Schema.Message | null | undefined {
   const targets: Array<[DateSeparateKeys, DisplayMessagePartParams]> = [];
   if (params.year.message?.code === "required") targets.push(["year", params.year]);
   if (params.month.message?.code === "required") targets.push(["month", params.month]);
@@ -96,7 +96,7 @@ function selectBoxDisplayMessage(params: Record<DateSeparateKeys | "core", Displ
       otype: `split-${targetKey}`,
       code: "split-required",
       targets: targets.map(t => t[0]),
-    } satisfies $Schema.ValidationMessage;
+    } satisfies Schema.ValidationMessage;
   }
   return params.year.message ??
     params.month.message ??
@@ -189,7 +189,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
 
   const dummyDateRef = useRef<$DateTime | $Date | $Month | null | undefined>(undefined);
 
-  const value = useSyncExternalStore<$Schema.Nullable<$DateTime | $Date | $Month>>((callback) => {
+  const value = useSyncExternalStore<Schema.Nullable<$DateTime | $Date | $Month>>((callback) => {
     if (!coreName) {
       dummySubscribes.current.core = callback;
       return () => { };
@@ -206,7 +206,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
     return context.getValue(coreName);
   });
 
-  const coreMessage = useSyncExternalStore<$Schema.Message | null | undefined>((callback) => {
+  const coreMessage = useSyncExternalStore<Schema.Message | null | undefined>((callback) => {
     if (!coreName) {
       dummySubscribes.current.coreMessage = callback;
       return () => { };
@@ -247,9 +247,9 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
     };
   });
 
-  const nums = useRef<Record<DateSeparateKeys, $Schema.Nullable<number>>>(initValue);
+  const nums = useRef<Record<DateSeparateKeys, Schema.Nullable<number>>>(initValue);
 
-  const yearNum = useSyncExternalStore<$Schema.Nullable<number>>((callback) => {
+  const yearNum = useSyncExternalStore<Schema.Nullable<number>>((callback) => {
     if (!yearName) {
       dummySubscribes.current.year = callback;
       return () => { };
@@ -266,7 +266,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
     return context.getValue(yearName);
   });
 
-  const yearMessage = useSyncExternalStore<$Schema.Message | undefined>((callback) => {
+  const yearMessage = useSyncExternalStore<Schema.Message | undefined>((callback) => {
     if (!yearName) return () => { };
     const cleanup = context.addMessageSubscribe(yearName, () => {
       callback();
@@ -280,7 +280,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
     return context.getMessage(yearName);
   });
 
-  const monthNum = useSyncExternalStore<$Schema.Nullable<number>>((callback) => {
+  const monthNum = useSyncExternalStore<Schema.Nullable<number>>((callback) => {
     if (!monthName) {
       dummySubscribes.current.month = callback;
       return () => { };
@@ -297,7 +297,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
     return context.getValue(monthName);
   });
 
-  const monthMessage = useSyncExternalStore<$Schema.Message | undefined>((callback) => {
+  const monthMessage = useSyncExternalStore<Schema.Message | undefined>((callback) => {
     if (!monthName) return () => { };
     const cleanup = context.addMessageSubscribe(monthName, () => {
       callback();
@@ -311,7 +311,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
     return context.getMessage(monthName);
   });
 
-  const dayNum = useSyncExternalStore<$Schema.Nullable<number>>((callback) => {
+  const dayNum = useSyncExternalStore<Schema.Nullable<number>>((callback) => {
     if (!dayName) {
       dummySubscribes.current.day = callback;
       return () => { };
@@ -328,7 +328,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
     return context.getValue(dayName);
   });
 
-  const dayMessage = useSyncExternalStore<$Schema.Message | undefined>((callback) => {
+  const dayMessage = useSyncExternalStore<Schema.Message | undefined>((callback) => {
     if (!dayName) return () => { };
     const cleanup = context.addMessageSubscribe(dayName, () => {
       callback();
@@ -342,7 +342,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
     return context.getMessage(dayName);
   });
 
-  const hourNum = useSyncExternalStore<$Schema.Nullable<number>>((callback) => {
+  const hourNum = useSyncExternalStore<Schema.Nullable<number>>((callback) => {
     if (!hourName) {
       dummySubscribes.current.hour = callback;
       return () => { };
@@ -359,7 +359,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
     return context.getValue(hourName);
   });
 
-  const hourMessage = useSyncExternalStore<$Schema.Message | undefined>((callback) => {
+  const hourMessage = useSyncExternalStore<Schema.Message | undefined>((callback) => {
     if (!hourName) return () => { };
     const cleanup = context.addMessageSubscribe(hourName, () => {
       callback();
@@ -373,7 +373,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
     return context.getMessage(hourName);
   });
 
-  const minuteNum = useSyncExternalStore<$Schema.Nullable<number>>((callback) => {
+  const minuteNum = useSyncExternalStore<Schema.Nullable<number>>((callback) => {
     if (!minuteName) {
       dummySubscribes.current.minute = callback;
       return () => { };
@@ -390,7 +390,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
     return context.getValue(minuteName);
   });
 
-  const minuteMessage = useSyncExternalStore<$Schema.Message | undefined>((callback) => {
+  const minuteMessage = useSyncExternalStore<Schema.Message | undefined>((callback) => {
     if (!minuteName) return () => { };
     const cleanup = context.addMessageSubscribe(minuteName, () => {
       callback();
@@ -404,7 +404,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
     return context.getMessage(minuteName);
   });
 
-  const secondNum = useSyncExternalStore<$Schema.Nullable<number>>((callback) => {
+  const secondNum = useSyncExternalStore<Schema.Nullable<number>>((callback) => {
     if (!secondName) {
       dummySubscribes.current.second = callback;
       return () => { };
@@ -421,7 +421,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
     return context.getValue(secondName);
   });
 
-  const secondMessage = useSyncExternalStore<$Schema.Message | undefined>((callback) => {
+  const secondMessage = useSyncExternalStore<Schema.Message | undefined>((callback) => {
     if (!secondName) return () => { };
     const cleanup = context.addMessageSubscribe(secondName, () => {
       callback();
@@ -577,7 +577,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
     day = dayNum,
     hour = hourNum,
     minute = minuteNum,
-  }: Partial<Record<Exclude<DateSeparateKeys, "second">, $Schema.Nullable<number>>>) {
+  }: Partial<Record<Exclude<DateSeparateKeys, "second">, Schema.Nullable<number>>>) {
     let optionMinMonth = 0, optionMaxMonth = 11;
     let optionMinDay = 1, optionMaxDay = 31;
     let optionMinHour = 0, optionMaxHour = 23;
@@ -849,7 +849,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
   ]);
 
   const mode = core?.getMode(injectParams) ?? "enabled";
-  let state: $Schema.Mode = "enabled";
+  let state: Schema.Mode = "enabled";
   if (mode === "hidden") state = "hidden";
   else if (fs.disabled || mode === "disabled") state = "disabled";
   else if (fs.readOnly || mode === "readonly" || formState === "loading" || formState === "submitting") state = "readonly";
@@ -910,7 +910,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
     hour = hourNum,
     minute = minuteNum,
     second = secondNum,
-  }: Partial<Record<DateSeparateKeys, $Schema.Nullable<number>>>) {
+  }: Partial<Record<DateSeparateKeys, Schema.Nullable<number>>>) {
     function set(v: $DateTime | $Date | $Month | null | undefined) {
       if (core) {
         core.setValue(v);
@@ -965,9 +965,9 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
     }
   };
 
-  function effectOtherValue(changed: Partial<Record<Exclude<DateSeparateKeys, "second">, $Schema.Nullable<number>>>) {
+  function effectOtherValue(changed: Partial<Record<Exclude<DateSeparateKeys, "second">, Schema.Nullable<number>>>) {
     const minMax = getOptionMinMax(changed);
-    const effected: Partial<Record<DateSeparateKeys, $Schema.Nullable<number>>> = {};
+    const effected: Partial<Record<DateSeparateKeys, Schema.Nullable<number>>> = {};
     if (
       !("month" in changed) &&
       monthNum != null &&
@@ -1073,7 +1073,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
           injectParams={injectParams}
           value={yearNum}
           onChangeValue={(v) => {
-            let newVal: $Schema.Nullable<number>;
+            let newVal: Schema.Nullable<number>;
             if (year == null) {
               newVal = nums.current.year = parseNumber(v)[0];
               dummySubscribes.current.year?.();
@@ -1260,12 +1260,12 @@ type PartSelectBoxProps = {
   omitOnSubmit?: boolean;
   required: boolean;
   invalid: boolean;
-  coreState?: $Schema.Mode;
+  coreState?: Schema.Mode;
   splitSchemaItem?: SchemaItem;
   placeholder?: string;
-  value: $Schema.Nullable<number>;
+  value: Schema.Nullable<number>;
   onChangeValue: (value: string) => void;
-  injectParams: $Schema.InjectParams;
+  injectParams: Schema.InjectParams;
   children: ReactNode;
   autoFocus?: boolean;
 };
@@ -1274,7 +1274,7 @@ function PartSelectBox({
   ref,
   ...props
 }: PartSelectBoxProps) {
-  let state: $Schema.Mode = "enabled";
+  let state: Schema.Mode = "enabled";
   const splitMode = props.splitSchemaItem?.getMode(props.injectParams) ?? "enabled";
   if (props.coreState === "hidden" || splitMode === "hidden") state = "hidden";
   else if (props.coreState === "disabled" || splitMode === "disabled") state = "disabled";

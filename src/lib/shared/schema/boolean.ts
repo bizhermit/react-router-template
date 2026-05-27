@@ -5,11 +5,11 @@ export const SCHEMA_ITEM_TYPE_BOOLEAN = "bool";
 type BooleanValue = boolean | number | string;
 
 type BooleanValidations<FalseValue extends BooleanValue> = {
-  required: $Schema.ValidationEntry<boolean | "nonFalse", $Schema.Nullable<FalseValue>>;
+  required: Schema.ValidationEntry<boolean | "nonFalse", Schema.Nullable<FalseValue>>;
 };
 
 export type BooleanSchemaMessage<FalseValue extends BooleanValue = BooleanValue> =
-  $Schema.ValidationMessages<
+  Schema.ValidationMessages<
     BooleanValidations<FalseValue>,
     typeof SCHEMA_ITEM_TYPE_BOOLEAN
   >;
@@ -17,13 +17,13 @@ export type BooleanSchemaMessage<FalseValue extends BooleanValue = BooleanValue>
 type BooleanProps<
   TrueValue extends BooleanValue,
   FalseValue extends BooleanValue
-> = $Schema.SchemaItemAbstractProps
-  & $Schema.Validations<BooleanValidations<FalseValue>>
+> = Schema.SchemaItemAbstractProps
+  & Schema.Validations<BooleanValidations<FalseValue>>
   & {
     trueValue?: TrueValue;
     falseValue?: FalseValue;
-    parser?: $Schema.Parser<TrueValue | FalseValue>;
-    rules?: $Schema.Rule<TrueValue | FalseValue>[];
+    parser?: Schema.Parser<TrueValue | FalseValue>;
+    rules?: Schema.Rule<TrueValue | FalseValue>[];
     trueText?: string;
     falseText?: string;
   };
@@ -60,16 +60,16 @@ export class $BoolSchema<
     return this.falseValue;
   }
 
-  public getActionType(): $Schema.ActionType {
+  public getActionType(): Schema.ActionType {
     return this.props.actionType || "select";
   }
 
   public parse(
     value: unknown,
-    params: $Schema.ParseArgParams = this.getEmptyInjectParams()
-  ): $Schema.ParseResult<InferTrue<P> | InferFalse<P>> {
+    params: Schema.ParseArgParams = this.getEmptyInjectParams()
+  ): Schema.ParseResult<InferTrue<P> | InferFalse<P>> {
     if (this.props.parser) {
-      const parsed = this.props.parser(value, params) as $Schema.ParserResult<InferTrue<P> | InferFalse<P>>;
+      const parsed = this.props.parser(value, params) as Schema.ParserResult<InferTrue<P> | InferFalse<P>>;
       return {
         value: parsed.value,
         messages: { [params.name || ""]: parsed.messages },
@@ -109,9 +109,9 @@ export class $BoolSchema<
   }
 
   public validate(
-    value: $Schema.Nullable<InferTrue<P> | InferFalse<P>>,
-    params: $Schema.ValidationArgParams = this.getEmptyInjectParams()
-  ): $Schema.RecordMessages {
+    value: Schema.Nullable<InferTrue<P> | InferFalse<P>>,
+    params: Schema.ValidationArgParams = this.getEmptyInjectParams()
+  ): Schema.RecordMessages {
     if (this.validators == null) {
       this.validators = [];
 
@@ -163,7 +163,7 @@ export class $BoolSchema<
     });
   }
 
-  public getRequired(params: $Schema.InjectParams) {
+  public getRequired(params: Schema.InjectParams) {
     const required = getValidationArray(this.props.required)[0];
     if (typeof required === "function") {
       return required(params) ?? false;
