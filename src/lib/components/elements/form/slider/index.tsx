@@ -167,6 +167,11 @@ export function Slider({
           ? { value: value ?? "" }
           : { defaultValue: defaultValue ?? "" }
         }
+        name={
+          isControlled ?
+            (value == null ? undefined : inputProps?.name) :
+            inputProps?.name
+        }
       />
       {
         showValueText &&
@@ -180,6 +185,17 @@ export function Slider({
         >
           {value}
         </span>
+      }
+      {
+        state === "enabled" &&
+        isControlled &&
+        value == null &&
+        inputProps?.name &&
+        <input
+          type="hidden"
+          name={inputProps.name}
+          value={String(value)}
+        />
       }
       {
         state === "readonly" &&
