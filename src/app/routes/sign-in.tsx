@@ -40,6 +40,8 @@ export default function Page({ actionData }: Route.ComponentProps) {
   } = useSchema({
     id: "sign-in",
     schema: authSchema,
+    values: {},
+    messages: {},
   });
 
   const userId = useFormItem();

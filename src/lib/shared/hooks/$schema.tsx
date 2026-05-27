@@ -12,11 +12,11 @@ import { useFieldSet } from "./schema";
 type SchemaHookProps<S extends $ObjSchema<any, any>> = {
   id: string;
   schema: S;
-  values: {
+  values?: {
     loader?: Record<string, unknown> | null | undefined;
     action?: Record<string, unknown> | null | undefined;
   };
-  messages: {
+  messages?: {
     loader?: $Schema.RecordMessages | null | undefined;
     action?: $Schema.RecordMessages | null | undefined;
   };
@@ -63,7 +63,7 @@ export function useSchema<const S extends $ObjSchema<any, any>>(props: SchemaHoo
   const [formContext] = useState(() => {
     const ret = new FormContext<S>({
       values: props.values ?? {},
-      messages: props.messages.loader,
+      messages: props.messages?.loader,
       data: props.data ?? {},
       schema: props.schema,
     });
@@ -117,34 +117,34 @@ export function useSchema<const S extends $ObjSchema<any, any>>(props: SchemaHoo
 
   useEffect(() => {
     if (initialized.current.loaderValues) {
-      if (props.values.action) {
+      if (props.values?.action) {
         formContext.setValues(props.values.action, {
           preventUpdateOrigin: true,
         });
       } else {
-        formContext.setValues(props.values.loader ?? {});
+        formContext.setValues(props.values?.loader ?? {});
       }
     }
     initialized.current.loaderValues = true;
   }, [
-    props.values.loader,
-    props.values.action,
+    props.values?.loader,
+    props.values?.action,
   ]);
 
   useEffect(() => {
     if (initialized.current.loaderMessages) {
-      if (props.messages.action) {
+      if (props.messages?.action) {
         formContext.setMessages(props.messages.action, {
           preventUpdateOrigin: true,
         });
       } else {
-        formContext.setMessages(props.messages.loader);
+        formContext.setMessages(props.messages?.loader);
       }
     }
     initialized.current.loaderMessages = true;
   }, [
-    props.messages.loader,
-    props.messages.action,
+    props.messages?.loader,
+    props.messages?.action,
   ]);
 
   useEffect(() => {
