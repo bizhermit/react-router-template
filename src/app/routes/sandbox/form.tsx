@@ -324,8 +324,14 @@ export default function Page({ loaderData, actionData }: Route.ComponentProps) {
   const schema = useSchema({
     id: "sandbox",
     schema: schemaObj,
-    values: fetcher.data?.values ?? actionData?.values ?? loaderData.values,
-    messages: fetcher.data?.messages ?? actionData?.messages ?? loaderData.messages,
+    values: {
+      loader: loaderData.values,
+      action: fetcher.data?.values ?? actionData?.values,
+    },
+    messages: {
+      loader: loaderData.messages,
+      action: fetcher.data?.messages ?? actionData?.messages,
+    },
     state: fetcher.state,
   });
 

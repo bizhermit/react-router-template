@@ -12,8 +12,14 @@ import { useFieldSet } from "./schema";
 type SchemaHookProps<S extends $ObjSchema<any, any>> = {
   id: string;
   schema: S;
-  values?: Record<string, unknown>;
-  messages?: $Schema.RecordMessages;
+  values: {
+    loader?: Record<string, unknown> | null | undefined;
+    action?: Record<string, unknown> | null | undefined;
+  };
+  messages: {
+    loader?: $Schema.RecordMessages | null | undefined;
+    action?: $Schema.RecordMessages | null | undefined;
+  };
   data?: Record<string, unknown>;
   state?: "idle" | "submitting" | "loading";
   submit?: {
@@ -49,15 +55,15 @@ export const SchemaProviderContext = createContext<SchemaProviderContextProps>({
 export function useSchema<const S extends $ObjSchema<any, any>>(props: SchemaHookProps<S>) {
   const id = props.id;
   const initialized = useRef({
-    values: false,
-    messages: false,
+    loaderValues: false,
+    loaderMessages: false,
     data: false,
   });
 
   const [formContext] = useState(() => {
     const ret = new FormContext<S>({
       values: props.values ?? {},
-      messages: props.messages,
+      messages: props.messages.loader,
       data: props.data ?? {},
       schema: props.schema,
     });
@@ -110,18 +116,36 @@ export function useSchema<const S extends $ObjSchema<any, any>>(props: SchemaHoo
   };
 
   useEffect(() => {
-    if (initialized.current.values) {
-      formContext.setValues(props.values ?? {});
+    if (initialized.current.loaderValues) {
+      if (props.values.action) {
+        formContext.setValues(props.values.action, {
+          preventUpdateOrigin: true,
+        });
+      } else {
+        formContext.setValues(props.values.loader ?? {});
+      }
     }
-    initialized.current.values = true;
-  }, [props.values]);
+    initialized.current.loaderValues = true;
+  }, [
+    props.values.loader,
+    props.values.action,
+  ]);
 
   useEffect(() => {
-    if (initialized.current.messages) {
-      formContext.setMessages(props.messages);
+    if (initialized.current.loaderMessages) {
+      if (props.messages.action) {
+        formContext.setMessages(props.messages.action, {
+          preventUpdateOrigin: true,
+        });
+      } else {
+        formContext.setMessages(props.messages.loader);
+      }
     }
-    initialized.current.messages = true;
-  }, [props.messages]);
+    initialized.current.loaderMessages = true;
+  }, [
+    props.messages.loader,
+    props.messages.action,
+  ]);
 
   useEffect(() => {
     if (initialized.current.data) {
