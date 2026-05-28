@@ -59,6 +59,15 @@ export class $DateTimeSchema<const P extends DateTimeProps> extends SchemaItem<$
     return this.props.actionType || "input";
   }
 
+  public getRefs() {
+    const refs = [...this.props.refs ?? []];
+    const [pairs] = getValidationArrayAsArray(this.props.pairs);
+    if (pairs == null || typeof pairs === "function") return refs;
+    const ps = Array.isArray(pairs) ? pairs : [pairs];
+    refs.push(...ps.map(p => p.name));
+    return refs;
+  }
+
   public getTimeBasis() {
     return this.props.timeBasis || "minute";
   }

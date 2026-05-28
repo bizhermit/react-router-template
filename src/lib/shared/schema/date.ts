@@ -52,6 +52,15 @@ export class $DateSchema<const P extends DateProps> extends SchemaItem<$Date> {
     return this.props.actionType || "input";
   }
 
+  public getRefs() {
+    const refs = [...this.props.refs ?? []];
+    const [pairs] = getValidationArrayAsArray(this.props.pairs);
+    if (pairs == null || typeof pairs === "function") return refs;
+    const ps = Array.isArray(pairs) ? pairs : [pairs];
+    refs.push(...ps.map(p => p.name));
+    return refs;
+  }
+
   public parse(
     value: unknown,
     params: Schema.ParseArgParams = this.getEmptyInjectParams()
