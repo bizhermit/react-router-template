@@ -146,7 +146,14 @@ export class FormContext<S extends $ObjSchema<any, any>> {
     return this.messages.get(name);
   }
 
-  public setMessage(name: string, message: Schema.Message | null | undefined) {
+  public setMessage(
+    name: string,
+    message: Schema.Message | null | undefined,
+    options?: {
+      preventCallSubscribes?: boolean;
+      preventUpdateHasError?: boolean;
+    }
+  ) {
     const current = this.messages.get(name);
     if (equalMessage(current, message)) return false;
     if (message) {
@@ -154,7 +161,12 @@ export class FormContext<S extends $ObjSchema<any, any>> {
     } else {
       this.messages.delete(name);
     }
-    this.messagesSubscribes.get(name)?.forEach(fn => fn());
+    if (!options?.preventCallSubscribes) {
+      this.messagesSubscribes.get(name)?.forEach(listener => listener());
+    }
+    if (!options?.preventUpdateHasError) {
+      this.updateHasError();
+    }
     return true;
   }
 
@@ -178,12 +190,13 @@ export class FormContext<S extends $ObjSchema<any, any>> {
     return this;
   }
 
-  protected updateHasError() {
+  public updateHasError() {
     this.setHasError(
       Array.from(this.messages.values()).some(
         message => message?.type === "e"
       )
     );
+    return this;
   }
 
   public addErrorSubscribe(listener: () => void) {
@@ -357,16 +370,18 @@ export class FormContext<S extends $ObjSchema<any, any>> {
     };
   }
 
-  protected callValuesSubscribes() {
+  public callValuesSubscribes() {
     this.valuesSubscribes.forEach(listeners => {
       listeners.forEach(listener => listener());
     });
+    return this;
   }
 
-  protected callMessageSubscribes() {
+  public callMessageSubscribes() {
     this.messagesSubscribes.forEach(listeners => {
       listeners.forEach(listener => listener());
     });
+    return this;
   }
 
   public setData(data: Record<string, unknown> | null | undefined) {
@@ -487,7 +502,24 @@ export class FormItem<S extends SchemaItem<any>> {
   }
 
   public validate() {
-    this.formContext.validate();
+    const value = this.getValue();
+    const injectParams = {
+      ...this.formContext.getInjectParams(),
+      name: this.name,
+    };
+    const parsed = this.schemaItem.parse(value, injectParams);
+    const validated = this.schemaItem.validate(parsed.value, injectParams);
+    const messages = mergeRecordMessages(parsed.messages, validated);
+
+    Object.entries(messages).forEach(([name, msgs]) => {
+      const msg = msgs?.find(msg => msg.type === "e") ?? msgs?.[0];
+      this.formContext.setMessage(name, msg, {
+        preventCallSubscribes: true,
+        preventUpdateHasError: true,
+      });
+    });
+    this.formContext.callMessageSubscribes();
+    this.formContext.updateHasError();
   }
 
 };

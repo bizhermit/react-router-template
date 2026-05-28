@@ -446,7 +446,9 @@ export function useFormInput<S extends SchemaItem<any>>(
   }
 
   useEffect(() => {
-    // formItem.validate();
+    if (context.isDirty(name)) {
+      formItem.validate();
+    }
   }, [refValuesString]);
 
   return {

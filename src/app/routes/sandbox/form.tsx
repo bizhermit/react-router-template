@@ -118,6 +118,7 @@ const schemaObj = $obj({
     }),
     note: $str({
       label: "note",
+      refs: [".text"],
       required: ({ values }) => {
         return !!values.text;
       },
