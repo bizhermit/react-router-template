@@ -58,7 +58,10 @@ export class $MonthSchema<const P extends MonthProps> extends SchemaItem<$Month>
     const [pairs] = getValidationArrayAsArray(this.props.pairs);
     if (pairs == null || typeof pairs === "function") return refs;
     const ps = Array.isArray(pairs) ? pairs : [pairs];
-    refs.push(...ps.map(p => p.name));
+    ps.forEach(p => {
+      if (refs.some(r => r === p.name)) return;
+      refs.push(p.name);
+    });
     return refs;
   }
 
