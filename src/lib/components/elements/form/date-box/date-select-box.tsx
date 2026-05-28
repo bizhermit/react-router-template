@@ -1,5 +1,5 @@
 import { FieldSetContext } from "$/shared/providers/field-set";
-import { use, useImperativeHandle, useMemo, useRef, useState, useSyncExternalStore, type ReactNode, type RefObject, type SelectHTMLAttributes } from "react";
+import { use, useEffect, useImperativeHandle, useMemo, useRef, useState, useSyncExternalStore, type ReactNode, type RefObject, type SelectHTMLAttributes } from "react";
 import { I18nContext } from "../../../../shared/hooks/i18n";
 import { SchemaProviderContext, type FormInputProps, type FormInputStyleProps } from "../../../../shared/hooks/schema";
 import { parseNumber } from "../../../../shared/objects/numeric";
@@ -189,7 +189,27 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
 
   const dummyDateRef = useRef<$DateTime | $Date | $Month | null | undefined>(undefined);
 
-  const value = useSyncExternalStore<Schema.Nullable<$DateTime | $Date | $Month>>((callback) => {
+  function getCoreRefValuesString() {
+    if (!coreName) return "";
+    return core?.getRefsValuesString();
+  };
+
+  const coreRefsValuesString = useSyncExternalStore((callback) => {
+    if (!coreName) return () => { };
+    const cleanups = core?.getRefs().map(ref => {
+      return context.addValuesSubscribe(ref, callback);
+    });
+    return () => {
+      cleanups?.forEach(cleanup => cleanup());
+    };
+  }, getCoreRefValuesString, getCoreRefValuesString);
+
+  function getCoreValue() {
+    if (!coreName) return dummyDateRef.current;
+    return context.getValue<Schema.Nullable<$DateTime | $Date | $Month>>(coreName);
+  };
+
+  const coreValue = useSyncExternalStore((callback) => {
     if (!coreName) {
       dummySubscribes.current.core = callback;
       return () => { };
@@ -198,13 +218,12 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
       callback();
     });
     return () => cleanup();
-  }, () => {
-    if (!coreName) return dummyDateRef.current;
-    return context.getValue(coreName);
-  }, () => {
-    if (!coreName) return dummyDateRef.current;
-    return context.getValue(coreName);
-  });
+  }, getCoreValue, getCoreValue);
+
+  function getCoreMessage() {
+    if (!coreName) return undefined;
+    return context.getMessage(coreName);
+  };
 
   const coreMessage = useSyncExternalStore<Schema.Message | null | undefined>((callback) => {
     if (!coreName) {
@@ -215,18 +234,12 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
       callback();
     });
     return () => cleanup();
-  }, () => {
-    if (!coreName) return undefined;
-    return context.getMessage(coreName);
-  }, () => {
-    if (!coreName) return undefined;
-    return context.getMessage(coreName);
-  });
+  }, getCoreMessage, getCoreMessage);
 
   const [initValue] = useState<Record<DateSeparateKeys, number | undefined>>(() => {
     if (coreName) {
-      if (value != null) {
-        const d = new $DateTime(value);
+      if (coreValue != null) {
+        const d = new $DateTime(coreValue);
         return {
           year: d.getYear(),
           month: d.getMonth(),
@@ -249,7 +262,27 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
 
   const nums = useRef<Record<DateSeparateKeys, Schema.Nullable<number>>>(initValue);
 
-  const yearNum = useSyncExternalStore<Schema.Nullable<number>>((callback) => {
+  function getYearRefValuesString() {
+    if (!yearName) return "";
+    return year?.getRefsValuesString();
+  };
+
+  const yearRefsValuesString = useSyncExternalStore((callback) => {
+    if (!yearName) return () => { };
+    const cleanups = year?.getRefs().map(ref => {
+      return context.addValuesSubscribe(ref, callback);
+    });
+    return () => {
+      cleanups?.forEach(cleanup => cleanup());
+    };
+  }, getYearRefValuesString, getYearRefValuesString);
+
+  function getYearNum() {
+    if (!yearName) return nums.current.year;
+    return context.getValue<Schema.Nullable<number>>(yearName);
+  };
+
+  const yearNum = useSyncExternalStore((callback) => {
     if (!yearName) {
       dummySubscribes.current.year = callback;
       return () => { };
@@ -258,29 +291,42 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
       callback();
     });
     return () => cleanup();
-  }, () => {
-    if (!yearName) return nums.current.year;
-    return context.getValue(yearName);
-  }, () => {
-    if (!yearName) return nums.current.year;
-    return context.getValue(yearName);
-  });
+  }, getYearNum, getYearNum);
 
-  const yearMessage = useSyncExternalStore<Schema.Message | undefined>((callback) => {
+  function getYearMessage() {
+    if (!yearName) return undefined;
+    return context.getMessage(yearName);
+  };
+
+  const yearMessage = useSyncExternalStore((callback) => {
     if (!yearName) return () => { };
     const cleanup = context.addMessageSubscribe(yearName, () => {
       callback();
     });
     return () => cleanup();
-  }, () => {
-    if (!yearName) return undefined;
-    return context.getMessage(yearName);
-  }, () => {
-    if (!yearName) return undefined;
-    return context.getMessage(yearName);
-  });
+  }, getYearMessage, getYearMessage);
 
-  const monthNum = useSyncExternalStore<Schema.Nullable<number>>((callback) => {
+  function getMonthNum() {
+    if (!monthName) return nums.current.month;
+    return context.getValue<Schema.Nullable<number>>(monthName);
+  };
+
+  function getMonthRefValuesString() {
+    if (!monthName) return "";
+    return month?.getRefsValuesString();
+  };
+
+  const monthRefsValuesString = useSyncExternalStore((callback) => {
+    if (!monthName) return () => { };
+    const cleanups = month?.getRefs().map(ref => {
+      return context.addValuesSubscribe(ref, callback);
+    });
+    return () => {
+      cleanups?.forEach(cleanup => cleanup());
+    };
+  }, getMonthRefValuesString, getMonthRefValuesString);
+
+  const monthNum = useSyncExternalStore((callback) => {
     if (!monthName) {
       dummySubscribes.current.month = callback;
       return () => { };
@@ -289,29 +335,42 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
       callback();
     });
     return () => cleanup();
-  }, () => {
-    if (!monthName) return nums.current.month;
-    return context.getValue(monthName);
-  }, () => {
-    if (!monthName) return nums.current.month;
-    return context.getValue(monthName);
-  });
+  }, getMonthNum, getMonthNum);
 
-  const monthMessage = useSyncExternalStore<Schema.Message | undefined>((callback) => {
+  function getMonthMessage() {
+    if (!monthName) return undefined;
+    return context.getMessage(monthName);
+  };
+
+  const monthMessage = useSyncExternalStore((callback) => {
     if (!monthName) return () => { };
     const cleanup = context.addMessageSubscribe(monthName, () => {
       callback();
     });
     return () => cleanup();
-  }, () => {
-    if (!monthName) return undefined;
-    return context.getMessage(monthName);
-  }, () => {
-    if (!monthName) return undefined;
-    return context.getMessage(monthName);
-  });
+  }, getMonthMessage, getMonthMessage);
 
-  const dayNum = useSyncExternalStore<Schema.Nullable<number>>((callback) => {
+  function getDayRefValuesString() {
+    if (!dayName) return "";
+    return day?.getRefsValuesString();
+  };
+
+  const dayRefsValuesString = useSyncExternalStore((callback) => {
+    if (!dayName) return () => { };
+    const cleanups = day?.getRefs().map(ref => {
+      return context.addValuesSubscribe(ref, callback);
+    });
+    return () => {
+      cleanups?.forEach(cleanup => cleanup());
+    };
+  }, getDayRefValuesString, getDayRefValuesString);
+
+  function getDayNum() {
+    if (!dayName) return nums.current.day;
+    return context.getValue<Schema.Nullable<number>>(dayName);
+  };
+
+  const dayNum = useSyncExternalStore((callback) => {
     if (!dayName) {
       dummySubscribes.current.day = callback;
       return () => { };
@@ -320,29 +379,42 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
       callback();
     });
     return () => cleanup();
-  }, () => {
-    if (!dayName) return nums.current.day;
-    return context.getValue(dayName);
-  }, () => {
-    if (!dayName) return nums.current.day;
-    return context.getValue(dayName);
-  });
+  }, getDayNum, getDayNum);
 
-  const dayMessage = useSyncExternalStore<Schema.Message | undefined>((callback) => {
+  function getDayMessage() {
+    if (!dayName) return undefined;
+    return context.getMessage(dayName);
+  };
+
+  const dayMessage = useSyncExternalStore((callback) => {
     if (!dayName) return () => { };
     const cleanup = context.addMessageSubscribe(dayName, () => {
       callback();
     });
     return () => cleanup();
-  }, () => {
-    if (!dayName) return undefined;
-    return context.getMessage(dayName);
-  }, () => {
-    if (!dayName) return undefined;
-    return context.getMessage(dayName);
-  });
+  }, getDayMessage, getDayMessage);
 
-  const hourNum = useSyncExternalStore<Schema.Nullable<number>>((callback) => {
+  function getHourRefValuesString() {
+    if (!hourName) return "";
+    return hour?.getRefsValuesString();
+  };
+
+  const hourRefsValuesString = useSyncExternalStore((callback) => {
+    if (!hourName) return () => { };
+    const cleanups = hour?.getRefs().map(ref => {
+      return context.addValuesSubscribe(ref, callback);
+    });
+    return () => {
+      cleanups?.forEach(cleanup => cleanup());
+    };
+  }, getHourRefValuesString, getHourRefValuesString);
+
+  function getHourNum() {
+    if (!hourName) return nums.current.hour;
+    return context.getValue<Schema.Nullable<number>>(hourName);
+  };
+
+  const hourNum = useSyncExternalStore((callback) => {
     if (!hourName) {
       dummySubscribes.current.hour = callback;
       return () => { };
@@ -351,29 +423,42 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
       callback();
     });
     return () => cleanup();
-  }, () => {
-    if (!hourName) return nums.current.hour;
-    return context.getValue(hourName);
-  }, () => {
-    if (!hourName) return nums.current.hour;
-    return context.getValue(hourName);
-  });
+  }, getHourNum, getHourNum);
 
-  const hourMessage = useSyncExternalStore<Schema.Message | undefined>((callback) => {
+  function getHourMessage() {
+    if (!hourName) return undefined;
+    return context.getMessage(hourName);
+  };
+
+  const hourMessage = useSyncExternalStore((callback) => {
     if (!hourName) return () => { };
     const cleanup = context.addMessageSubscribe(hourName, () => {
       callback();
     });
     return () => cleanup();
-  }, () => {
-    if (!hourName) return undefined;
-    return context.getMessage(hourName);
-  }, () => {
-    if (!hourName) return undefined;
-    return context.getMessage(hourName);
-  });
+  }, getHourMessage, getHourMessage);
 
-  const minuteNum = useSyncExternalStore<Schema.Nullable<number>>((callback) => {
+  function getMinuteRefValuesString() {
+    if (!minuteName) return "";
+    return minute?.getRefsValuesString();
+  };
+
+  const minuteRefsValuesString = useSyncExternalStore((callback) => {
+    if (!minuteName) return () => { };
+    const cleanups = minute?.getRefs().map(ref => {
+      return context.addValuesSubscribe(ref, callback);
+    });
+    return () => {
+      cleanups?.forEach(cleanup => cleanup());
+    };
+  }, getMinuteRefValuesString, getMinuteRefValuesString);
+
+  function getMinuteNum() {
+    if (!minuteName) return nums.current.minute;
+    return context.getValue<Schema.Nullable<number>>(minuteName);
+  };
+
+  const minuteNum = useSyncExternalStore((callback) => {
     if (!minuteName) {
       dummySubscribes.current.minute = callback;
       return () => { };
@@ -382,29 +467,42 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
       callback();
     });
     return () => cleanup();
-  }, () => {
-    if (!minuteName) return nums.current.minute;
-    return context.getValue(minuteName);
-  }, () => {
-    if (!minuteName) return nums.current.minute;
-    return context.getValue(minuteName);
-  });
+  }, getMinuteNum, getMinuteNum);
 
-  const minuteMessage = useSyncExternalStore<Schema.Message | undefined>((callback) => {
+  function getMinuteMessage() {
+    if (!minuteName) return undefined;
+    return context.getMessage(minuteName);
+  };
+
+  const minuteMessage = useSyncExternalStore((callback) => {
     if (!minuteName) return () => { };
     const cleanup = context.addMessageSubscribe(minuteName, () => {
       callback();
     });
     return () => cleanup();
-  }, () => {
-    if (!minuteName) return undefined;
-    return context.getMessage(minuteName);
-  }, () => {
-    if (!minuteName) return undefined;
-    return context.getMessage(minuteName);
-  });
+  }, getMinuteMessage, getMinuteMessage);
 
-  const secondNum = useSyncExternalStore<Schema.Nullable<number>>((callback) => {
+  function getSecondRefValuesString() {
+    if (!secondName) return "";
+    return second?.getRefsValuesString();
+  };
+
+  const secondRefsValuesString = useSyncExternalStore((callback) => {
+    if (!secondName) return () => { };
+    const cleanups = second?.getRefs().map(ref => {
+      return context.addValuesSubscribe(ref, callback);
+    });
+    return () => {
+      cleanups?.forEach(cleanup => cleanup());
+    };
+  }, getSecondRefValuesString, getSecondRefValuesString);
+
+  function getSecondNum() {
+    if (!secondName) return nums.current.second;
+    return context.getValue<Schema.Nullable<number>>(secondName);
+  };
+
+  const secondNum = useSyncExternalStore((callback) => {
     if (!secondName) {
       dummySubscribes.current.second = callback;
       return () => { };
@@ -413,56 +511,26 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
       callback();
     });
     return () => cleanup();
-  }, () => {
-    if (!secondName) return nums.current.second;
-    return context.getValue(secondName);
-  }, () => {
-    if (!secondName) return nums.current.second;
-    return context.getValue(secondName);
-  });
+  }, getSecondNum, getSecondNum);
 
-  const secondMessage = useSyncExternalStore<Schema.Message | undefined>((callback) => {
+  function getSecondMessage() {
+    if (!secondName) return undefined;
+    return context.getMessage(secondName);
+  };
+
+  const secondMessage = useSyncExternalStore((callback) => {
     if (!secondName) return () => { };
     const cleanup = context.addMessageSubscribe(secondName, () => {
       callback();
     });
     return () => cleanup();
-  }, () => {
-    if (!secondName) return undefined;
-    return context.getMessage(secondName);
-  }, () => {
-    if (!secondName) return undefined;
-    return context.getMessage(secondName);
-  });
+  }, getSecondMessage, getSecondMessage);
 
   const {
-    type,
-    timeBasis,
-    yearRequired,
-    monthRequired,
-    dayRequired,
-    hourRequired,
-    minuteRequired,
-    secondRequired,
     min,
     max,
-    minYear,
-    maxYear,
-    minMonth,
-    maxMonth,
-    minDay,
-    maxDay,
-    minHour,
-    maxHour,
-    minMinute,
-    maxMinute,
-    minSecond,
-    maxSecond,
     minTime,
     maxTime,
-    hourStep,
-    minuteStep,
-    secondStep,
   } = useMemo(() => {
     let min = new $DateTime("1900-01-01T00:00:00");
     const minMonth = schemaItem.getMinMonth(injectParams);
@@ -492,6 +560,127 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
       max = new $DateTime(maxDateTime);
     }
 
+    return {
+      max,
+      min,
+      minTime: schemaItem instanceof $DateTimeSchema ? schemaItem.getMinTime(injectParams) : undefined,
+      maxTime: schemaItem instanceof $DateTimeSchema ? schemaItem.getMaxTime(injectParams) : undefined,
+    };
+  }, [
+    schemaItem,
+    injectParams,
+    coreRefsValuesString,
+  ]);
+
+  const {
+    yearRequired,
+    minYear,
+    maxYear,
+  } = useMemo(() => {
+    return {
+      yearRequired: yearSchemaItem?.getRequired(injectParams) ?? false,
+      minYear: yearSchemaItem?.getMin(injectParams) ?? min.getYear(),
+      maxYear: yearSchemaItem?.getMax(injectParams) ?? max.getYear(),
+    };
+  }, [
+    yearSchemaItem,
+    injectParams,
+    yearRefsValuesString,
+    min,
+    max,
+  ]);
+
+  const {
+    monthRequired,
+    minMonth,
+    maxMonth,
+  } = useMemo(() => {
+    return {
+      monthRequired: monthSchemaItem?.getRequired(injectParams) ?? false,
+      minMonth: monthSchemaItem?.getMin(injectParams),
+      maxMonth: monthSchemaItem?.getMax(injectParams),
+    };
+  }, [
+    monthSchemaItem,
+    injectParams,
+    monthRefsValuesString,
+  ]);
+
+  const {
+    dayRequired,
+    minDay,
+    maxDay,
+  } = useMemo(() => {
+    return {
+      dayRequired: daySchemaItem?.getRequired(injectParams) ?? false,
+      minDay: daySchemaItem?.getMin(injectParams),
+      maxDay: daySchemaItem?.getMax(injectParams),
+    };
+  }, [
+    daySchemaItem,
+    injectParams,
+    dayRefsValuesString,
+  ]);
+
+  const {
+    hourRequired,
+    minHour,
+    maxHour,
+    hourStep,
+  } = useMemo(() => {
+    return {
+      hourRequired: hourSchemaItem?.getRequired(injectParams) ?? false,
+      minHour: hourSchemaItem?.getMin(injectParams) ?? 0,
+      maxHour: hourSchemaItem?.getMax(injectParams) ?? 23,
+      hourStep: hourSchemaItem?.getStep() ?? 1,
+    };
+  }, [
+    hourSchemaItem,
+    injectParams,
+    hourRefsValuesString,
+  ]);
+
+  const {
+    minuteRequired,
+    minMinute,
+    maxMinute,
+    minuteStep,
+  } = useMemo(() => {
+    return {
+      minuteRequired: minuteSchemaItem?.getRequired(injectParams) ?? false,
+      minMinute: minuteSchemaItem?.getMin(injectParams) ?? 0,
+      maxMinute: minuteSchemaItem?.getMax(injectParams) ?? 59,
+      minuteStep: minuteSchemaItem?.getStep() ?? 1,
+    };
+  }, [
+    minuteSchemaItem,
+    injectParams,
+    minuteRefsValuesString,
+  ]);
+
+  const {
+    secondRequired,
+    minSecond,
+    maxSecond,
+    secondStep,
+  } = useMemo(() => {
+    return {
+      secondRequired: secondSchemaItem?.getRequired(injectParams) ?? false,
+      minSecond: secondSchemaItem?.getMin(injectParams) ?? 0,
+      maxSecond: secondSchemaItem?.getMax(injectParams) ?? 59,
+      secondStep: secondSchemaItem?.getStep() ?? 1,
+    };
+  }, [
+    secondSchemaItem,
+    injectParams,
+    secondRefsValuesString,
+  ]);
+
+  const {
+    type,
+    timeBasis,
+    // formatPattern,
+  } = useMemo(() => {
     let type: "date" | "month" | "datetime-local" = "month";
     let timeBasis: "hour" | "minute" | "second" | undefined;
     let formatPattern = "yyyy-MM";
@@ -527,48 +716,16 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
     }
 
     return {
-      max,
-      min,
       type,
       timeBasis,
       formatPattern,
-      yearRequired: yearSchemaItem?.getRequired(injectParams) ?? false,
-      monthRequired: monthSchemaItem?.getRequired(injectParams) ?? false,
-      dayRequired: daySchemaItem?.getRequired(injectParams) ?? false,
-      hourRequired: hourSchemaItem?.getRequired(injectParams) ?? false,
-      minuteRequired: minuteSchemaItem?.getRequired(injectParams) ?? false,
-      secondRequired: secondSchemaItem?.getRequired(injectParams) ?? false,
-      minYear: yearSchemaItem?.getMin(injectParams) ?? min.getYear(),
-      maxYear: yearSchemaItem?.getMax(injectParams) ?? max.getYear(),
-      minMonth: monthSchemaItem?.getMin(injectParams),
-      maxMonth: monthSchemaItem?.getMax(injectParams),
-      minDay: daySchemaItem?.getMin(injectParams),
-      maxDay: daySchemaItem?.getMax(injectParams),
-      minHour: hourSchemaItem?.getMin(injectParams) ?? 0,
-      maxHour: hourSchemaItem?.getMax(injectParams) ?? 23,
-      minMinute: minuteSchemaItem?.getMin(injectParams) ?? 0,
-      maxMinute: minuteSchemaItem?.getMax(injectParams) ?? 59,
-      minSecond: secondSchemaItem?.getMin(injectParams) ?? 0,
-      maxSecond: secondSchemaItem?.getMax(injectParams) ?? 59,
-      minTime: schemaItem instanceof $DateTimeSchema ? schemaItem.getMinTime(injectParams) : undefined,
-      maxTime: schemaItem instanceof $DateTimeSchema ? schemaItem.getMaxTime(injectParams) : undefined,
-      hourStep: hourSchemaItem?.getStep() ?? 1,
-      minuteStep: minuteSchemaItem?.getStep() ?? 1,
-      secondStep: secondSchemaItem?.getStep() ?? 1,
     };
   }, [
     schemaItem,
-    yearSchemaItem,
-    monthSchemaItem,
-    daySchemaItem,
     dayName,
-    hourSchemaItem,
     hourName,
-    minuteSchemaItem,
     minuteName,
-    secondSchemaItem,
     secondName,
-    injectParams,
   ]);
 
   function getOptionMinMax({
@@ -1035,6 +1192,48 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
     focus: () => ref$.current.focus(),
   } as const satisfies DateSelectBox$Ref));
 
+  useEffect(() => {
+    if (core?.isDirty()) {
+      core.validate();
+    }
+  }, [coreRefsValuesString]);
+
+  useEffect(() => {
+    if (hour?.isDirty()) {
+      hour.validate();
+    }
+  }, [hourRefsValuesString]);
+
+  useEffect(() => {
+    if (minute?.isDirty()) {
+      minute.validate();
+    }
+  }, [minuteRefsValuesString]);
+
+  useEffect(() => {
+    if (day?.isDirty()) {
+      day.validate();
+    }
+  }, [dayRefsValuesString]);
+
+  useEffect(() => {
+    if (hour?.isDirty()) {
+      hour.validate();
+    }
+  }, [hourRefsValuesString]);
+
+  useEffect(() => {
+    if (minute?.isDirty()) {
+      minute.validate();
+    }
+  }, [minuteRefsValuesString]);
+
+  useEffect(() => {
+    if (second?.isDirty()) {
+      second.validate();
+    }
+  }, [secondRefsValuesString]);
+
   return (
     <WithMessage
       id={errormMessageId}
@@ -1055,7 +1254,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
             id={`${schemaId}_${coreName}`}
             type="hidden"
             name={coreName}
-            value={value?.toString() || ""}
+            value={coreValue?.toString() || ""}
           />
         }
         <PartSelectBox

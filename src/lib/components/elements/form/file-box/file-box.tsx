@@ -62,6 +62,7 @@ export function FileBox$<S extends $FileSchema<any>>({
     errormMessageId,
     errormessage,
     injectParams,
+    refValuesString,
   } = useFormInput(formItem, {
     hideMessage,
     omitOnSubmit,
@@ -80,6 +81,7 @@ export function FileBox$<S extends $FileSchema<any>>({
   }, [
     schemaItem,
     injectParams,
+    refValuesString,
   ]);
 
   useImperativeHandle(ref, () => ref$.current);

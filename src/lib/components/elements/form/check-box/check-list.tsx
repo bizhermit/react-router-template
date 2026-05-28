@@ -57,6 +57,7 @@ export function CheckList$<
     errormMessageId,
     errormessage,
     injectParams,
+    refValuesString,
   } = useFormInput(formItem, {
     hideMessage,
     omitOnSubmit,
@@ -76,6 +77,7 @@ export function CheckList$<
     schemaItem,
     enumSchema,
     injectParams,
+    refValuesString,
   ]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

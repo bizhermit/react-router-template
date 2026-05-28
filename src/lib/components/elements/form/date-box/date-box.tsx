@@ -54,6 +54,7 @@ export function DateBox$<S extends DateBoxSchemaItem>({
     errormMessageId,
     errormessage,
     injectParams,
+    refValuesString,
   } = useFormInput(formItem as FormItem<DateBoxSchemaItem>, {
     hideMessage,
     omitOnSubmit,
@@ -114,6 +115,7 @@ export function DateBox$<S extends DateBoxSchemaItem>({
   }, [
     schemaItem,
     injectParams,
+    refValuesString,
   ]);
 
   useImperativeHandle(ref, () => ref$.current);

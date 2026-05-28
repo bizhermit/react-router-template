@@ -50,6 +50,7 @@ export function RadioButtons$<S extends $EnumSchema<any, any>>({
     errormMessageId,
     errormessage,
     injectParams,
+    refValuesString,
   } = useFormInput(formItem, {
     hideMessage,
     omitOnSubmit,
@@ -66,6 +67,7 @@ export function RadioButtons$<S extends $EnumSchema<any, any>>({
   }, [
     schemaItem,
     injectParams,
+    refValuesString,
   ]);
 
   function handleClick(e: MouseEvent<HTMLInputElement>) {

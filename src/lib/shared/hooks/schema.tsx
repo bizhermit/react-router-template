@@ -382,11 +382,8 @@ export function useFormInput<S extends SchemaItem<any>>(
   }, getInjectParams, getInjectParams);
 
   function getRefValuesString() {
-    return JSON.stringify(formItem.getRefs().reduce((refVals, ref) => {
-      refVals[ref] = context.getValue(ref);
-      return refVals;
-    }, {} as Record<string, unknown>));
-  }
+    return formItem.getRefsValuesString();
+  };
 
   const refValuesString = useSyncExternalStore((callback) => {
     const cleanups = formItem.getRefs().map(ref => {
@@ -446,7 +443,7 @@ export function useFormInput<S extends SchemaItem<any>>(
   }
 
   useEffect(() => {
-    if (context.isDirty(name)) {
+    if (formItem.isDirty()) {
       formItem.validate();
     }
   }, [refValuesString]);

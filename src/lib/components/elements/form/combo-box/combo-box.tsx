@@ -50,6 +50,7 @@ export function ComboBox$<S extends $EnumSchema<any, any>>({
     isInvalid,
     errormMessageId,
     injectParams,
+    refValuesString,
   } = useFormInput(formItem, {
     hideMessage,
     omitOnSubmit,
@@ -66,6 +67,7 @@ export function ComboBox$<S extends $EnumSchema<any, any>>({
   }, [
     schemaItem,
     injectParams,
+    refValuesString,
   ]);
 
   useImperativeHandle(ref, () => ref$.current);

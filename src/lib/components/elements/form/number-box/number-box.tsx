@@ -51,6 +51,7 @@ export function NumberBox$<S extends $NumSchema<any>>({
     errormMessageId,
     errormessage,
     injectParams,
+    refValuesString,
   } = useFormInput(formItem, {
     hideMessage,
     omitOnSubmit,
@@ -71,6 +72,7 @@ export function NumberBox$<S extends $NumSchema<any>>({
   }, [
     schemaItem,
     injectParams,
+    refValuesString,
   ]);
 
   useImperativeHandle(ref, () => ref$.current);

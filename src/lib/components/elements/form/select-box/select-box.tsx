@@ -53,6 +53,7 @@ export function SelectBox$<S extends $EnumSchema<any, any>>({
     errormMessageId,
     errormessage,
     injectParams,
+    refValuesString,
   } = useFormInput(formItem, {
     hideMessage,
     omitOnSubmit,
@@ -69,6 +70,7 @@ export function SelectBox$<S extends $EnumSchema<any, any>>({
   }, [
     schemaItem,
     injectParams,
+    refValuesString,
   ]);
 
   useImperativeHandle(ref, () => ref$.current);

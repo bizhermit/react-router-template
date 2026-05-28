@@ -479,6 +479,17 @@ export class FormItem<S extends SchemaItem<any>> {
     return this.refs;
   }
 
+  public getRefsValues() {
+    this.getRefs().reduce((refVals, ref) => {
+      refVals[ref] = this.formContext.getValue(ref);
+      return refVals;
+    }, {} as Record<string, unknown>);
+  }
+
+  public getRefsValuesString() {
+    return JSON.stringify(this.getRefsValues());
+  }
+
   public getMode(params: Schema.InjectParams) {
     return this.schemaItem.getMode(params);
   }
@@ -520,6 +531,10 @@ export class FormItem<S extends SchemaItem<any>> {
     });
     this.formContext.callMessageSubscribes();
     this.formContext.updateHasError();
+  }
+
+  public isDirty() {
+    return this.formContext.isDirty(this.name);
   }
 
 };

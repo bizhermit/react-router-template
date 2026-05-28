@@ -53,6 +53,7 @@ export function Slider$<S extends $NumSchema<any>>({
     errormMessageId,
     errormessage,
     injectParams,
+    refValuesString,
   } = useFormInput(formItem, {
     hideMessage,
     omitOnSubmit,
@@ -71,6 +72,7 @@ export function Slider$<S extends $NumSchema<any>>({
   }, [
     schemaItem,
     injectParams,
+    refValuesString,
   ]);
 
   return (

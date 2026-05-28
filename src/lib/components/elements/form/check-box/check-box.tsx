@@ -50,6 +50,7 @@ export function CheckBox$<S extends $BoolSchema<any>>({
     errormMessageId,
     errormessage,
     injectParams,
+    refValuesString,
   } = useFormInput(formItem, {
     hideMessage,
     omitOnSubmit,
@@ -65,6 +66,7 @@ export function CheckBox$<S extends $BoolSchema<any>>({
   }, [
     schemaItem,
     injectParams,
+    refValuesString,
   ]);
 
   function handleChangeValue(checked: boolean) {
