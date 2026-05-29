@@ -332,7 +332,6 @@ export class FormManager<S extends $ObjSchema<any, any>> {
         );
       }
       this.dirtySubscribes.forEach(listener => listener());
-      console.log(this.dirtyFiels);
 
       // messages
       const updateMessages = Object.entries(messages).reduce((prev, [msgName, msgs]) => {
@@ -393,10 +392,9 @@ export class FormManager<S extends $ObjSchema<any, any>> {
     const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const subFieldRegex = new RegExp(`^${escapedName}\\[(\\d+)\\](.*)`);
 
-    const toDelete: string[] = [];
-    const toAdd: string[] = [];
+    const deleteFields: string[] = [];
+    const appendFileds: string[] = [];
 
-    // remap dirty sub-fields: compare current (prev) vs new (next) by object reference
     this.dirtyFiels.forEach(dirtyName => {
       if (!dirtyName.startsWith(prefix)) return;
       const match = dirtyName.match(subFieldRegex);
@@ -406,15 +404,15 @@ export class FormManager<S extends $ObjSchema<any, any>> {
       const suffix = match[2];
       const item = prev[prevIdx];
 
-      toDelete.push(dirtyName);
+      deleteFields.push(dirtyName);
       if (item != null && newPosMap.has(item)) {
         const newIdx = newPosMap.get(item)!;
-        toAdd.push(`${name}[${newIdx}]${suffix}`);
+        appendFileds.push(`${name}[${newIdx}]${suffix}`);
       }
     });
 
-    toDelete.forEach(f => this.dirtyFiels.delete(f));
-    toAdd.forEach(f => this.dirtyFiels.add(f));
+    deleteFields.forEach(filedName => this.dirtyFiels.delete(filedName));
+    appendFileds.forEach(filedName => this.dirtyFiels.add(filedName));
   }
 
   public addValuesSubscribe(name: string, listener: () => void) {
