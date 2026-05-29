@@ -1,6 +1,6 @@
 import { useImperativeHandle, useMemo, useRef, type RefObject, type TextareaHTMLAttributes } from "react";
 import { TextArea, type TextAreaRef, type TextAreaResize } from ".";
-import { useFormInput, type FormInputProps, type FormInputStyleProps } from "../../../../shared/hooks/schema";
+import { useFormItem, type FormItemHookProps } from "../../../../shared/hooks/form/item";
 import type { FormItem } from "../../../../shared/schema/form";
 import type { $StrSchema } from "../../../../shared/schema/string";
 import { WithMessage } from "../message";
@@ -9,8 +9,8 @@ export interface TextArea$Ref extends TextAreaRef { }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type TextArea$Props<S extends $StrSchema<any>> =
-  & FormInputStyleProps
-  & FormInputProps
+  & ElementStyleProps
+  & FormItemHookProps
   & {
     ref?: RefObject<InputRef | null>;
     formItem: FormItem<S>;
@@ -63,7 +63,7 @@ export function TextArea$<S extends $StrSchema<any>>({
     errormessage,
     injectParams,
     refValuesString,
-  } = useFormInput(formItem, {
+  } = useFormItem(formItem, {
     hideMessage,
     omitOnSubmit,
   });

@@ -17,8 +17,11 @@ import { TextArea$ } from "$/components/elements/form/text-area/text-area";
 import { TextBox$ } from "$/components/elements/form/text-box/text-box";
 import { FormItem } from "$/components/elements/form/wrapper/form-item";
 import { DeleteIcon } from "$/components/elements/icon";
+import { useFormContext } from "$/shared/hooks/form";
+import { useFormArrayItem } from "$/shared/hooks/form/array-item";
+import { FormContext, type FormContextProps } from "$/shared/hooks/form/context";
+import { useFormHasError } from "$/shared/hooks/form/error";
 import { useRender } from "$/shared/hooks/render";
-import { SchemaProviderContext, useFormArrayItem, useHasError, useSchema, type SchemaProviderContextProps } from "$/shared/hooks/schema";
 import { $Date, $DateTime } from "$/shared/objects/timestamp";
 import { SchemaProvider } from "$/shared/providers/schema";
 import { $arr } from "$/shared/schema/array";
@@ -325,7 +328,7 @@ export async function action({ request }: Route.ActionArgs) {
 export default function Page({ loaderData, actionData }: Route.ComponentProps) {
   const fetcher = useFetcher<typeof actionData>();
 
-  const schema = useSchema({
+  const formContext = useFormContext({
     id: "sandbox",
     schema: schemaObj,
     values: {
@@ -341,7 +344,7 @@ export default function Page({ loaderData, actionData }: Route.ComponentProps) {
 
   return (
     <fetcher.Form
-      {...schema.formProps}
+      {...formContext.formProps}
       method="POST"
     >
       form sandbox
@@ -363,7 +366,7 @@ export default function Page({ loaderData, actionData }: Route.ComponentProps) {
           to query
         </LinkButton>
       </div>
-      <SchemaProvider {...schema.providerProps}>
+      <SchemaProvider {...formContext.providerProps}>
         <DisplayHasError />
         <SchemaContent />
       </SchemaProvider>
@@ -377,35 +380,34 @@ function SchemaContent() {
 
   const render = useRender();
 
-  const { context } = use(SchemaProviderContext) as SchemaProviderContextProps<typeof schemaObj>;
-  const formItems = context.getFormItems();
+  const form = use(FormContext) as FormContextProps<typeof schemaObj>;
 
   // const str2 = useSyncExternalStore((callback) => {
-  //   const cleanup = context.addValuesSubscribe(formItems.str2.getName(), callback);
+  //   const cleanup = context.addValuesSubscribe(form.items.str2.getName(), callback);
   //   return () => cleanup();
   // }, () => {
-  //   return context.getValue(formItems.str2.getName());
+  //   return context.getValue(form.items.str2.getName());
   // }, () => {
-  //   return context.getValue(formItems.str2.getName());
+  //   return context.getValue(form.items.str2.getName());
   // });
 
   // const str2Msg = useSyncExternalStore((callback) => {
-  //   const cleanup = context.addMessageSubscribe(formItems.str2.getName(), callback);
+  //   const cleanup = context.addMessageSubscribe(form.items.str2.getName(), callback);
   //   return () => cleanup();
   // }, () => {
-  //   return context.getMessage(formItems.str2.getName());
+  //   return context.getMessage(form.items.str2.getName());
   // }, () => {
-  //   return context.getMessage(formItems.str2.getName());
+  //   return context.getMessage(form.items.str2.getName());
   // });
 
-  const arr = useFormArrayItem(formItems.arr);
-  const arr2 = useFormArrayItem(formItems.arr2);
+  const arr = useFormArrayItem(form.items.arr);
+  const arr2 = useFormArrayItem(form.items.arr2);
 
   // console.log("render: ", str2, str2Msg);
 
   // console.log("render");
   useEffect(() => {
-    console.log("mount", formItems);
+    console.log("mount", form.items);
     return () => {
       console.log("unmount");
     };
@@ -417,21 +419,21 @@ function SchemaContent() {
       <div className="flex flex-row flex-wrap gap-2">
         <Button
           onClick={() => {
-            console.log(context.getValues());
+            console.log(form.getValues());
           }}
         >
           show
         </Button>
         <Button
           onClick={() => {
-            context.setValue("str2", "hogefugapiyo");
+            form.setValue("str2", "hogefugapiyo");
           }}
         >
           set value
         </Button>
         <Button
           onClick={() => {
-            context.setValue("str2", null);
+            form.setValue("str2", null);
           }}
         >
           clear value
@@ -446,7 +448,7 @@ function SchemaContent() {
             // const fuga = { fuga: 3, piyo: "4" };
             // const piyo = Object.assign(hoge, fuga);
             // console.log(hoge, fuga, piyo);
-            console.log(context.getFormItems());
+            console.log(form.items);
           }}
         >
 
@@ -455,17 +457,17 @@ function SchemaContent() {
       <div className="flex flex-row flex-wrap gap-2">
         <FormItem>
           <TextBox$
-            formItem={formItems.text}
+            formItem={form.items.text}
           />
         </FormItem>
         <FormItem>
           <PasswordBox$
-            formItem={formItems.password}
+            formItem={form.items.password}
           />
         </FormItem>
         <FormItem>
           <TextArea$
-            formItem={formItems.note}
+            formItem={form.items.note}
             rows="fit"
             minRows={3}
             maxRows={5}
@@ -473,12 +475,12 @@ function SchemaContent() {
         </FormItem>
         <FormItem>
           <NumberBox$
-            formItem={formItems.num}
+            formItem={form.items.num}
           />
         </FormItem>
         <FormItem>
           <Slider$
-            formItem={formItems.rate}
+            formItem={form.items.rate}
             scales={[
               { value: 1, text: "1%" },
               { value: 33 },
@@ -487,37 +489,37 @@ function SchemaContent() {
             ]}
           />
           <NumberBox$
-            formItem={formItems.rate}
+            formItem={form.items.rate}
             omitOnSubmit
           />
         </FormItem>
         <FormItem>
           <FileBox$
-            formItem={formItems.file}
+            formItem={form.items.file}
             placeholder="ファイルを選択してください"
             viewMode="link"
           />
         </FormItem>
         <FormItem>
           <SelectBox$
-            formItem={formItems.select}
+            formItem={form.items.select}
           />
         </FormItem>
         <FormItem>
           <ComboBox$
-            formItem={formItems.combo}
+            formItem={form.items.combo}
           />
         </FormItem>
         <FormItem>
           <CheckBox$
-            formItem={formItems.check}
+            formItem={form.items.check}
           >
             CheckBox
           </CheckBox$>
         </FormItem>
         <FormItem>
           <CheckBox$
-            formItem={formItems.toggle}
+            formItem={form.items.toggle}
             appearance="togglebox"
             color="danger"
           >
@@ -526,13 +528,13 @@ function SchemaContent() {
         </FormItem>
         <FormItem>
           <RadioButtons$
-            formItem={formItems.radio}
+            formItem={form.items.radio}
           // color="primary"
           />
         </FormItem>
         <FormItem>
           <CheckList$
-            formItem={formItems.checklist}
+            formItem={form.items.checklist}
           // appearance="togglebox"
           // appearance="button"
           // color="primary"
@@ -540,28 +542,28 @@ function SchemaContent() {
         </FormItem>
         <FormItem>
           <DateBox$
-            formItem={formItems.date}
+            formItem={form.items.date}
           />
         </FormItem>
         <FormItem>
           <DateBox$
-            formItem={formItems.month}
+            formItem={form.items.month}
           />
         </FormItem>
         <FormItem>
           <DateBox$
-            formItem={formItems.datetime}
+            formItem={form.items.datetime}
           />
         </FormItem>
         <FormItem>
           <DateSelectBox$
-            // formItem={formItems.dateselect}
+            // formItem={form.items.dateselect}
             formItem={{
-              id: formItems.split_date.getName(),
+              id: form.items.split_date.getName(),
               // id: "_dateselect",
-              year: formItems.date_year,
-              month: formItems.date_month,
-              day: formItems.date_day,
+              year: form.items.date_year,
+              month: form.items.date_month,
+              day: form.items.date_day,
             }}
           />
         </FormItem>
@@ -632,7 +634,7 @@ function SchemaContent() {
         </Button>
         <Button
           onClick={() => {
-            arr2.add({
+            arr2.push({
               name: "piyo",
             });
           }}
@@ -646,7 +648,7 @@ function SchemaContent() {
 };
 
 export function DisplayHasError() {
-  const hasError = useHasError();
+  const hasError = useFormHasError();
   return (
     <span>
       error: {String(hasError)}

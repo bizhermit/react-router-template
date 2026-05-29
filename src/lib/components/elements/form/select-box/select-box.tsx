@@ -1,6 +1,6 @@
 import { useImperativeHandle, useMemo, useRef, type RefObject, type SelectHTMLAttributes } from "react";
 import { SelectBox, SelectBoxEmptyOption, type SelectBoxRef } from ".";
-import { useFormInput, type FormInputProps, type FormInputStyleProps } from "../../../../shared/hooks/schema";
+import { useFormItem, type FormItemHookProps } from "../../../../shared/hooks/form/item";
 import type { $EnumSchema } from "../../../../shared/schema/enum";
 import type { FormItem } from "../../../../shared/schema/form";
 import { WithMessage } from "../message";
@@ -9,8 +9,8 @@ export interface SelectBox$Ref extends SelectBoxRef { };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SelectBox$Props<S extends $EnumSchema<any, any>> =
-  & FormInputStyleProps
-  & FormInputProps
+  & ElementStyleProps
+  & FormItemHookProps
   & {
     ref?: RefObject<InputRef | null>;
     formItem: FormItem<S>;
@@ -54,7 +54,7 @@ export function SelectBox$<S extends $EnumSchema<any, any>>({
     errormessage,
     injectParams,
     refValuesString,
-  } = useFormInput(formItem, {
+  } = useFormItem(formItem, {
     hideMessage,
     omitOnSubmit,
   });

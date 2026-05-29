@@ -1,6 +1,6 @@
 import { useImperativeHandle, useMemo, useRef, type InputHTMLAttributes, type RefObject } from "react";
 import { NumberBox, type NumberBoxRef } from ".";
-import { useFormInput, type FormInputProps, type FormInputStyleProps } from "../../../../shared/hooks/schema";
+import { useFormItem, type FormItemHookProps } from "../../../../shared/hooks/form/item";
 import type { FormItem } from "../../../../shared/schema/form";
 import type { $NumSchema } from "../../../../shared/schema/number";
 import { WithMessage } from "../message";
@@ -9,8 +9,8 @@ export interface NumberBox$Ref extends NumberBoxRef { }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type NumberBox$Props<S extends $NumSchema<any>> =
-  & FormInputStyleProps
-  & FormInputProps
+  & ElementStyleProps
+  & FormItemHookProps
   & {
     ref?: RefObject<InputRef | null>;
     formItem: FormItem<S>;
@@ -52,7 +52,7 @@ export function NumberBox$<S extends $NumSchema<any>>({
     errormessage,
     injectParams,
     refValuesString,
-  } = useFormInput(formItem, {
+  } = useFormItem(formItem, {
     hideMessage,
     omitOnSubmit,
   });

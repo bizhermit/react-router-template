@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import { SchemaProviderContext, type FormState } from "../hooks/schema";
-import type { FormContext } from "../schema/form";
+import { FormContext, type FormState } from "../hooks/form/context";
+import type { FormManager } from "../schema/form";
 import { FieldSetContext } from "./field-set";
 
 export type SchemaProviderProps = {
@@ -9,7 +9,7 @@ export type SchemaProviderProps = {
   formId: string;
   formState: FormState;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  formContext: FormContext<any>;
+  formManager: FormManager<any>;
 };
 
 export function SchemaProvider(props: SchemaProviderProps & { children?: ReactNode; }) {
@@ -20,15 +20,19 @@ export function SchemaProvider(props: SchemaProviderProps & { children?: ReactNo
         disabled: props.disabled ?? false,
       }}
     >
-      <SchemaProviderContext
+      <FormContext
         value={{
           id: props.formId,
-          context: props.formContext,
-          formState: props.formState,
+          manager: props.formManager,
+          state: props.formState,
+          getValue: props.formManager.getValue,
+          setValue: props.formManager.setValue,
+          getValues: props.formManager.getValues,
+          items: props.formManager.getFormItems(),
         }}
       >
         {props.children}
-      </SchemaProviderContext>
+      </FormContext>
     </FieldSetContext>
   );
 };

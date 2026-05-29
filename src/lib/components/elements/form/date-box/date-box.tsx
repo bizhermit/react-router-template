@@ -1,11 +1,11 @@
-import { useFormInput, type FormInputProps, type FormInputStyleProps } from "$/shared/hooks/schema";
-import { $DateTime } from "$/shared/objects/timestamp";
-import { $DateSchema } from "$/shared/schema/date";
-import { $DateTimeSchema } from "$/shared/schema/datetime";
-import type { FormItem } from "$/shared/schema/form";
-import { $MonthSchema } from "$/shared/schema/month";
 import { useImperativeHandle, useMemo, useRef, type InputHTMLAttributes, type RefObject } from "react";
 import { DateBox, type DateBoxRef } from ".";
+import { useFormItem, type FormItemHookProps } from "../../../../shared/hooks/form/item";
+import { $DateTime } from "../../../../shared/objects/timestamp";
+import { $DateSchema } from "../../../../shared/schema/date";
+import { $DateTimeSchema } from "../../../../shared/schema/datetime";
+import type { FormItem } from "../../../../shared/schema/form";
+import { $MonthSchema } from "../../../../shared/schema/month";
 import { WithMessage } from "../message";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -14,8 +14,8 @@ type DateBoxSchemaItem = $DateSchema<any> | $DateTimeSchema<any> | $MonthSchema<
 export interface DateBox$Ref extends DateBoxRef { }
 
 export type DateBox$Props<S extends DateBoxSchemaItem> =
-  & FormInputStyleProps
-  & FormInputProps
+  & ElementStyleProps
+  & FormItemHookProps
   & {
     ref?: RefObject<InputRef | null>;
     formItem: FormItem<S>;
@@ -55,7 +55,7 @@ export function DateBox$<S extends DateBoxSchemaItem>({
     errormessage,
     injectParams,
     refValuesString,
-  } = useFormInput(formItem as FormItem<DateBoxSchemaItem>, {
+  } = useFormItem(formItem as FormItem<DateBoxSchemaItem>, {
     hideMessage,
     omitOnSubmit,
   });

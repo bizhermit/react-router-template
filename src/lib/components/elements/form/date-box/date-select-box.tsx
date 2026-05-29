@@ -1,9 +1,10 @@
-import { FieldSetContext } from "$/shared/providers/field-set";
 import { use, useEffect, useImperativeHandle, useMemo, useRef, useState, useSyncExternalStore, type ReactNode, type RefObject, type SelectHTMLAttributes } from "react";
+import { FormContext } from "../../../../shared/hooks/form/context";
+import { type FormItemHookProps } from "../../../../shared/hooks/form/item";
 import { I18nContext } from "../../../../shared/hooks/i18n";
-import { SchemaProviderContext, type FormInputProps, type FormInputStyleProps } from "../../../../shared/hooks/schema";
 import { parseNumber } from "../../../../shared/objects/numeric";
 import { $Date, $DateTime, $Month } from "../../../../shared/objects/timestamp";
+import { FieldSetContext } from "../../../../shared/providers/field-set";
 import { ValidScriptsContext } from "../../../../shared/providers/valid-scripts";
 import type { SchemaItem } from "../../../../shared/schema/core";
 import { $DateSchema } from "../../../../shared/schema/date";
@@ -25,8 +26,8 @@ type DateSelectBoxSchemaItem = $DateSchema<any> | $DateTimeSchema<any> | $MonthS
 type DatePartFormItem = FormItem<$SplitDateSchema<DateSelectBoxSchemaItem, any>>;
 
 export type DateSelectBox$Props<S extends DateSelectBoxSchemaItem> =
-  & FormInputStyleProps
-  & FormInputProps
+  & ElementStyleProps
+  & FormItemHookProps
   & {
     ref?: RefObject<InputRef | null>;
     formItem:
@@ -134,9 +135,9 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
 
   const {
     id: schemaId,
-    context,
-    formState,
-  } = use(SchemaProviderContext);
+    manager,
+    state: formState,
+  } = use(FormContext);
   const {
     core,
     id: coreId,
@@ -150,12 +151,12 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
     core: formItem,
   } : formItem;
   const injectParams = useSyncExternalStore((callback) => {
-    const cleanup = context.addInjectParamsSubscribe(() => callback);
+    const cleanup = manager.addInjectParamsSubscribe(() => callback);
     return () => cleanup();
   }, () => {
-    return context.getInjectParams();
+    return manager.getInjectParams();
   }, () => {
-    return context.getInjectParams();
+    return manager.getInjectParams();
   });
 
   const yearSchemaItem = year?.getSchemaItem();
@@ -197,7 +198,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
   const coreRefsValuesString = useSyncExternalStore((callback) => {
     if (!coreName) return () => { };
     const cleanups = core?.getRefs().map(ref => {
-      return context.addValuesSubscribe(ref, callback);
+      return manager.addValuesSubscribe(ref, callback);
     });
     return () => {
       cleanups?.forEach(cleanup => cleanup());
@@ -206,7 +207,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
 
   function getCoreValue() {
     if (!coreName) return dummyDateRef.current;
-    return context.getValue<Schema.Nullable<$DateTime | $Date | $Month>>(coreName);
+    return manager.getValue<Schema.Nullable<$DateTime | $Date | $Month>>(coreName);
   };
 
   const coreValue = useSyncExternalStore((callback) => {
@@ -214,7 +215,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
       dummySubscribes.current.core = callback;
       return () => { };
     }
-    const cleanup = context.addValuesSubscribe(coreName, () => {
+    const cleanup = manager.addValuesSubscribe(coreName, () => {
       callback();
     });
     return () => cleanup();
@@ -222,7 +223,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
 
   function getCoreMessage() {
     if (!coreName) return undefined;
-    return context.getMessage(coreName);
+    return manager.getMessage(coreName);
   };
 
   const coreMessage = useSyncExternalStore<Schema.Message | null | undefined>((callback) => {
@@ -230,7 +231,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
       dummySubscribes.current.coreMessage = callback;
       return () => { };
     }
-    const cleanup = context.addMessageSubscribe(coreName, () => {
+    const cleanup = manager.addMessageSubscribe(coreName, () => {
       callback();
     });
     return () => cleanup();
@@ -270,7 +271,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
   const yearRefsValuesString = useSyncExternalStore((callback) => {
     if (!yearName) return () => { };
     const cleanups = year?.getRefs().map(ref => {
-      return context.addValuesSubscribe(ref, callback);
+      return manager.addValuesSubscribe(ref, callback);
     });
     return () => {
       cleanups?.forEach(cleanup => cleanup());
@@ -279,7 +280,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
 
   function getYearNum() {
     if (!yearName) return nums.current.year;
-    return context.getValue<Schema.Nullable<number>>(yearName);
+    return manager.getValue<Schema.Nullable<number>>(yearName);
   };
 
   const yearNum = useSyncExternalStore((callback) => {
@@ -287,7 +288,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
       dummySubscribes.current.year = callback;
       return () => { };
     }
-    const cleanup = context.addValuesSubscribe(yearName, () => {
+    const cleanup = manager.addValuesSubscribe(yearName, () => {
       callback();
     });
     return () => cleanup();
@@ -295,12 +296,12 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
 
   function getYearMessage() {
     if (!yearName) return undefined;
-    return context.getMessage(yearName);
+    return manager.getMessage(yearName);
   };
 
   const yearMessage = useSyncExternalStore((callback) => {
     if (!yearName) return () => { };
-    const cleanup = context.addMessageSubscribe(yearName, () => {
+    const cleanup = manager.addMessageSubscribe(yearName, () => {
       callback();
     });
     return () => cleanup();
@@ -308,7 +309,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
 
   function getMonthNum() {
     if (!monthName) return nums.current.month;
-    return context.getValue<Schema.Nullable<number>>(monthName);
+    return manager.getValue<Schema.Nullable<number>>(monthName);
   };
 
   function getMonthRefValuesString() {
@@ -319,7 +320,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
   const monthRefsValuesString = useSyncExternalStore((callback) => {
     if (!monthName) return () => { };
     const cleanups = month?.getRefs().map(ref => {
-      return context.addValuesSubscribe(ref, callback);
+      return manager.addValuesSubscribe(ref, callback);
     });
     return () => {
       cleanups?.forEach(cleanup => cleanup());
@@ -331,7 +332,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
       dummySubscribes.current.month = callback;
       return () => { };
     }
-    const cleanup = context.addValuesSubscribe(monthName, () => {
+    const cleanup = manager.addValuesSubscribe(monthName, () => {
       callback();
     });
     return () => cleanup();
@@ -339,12 +340,12 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
 
   function getMonthMessage() {
     if (!monthName) return undefined;
-    return context.getMessage(monthName);
+    return manager.getMessage(monthName);
   };
 
   const monthMessage = useSyncExternalStore((callback) => {
     if (!monthName) return () => { };
-    const cleanup = context.addMessageSubscribe(monthName, () => {
+    const cleanup = manager.addMessageSubscribe(monthName, () => {
       callback();
     });
     return () => cleanup();
@@ -358,7 +359,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
   const dayRefsValuesString = useSyncExternalStore((callback) => {
     if (!dayName) return () => { };
     const cleanups = day?.getRefs().map(ref => {
-      return context.addValuesSubscribe(ref, callback);
+      return manager.addValuesSubscribe(ref, callback);
     });
     return () => {
       cleanups?.forEach(cleanup => cleanup());
@@ -367,7 +368,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
 
   function getDayNum() {
     if (!dayName) return nums.current.day;
-    return context.getValue<Schema.Nullable<number>>(dayName);
+    return manager.getValue<Schema.Nullable<number>>(dayName);
   };
 
   const dayNum = useSyncExternalStore((callback) => {
@@ -375,7 +376,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
       dummySubscribes.current.day = callback;
       return () => { };
     }
-    const cleanup = context.addValuesSubscribe(dayName, () => {
+    const cleanup = manager.addValuesSubscribe(dayName, () => {
       callback();
     });
     return () => cleanup();
@@ -383,12 +384,12 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
 
   function getDayMessage() {
     if (!dayName) return undefined;
-    return context.getMessage(dayName);
+    return manager.getMessage(dayName);
   };
 
   const dayMessage = useSyncExternalStore((callback) => {
     if (!dayName) return () => { };
-    const cleanup = context.addMessageSubscribe(dayName, () => {
+    const cleanup = manager.addMessageSubscribe(dayName, () => {
       callback();
     });
     return () => cleanup();
@@ -402,7 +403,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
   const hourRefsValuesString = useSyncExternalStore((callback) => {
     if (!hourName) return () => { };
     const cleanups = hour?.getRefs().map(ref => {
-      return context.addValuesSubscribe(ref, callback);
+      return manager.addValuesSubscribe(ref, callback);
     });
     return () => {
       cleanups?.forEach(cleanup => cleanup());
@@ -411,7 +412,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
 
   function getHourNum() {
     if (!hourName) return nums.current.hour;
-    return context.getValue<Schema.Nullable<number>>(hourName);
+    return manager.getValue<Schema.Nullable<number>>(hourName);
   };
 
   const hourNum = useSyncExternalStore((callback) => {
@@ -419,7 +420,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
       dummySubscribes.current.hour = callback;
       return () => { };
     }
-    const cleanup = context.addValuesSubscribe(hourName, () => {
+    const cleanup = manager.addValuesSubscribe(hourName, () => {
       callback();
     });
     return () => cleanup();
@@ -427,12 +428,12 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
 
   function getHourMessage() {
     if (!hourName) return undefined;
-    return context.getMessage(hourName);
+    return manager.getMessage(hourName);
   };
 
   const hourMessage = useSyncExternalStore((callback) => {
     if (!hourName) return () => { };
-    const cleanup = context.addMessageSubscribe(hourName, () => {
+    const cleanup = manager.addMessageSubscribe(hourName, () => {
       callback();
     });
     return () => cleanup();
@@ -446,7 +447,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
   const minuteRefsValuesString = useSyncExternalStore((callback) => {
     if (!minuteName) return () => { };
     const cleanups = minute?.getRefs().map(ref => {
-      return context.addValuesSubscribe(ref, callback);
+      return manager.addValuesSubscribe(ref, callback);
     });
     return () => {
       cleanups?.forEach(cleanup => cleanup());
@@ -455,7 +456,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
 
   function getMinuteNum() {
     if (!minuteName) return nums.current.minute;
-    return context.getValue<Schema.Nullable<number>>(minuteName);
+    return manager.getValue<Schema.Nullable<number>>(minuteName);
   };
 
   const minuteNum = useSyncExternalStore((callback) => {
@@ -463,7 +464,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
       dummySubscribes.current.minute = callback;
       return () => { };
     }
-    const cleanup = context.addValuesSubscribe(minuteName, () => {
+    const cleanup = manager.addValuesSubscribe(minuteName, () => {
       callback();
     });
     return () => cleanup();
@@ -471,12 +472,12 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
 
   function getMinuteMessage() {
     if (!minuteName) return undefined;
-    return context.getMessage(minuteName);
+    return manager.getMessage(minuteName);
   };
 
   const minuteMessage = useSyncExternalStore((callback) => {
     if (!minuteName) return () => { };
-    const cleanup = context.addMessageSubscribe(minuteName, () => {
+    const cleanup = manager.addMessageSubscribe(minuteName, () => {
       callback();
     });
     return () => cleanup();
@@ -490,7 +491,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
   const secondRefsValuesString = useSyncExternalStore((callback) => {
     if (!secondName) return () => { };
     const cleanups = second?.getRefs().map(ref => {
-      return context.addValuesSubscribe(ref, callback);
+      return manager.addValuesSubscribe(ref, callback);
     });
     return () => {
       cleanups?.forEach(cleanup => cleanup());
@@ -499,7 +500,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
 
   function getSecondNum() {
     if (!secondName) return nums.current.second;
-    return context.getValue<Schema.Nullable<number>>(secondName);
+    return manager.getValue<Schema.Nullable<number>>(secondName);
   };
 
   const secondNum = useSyncExternalStore((callback) => {
@@ -507,7 +508,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
       dummySubscribes.current.second = callback;
       return () => { };
     }
-    const cleanup = context.addValuesSubscribe(secondName, () => {
+    const cleanup = manager.addValuesSubscribe(secondName, () => {
       callback();
     });
     return () => cleanup();
@@ -515,12 +516,12 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
 
   function getSecondMessage() {
     if (!secondName) return undefined;
-    return context.getMessage(secondName);
+    return manager.getMessage(secondName);
   };
 
   const secondMessage = useSyncExternalStore((callback) => {
     if (!secondName) return () => { };
-    const cleanup = context.addMessageSubscribe(secondName, () => {
+    const cleanup = manager.addMessageSubscribe(secondName, () => {
       callback();
     });
     return () => cleanup();
@@ -1076,7 +1077,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
           dummyDateRef.current = v as ($DateTime & $Date & $Month) | null | undefined,
           injectParams
         )[""]?.[0];
-        context.setMessage(id, msg);
+        manager.setMessage(id, msg);
       }
     }
 
@@ -1134,7 +1135,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
         effected.month = nums.current.month = null;
         dummySubscribes.current.month?.();
       } else {
-        effected.month = context.setValue(month.getName(), null).value;
+        effected.month = manager.setValue(month.getName(), null).value;
       }
     }
     if (
@@ -1146,7 +1147,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
         effected.day = nums.current.day = null;
         dummySubscribes.current.day?.();
       } else {
-        effected.day = context.setValue(day.getName(), null).value;
+        effected.day = manager.setValue(day.getName(), null).value;
       }
     }
     if (
@@ -1158,7 +1159,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
         effected.hour = nums.current.hour = null;
         dummySubscribes.current.hour?.();
       } else {
-        effected.hour = context.setValue(hour.getName(), null).value;
+        effected.hour = manager.setValue(hour.getName(), null).value;
       }
     }
     if (
@@ -1170,7 +1171,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
         effected.minute = nums.current.minute = null;
         dummySubscribes.current.minute?.();
       } else {
-        effected.minute = context.setValue(minute.getName(), null).value;
+        effected.minute = manager.setValue(minute.getName(), null).value;
       }
     }
     if (
@@ -1181,7 +1182,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
         effected.second = nums.current.second = null;
         dummySubscribes.current.second?.();
       } else {
-        effected.second = context.setValue(second.getName(), null).value;
+        effected.second = manager.setValue(second.getName(), null).value;
       }
     }
     return effected;
@@ -1277,7 +1278,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
               newVal = nums.current.year = parseNumber(v)[0];
               dummySubscribes.current.year?.();
             } else {
-              newVal = context.setValue(year.getName(), v).value;
+              newVal = manager.setValue(year.getName(), v).value;
             }
             const effected = effectOtherValue({ year: newVal ?? null });
             commitCoreValue({ year: newVal ?? null, ...effected });
@@ -1306,7 +1307,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
               newVal = nums.current.month = parseNumber(v)[0];
               dummySubscribes.current.month?.();
             } else {
-              newVal = context.setValue(month.getName(), v).value;
+              newVal = manager.setValue(month.getName(), v).value;
             }
             const effected = effectOtherValue({ month: newVal ?? null });
             commitCoreValue({ month: newVal ?? null, ...effected });
@@ -1337,7 +1338,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
                   newVal = nums.current.day = parseNumber(v)[0];
                   dummySubscribes.current.day?.();
                 } else {
-                  newVal = context.setValue(day.getName(), v).value;
+                  newVal = manager.setValue(day.getName(), v).value;
                 }
                 const effected = effectOtherValue({ day: newVal ?? null });
                 commitCoreValue({ day: newVal ?? null, ...effected });
@@ -1370,7 +1371,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
                   newVal = nums.current.hour = parseNumber(v)[0];
                   dummySubscribes.current.hour?.();
                 } else {
-                  newVal = context.setValue(hour.getName(), v).value;
+                  newVal = manager.setValue(hour.getName(), v).value;
                 }
                 const effected = effectOtherValue({ hour: newVal ?? null });
                 commitCoreValue({ hour: newVal ?? null, ...effected });
@@ -1401,7 +1402,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
                       newVal = nums.current.minute = parseNumber(v)[0];
                       dummySubscribes.current.minute?.();
                     } else {
-                      newVal = context.setValue(minute.getName(), v).value;
+                      newVal = manager.setValue(minute.getName(), v).value;
                     }
                     const effected = effectOtherValue({ minute: newVal ?? null });
                     commitCoreValue({ minute: newVal ?? null, ...effected });
@@ -1434,7 +1435,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
                       newVal = nums.current.second = parseNumber(v)[0];
                       dummySubscribes.current.second?.();
                     } else {
-                      newVal = context.setValue(second.getName(), v).value;
+                      newVal = manager.setValue(second.getName(), v).value;
                     }
                     commitCoreValue({ second: newVal ?? null });
                   }}

@@ -1,6 +1,6 @@
 import { useImperativeHandle, useMemo, useRef, type MouseEvent, type RefObject, type SelectHTMLAttributes } from "react";
 import { RadioButton, type RadioButtonAppearance, type RadioButtonRef } from ".";
-import { useFormInput, type FormInputProps, type FormInputStyleProps } from "../../../../shared/hooks/schema";
+import { useFormItem, type FormItemHookProps } from "../../../../shared/hooks/form/item";
 import type { $EnumSchema } from "../../../../shared/schema/enum";
 import type { FormItem } from "../../../../shared/schema/form";
 import { WithMessage } from "../message";
@@ -10,8 +10,8 @@ export interface RadioButtons$Ref extends InputRef { };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type RadioButtons$Props<S extends $EnumSchema<any, any>> =
-  & FormInputStyleProps
-  & FormInputProps
+  & ElementStyleProps
+  & FormItemHookProps
   & {
     ref?: RefObject<InputRef | null>;
     formItem: FormItem<S>;
@@ -51,7 +51,7 @@ export function RadioButtons$<S extends $EnumSchema<any, any>>({
     errormessage,
     injectParams,
     refValuesString,
-  } = useFormInput(formItem, {
+  } = useFormItem(formItem, {
     hideMessage,
     omitOnSubmit,
   });

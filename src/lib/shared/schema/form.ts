@@ -14,7 +14,7 @@ import { $ObjSchema } from "./object";
  */
 export function convertToFormItems(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  formContext: FormContext<any>,
+  formContext: FormManager<any>,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   props: Record<string, SchemaItem<any>>,
   prefixName?: string | undefined
@@ -55,7 +55,7 @@ export function equalMessage(
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export class FormContext<S extends $ObjSchema<any, any>> {
+export class FormManager<S extends $ObjSchema<any, any>> {
 
   protected schema: S;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -455,7 +455,7 @@ export class FormItem<S extends SchemaItem<any>> {
 
   constructor(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    protected formContext: FormContext<any>,
+    protected formContext: FormManager<any>,
     protected name: string,
     protected schemaItem: S
   ) {

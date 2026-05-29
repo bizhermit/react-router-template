@@ -1,6 +1,6 @@
 import { useImperativeHandle, useMemo, useRef, type InputHTMLAttributes, type RefObject } from "react";
 import { CheckBox, type CheckBoxAppearance, type CheckBoxRef } from ".";
-import { useFormInput, type FormInputProps, type FormInputStyleProps } from "../../../../shared/hooks/schema";
+import { useFormItem, type FormItemHookProps } from "../../../../shared/hooks/form/item";
 import type { $ArrSchema, ArrayProps } from "../../../../shared/schema/array";
 import type { $EnumSchema } from "../../../../shared/schema/enum";
 import type { FormItem } from "../../../../shared/schema/form";
@@ -14,8 +14,8 @@ export type CheckList$Props<
   E extends $EnumSchema<any, any>,
   S extends $ArrSchema<E, ArrayProps<E>>
 > =
-  & FormInputStyleProps
-  & FormInputProps
+  & ElementStyleProps
+  & FormItemHookProps
   & {
     ref?: RefObject<InputRef | null>;
     formItem: FormItem<S>;
@@ -58,7 +58,7 @@ export function CheckList$<
     errormessage,
     injectParams,
     refValuesString,
-  } = useFormInput(formItem, {
+  } = useFormItem(formItem, {
     hideMessage,
     omitOnSubmit,
   });

@@ -4,8 +4,8 @@ import { InputMessageSpan } from "$/components/elements/form/message";
 import { PasswordBox$ } from "$/components/elements/form/password-box/password-box";
 import { TextBox$ } from "$/components/elements/form/text-box/text-box";
 import { FormItem } from "$/components/elements/form/wrapper/form-item";
+import { useFormContext } from "$/shared/hooks/form";
 import { useText } from "$/shared/hooks/i18n";
-import { useSchema } from "$/shared/hooks/schema";
 import { SchemaProvider } from "$/shared/providers/schema";
 import { useEffect } from "react";
 import { data, redirect, useFetcher } from "react-router";
@@ -37,7 +37,7 @@ export default function Page({ actionData }: Route.ComponentProps) {
     formItems,
     providerProps,
     formProps,
-  } = useSchema({
+  } = useFormContext({
     id: "sign-in",
     schema: authSchema,
     values: {},
