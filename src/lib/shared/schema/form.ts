@@ -1,5 +1,5 @@
 import { clone, equals } from "$/shared/objects";
-import { getArrayIndex, getRelativeName, getValue, setValue, splitName } from "$/shared/objects/data";
+import { getArrayIndex, getRelativeName, getValue, setValueReturnContexts, splitName } from "$/shared/objects/data";
 import { getHasError, mergeRecordMessages } from ".";
 import { $ArrSchema } from "./array";
 import type { SchemaItem } from "./core";
@@ -186,7 +186,7 @@ export class FormManager<S extends $ObjSchema<any, any>> {
   protected setHasError(error: boolean) {
     if (this.error === error) return this;
     this.error = error;
-    this.errorSubscribes.forEach(fn => fn());
+    this.errorSubscribes.forEach(listener => listener());
     return this;
   }
 
@@ -307,8 +307,8 @@ export class FormManager<S extends $ObjSchema<any, any>> {
       name,
     });
 
-    const hasChanged = setValue(this.values, name, parsed.value);
-    const validated = (hasChanged && !options?.skipValidate) ?
+    const result = setValueReturnContexts(this.values, name, parsed.value);
+    const validated = (result.change && !options?.skipValidate) ?
       schemaItem.validate(parsed.value, {
         ...this.injectParams,
         name,
@@ -316,49 +316,105 @@ export class FormManager<S extends $ObjSchema<any, any>> {
 
     const messages = mergeRecordMessages(parsed.messages, validated);
 
-    if (hasChanged) {
-      this.valuesSubscribes.get(name)?.forEach(fn => fn());
-    }
+    if (result.change) {
+      // value
+      this.valuesSubscribes.get(name)?.forEach(listener => listener());
 
-    const updateMessages = Object.entries(messages).reduce((prev, [name, msgs]) => {
-      const message = msgs?.find(msg => msg.type === "e");
-      if (isReplace) {
-        prev.push({ name, message });
-        return prev;
+      // dirty
+      if (!this.dirtyFiels.has(name)) {
+        this.dirtyFiels.add(name);
       }
-      const current = this.messages.get(name);
-      if (equalMessage(current, message)) return prev;
-      prev.push({ name, message });
-      return prev;
-    }, [] as ({ name: string; message: Schema.Message | undefined; }[]));
-
-    if (isReplace) {
-      const keys = Array.from(this.messages.keys());
-      const regexp = new RegExp(`${name}($|\\[\\d\\]|.)`);
-      keys.forEach(key => {
-        if (regexp.test(key)) {
-          this.messages.delete(key);
-        }
-      });
-    }
-
-    updateMessages.forEach(({ name, message }) => {
-      this.messages.set(name, message);
-      this.messagesSubscribes.get(name)?.forEach(fn => fn());
-    });
-
-    this.updateHasError();
-    if (!this.dirtyFiels.has(name)) {
-      this.dirtyFiels.add(name);
+      if (schemaItem instanceof $ArrSchema) {
+        this.syncArrayDirtyFields(
+          name,
+          result.before as (unknown[] | null | undefined),
+          result.after as (unknown[] | null | undefined)
+        );
+      }
       this.dirtySubscribes.forEach(listener => listener());
+      console.log(this.dirtyFiels);
+
+      // messages
+      const updateMessages = Object.entries(messages).reduce((prev, [msgName, msgs]) => {
+        const message = msgs?.find(msg => msg.type === "e");
+        if (isReplace) {
+          if (name === msgName || this.dirtyFiels.has(msgName)) {
+            // NOTE: ユーザー入力されていない場合はメッセージを破棄する
+            prev.push({ name: msgName, message });
+          }
+          return prev;
+        }
+        const current = this.messages.get(msgName);
+        if (equalMessage(current, message)) return prev;
+        prev.push({ name: msgName, message });
+        return prev;
+      }, [] as ({ name: string; message: Schema.Message | undefined; }[]));
+
+      if (isReplace) {
+        // NOTE: 入れ替えの場合は一旦削除
+        const keys = Array.from(this.messages.keys());
+        const regexp = new RegExp(`${name}($|\\[\\d\\]|.)`);
+        keys.forEach(key => {
+          if (regexp.test(key)) {
+            this.messages.delete(key);
+          }
+        });
+      }
+
+      updateMessages.forEach(({ name, message }) => {
+        this.messages.set(name, message);
+        this.messagesSubscribes.get(name)?.forEach(listener => listener());
+      });
+      this.updateHasError();
     }
 
     return {
       value: parsed.value,
-      hasChanged,
+      hasChanged: result.change,
       messages,
       schemaItem,
     } as const;
+  }
+
+  protected syncArrayDirtyFields(
+    name: string,
+    prevArr: unknown[] | null | undefined,
+    newArr: unknown[] | null | undefined
+  ) {
+    const prev = prevArr ?? [];
+    const next = newArr ?? [];
+
+    const newPosMap = new Map<unknown, number>();
+    next.forEach((item, idx) => {
+      if (item != null) newPosMap.set(item, idx);
+    });
+
+    const prefix = `${name}[`;
+    const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const subFieldRegex = new RegExp(`^${escapedName}\\[(\\d+)\\](.*)`);
+
+    const toDelete: string[] = [];
+    const toAdd: string[] = [];
+
+    // remap dirty sub-fields: compare current (prev) vs new (next) by object reference
+    this.dirtyFiels.forEach(dirtyName => {
+      if (!dirtyName.startsWith(prefix)) return;
+      const match = dirtyName.match(subFieldRegex);
+      if (!match) return;
+
+      const prevIdx = parseInt(match[1]);
+      const suffix = match[2];
+      const item = prev[prevIdx];
+
+      toDelete.push(dirtyName);
+      if (item != null && newPosMap.has(item)) {
+        const newIdx = newPosMap.get(item)!;
+        toAdd.push(`${name}[${newIdx}]${suffix}`);
+      }
+    });
+
+    toDelete.forEach(f => this.dirtyFiels.delete(f));
+    toAdd.forEach(f => this.dirtyFiels.add(f));
   }
 
   public addValuesSubscribe(name: string, listener: () => void) {

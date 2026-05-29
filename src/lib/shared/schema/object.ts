@@ -91,23 +91,26 @@ export class $ObjSchema<
     }
 
     if (structValue != null) {
-      const retValue: Schema.Nullable<Struct> = {};
-      const prefixName = params.name ? `${params.name}.` : "";
-
+      const origin = { ...structValue };
       const keys = Object.keys(structValue);
+      keys.forEach(key => {
+        delete structValue[key];
+      });
+
+      const prefixName = params.name ? `${params.name}.` : "";
 
       Object.entries(this.children).forEach(([key, prop]) => {
         const name = `${prefixName}${key}`;
         const idx = keys.findIndex(k => k === key);
         if (idx < 0) return; // NOTE: キー無し
-        const val = structValue![key];
+        const val = origin[key];
 
         const parsed = prop.parse(val, {
           ...params,
           name,
         });
 
-        retValue[key] = parsed.value;
+        structValue[key] = parsed.value;
         if (parsed.messages) {
           Object.assign(messages, parsed.messages);
           if (!(name in parsed.messages)) messages[name] = undefined;
@@ -129,8 +132,6 @@ export class $ObjSchema<
           actionType: this.getActionType(),
         }];
       });
-
-      structValue = retValue;
     }
 
     return {

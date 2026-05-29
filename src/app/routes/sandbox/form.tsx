@@ -595,22 +595,16 @@ function SchemaContent() {
                 ：
                 {JSON.stringify(value)}
                 <div className="flex flex-row flex-wrap gap-2">
-                  <Button
-                    onClick={() => {
-                      formItems.name.setValue(key);
-                      render();
-                    }}
-                  >
-                    set name
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      formItems.age.setValue(index);
-                      render();
-                    }}
-                  >
-                    set age
-                  </Button>
+                  <FormItem>
+                    <TextBox$
+                      formItem={formItems.name}
+                    />
+                  </FormItem>
+                  <FormItem>
+                    <NumberBox$
+                      formItem={formItems.age}
+                    />
+                  </FormItem>
                   <Button
                     onClick={() => {
                       remove();
@@ -640,6 +634,15 @@ function SchemaContent() {
           }}
         >
           add
+        </Button>
+        <Button
+          onClick={() => {
+            arr2.insert(1, {
+              name: "insert",
+            });
+          }}
+        >
+          insert
         </Button>
       </div>
       <hr />

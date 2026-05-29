@@ -110,6 +110,53 @@ export function setValue(
   return change;
 };
 
+export function setValueReturnContexts(
+  data: Record<string, unknown>,
+  name: string,
+  value: unknown
+): {
+  before: unknown;
+  after: unknown;
+  change: boolean;
+} {
+  let d = data, change = false, before = undefined;
+  const names = splitName(name);
+  for (let i = 0, il = names.length - 1; i < il; i++) {
+    let n: string | number = names[i];
+    const r = getArrayIndex(n);
+    if (r) n = Number(r[1] || "NaN");
+    if (d[n] == null) {
+      d[n] = getArrayIndex(names[i + 1]) ? [] : {};
+      change = true;
+    }
+    d = d[n] as Record<string | number, unknown>;
+  }
+  const n = names[names.length - 1];
+  const r = getArrayIndex(n);
+  if (r) {
+    if (!Array.isArray(d)) throw new Error(`set value failed. object is no array. "${name}"`);
+    const i = Number(r[1]);
+    if (isNaN(i)) {
+      d.push(value);
+      return {
+        before,
+        after: value,
+        change: true,
+      };
+    }
+    change = !Object.is(before = d[i], value);
+    d[i] = value;
+  } else {
+    change = !Object.is(before = d[n], value);
+    d[n] = value;
+  }
+  return {
+    before,
+    after: value,
+    change,
+  } as const;
+};
+
 type Item = {
   /** プロパティ名 */
   name: string;
