@@ -9,7 +9,7 @@ export type FormContextProps<S extends $ObjSchema<any, any> = $ObjSchema<any, an
   id: string;
   state: FormState;
   manager: FormManager<S>;
-  items: FormManager<S>["formItems"];
+  items: Schema.ObjectFormItems<S>;
   getValues: FormManager<S>["getValues"];
   getValue: FormManager<S>["getValue"];
   setValue: FormManager<S>["setValue"];

@@ -242,7 +242,7 @@ export class FormManager<S extends $ObjSchema<any, any>> {
   }
 
   public getValues() {
-    return clone(this.values);
+    return clone(this.values) as Schema.Infer<S, false>;
   }
 
   public setValues(
