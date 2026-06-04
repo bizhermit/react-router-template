@@ -36,7 +36,7 @@ type FormContextHookProps<S extends $ObjSchema<any, any>> = {
  * @param props - フォーム識別子、スキーマ、初期値、メッセージ、状態制御オプション
  * @returns Provider と `<form>` に渡すプロパティ、およびフォーム操作用API
  */
-export function useFormContext<const S extends $ObjSchema<any, any>>(props: FormContextHookProps<S>) {
+export function useForm<const S extends $ObjSchema<any, any>>(props: FormContextHookProps<S>) {
   const id = props.id;
   const initialized = useRef({
     values: false,
@@ -162,12 +162,12 @@ export function useFormContext<const S extends $ObjSchema<any, any>>(props: Form
       formManager: formContext,
       formState: state,
     } as const satisfies SchemaProviderProps,
-    formProps: {
+    props: {
       noValidate: true,
       onSubmit: handleSubmit,
       onReset: handleReset,
     } as const satisfies React.FormHTMLAttributes<HTMLFormElement>,
-    formItems: formContext.getFormItems(),
+    items: formContext.getFormItems(),
     hasError,
     state,
     handleSubmit,

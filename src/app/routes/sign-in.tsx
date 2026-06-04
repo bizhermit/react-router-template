@@ -4,7 +4,7 @@ import { InputMessageSpan } from "$/components/elements/form/message";
 import { PasswordBox$ } from "$/components/elements/form/password-box/password-box";
 import { TextBox$ } from "$/components/elements/form/text-box/text-box";
 import { FormItem } from "$/components/elements/form/wrapper/form-item";
-import { useFormContext } from "$/shared/hooks/form";
+import { useForm } from "$/shared/hooks/form";
 import { useText } from "$/shared/hooks/i18n";
 import { SchemaProvider } from "$/shared/providers/schema";
 import { useEffect } from "react";
@@ -33,11 +33,7 @@ export default function Page({ actionData }: Route.ComponentProps) {
   const fetcher = useFetcher<typeof actionData>();
   const t = useText();
 
-  const {
-    formItems,
-    providerProps,
-    formProps,
-  } = useFormContext({
+  const form = useForm({
     id: "sign-in",
     schema: authSchema,
     values: {},
@@ -57,22 +53,22 @@ export default function Page({ actionData }: Route.ComponentProps) {
   return (
     <div className="flex flex-col justify-center items-center grow gap-8">
       <h1>{t("signIn_title")}</h1>
-      <SchemaProvider {...providerProps}>
+      <SchemaProvider {...form.providerProps}>
         <fetcher.Form
-          {...formProps}
+          {...form.props}
           method="POST"
           className="grid place-items-center gap-4"
         >
           <FormItem>
             <TextBox$
-              formItem={formItems.email}
+              formItem={form.items.email}
               hideMessage
               ref={userId}
             />
           </FormItem>
           <FormItem>
             <PasswordBox$
-              formItem={formItems.password}
+              formItem={form.items.password}
               hideMessage
             />
           </FormItem>

@@ -17,7 +17,7 @@ import { TextArea$ } from "$/components/elements/form/text-area/text-area";
 import { TextBox$ } from "$/components/elements/form/text-box/text-box";
 import { FormItem } from "$/components/elements/form/wrapper/form-item";
 import { DeleteIcon } from "$/components/elements/icon";
-import { useFormContext } from "$/shared/hooks/form";
+import { useForm } from "$/shared/hooks/form";
 import { useFormArrayItem } from "$/shared/hooks/form/array-item";
 import { FormContext, type FormContextProps } from "$/shared/hooks/form/context";
 import { useFormHasError } from "$/shared/hooks/form/error";
@@ -328,7 +328,7 @@ export async function action({ request }: Route.ActionArgs) {
 export default function Page({ loaderData, actionData }: Route.ComponentProps) {
   const fetcher = useFetcher<typeof actionData>();
 
-  const formContext = useFormContext({
+  const formContext = useForm({
     id: "sandbox",
     schema: schemaObj,
     values: {
@@ -344,7 +344,7 @@ export default function Page({ loaderData, actionData }: Route.ComponentProps) {
 
   return (
     <fetcher.Form
-      {...formContext.formProps}
+      {...formContext.props}
       method="POST"
     >
       form sandbox
