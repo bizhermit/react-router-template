@@ -1,6 +1,6 @@
-import { clone, equals } from "$/shared/objects";
-import { getArrayIndex, getRelativeName, getValue, setValueReturnContexts, splitName } from "$/shared/objects/data";
 import { getHasError, mergeRecordMessages } from ".";
+import { clone, equals } from "../objects";
+import { getArrayIndex, getRelativeName, getValue, setValueReturnContexts, splitName } from "../objects/data";
 import { $ArrSchema } from "./array";
 import type { SchemaItem } from "./core";
 import { $ObjSchema } from "./object";

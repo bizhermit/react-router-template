@@ -1,5 +1,5 @@
-import { getValue } from "$/shared/objects/data";
-import { $Clock, $Date, $DateTime } from "$/shared/objects/timestamp";
+import { getValue } from "../objects/data";
+import { $Clock, $Date, $DateTime } from "../objects/timestamp";
 import { getPickMessageGetter, getValidationArray, getValidationArrayAsArray, SchemaItem } from "./core";
 import { $SplitDateSchema, type SplitDateProps } from "./split-date";
 

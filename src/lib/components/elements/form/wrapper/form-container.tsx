@@ -1,5 +1,5 @@
-import { I18nContext } from "$/shared/hooks/i18n";
 import { use, type HTMLAttributes, type ReactNode } from "react";
+import { I18nContext } from "../../../../shared/hooks/i18n";
 import { clsx } from "../../utilities";
 
 export type FormGridProps = Overwrite<

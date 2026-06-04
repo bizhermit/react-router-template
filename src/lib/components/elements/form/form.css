@@ -7,7 +7,7 @@
 
     &:has(>._form-headline) {
       >._form-row {
-        margin-left: 0.8rem;
+        margin-inline: 0.8rem;
       }
     }
 

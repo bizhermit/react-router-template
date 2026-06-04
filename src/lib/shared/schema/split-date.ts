@@ -1,4 +1,4 @@
-import { parseNumber } from "$/shared/objects/numeric";
+import { parseNumber } from "../objects/numeric";
 import { getPickMessageGetter, getValidationArray, SchemaItem } from "./core";
 import type { $DateSchema } from "./date";
 import type { $DateTimeSchema } from "./datetime";

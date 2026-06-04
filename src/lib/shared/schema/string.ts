@@ -1,4 +1,4 @@
-import { getLength } from "$/shared/objects/string";
+import { getLength } from "../objects/string";
 import { getPickMessageGetter, getValidationArray, SchemaItem } from "./core";
 
 export const SCHEMA_ITEM_TYPE_STRING = "str" as const;

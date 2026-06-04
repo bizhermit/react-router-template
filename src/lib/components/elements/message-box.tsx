@@ -1,7 +1,7 @@
-import { useClickButton } from "$/shared/hooks/click-button";
 import { type HTMLAttributes, type ReactNode, type RefObject } from "react";
 import { createRoot } from "react-dom/client";
 import { preventScroll } from "../../client/dom/prevent-scroll";
+import { useClickButton } from "../../shared/hooks/click-button";
 import { Button } from "./button";
 import { FocusTrap } from "./focus-trap";
 import { parseToReactNode } from "./i18n-text";

@@ -1,4 +1,4 @@
-import { convertBase64ToFile, convertBlobToFile } from "$/shared/objects/file";
+import { convertBase64ToFile, convertBlobToFile } from "../objects/file";
 import { getPickMessageGetter, getValidationArray, SchemaItem } from "./core";
 
 export const SCHEMA_ITEM_TYPE_FILE = "file";

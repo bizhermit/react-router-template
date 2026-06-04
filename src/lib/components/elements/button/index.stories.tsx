@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { fn } from "storybook/test";
 
-import { STYLE_COLOR_ARGTYPE } from "$/storybook/consts";
 import { Button } from ".";
+import { STYLE_COLOR_ARGTYPE } from "../../../storybook/consts";
 import { GearIcon, PlusIcon } from "../icon";
 
 const meta = {

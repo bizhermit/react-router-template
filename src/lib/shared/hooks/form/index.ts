@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { getFocusableElement } from "$/client/dom/focus";
 import { useEffect, useRef, useState } from "react";
+import { getFocusableElement } from "../../../client/dom/focus";
 import { convertFormDataToStruct } from "../../../shared/objects/form-data";
 import type { SchemaProviderProps } from "../../../shared/providers/schema";
 import { FormManager } from "../../../shared/schema/form";
 import type { $ObjSchema } from "../../../shared/schema/object";
 
-type FormContextHookProps<S extends $ObjSchema<any, any>> = {
+type FormHookProps<S extends $ObjSchema<any, any>> = {
   id: string;
   schema: S;
   values?: {
@@ -39,7 +39,7 @@ type FormContextHookProps<S extends $ObjSchema<any, any>> = {
  * @param props - フォーム識別子、スキーマ、初期値、メッセージ、状態制御オプション
  * @returns Provider と `<form>` に渡すプロパティ、およびフォーム操作用API
  */
-export function useForm<const S extends $ObjSchema<any, any>>(props: FormContextHookProps<S>) {
+export function useForm<const S extends $ObjSchema<any, any>>(props: FormHookProps<S>) {
   const id = props.id;
   const initialized = useRef({
     values: false,
@@ -73,11 +73,15 @@ export function useForm<const S extends $ObjSchema<any, any>>(props: FormContext
       e.preventDefault();
       return;
     }
-    const formValues = convertFormDataToStruct(new FormData(e.currentTarget));
-    manager.setValues(formValues, {
-      preventUpdateOrigin: true,
-      execValidate: true,
-    });
+
+    manager.setValues(
+      convertFormDataToStruct(new FormData(e.currentTarget)),
+      {
+        preventUpdateOrigin: true,
+        execValidate: true,
+      }
+    );
+
     if (manager.hasError()) {
       e.preventDefault();
       props.submit?.callback?.(true);
@@ -109,6 +113,7 @@ export function useForm<const S extends $ObjSchema<any, any>>(props: FormContext
       }
       return;
     }
+
     const ret = props.submit?.callback?.(false);
     if (ret === false) e.preventDefault();
   };

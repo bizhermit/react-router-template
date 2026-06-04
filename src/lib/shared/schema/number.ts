@@ -1,4 +1,4 @@
-import { parseNumber } from "$/shared/objects/numeric";
+import { parseNumber } from "../objects/numeric";
 import { getPickMessageGetter, getValidationArray, SchemaItem } from "./core";
 
 export const SCHEMA_ITEM_TYPE_NUMBER = "num";

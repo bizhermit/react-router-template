@@ -325,10 +325,13 @@ function FormContent() {
 
   return (
     <section
-      className="flex flex-col gap-2 p-4 scroll-mt-all-[120px]"
+      className="flex flex-col gap-2 p-4 scroll-mt-all-[100px]"
     >
       <div className="flex flex-row flex-wrap gap-2">
-        <FormGrid fillWidth>
+        <FormGrid
+          fillWidth
+          className="w-full"
+        >
           <FormHeadline>
             TextBox
           </FormHeadline>
