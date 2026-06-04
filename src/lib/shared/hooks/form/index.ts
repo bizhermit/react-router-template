@@ -46,7 +46,7 @@ export function useForm<const S extends $ObjSchema<any, any>>(props: FormContext
 
   const [formContext] = useState(() => {
     const ret = new FormManager<S>({
-      values: props.values ?? {},
+      values: props.values?.loader ?? {},
       messages: props.messages?.loader,
       data: props.data ?? {},
       schema: props.schema,
@@ -116,6 +116,10 @@ export function useForm<const S extends $ObjSchema<any, any>>(props: FormContext
     reset(props.reset);
   };
 
+  function getValues() {
+    return formContext.getValues();
+  };
+
   useEffect(() => {
     if (initialized.current.values) {
       if (props.values?.action) {
@@ -174,5 +178,6 @@ export function useForm<const S extends $ObjSchema<any, any>>(props: FormContext
     handleReset,
     reset,
     isDirty,
+    getValues,
   } as const;
 };

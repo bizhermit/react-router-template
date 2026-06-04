@@ -196,6 +196,7 @@
 @import "./elements/nav-layout.css";
 @import "./elements/dialog.css";
 @import "./elements/message-box.css";
+@import "./elements/form/form.css";
 @import "./elements/form/ipt-common.css";
 @import "./elements/form/ipt-box.css";
 @import "./elements/form/ipt-point.css";

@@ -20,20 +20,20 @@ function isIpv4Address(str: string | null | undefined) {
 };
 
 const STR_PATTERN_TEST = {
-  int: /^[+-]?(0|[1-9]\d*)$/.test,
-  "h-num": /^[0-9]+$/.test,
-  num: /^[0-9０-９]+$/.test,
-  "h-alpha": /^[a-zA-Z]+$/.test,
-  alpha: /^[a-zA-Zａ-ｚＡ-Ｚ]+$/.test,
-  "h-alpha-num": /^[a-zA-Z0-9]+$/.test,
-  "h-alpha-num-syn": /^[a-zA-Z0-9!-/:-@¥[-`{-~]+$/.test,
-  "h-katakana": /^[｡-ﾟ+]+$/.test,
-  "f-katakana": /^[ァ-ヶー]+$/.test,
-  katakana: /^[｡-ﾟ+ァ-ヶー]+$/.test,
-  hiragana: /^[ぁ-ゞー]+$/.test,
-  half: /^[\x20-\x7E]*$/.test,
-  full: /^[^\x01-\x7E\uFF61-\uFF9F]*$/.test,
-  email: (str: string) => {
+  int: (str) => /^[+-]?(0|[1-9]\d*)$/.test(str),
+  "h-num": (str) => /^[0-9]+$/.test(str),
+  num: (str) => /^[0-9０-９]+$/.test(str),
+  "h-alpha": (str) => /^[a-zA-Z]+$/.test(str),
+  alpha: (str) => /^[a-zA-Zａ-ｚＡ-Ｚ]+$/.test(str),
+  "h-alpha-num": (str) => /^[a-zA-Z0-9]+$/.test(str),
+  "h-alpha-num-syn": (str) => /^[a-zA-Z0-9!-/:-@¥[-`{-~]+$/.test(str),
+  "h-katakana": (str) => /^[｡-ﾟ+]+$/.test(str),
+  "f-katakana": (str) => /^[ァ-ヶー]+$/.test(str),
+  katakana: (str) => /^[｡-ﾟ+ァ-ヶー]+$/.test(str),
+  hiragana: (str) => /^[ぁ-ゞー]+$/.test(str),
+  half: (str) => /^[\x20-\x7E]*$/.test(str),
+  full: (str) => /^[^\x01-\x7E\uFF61-\uFF9F]*$/.test(str),
+  email: (str) => {
     if (!str) return false;
     let quoted = false, escape = false;
     const arr = Array.from(str);
@@ -116,7 +116,7 @@ const STR_PATTERN_TEST = {
     // console.log("[x] no domain", str);
     return false;
   },
-  tel: (str: string) => {
+  tel: (str) => {
     return /^0\d-\d{4}-\d{4}$/.test(str)
       || /^0\d{3}-\d{2}-\d{4}$/.test(str)
       || /^0\d{2}-\d{3}-\d{4}$/.test(str)
@@ -127,11 +127,11 @@ const STR_PATTERN_TEST = {
       || /^0120-\d{3}-\d{3}$/.test(str)
       || /^0120-\d{2}-\d{2}-\d{2}$/.test(str);
   },
-  url: /^https?:\/\/[a-zA-Z0-9!-/:-@¥[-`{-~]+/.test,
-  "post-num": (str: string) => {
+  url: (str) => /^https?:\/\/[a-zA-Z0-9!-/:-@¥[-`{-~]+/.test(str),
+  "post-num": (str) => {
     return /^[0-9]{3}-[0-9]{4}$/.test(str) || /^[0-9]{7}$/.test(str);
   },
-} as const;
+} as const satisfies Record<string, (str: string) => boolean>;
 
 export type StrPattern = keyof typeof STR_PATTERN_TEST;
 

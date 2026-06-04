@@ -1,3 +1,5 @@
+import { setValue } from "./data";
+
 type Options = {
   /** 削除モード */
   removeItem?: {
@@ -14,11 +16,11 @@ type Options = {
  * @param options
  * @returns
  */
-export const appendStructData = (
+export function appendStructData(
   formData: FormData,
   struct: { [v: string]: unknown; } | null | undefined,
   options?: Options
-) => {
+) {
   if (struct == null) return formData;
   const setFormValue = (key: string, v: unknown) => {
     if (options?.removeItem) {
@@ -86,7 +88,7 @@ export const convertStructToFormData = (
  * @param options
  * @returns
  */
-export const removeFormDataValue = (formData: FormData, options?: Options) => {
+export function removeFormDataValue(formData: FormData, options?: Options) {
   if (!formData) return formData;
   Array.from(formData.keys()).forEach(key => {
     const v = formData.get(key);
@@ -101,4 +103,16 @@ export const removeFormDataValue = (formData: FormData, options?: Options) => {
     }
   });
   return formData;
+};
+
+export function convertEntriesToStruct(entries: [string, unknown][] | FormDataIterator<[string, FormDataEntryValue]>) {
+  const obj: Record<string, unknown> = {};
+  for (const [key, value] of entries) {
+    setValue(obj, key, value);
+  }
+  return obj;
+};
+
+export function convertFormDataToStruct(formData: FormData) {
+  return convertEntriesToStruct(formData.entries());
 };

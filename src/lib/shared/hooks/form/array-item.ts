@@ -8,8 +8,8 @@ import { FormContext } from "./context";
 
 type ArgFormParams<S extends $ArrSchema<SchemaItem<any>, any>> =
   Schema.InferArrayChild<S> extends $ObjSchema<any, any> ? {
+    formItem: FormItem<Schema.InferArrayChild<S>>;
     formItems: Schema.ObjectFormItems<Schema.InferArrayChild<S>>;
-    formItem: never;
   } : {
     formItem: FormItem<Schema.InferArrayChild<S>>;
     formItems: never;
@@ -52,7 +52,13 @@ export function useFormArrayItem<const S extends $ArrSchema<any, any>>(arrayForm
 
     if (child instanceof $ObjSchema) {
       return function (index: number) {
+        const formItem = new FormItem(
+          manager,
+          `${name}[${index}]`,
+          child,
+        );
         return {
+          formItem,
           formItems: convertToFormItems(
             manager,
             child.getChildren(),

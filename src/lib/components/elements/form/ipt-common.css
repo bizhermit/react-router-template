@@ -1,19 +1,5 @@
 @layer components {
 
-  ._form-item {
-    position: relative;
-    vertical-align: top;
-    display: inline-flex;
-    flex-flow: column nowrap;
-    justify-content: flex-start;
-    align-items: flex-start;
-    gap: 0;
-
-    &:empty {
-      display: none;
-    }
-  }
-
   ._ipt {
     position: relative;
     vertical-align: top;

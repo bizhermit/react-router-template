@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { createContext } from "react";
+import { createContext, use } from "react";
 import { FormManager } from "../../schema/form";
 import { $ObjSchema } from "../../schema/object";
 
@@ -24,3 +24,7 @@ export const FormContext = createContext<FormContextProps>({
   getValue: null!,
   setValue: null!,
 });
+
+export function useFormContext<S extends $ObjSchema<any, any> = $ObjSchema<any, any>>() {
+  return use(FormContext) as FormContextProps<S>;
+};
