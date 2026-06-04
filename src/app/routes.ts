@@ -12,14 +12,15 @@ export default [
     route("/settings", "routes/settings.tsx"),
   ]),
   // sandbox
-  ...prefix("/sandbox", [
+  layout("layouts/sandbox.tsx", prefix("/sandbox", [
     index("routes/sandbox/index.tsx"),
     route("/hoge", "routes/sandbox/hoge.tsx"),
     route("/api", "routes/sandbox/api.ts"),
     route("/api/:id", "routes/sandbox/api-detail.ts"),
     route("/stream", "routes/sandbox/stream-api.ts"),
     route("/form", "routes/sandbox/form.tsx"),
-  ]),
+    route("/icons", "routes/sandbox/icons.tsx"),
+  ])),
   // system
   route("/health", "routes/health.ts"),
   route("/csp-report", "routes/csp-report.tsx"),

@@ -21,8 +21,10 @@ import { DeleteIcon } from "$/components/elements/icon";
 import { useForm } from "$/shared/hooks/form";
 import { useFormArrayItem } from "$/shared/hooks/form/array-item";
 import { useFormContext } from "$/shared/hooks/form/context";
+import { useFormDirty } from "$/shared/hooks/form/dirty";
 import { useFormHasError } from "$/shared/hooks/form/error";
-import { I18nContext } from "$/shared/hooks/i18n";
+import { I18nContext, useText } from "$/shared/hooks/i18n";
+import { usePageExitPrompt } from "$/shared/hooks/page-exit-prompt";
 import { $Date } from "$/shared/objects/timestamp";
 import { SchemaProvider } from "$/shared/providers/schema";
 import { $arr } from "$/shared/schema/array";
@@ -37,7 +39,7 @@ import { $obj } from "$/shared/schema/object";
 import { getPayload } from "$/shared/schema/server";
 import { $str } from "$/shared/schema/string";
 import { use, useEffect } from "react";
-import { data, useFetcher } from "react-router";
+import { data, unstable_usePrompt, useFetcher } from "react-router";
 import type { Route } from "./+types/form";
 
 const date = $date({
@@ -255,6 +257,8 @@ export default function Page({ loaderData, actionData }: Route.ComponentProps) {
     state: fetcher.state,
   });
 
+  const handleConfirmEnabled = usePageExitPrompt();
+
   return (
     <fetcher.Form
       {...form.props}
@@ -264,7 +268,7 @@ export default function Page({ loaderData, actionData }: Route.ComponentProps) {
       <SchemaProvider
         {...form.providerProps}
       >
-        <div className="sticky top-0 flex flex-row flex-wrap gap-2 p-2 bg-bg z-50">
+        <div className="sticky top-(--header-height) flex flex-row flex-wrap gap-2 p-2 bg-bg z-50">
           <Button type="submit">submit</Button>
           <Button type="reset">reset</Button>
           <LinkButton
@@ -296,6 +300,7 @@ export default function Page({ loaderData, actionData }: Route.ComponentProps) {
           >
             show values
           </Button>
+          <ExitPrompt />
           <DisplayHasError />
         </div>
         <FormContent />
@@ -303,6 +308,22 @@ export default function Page({ loaderData, actionData }: Route.ComponentProps) {
     </fetcher.Form>
   );
 };
+
+function ExitPrompt() {
+  const isDirty = useFormDirty();
+  const t = useText();
+
+  unstable_usePrompt({
+    when: isDirty,
+    message: t("formPrompt"),
+  });
+
+  return (
+    <span>
+      dirty: {String(isDirty)}
+    </span>
+  );
+}
 
 function DisplayHasError() {
   const hasError = useFormHasError();
@@ -325,7 +346,7 @@ function FormContent() {
 
   return (
     <section
-      className="flex flex-col gap-2 p-4 scroll-mt-all-[100px]"
+      className="flex flex-col gap-2 p-4 scroll-mt-all-[calc(var(--header-height)+100px)]"
     >
       <div className="flex flex-row flex-wrap gap-2">
         <FormGrid
