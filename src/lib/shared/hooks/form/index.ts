@@ -44,7 +44,7 @@ export function useForm<const S extends $ObjSchema<any, any>>(props: FormContext
     data: false,
   });
 
-  const [formContext] = useState(() => {
+  const [manager] = useState(() => {
     const ret = new FormManager<S>({
       values: props.values?.loader ?? {},
       messages: props.messages?.loader,
@@ -55,12 +55,12 @@ export function useForm<const S extends $ObjSchema<any, any>>(props: FormContext
   });
 
   function getHasError() {
-    return formContext.hasError();
+    return manager.hasError();
   };
 
   const hasError = useSyncExternalStore(
     (callback) => {
-      const cleanup = formContext.addErrorSubscribe(callback);
+      const cleanup = manager.addErrorSubscribe(callback);
       return () => cleanup();
     },
     getHasError,
@@ -68,12 +68,12 @@ export function useForm<const S extends $ObjSchema<any, any>>(props: FormContext
   );
 
   function getIsDirty() {
-    return formContext.isDirty();
+    return manager.isDirty();
   };
 
   const isDirty = useSyncExternalStore(
     (callback) => {
-      const cleanup = formContext.addDirtySubscribe(callback);
+      const cleanup = manager.addDirtySubscribe(callback);
       return () => cleanup;
     },
     getIsDirty,
@@ -88,7 +88,7 @@ export function useForm<const S extends $ObjSchema<any, any>>(props: FormContext
       e.preventDefault();
       return;
     }
-    const { hasError } = formContext.validate();
+    const { hasError } = manager.validate();
     if (hasError) {
       e.preventDefault();
       props.submit?.callback?.(true);
@@ -105,7 +105,7 @@ export function useForm<const S extends $ObjSchema<any, any>>(props: FormContext
       console.warn(`supress reset event. state: ${state}`);
       return;
     }
-    formContext.reset({
+    manager.reset({
       execValidate: options?.execValidate ?? props.reset?.execValidate,
     });
     props.reset?.callback?.();
@@ -117,17 +117,17 @@ export function useForm<const S extends $ObjSchema<any, any>>(props: FormContext
   };
 
   function getValues() {
-    return formContext.getValues();
+    return manager.getValues();
   };
 
   useEffect(() => {
     if (initialized.current.values) {
       if (props.values?.action) {
-        formContext.setValues(props.values.action, {
+        manager.setValues(props.values.action, {
           preventUpdateOrigin: true,
         });
       } else {
-        formContext.setValues(props.values?.loader ?? {});
+        manager.setValues(props.values?.loader ?? {});
       }
     }
     initialized.current.values = true;
@@ -139,11 +139,11 @@ export function useForm<const S extends $ObjSchema<any, any>>(props: FormContext
   useEffect(() => {
     if (initialized.current.messages) {
       if (props.messages?.action) {
-        formContext.setMessages(props.messages.action, {
+        manager.setMessages(props.messages.action, {
           preventUpdateOrigin: true,
         });
       } else {
-        formContext.setMessages(props.messages?.loader);
+        manager.setMessages(props.messages?.loader);
       }
     }
     initialized.current.messages = true;
@@ -154,7 +154,7 @@ export function useForm<const S extends $ObjSchema<any, any>>(props: FormContext
 
   useEffect(() => {
     if (initialized.current.data) {
-      formContext.setData(props.data);
+      manager.setData(props.data);
     }
     initialized.current.data = true;
   }, [props.data]);
@@ -163,7 +163,7 @@ export function useForm<const S extends $ObjSchema<any, any>>(props: FormContext
     id,
     providerProps: {
       formId: id,
-      formManager: formContext,
+      formManager: manager,
       formState: state,
     } as const satisfies SchemaProviderProps,
     props: {
@@ -171,7 +171,7 @@ export function useForm<const S extends $ObjSchema<any, any>>(props: FormContext
       onSubmit: handleSubmit,
       onReset: handleReset,
     } as const satisfies React.FormHTMLAttributes<HTMLFormElement>,
-    items: formContext.getFormItems(),
+    items: manager.getFormItems(),
     hasError,
     state,
     handleSubmit,
