@@ -83,6 +83,7 @@ export function PasswordBox({
       )}
       ref={wref}
       state={state}
+      inheritWidth
     >
       <input
         disabled={state === "disabled"}

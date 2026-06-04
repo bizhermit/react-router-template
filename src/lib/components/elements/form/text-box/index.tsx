@@ -66,6 +66,7 @@ export function TextBox({
       )}
       ref={wref}
       state={state}
+      inheritWidth
     >
       <input
         type="text"

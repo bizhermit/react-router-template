@@ -10,6 +10,26 @@
         margin-left: 0.8rem;
       }
     }
+
+    &[data-fillwidth="true"] {
+      >._form-row {
+        >._form-row_content {
+          >._form-item {
+            width: 100%;
+
+            >._ipt-field {
+              &[data-inheritwidth="true"] {
+                width: 100%;
+
+                >textarea {
+                  resize: vertical !important;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   }
 
   ._form-headline {
@@ -32,8 +52,13 @@
     flex-flow: row wrap;
     justify-content: flex-start;
     align-items: center;
-    padding: 0.4rem;
+    padding-inline: 0.4rem;
     white-space: nowrap;
+  }
+
+  ._form-row_content {
+    min-height: var(--spacing-input);
+    position: relative;
   }
 
   ._form-item {

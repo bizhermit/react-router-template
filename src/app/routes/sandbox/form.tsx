@@ -326,7 +326,7 @@ function FormContent() {
   return (
     <section className="flex flex-col gap-2 p-4">
       <div className="flex flex-row flex-wrap gap-2">
-        <FormGrid>
+        <FormGrid fillWidth>
           <FormHeadline>
             TextBox
           </FormHeadline>

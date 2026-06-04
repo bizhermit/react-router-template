@@ -5,12 +5,13 @@ import { clsx } from "../../utilities";
 export type FormGridProps = Overwrite<
   HTMLAttributes<HTMLDivElement>,
   {
-
+    fillWidth?: boolean;
   }
 >;
 
 export function FormGrid({
   className,
+  fillWidth,
   ...props
 }: FormGridProps) {
   return (
@@ -20,6 +21,7 @@ export function FormGrid({
         "_form-container",
         className,
       )}
+      data-fillwidth={fillWidth}
     />
   );
 };
@@ -69,7 +71,9 @@ export function FormRow({
         className,
       )}
     >
-      <div className="_form-row_caption">
+      <div
+        className="_form-row_caption"
+      >
         {
           caption && (
             typeof caption === "string"
@@ -78,7 +82,9 @@ export function FormRow({
           )
         }
       </div>
-      <div>
+      <div
+        className="_form-row_content"
+      >
         {children}
       </div>
     </div>

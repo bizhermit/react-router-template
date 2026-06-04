@@ -152,6 +152,7 @@ export function TextArea({
       {...wrapperProps}
       ref={wref}
       state={state}
+      inheritWidth
     >
       <textarea
         disabled={state === "disabled"}
