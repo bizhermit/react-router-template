@@ -1,10 +1,10 @@
-import { FormContext } from "$/shared/hooks/form/context";
-import { useFormMessage } from "$/shared/hooks/form/message";
-import { I18nContext } from "$/shared/hooks/i18n";
-import type { FormItem } from "$/shared/schema/form";
-import { getResultMessage } from "$/shared/schema/message";
 import { use, useSyncExternalStore, type HTMLAttributes } from "react";
 import { InputMessageSpan } from ".";
+import { FormContext } from "../../../../shared/hooks/form/context";
+import { useFormMessage } from "../../../../shared/hooks/form/message";
+import { I18nContext } from "../../../../shared/hooks/i18n";
+import type { FormItem } from "../../../../shared/schema/form";
+import { getResultMessage } from "../../../../shared/schema/message";
 
 export type FormItemMessageProps = Overwrite<
   HTMLAttributes<HTMLSpanElement>,
