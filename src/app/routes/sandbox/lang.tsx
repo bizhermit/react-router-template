@@ -2,8 +2,17 @@ import { Button } from "$/components/elements/button";
 import { Text } from "$/components/elements/i18n-text";
 import { useLocale, useText } from "$/shared/hooks/i18n";
 import type { ReactNode } from "react";
+import { data } from "react-router";
+import type { Route } from "./+types/lang";
 
-export default function Page() {
+export async function loader() {
+  return data({
+    hoge: 1,
+  });
+}
+
+export default function Page({ loaderData }: Route.ComponentProps) {
+  console.log(loaderData);
   const t = useText();
   const locale = useLocale();
 
