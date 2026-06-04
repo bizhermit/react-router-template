@@ -20,6 +20,7 @@ export default [
     route("/stream", "routes/sandbox/stream-api.ts"),
     route("/form", "routes/sandbox/form.tsx"),
     route("/icons", "routes/sandbox/icons.tsx"),
+    route("/lang", "routes/sandbox/lang.tsx"),
   ])),
   // system
   route("/health", "routes/health.ts"),

@@ -1,4 +1,4 @@
-import { FormIcon, HomeIcon, OrderListIcon, SmileIcon } from "$/components/elements/icon";
+import { FormIcon, HomeIcon, LocationIcon, OrderListIcon, SmileIcon } from "$/components/elements/icon";
 import { Link } from "$/components/elements/link";
 import { NavLayout, useNavLayout } from "$/components/elements/nav-layout";
 import { Outlet } from "react-router";
@@ -76,6 +76,15 @@ function NavMenu() {
         >
           <SmileIcon />
           <span>Icons</span>
+        </Link>
+      </li>
+      <li>
+        <Link
+          to="/sandbox/lang"
+          className="flex flex-row p-2 gap-2"
+        >
+          <LocationIcon />
+          <span>i18n</span>
         </Link>
       </li>
       <li>

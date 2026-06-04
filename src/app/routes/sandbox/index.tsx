@@ -7,27 +7,25 @@ import { Details } from "$/components/elements/details";
 import { Dialog, useDialog } from "$/components/elements/dialog";
 import { CheckBox } from "$/components/elements/form/check-box";
 import { NumberBox } from "$/components/elements/form/number-box";
-import { Text } from "$/components/elements/i18n-text";
 import { $alert, $confirm, $toast } from "$/components/elements/message-box";
 import { Style } from "$/components/elements/style";
 import { clsx } from "$/components/elements/utilities";
 import { useAbortController } from "$/shared/hooks/abort-controller";
 import { useClickButton } from "$/shared/hooks/click-button";
-import { useLocale, useText } from "$/shared/hooks/i18n";
+import { useText } from "$/shared/hooks/i18n";
 import { useInterval } from "$/shared/hooks/interval";
 import { useSubWindow } from "$/shared/hooks/sub-window";
 import { useToggle } from "$/shared/hooks/toggle";
 import { formatDate } from "$/shared/objects/date";
 import { useTheme } from "$/shared/providers/theme";
 import sleep from "$/shared/timing/sleep";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api } from "~/api/shared/internal";
 
 export default function Page() {
   return (
     <div className="flex flex-col gap-4 p-4">
       <ThemeComponent />
-      <LangComponent />
       <IndexedDBComponent />
       <StreamCompoment />
       <DialogComponent />
@@ -119,58 +117,6 @@ function ThemeComponent() {
             );
           })}
         </ul>
-      </Details>
-    </section>
-  );
-};
-
-function LangComponent() {
-  const t = useText();
-  const locale = useLocale();
-
-  return (
-    <section>
-      <Details summary="i18n">
-        <span>{t("halloWorld")}</span>
-        <span>{t("replaceText", { hoge: "人民", fuga: 1000 })}</span>
-        <div>{t("htmlText")}</div>
-        <div>
-          <Text
-            i18nKey="htmlText"
-            replaceMap={{
-              replace1: (props: { children?: ReactNode; }) => (
-                <span className="text-red-500">
-                  完全に置き換えてもいいよ
-                  {props.children}
-                </span>
-              ),
-            }}
-          />
-        </div>
-        {/* <p>
-          <span>dangerouslySetInnerHTML</span>
-          <div dangerouslySetInnerHTML={{ __html: t("htmlText") }} />
-        </p> */}
-        <div className="flex">
-          <Button
-            appearance={locale.lang === "ja" ? "fill" : "outline"}
-            className="rounded-tr-none rounded-br-none"
-            onClick={() => {
-              locale.switch("ja");
-            }}
-          >
-            日本語
-          </Button>
-          <Button
-            appearance={locale.lang === "en" ? "fill" : "outline"}
-            className="rounded-tl-none rounded-bl-none"
-            onClick={() => {
-              locale.switch("en");
-            }}
-          >
-            English
-          </Button>
-        </div>
       </Details>
     </section>
   );
