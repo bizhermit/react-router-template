@@ -1,4 +1,4 @@
-import { use, useSyncExternalStore } from "react";
+import { use, useCallback, useSyncExternalStore } from "react";
 import { FormContext } from "./context";
 
 /**
@@ -12,15 +12,17 @@ import { FormContext } from "./context";
 export function useFormDirty() {
   const { manager } = use(FormContext);
 
+  const dirtySubscribe = useCallback((callback: () => void) => {
+    const cleanup = manager.addDirtySubscribe(callback);
+    return () => cleanup();
+  }, [manager]);
+
   function getIsDirty() {
     return manager.isDirty();
   };
 
   const isDirty = useSyncExternalStore(
-    (callback) => {
-      const cleanup = manager.addDirtySubscribe(callback);
-      return () => cleanup();
-    },
+    dirtySubscribe,
     getIsDirty,
     getIsDirty
   );

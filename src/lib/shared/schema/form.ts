@@ -534,7 +534,7 @@ export class FormItem<S extends SchemaItem<any>> {
   }
 
   public getRefsValues() {
-    this.getRefs().reduce((refVals, ref) => {
+    return this.getRefs().reduce((refVals, ref) => {
       refVals[ref] = this.formContext.getValue(ref);
       return refVals;
     }, {} as Record<string, unknown>);

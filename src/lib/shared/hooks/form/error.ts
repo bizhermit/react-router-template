@@ -1,4 +1,4 @@
-import { use, useSyncExternalStore } from "react";
+import { use, useCallback, useSyncExternalStore } from "react";
 import { FormContext } from "./context";
 
 /**
@@ -13,15 +13,17 @@ import { FormContext } from "./context";
 export function useFormHasError() {
   const { manager } = use(FormContext);
 
+  const errorSubscribe = useCallback((callback: () => void) => {
+    const cleanup = manager.addErrorSubscribe(callback);
+    return () => cleanup();
+  }, [manager]);
+
   function getHasError() {
     return manager.hasError();
   };
 
   const hasError = useSyncExternalStore(
-    (callback) => {
-      const cleanup = manager.addErrorSubscribe(callback);
-      return () => cleanup();
-    },
+    errorSubscribe,
     getHasError,
     getHasError
   );

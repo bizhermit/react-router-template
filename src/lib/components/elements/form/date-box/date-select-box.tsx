@@ -1,4 +1,4 @@
-import { use, useEffect, useImperativeHandle, useMemo, useRef, useState, useSyncExternalStore, type ReactNode, type RefObject, type SelectHTMLAttributes } from "react";
+import { use, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState, useSyncExternalStore, type ReactNode, type RefObject, type SelectHTMLAttributes } from "react";
 import { FormContext } from "../../../../shared/hooks/form/context";
 import { type FormItemHookProps } from "../../../../shared/hooks/form/item";
 import { I18nContext } from "../../../../shared/hooks/i18n";
@@ -150,14 +150,21 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
   } = formItem instanceof FormItem ? {
     core: formItem,
   } : formItem;
-  const injectParams = useSyncExternalStore((callback) => {
+
+  const injectParamsSubscribe = useCallback((callback: () => void) => {
     const cleanup = manager.addInjectParamsSubscribe(() => callback);
     return () => cleanup();
-  }, () => {
+  }, [manager]);
+
+  function getInjectParams() {
     return manager.getInjectParams();
-  }, () => {
-    return manager.getInjectParams();
-  });
+  };
+
+  const injectParams = useSyncExternalStore(
+    injectParamsSubscribe,
+    getInjectParams,
+    getInjectParams,
+  );
 
   const yearSchemaItem = year?.getSchemaItem();
   const monthSchemaItem = month?.getSchemaItem();
@@ -190,12 +197,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
 
   const dummyDateRef = useRef<$DateTime | $Date | $Month | null | undefined>(undefined);
 
-  function getCoreRefValuesString() {
-    if (!coreName) return "";
-    return core?.getRefsValuesString();
-  };
-
-  const coreRefsValuesString = useSyncExternalStore((callback) => {
+  const coreRefsValuesStringSubscribe = useCallback((callback: () => void) => {
     if (!coreName) return () => { };
     const cleanups = core?.getRefs().map(ref => {
       return manager.addValuesSubscribe(ref, callback);
@@ -203,14 +205,24 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
     return () => {
       cleanups?.forEach(cleanup => cleanup());
     };
-  }, getCoreRefValuesString, getCoreRefValuesString);
+  }, [
+    coreName,
+    core,
+    manager,
+  ]);
 
-  function getCoreValue() {
-    if (!coreName) return dummyDateRef.current;
-    return manager.getValue<Schema.Nullable<$DateTime | $Date | $Month>>(coreName);
+  function getCoreRefValuesString() {
+    if (!coreName) return "";
+    return core?.getRefsValuesString();
   };
 
-  const coreValue = useSyncExternalStore((callback) => {
+  const coreRefsValuesString = useSyncExternalStore(
+    coreRefsValuesStringSubscribe,
+    getCoreRefValuesString,
+    getCoreRefValuesString
+  );
+
+  const coreValueSubscribe = useCallback((callback: () => void) => {
     if (!coreName) {
       dummySubscribes.current.core = callback;
       return () => { };
@@ -219,14 +231,23 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
       callback();
     });
     return () => cleanup();
-  }, getCoreValue, getCoreValue);
+  }, [
+    coreName,
+    manager,
+  ]);
 
-  function getCoreMessage() {
-    if (!coreName) return undefined;
-    return manager.getMessage(coreName);
+  function getCoreValue() {
+    if (!coreName) return dummyDateRef.current;
+    return manager.getValue<Schema.Nullable<$DateTime | $Date | $Month>>(coreName);
   };
 
-  const coreMessage = useSyncExternalStore<Schema.Message | null | undefined>((callback) => {
+  const coreValue = useSyncExternalStore(
+    coreValueSubscribe,
+    getCoreValue,
+    getCoreValue
+  );
+
+  const coreMessageSubscribe = useCallback((callback: () => void) => {
     if (!coreName) {
       dummySubscribes.current.coreMessage = callback;
       return () => { };
@@ -235,7 +256,21 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
       callback();
     });
     return () => cleanup();
-  }, getCoreMessage, getCoreMessage);
+  }, [
+    coreName,
+    manager,
+  ]);
+
+  function getCoreMessage() {
+    if (!coreName) return undefined;
+    return manager.getMessage(coreName);
+  };
+
+  const coreMessage = useSyncExternalStore(
+    coreMessageSubscribe,
+    getCoreMessage,
+    getCoreMessage
+  );
 
   const [initValue] = useState<Record<DateSeparateKeys, number | undefined>>(() => {
     if (coreName) {
@@ -263,12 +298,7 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
 
   const nums = useRef<Record<DateSeparateKeys, Schema.Nullable<number>>>(initValue);
 
-  function getYearRefValuesString() {
-    if (!yearName) return "";
-    return year?.getRefsValuesString();
-  };
-
-  const yearRefsValuesString = useSyncExternalStore((callback) => {
+  const yearRefsValuesStringSubscribe = useCallback((callback: () => void) => {
     if (!yearName) return () => { };
     const cleanups = year?.getRefs().map(ref => {
       return manager.addValuesSubscribe(ref, callback);
@@ -276,14 +306,24 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
     return () => {
       cleanups?.forEach(cleanup => cleanup());
     };
-  }, getYearRefValuesString, getYearRefValuesString);
+  }, [
+    yearName,
+    year,
+    manager,
+  ]);
 
-  function getYearNum() {
-    if (!yearName) return nums.current.year;
-    return manager.getValue<Schema.Nullable<number>>(yearName);
+  function getYearRefValuesString() {
+    if (!yearName) return "";
+    return year?.getRefsValuesString();
   };
 
-  const yearNum = useSyncExternalStore((callback) => {
+  const yearRefsValuesString = useSyncExternalStore(
+    yearRefsValuesStringSubscribe,
+    getYearRefValuesString,
+    getYearRefValuesString
+  );
+
+  const yearNumSubscribe = useCallback((callback: () => void) => {
     if (!yearName) {
       dummySubscribes.current.year = callback;
       return () => { };
@@ -292,32 +332,45 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
       callback();
     });
     return () => cleanup();
-  }, getYearNum, getYearNum);
+  }, [
+    yearName,
+    manager,
+  ]);
+
+  function getYearNum() {
+    if (!yearName) return nums.current.year;
+    return manager.getValue<Schema.Nullable<number>>(yearName);
+  };
+
+  const yearNum = useSyncExternalStore(
+    yearNumSubscribe,
+    getYearNum,
+    getYearNum
+  );
+
+  const yearMessageSubscribe = useCallback((callback: () => void) => {
+    if (!yearName) return () => { };
+    const cleanup = manager.addMessageSubscribe(yearName, () => {
+      callback();
+    });
+    return () => cleanup();
+  }, [
+    yearName,
+    manager,
+  ]);
 
   function getYearMessage() {
     if (!yearName) return undefined;
     return manager.getMessage(yearName);
   };
 
-  const yearMessage = useSyncExternalStore((callback) => {
-    if (!yearName) return () => { };
-    const cleanup = manager.addMessageSubscribe(yearName, () => {
-      callback();
-    });
-    return () => cleanup();
-  }, getYearMessage, getYearMessage);
+  const yearMessage = useSyncExternalStore(
+    yearMessageSubscribe,
+    getYearMessage,
+    getYearMessage
+  );
 
-  function getMonthNum() {
-    if (!monthName) return nums.current.month;
-    return manager.getValue<Schema.Nullable<number>>(monthName);
-  };
-
-  function getMonthRefValuesString() {
-    if (!monthName) return "";
-    return month?.getRefsValuesString();
-  };
-
-  const monthRefsValuesString = useSyncExternalStore((callback) => {
+  const monthRefValuesStringSubscribe = useCallback((callback: () => void) => {
     if (!monthName) return () => { };
     const cleanups = month?.getRefs().map(ref => {
       return manager.addValuesSubscribe(ref, callback);
@@ -325,9 +378,24 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
     return () => {
       cleanups?.forEach(cleanup => cleanup());
     };
-  }, getMonthRefValuesString, getMonthRefValuesString);
+  }, [
+    monthName,
+    month,
+    manager,
+  ]);
 
-  const monthNum = useSyncExternalStore((callback) => {
+  function getMonthRefValuesString() {
+    if (!monthName) return "";
+    return month?.getRefsValuesString();
+  };
+
+  const monthRefsValuesString = useSyncExternalStore(
+    monthRefValuesStringSubscribe,
+    getMonthRefValuesString,
+    getMonthRefValuesString
+  );
+
+  const monthNumSubscribe = useCallback((callback: () => void) => {
     if (!monthName) {
       dummySubscribes.current.month = callback;
       return () => { };
@@ -336,27 +404,45 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
       callback();
     });
     return () => cleanup();
-  }, getMonthNum, getMonthNum);
+  }, [
+    monthName,
+    manager,
+  ]);
+
+  function getMonthNum() {
+    if (!monthName) return nums.current.month;
+    return manager.getValue<Schema.Nullable<number>>(monthName);
+  };
+
+  const monthNum = useSyncExternalStore(
+    monthNumSubscribe,
+    getMonthNum,
+    getMonthNum
+  );
+
+  const monthMessageSubscribe = useCallback((callback: () => void) => {
+    if (!monthName) return () => { };
+    const cleanup = manager.addMessageSubscribe(monthName, () => {
+      callback();
+    });
+    return () => cleanup();
+  }, [
+    monthName,
+    manager,
+  ]);
 
   function getMonthMessage() {
     if (!monthName) return undefined;
     return manager.getMessage(monthName);
   };
 
-  const monthMessage = useSyncExternalStore((callback) => {
-    if (!monthName) return () => { };
-    const cleanup = manager.addMessageSubscribe(monthName, () => {
-      callback();
-    });
-    return () => cleanup();
-  }, getMonthMessage, getMonthMessage);
+  const monthMessage = useSyncExternalStore(
+    monthMessageSubscribe,
+    getMonthMessage,
+    getMonthMessage
+  );
 
-  function getDayRefValuesString() {
-    if (!dayName) return "";
-    return day?.getRefsValuesString();
-  };
-
-  const dayRefsValuesString = useSyncExternalStore((callback) => {
+  const dayRefValuesStringSubscribe = useCallback((callback: () => void) => {
     if (!dayName) return () => { };
     const cleanups = day?.getRefs().map(ref => {
       return manager.addValuesSubscribe(ref, callback);
@@ -364,14 +450,24 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
     return () => {
       cleanups?.forEach(cleanup => cleanup());
     };
-  }, getDayRefValuesString, getDayRefValuesString);
+  }, [
+    dayName,
+    day,
+    manager,
+  ]);
 
-  function getDayNum() {
-    if (!dayName) return nums.current.day;
-    return manager.getValue<Schema.Nullable<number>>(dayName);
+  function getDayRefValuesString() {
+    if (!dayName) return "";
+    return day?.getRefsValuesString();
   };
 
-  const dayNum = useSyncExternalStore((callback) => {
+  const dayRefsValuesString = useSyncExternalStore(
+    dayRefValuesStringSubscribe,
+    getDayRefValuesString,
+    getDayRefValuesString
+  );
+
+  const dayNumSubscribe = useCallback((callback: () => void) => {
     if (!dayName) {
       dummySubscribes.current.day = callback;
       return () => { };
@@ -380,27 +476,45 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
       callback();
     });
     return () => cleanup();
-  }, getDayNum, getDayNum);
+  }, [
+    dayName,
+    manager,
+  ]);
+
+  function getDayNum() {
+    if (!dayName) return nums.current.day;
+    return manager.getValue<Schema.Nullable<number>>(dayName);
+  };
+
+  const dayNum = useSyncExternalStore(
+    dayNumSubscribe,
+    getDayNum,
+    getDayNum
+  );
+
+  const dayMessageSubscribe = useCallback((callback: () => void) => {
+    if (!dayName) return () => { };
+    const cleanup = manager.addMessageSubscribe(dayName, () => {
+      callback();
+    });
+    return () => cleanup();
+  }, [
+    dayName,
+    manager,
+  ]);
 
   function getDayMessage() {
     if (!dayName) return undefined;
     return manager.getMessage(dayName);
   };
 
-  const dayMessage = useSyncExternalStore((callback) => {
-    if (!dayName) return () => { };
-    const cleanup = manager.addMessageSubscribe(dayName, () => {
-      callback();
-    });
-    return () => cleanup();
-  }, getDayMessage, getDayMessage);
+  const dayMessage = useSyncExternalStore(
+    dayMessageSubscribe,
+    getDayMessage,
+    getDayMessage
+  );
 
-  function getHourRefValuesString() {
-    if (!hourName) return "";
-    return hour?.getRefsValuesString();
-  };
-
-  const hourRefsValuesString = useSyncExternalStore((callback) => {
+  const hourRefValuesStringSubscribe = useCallback((callback: () => void) => {
     if (!hourName) return () => { };
     const cleanups = hour?.getRefs().map(ref => {
       return manager.addValuesSubscribe(ref, callback);
@@ -408,14 +522,24 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
     return () => {
       cleanups?.forEach(cleanup => cleanup());
     };
-  }, getHourRefValuesString, getHourRefValuesString);
+  }, [
+    hourName,
+    hour,
+    manager,
+  ]);
 
-  function getHourNum() {
-    if (!hourName) return nums.current.hour;
-    return manager.getValue<Schema.Nullable<number>>(hourName);
+  function getHourRefValuesString() {
+    if (!hourName) return "";
+    return hour?.getRefsValuesString();
   };
 
-  const hourNum = useSyncExternalStore((callback) => {
+  const hourRefsValuesString = useSyncExternalStore(
+    hourRefValuesStringSubscribe,
+    getHourRefValuesString,
+    getHourRefValuesString
+  );
+
+  const hourNumSubscribe = useCallback((callback: () => void) => {
     if (!hourName) {
       dummySubscribes.current.hour = callback;
       return () => { };
@@ -424,27 +548,45 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
       callback();
     });
     return () => cleanup();
-  }, getHourNum, getHourNum);
+  }, [
+    hourName,
+    manager,
+  ]);
+
+  function getHourNum() {
+    if (!hourName) return nums.current.hour;
+    return manager.getValue<Schema.Nullable<number>>(hourName);
+  };
+
+  const hourNum = useSyncExternalStore(
+    hourNumSubscribe,
+    getHourNum,
+    getHourNum
+  );
+
+  const hourMessageSubscribe = useCallback((callback: () => void) => {
+    if (!hourName) return () => { };
+    const cleanup = manager.addMessageSubscribe(hourName, () => {
+      callback();
+    });
+    return () => cleanup();
+  }, [
+    hourName,
+    manager,
+  ]);
 
   function getHourMessage() {
     if (!hourName) return undefined;
     return manager.getMessage(hourName);
   };
 
-  const hourMessage = useSyncExternalStore((callback) => {
-    if (!hourName) return () => { };
-    const cleanup = manager.addMessageSubscribe(hourName, () => {
-      callback();
-    });
-    return () => cleanup();
-  }, getHourMessage, getHourMessage);
+  const hourMessage = useSyncExternalStore(
+    hourMessageSubscribe,
+    getHourMessage,
+    getHourMessage
+  );
 
-  function getMinuteRefValuesString() {
-    if (!minuteName) return "";
-    return minute?.getRefsValuesString();
-  };
-
-  const minuteRefsValuesString = useSyncExternalStore((callback) => {
+  const minuteRefValuesStringSubscribe = useCallback((callback: () => void) => {
     if (!minuteName) return () => { };
     const cleanups = minute?.getRefs().map(ref => {
       return manager.addValuesSubscribe(ref, callback);
@@ -452,14 +594,24 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
     return () => {
       cleanups?.forEach(cleanup => cleanup());
     };
-  }, getMinuteRefValuesString, getMinuteRefValuesString);
+  }, [
+    minuteName,
+    minute,
+    manager,
+  ]);
 
-  function getMinuteNum() {
-    if (!minuteName) return nums.current.minute;
-    return manager.getValue<Schema.Nullable<number>>(minuteName);
+  function getMinuteRefValuesString() {
+    if (!minuteName) return "";
+    return minute?.getRefsValuesString();
   };
 
-  const minuteNum = useSyncExternalStore((callback) => {
+  const minuteRefsValuesString = useSyncExternalStore(
+    minuteRefValuesStringSubscribe,
+    getMinuteRefValuesString,
+    getMinuteRefValuesString
+  );
+
+  const minuteNumSubscribe = useCallback((callback: () => void) => {
     if (!minuteName) {
       dummySubscribes.current.minute = callback;
       return () => { };
@@ -468,27 +620,45 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
       callback();
     });
     return () => cleanup();
-  }, getMinuteNum, getMinuteNum);
+  }, [
+    minuteName,
+    manager,
+  ]);
+
+  function getMinuteNum() {
+    if (!minuteName) return nums.current.minute;
+    return manager.getValue<Schema.Nullable<number>>(minuteName);
+  };
+
+  const minuteNum = useSyncExternalStore(
+    minuteNumSubscribe,
+    getMinuteNum,
+    getMinuteNum
+  );
+
+  const minuteMessageSubscribe = useCallback((callback: () => void) => {
+    if (!minuteName) return () => { };
+    const cleanup = manager.addMessageSubscribe(minuteName, () => {
+      callback();
+    });
+    return () => cleanup();
+  }, [
+    minuteName,
+    manager,
+  ]);
 
   function getMinuteMessage() {
     if (!minuteName) return undefined;
     return manager.getMessage(minuteName);
   };
 
-  const minuteMessage = useSyncExternalStore((callback) => {
-    if (!minuteName) return () => { };
-    const cleanup = manager.addMessageSubscribe(minuteName, () => {
-      callback();
-    });
-    return () => cleanup();
-  }, getMinuteMessage, getMinuteMessage);
+  const minuteMessage = useSyncExternalStore(
+    minuteMessageSubscribe,
+    getMinuteMessage,
+    getMinuteMessage
+  );
 
-  function getSecondRefValuesString() {
-    if (!secondName) return "";
-    return second?.getRefsValuesString();
-  };
-
-  const secondRefsValuesString = useSyncExternalStore((callback) => {
+  const secondRefValuesStringSubscribe = useCallback((callback: () => void) => {
     if (!secondName) return () => { };
     const cleanups = second?.getRefs().map(ref => {
       return manager.addValuesSubscribe(ref, callback);
@@ -496,14 +666,24 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
     return () => {
       cleanups?.forEach(cleanup => cleanup());
     };
-  }, getSecondRefValuesString, getSecondRefValuesString);
+  }, [
+    secondName,
+    second,
+    manager,
+  ]);
 
-  function getSecondNum() {
-    if (!secondName) return nums.current.second;
-    return manager.getValue<Schema.Nullable<number>>(secondName);
+  function getSecondRefValuesString() {
+    if (!secondName) return "";
+    return second?.getRefsValuesString();
   };
 
-  const secondNum = useSyncExternalStore((callback) => {
+  const secondRefsValuesString = useSyncExternalStore(
+    secondRefValuesStringSubscribe,
+    getSecondRefValuesString,
+    getSecondRefValuesString
+  );
+
+  const secondNumSubscribe = useCallback((callback: () => void) => {
     if (!secondName) {
       dummySubscribes.current.second = callback;
       return () => { };
@@ -512,20 +692,43 @@ export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
       callback();
     });
     return () => cleanup();
-  }, getSecondNum, getSecondNum);
+  }, [
+    secondName,
+    manager,
+  ]);
+
+  function getSecondNum() {
+    if (!secondName) return nums.current.second;
+    return manager.getValue<Schema.Nullable<number>>(secondName);
+  };
+
+  const secondNum = useSyncExternalStore(
+    secondNumSubscribe,
+    getSecondNum,
+    getSecondNum
+  );
+
+  const secondMessageSubscribe = useCallback((callback: () => void) => {
+    if (!secondName) return () => { };
+    const cleanup = manager.addMessageSubscribe(secondName, () => {
+      callback();
+    });
+    return () => cleanup();
+  }, [
+    secondName,
+    manager,
+  ]);
 
   function getSecondMessage() {
     if (!secondName) return undefined;
     return manager.getMessage(secondName);
   };
 
-  const secondMessage = useSyncExternalStore((callback) => {
-    if (!secondName) return () => { };
-    const cleanup = manager.addMessageSubscribe(secondName, () => {
-      callback();
-    });
-    return () => cleanup();
-  }, getSecondMessage, getSecondMessage);
+  const secondMessage = useSyncExternalStore(
+    secondMessageSubscribe,
+    getSecondMessage,
+    getSecondMessage
+  );
 
   const {
     min,

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { use, useSyncExternalStore } from "react";
+import { use, useCallback, useSyncExternalStore } from "react";
 import type { SchemaItem } from "../../schema/core";
 import type { FormItem } from "../../schema/form";
 import { FormContext } from "./context";
@@ -18,15 +18,20 @@ import { FormContext } from "./context";
 export function useFormValue<S extends SchemaItem<any>>(formItem: FormItem<S>) {
   const { manager } = use(FormContext);
 
+  const valueSubscribe = useCallback((callback: () => void) => {
+    const cleanup = manager.addValuesSubscribe(formItem.getName(), callback);
+    return () => cleanup();
+  }, [
+    manager,
+    formItem,
+  ]);
+
   function getValue() {
     return manager.getValue<Schema.Nullable<Schema.InferValue<S>>>(formItem.getName());
   };
 
   const value = useSyncExternalStore(
-    (callback) => {
-      const cleanup = manager.addValuesSubscribe(formItem.getName(), callback);
-      return () => cleanup();
-    },
+    valueSubscribe,
     getValue,
     getValue
   );

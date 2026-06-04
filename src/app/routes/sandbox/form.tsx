@@ -257,7 +257,9 @@ export default function Page({ loaderData, actionData }: Route.ComponentProps) {
       method="POST"
       className="p-4"
     >
-      <SchemaProvider {...form.providerProps}>
+      <SchemaProvider
+        {...form.providerProps}
+      >
         <div className="sticky top-0 flex flex-row flex-wrap gap-2 p-2 bg-bg z-50">
           <Button type="submit">submit</Button>
           <Button type="reset">reset</Button>

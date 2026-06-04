@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { Button } from "$/components/elements/button";
 import { useRender } from "$/shared/hooks/render";
 import { $Date, $DateTime } from "$/shared/objects/timestamp";

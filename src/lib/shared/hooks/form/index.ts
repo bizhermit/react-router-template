@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { convertFormDataToStruct } from "$/shared/objects/form-data";
 import type { SchemaProviderProps } from "$/shared/providers/schema";
 import { FormManager } from "$/shared/schema/form";
 import type { $ObjSchema } from "$/shared/schema/object";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type FormContextHookProps<S extends $ObjSchema<any, any>> = {
   id: string;
@@ -54,31 +55,13 @@ export function useForm<const S extends $ObjSchema<any, any>>(props: FormContext
     return ret;
   });
 
-  function getHasError() {
+  function hasError() {
     return manager.hasError();
   };
 
-  const hasError = useSyncExternalStore(
-    (callback) => {
-      const cleanup = manager.addErrorSubscribe(callback);
-      return () => cleanup();
-    },
-    getHasError,
-    getHasError
-  );
-
-  function getIsDirty() {
+  function isDirty() {
     return manager.isDirty();
   };
-
-  const isDirty = useSyncExternalStore(
-    (callback) => {
-      const cleanup = manager.addDirtySubscribe(callback);
-      return () => cleanup;
-    },
-    getIsDirty,
-    getIsDirty
-  );
 
   const state = props.state || "idle";
 
@@ -88,8 +71,12 @@ export function useForm<const S extends $ObjSchema<any, any>>(props: FormContext
       e.preventDefault();
       return;
     }
-    const { hasError } = manager.validate();
-    if (hasError) {
+    const formValues = convertFormDataToStruct(new FormData(e.currentTarget));
+    manager.setValues(formValues, {
+      preventUpdateOrigin: true,
+      execValidate: true,
+    });
+    if (manager.hasError()) {
       e.preventDefault();
       props.submit?.callback?.(true);
       return;
@@ -172,12 +159,12 @@ export function useForm<const S extends $ObjSchema<any, any>>(props: FormContext
       onReset: handleReset,
     } as const satisfies React.FormHTMLAttributes<HTMLFormElement>,
     items: manager.getFormItems(),
-    hasError,
     state,
     handleSubmit,
     handleReset,
     reset,
-    isDirty,
     getValues,
+    hasError,
+    isDirty,
   } as const;
 };

@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { FormContext, type FormState } from "../hooks/form/context";
+import { FormContext, type FormContextProps, type FormState } from "../hooks/form/context";
 import type { FormManager } from "../schema/form";
 import { FieldSetContext } from "./field-set";
 
@@ -29,7 +29,8 @@ export function SchemaProvider(props: SchemaProviderProps & { children?: ReactNo
           setValue: props.formManager.setValue,
           getValues: props.formManager.getValues,
           items: props.formManager.getFormItems(),
-        }}
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } as FormContextProps<any>}
       >
         {props.children}
       </FormContext>

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { use, useSyncExternalStore } from "react";
+import { use, useCallback, useSyncExternalStore } from "react";
 import type { FormItem } from "../../schema/form";
 import { FormContext } from "./context";
 
@@ -16,15 +16,20 @@ import { FormContext } from "./context";
 export function useFormMessage(formItem: FormItem<any>) {
   const { manager } = use(FormContext);
 
+  const messageSubscribe = useCallback((callback: () => void) => {
+    const cleanup = manager.addMessageSubscribe(formItem.getName(), callback);
+    return () => cleanup();
+  }, [
+    manager,
+    formItem,
+  ]);
+
   function getMessage() {
     return manager.getMessage(formItem.getName());
   };
 
   const message = useSyncExternalStore(
-    (callback) => {
-      const cleanup = manager.addMessageSubscribe(formItem.getName(), callback);
-      return () => cleanup();
-    },
+    messageSubscribe,
     getMessage,
     getMessage
   );

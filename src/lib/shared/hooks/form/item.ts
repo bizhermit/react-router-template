@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { use, useEffect, useState, useSyncExternalStore } from "react";
+import { use, useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { FieldSetContext } from "../../providers/field-set";
 import type { SchemaItem } from "../../schema/core";
 import type { FormItem } from "../../schema/form";
@@ -54,58 +54,75 @@ export function useFormItem<const S extends SchemaItem<any>>(
     };
   });
 
+  const injectParamsSubscribe = useCallback((callback: () => void) => {
+    const cleanup = context.addInjectParamsSubscribe(() => callback);
+    return () => cleanup();
+  }, [context]);
+
   function getInjectParams() {
     return context.getInjectParams();
   };
 
   const injectParams = useSyncExternalStore(
-    (callback) => {
-      const cleanup = context.addInjectParamsSubscribe(() => callback);
-      return () => cleanup();
-    },
+    injectParamsSubscribe,
     getInjectParams,
     getInjectParams
   );
+
+  const refValuesStringSubscribe = useCallback((callback: () => void) => {
+    const cleanups = formItem.getRefs().map(ref => {
+      return context.addValuesSubscribe(ref, callback);
+    });
+    return () => {
+      cleanups.forEach(cleanup => cleanup());
+    };
+  }, [
+    formItem,
+    context,
+  ]);
 
   function getRefValuesString() {
     return formItem.getRefsValuesString();
   };
 
   const refValuesString = useSyncExternalStore(
-    (callback) => {
-      const cleanups = formItem.getRefs().map(ref => {
-        return context.addValuesSubscribe(ref, callback);
-      });
-      return () => {
-        cleanups.forEach(cleanup => cleanup());
-      };
-    },
+    refValuesStringSubscribe,
     getRefValuesString,
     getRefValuesString
   );
+
+  const valueSubscribe = useCallback((callback: () => void) => {
+    const cleanup = context.addValuesSubscribe(name, callback);
+    return () => cleanup();
+  }, [
+    context,
+    name,
+  ]);
 
   function getValue() {
     return context.getValue<Schema.Nullable<Schema.InferValue<S>>>(name);
   };
 
   const value = useSyncExternalStore(
-    (callback) => {
-      const cleanup = context.addValuesSubscribe(name, callback);
-      return () => cleanup();
-    },
+    valueSubscribe,
     getValue,
     getValue
   );
+
+  const messageSubscribe = useCallback((callback: () => void) => {
+    const cleanup = context.addMessageSubscribe(name, callback);
+    return () => cleanup();
+  }, [
+    context,
+    name,
+  ]);
 
   function getMessage() {
     return context.getMessage(name);
   };
 
   const message = useSyncExternalStore(
-    (callback) => {
-      const cleanup = context.addMessageSubscribe(name, callback);
-      return () => cleanup();
-    },
+    messageSubscribe,
     getMessage,
     getMessage
   );

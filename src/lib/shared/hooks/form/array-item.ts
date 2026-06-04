@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { use, useState, useSyncExternalStore } from "react";
+import { use, useCallback, useState, useSyncExternalStore } from "react";
 import type { $ArrSchema } from "../../schema/array";
 import type { SchemaItem } from "../../schema/core";
 import { convertToFormItems, FormItem } from "../../schema/form";
@@ -30,18 +30,26 @@ export function useFormArrayItem<const S extends $ArrSchema<any, any>>(arrayForm
   const { manager } = use(FormContext);
   const [revision, setRevision] = useState(0);
 
+  const valueSubscribe = useCallback((callback: () => void) => {
+    const cleanup = manager.addValuesSubscribe(arrayFormItem.getName(), () => {
+      setRevision(c => c + 1);
+      callback();
+    });
+    return () => {
+      cleanup();
+    };
+  }, [
+    manager,
+    arrayFormItem,
+    setRevision,
+  ]);
+
   function getValue() {
     return manager.getValue<Schema.Nullable<Schema.InferValue<S>>>(arrayFormItem.getName());
   };
 
   const value = useSyncExternalStore(
-    (callback) => {
-      const cleanup = manager.addValuesSubscribe(arrayFormItem.getName(), () => {
-        setRevision(c => c + 1);
-        callback();
-      });
-      return () => cleanup();
-    },
+    valueSubscribe,
     getValue,
     getValue
   );
