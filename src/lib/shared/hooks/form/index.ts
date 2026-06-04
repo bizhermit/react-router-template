@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { convertFormDataToStruct } from "$/shared/objects/form-data";
-import type { SchemaProviderProps } from "$/shared/providers/schema";
-import { FormManager } from "$/shared/schema/form";
-import type { $ObjSchema } from "$/shared/schema/object";
+import { getFocusableElement } from "$/client/dom/focus";
 import { useEffect, useRef, useState } from "react";
+import { convertFormDataToStruct } from "../../../shared/objects/form-data";
+import type { SchemaProviderProps } from "../../../shared/providers/schema";
+import { FormManager } from "../../../shared/schema/form";
+import type { $ObjSchema } from "../../../shared/schema/object";
 
 type FormContextHookProps<S extends $ObjSchema<any, any>> = {
   id: string;
@@ -20,6 +21,7 @@ type FormContextHookProps<S extends $ObjSchema<any, any>> = {
   state?: "idle" | "submitting" | "loading";
   submit?: {
     callback?: (error: boolean) => (void | boolean);
+    preventFocusError?: boolean;
   };
   reset?: {
     execValidate?: boolean;
@@ -79,6 +81,32 @@ export function useForm<const S extends $ObjSchema<any, any>>(props: FormContext
     if (manager.hasError()) {
       e.preventDefault();
       props.submit?.callback?.(true);
+      if (!props.submit?.preventFocusError) {
+        setTimeout(() => {
+          let targetTop: undefined | number, target: HTMLElement | undefined;
+          Array.from(document.querySelectorAll(`._ipt-msg[data-type="e"]`)).forEach(elem => {
+            const top = elem.getBoundingClientRect().top;
+            if (targetTop == null || top < targetTop) {
+              target = elem as HTMLElement;
+              targetTop = top;
+              return;
+            }
+          });
+          if (target) {
+            let focusableElem = target.previousElementSibling as HTMLElement | undefined;
+            if (focusableElem) {
+              focusableElem = getFocusableElement(focusableElem);
+            }
+            target.scrollIntoView({
+              behavior: "smooth",
+              block: "nearest",
+            });
+            focusableElem?.focus({
+              preventScroll: true,
+            });
+          }
+        }, 100);
+      }
       return;
     }
     const ret = props.submit?.callback?.(false);

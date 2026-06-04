@@ -324,7 +324,9 @@ function FormContent() {
   }, []);
 
   return (
-    <section className="flex flex-col gap-2 p-4">
+    <section
+      className="flex flex-col gap-2 p-4 scroll-mt-all-[120px]"
+    >
       <div className="flex flex-row flex-wrap gap-2">
         <FormGrid fillWidth>
           <FormHeadline>
