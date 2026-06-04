@@ -1,21 +1,54 @@
-import { use, useId, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState, type Dispatch, type ReactNode, type RefObject, type SetStateAction } from "react";
+import { use, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState, useSyncExternalStore, type ReactNode, type RefObject, type SelectHTMLAttributes } from "react";
+import { FormContext } from "../../../../shared/hooks/form/context";
+import { type FormItemHookProps } from "../../../../shared/hooks/form/item";
 import { I18nContext } from "../../../../shared/hooks/i18n";
-import { getSchemaItemMode, getSchemaItemRequired, getSchemaItemResult, optimizeRefs, SchemaContext, schemaItemEffect, schemaItemValidation, useFieldSet, type SchemaEffectParams_Result, type SchemaEffectParams_ValueResult } from "../../../../shared/hooks/schema";
-import { formatDate, parseDate } from "../../../../shared/objects/date";
-import { parseTimeNums, parseTypedDate } from "../../../../shared/schema/date";
-import { getValidationValue } from "../../../../shared/schema/utilities";
+import { parseNumber } from "../../../../shared/objects/numeric";
+import { $Date, $DateTime, $Month } from "../../../../shared/objects/timestamp";
+import { FieldSetContext } from "../../../../shared/providers/field-set";
+import { ValidScriptsContext } from "../../../../shared/providers/valid-scripts";
+import type { SchemaItem } from "../../../../shared/schema/core";
+import { $DateSchema } from "../../../../shared/schema/date";
+import { $DateTimeSchema } from "../../../../shared/schema/datetime";
+import { FormItem } from "../../../../shared/schema/form";
+import { getResultMessage } from "../../../../shared/schema/message";
+import { $MonthSchema } from "../../../../shared/schema/month";
+import type { $SplitDateSchema } from "../../../../shared/schema/split-date";
 import { WithMessage } from "../message";
-import { SelectBox$, SelectBoxEmptyOption, type SelectBox$Ref } from "../select-box";
+import { SelectBox, SelectBoxEmptyOption, type SelectBoxRef } from "../select-box";
 import { InputGroupWrapper } from "../wrapper/input-group";
 
-/** 日付セレクトボックス ref オブジェクト */
-export interface DateSelectBoxRef extends InputRef { };
+export interface DateSelectBox$Ref extends InputRef { };
 
-/** 日付セレクトボックス Props */
-export type DateSelectBoxProps<D extends Schema.DataItem<Schema.$SplitDate>> = Overwrite<
-  InputPropsWithDataItem<D>,
-  {
-    /** プレースホルダー */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type DateSelectBoxSchemaItem = $DateSchema<any> | $DateTimeSchema<any> | $MonthSchema<any>;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type DatePartFormItem = FormItem<$SplitDateSchema<DateSelectBoxSchemaItem, any>>;
+
+export type DateSelectBox$Props<S extends DateSelectBoxSchemaItem> =
+  & ElementStyleProps
+  & FormItemHookProps
+  & {
+    ref?: RefObject<InputRef | null>;
+    formItem:
+    | FormItem<S>
+    | ({
+      year: DatePartFormItem;
+      month: DatePartFormItem;
+      day?: DatePartFormItem;
+      hour?: DatePartFormItem;
+      minute?: DatePartFormItem;
+      second?: DatePartFormItem;
+    } & (
+        | {
+          core: FormItem<S>;
+          id?: never;
+        }
+        | {
+          core?: never;
+          id: string;
+        }
+      ));
     placeholder?:
     | [string, string]
     | [string, string, string]
@@ -23,10 +56,9 @@ export type DateSelectBoxProps<D extends Schema.DataItem<Schema.$SplitDate>> = O
     | [string, string, string, string, string]
     | [string, string, string, string, string, string];
   }
->;
-
-const DEFAULT_MIN_DATE = new Date("1900-01-01T00:00:00"); // デフォルト最小日時
-const DEFAULT_MAX_DATE = new Date("2099-12-31T23:59:59"); // デフォルト最大日時
+  & Pick<SelectHTMLAttributes<HTMLSelectElement>,
+    | "autoFocus"
+  >;
 
 /**
  * 区切り要素
@@ -34,613 +66,1028 @@ const DEFAULT_MAX_DATE = new Date("2099-12-31T23:59:59"); // デフォルト最�
  * @returns
  */
 function SepSpan(props: { children: ReactNode; }) {
-  return <span className="px-2">{props.children}</span>;
+  return <span className="_ipt-sep">{props.children}</span>;
+};
+
+type DisplayMessagePartParams = {
+  name: string | undefined;
+  schemaItem: SchemaItem | undefined;
+  message: Schema.Message | null | undefined;
 };
 
 /**
  * 表示リザルトオブジェクト判定
- * @param t i18nアクセサー
- * @param label ラベル
- * @param actionType {@link Schema.ActionType}
- * @param r 項目リザルト
- * @param Y 年
- * @param M 月
- * @param D 日
- * @param h 時
- * @param m 分
- * @param s 秒
- * @returns
  */
-function selectBoxDisplayResult(
-  t: I18nGetter,
-  label: string | undefined,
-  actionType: Schema.ActionType,
-  r: Schema.Result | null | undefined,
-  Y: Schema.Result | null | undefined,
-  M: Schema.Result | null | undefined,
-  D: Schema.Result | null | undefined,
-  h: Schema.Result | null | undefined,
-  m: Schema.Result | null | undefined,
-  s: Schema.Result | null | undefined
-): Schema.Result | null | undefined {
-  const targets: Array<Schema.SplitDateTarget> = [];
-  if (Y?.code === "required") targets.push("Y");
-  if (M?.code === "required") targets.push("M");
-  if (D?.code === "required") targets.push("D");
-  if (h?.code === "required") targets.push("h");
-  if (m?.code === "required") targets.push("m");
-  if (s?.code === "required") targets.push("s");
+function selectBoxDisplayMessage(params: Record<DateSeparateKeys | "core", DisplayMessagePartParams>): Schema.Message | null | undefined {
+  const targets: Array<[DateSeparateKeys, DisplayMessagePartParams]> = [];
+  if (params.year.message?.code === "required") targets.push(["year", params.year]);
+  if (params.month.message?.code === "required") targets.push(["month", params.month]);
+  if (params.day.message?.code === "required") targets.push(["day", params.day]);
+  if (params.hour.message?.code === "required") targets.push(["hour", params.hour]);
+  if (params.minute.message?.code === "required") targets.push(["minute", params.minute]);
+  if (params.second.message?.code === "required") targets.push(["second", params.second]);
   if (targets.length > 0) {
+    const targetKey = targets[0][0];
+    const targetSchemaItem = targets[0][1];
     return {
       type: "e",
-      label,
-      actionType,
-      otype: "sdate-D",
+      name: targetSchemaItem.name,
+      label: targetSchemaItem.schemaItem?.getLabel(),
+      actionType: targetSchemaItem.schemaItem?.getActionType(),
+      otype: `split-${targetKey}`,
       code: "split-required",
-      targets,
-    } satisfies Schema.SplitDateValidationResult;
+      targets: targets.map(t => t[0]),
+    } satisfies Schema.ValidationMessage;
   }
-  return Y ?? M ?? D ?? h ?? m ?? s ?? r;
+  return params.year.message ??
+    params.month.message ??
+    params.day.message ??
+    params.hour.message ??
+    params.minute.message ??
+    params.second.message ??
+    params.core.message;
 };
 
-/**
- * 各セレクトボックスの値をリセットする
- * @param value リセット値
- * @param valueSetter スキーマに連携する関数
- * @param selectRef DOM ref
- * @returns
- */
-function resetSelectValue<V>(
-  value: V,
-  valueSetter: Dispatch<SetStateAction<V>>,
-  selectRef?: RefObject<SelectBox$Ref | null>
-) {
-  valueSetter(value);
-  if (!selectRef?.current) return value;
-  const v = String(value || "");
-  if (selectRef.current.selectElement.value !== v) {
-    selectRef.current.selectElement.value = v;
-  }
-  return value;
-};
+type DateSeparateKeys =
+  | "year"
+  | "month"
+  | "day"
+  | "hour"
+  | "minute"
+  | "second";
 
-/**
- * 日付セレクトボックス（スキーマ対応）
- * @param param {@link DateSelectBoxProps}
- * @returns
- */
-export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
-  $: _$,
-  placeholder,
-  omitOnSubmit,
-  autoFocus,
+export function DateSelectBox$<S extends DateSelectBoxSchemaItem>({
   ref,
-  ...props
-}: DateSelectBoxProps<P>) {
-  const id = useId();
-  const isEffected = useRef(false);
+  formItem,
+  hideMessage,
+  omitOnSubmit,
+  className,
+  style,
+  placeholder,
+  autoFocus,
+}: DateSelectBox$Props<S>) {
+  const t = use(I18nContext).t;
+  const fs = use(FieldSetContext);
+  const validScripts = use(ValidScriptsContext).valid;
 
-  const fs = useFieldSet();
   const wref = useRef<HTMLDivElement>(null!);
+  const ref$ = useRef<SelectBoxRef>(null!);
 
-  const $date = _$.core as Schema.DataItem<Schema.$DateTime>;
-  const $year = $date.splits.Y;
-  const $month = $date.splits.M;
-  const $day = $date.splits.D;
-  const $hour = $date.splits.h;
-  const $minute = $date.splits.m;
-  const $second = $date.splits.s;
+  const {
+    id: schemaId,
+    manager,
+    state: formState,
+  } = use(FormContext);
+  const {
+    core,
+    id: coreId,
+    year,
+    month,
+    day,
+    hour,
+    minute,
+    second,
+  } = formItem instanceof FormItem ? {
+    core: formItem,
+  } : formItem;
 
-  const yearSelectRef = useRef<SelectBox$Ref>(null!);
-  const monthSelectRef = useRef<SelectBox$Ref>(null!);
-  const daySelectRef = useRef<SelectBox$Ref | null>(null);
-  const hourSelectRef = useRef<SelectBox$Ref | null>(null);
-  const minuteSelectRef = useRef<SelectBox$Ref | null>(null);
-  const secondSelectRef = useRef<SelectBox$Ref | null>(null);
+  const injectParamsSubscribe = useCallback((callback: () => void) => {
+    const cleanup = manager.addInjectParamsSubscribe(() => callback);
+    return () => cleanup();
+  }, [manager]);
 
-  const dateRefs = useRef(optimizeRefs($date, $date._.refs));
-  const yearRefs = useRef($year ? optimizeRefs($year, $year._.refs) : []);
-  const monthRefs = useRef($month ? optimizeRefs($month, $month._.refs) : []);
-  const dayRefs = useRef($day ? optimizeRefs($day, $day._.refs) : []);
-  const hourRefs = useRef($hour ? optimizeRefs($hour, $hour._.refs) : []);
-  const minuteRefs = useRef($minute ? optimizeRefs($minute, $minute._.refs) : []);
-  const secondRefs = useRef($second ? optimizeRefs($second, $second._.refs) : []);
-
-  const type = $date._.type as (Schema.$Date["type"] | Schema.$Month["type"] | Schema.$DateTime["type"]);
-  const time = $date._.time;
-
-  const schema = use(SchemaContext);
-
-  const isValidScripts = schema.isValidScripts.current;
-
-  function getModeImpl($: Schema.DataItem | undefined): Schema.Mode {
-    if (!$) return "hidden";
-    return getSchemaItemMode($, schema);
+  function getInjectParams() {
+    return manager.getInjectParams();
   };
 
-  function getMode() {
-    return getModeImpl($date);
-  };
+  const injectParams = useSyncExternalStore(
+    injectParamsSubscribe,
+    getInjectParams,
+    getInjectParams,
+  );
 
-  const [mode, setMode] = useState(getMode);
+  const yearSchemaItem = year?.getSchemaItem();
+  const monthSchemaItem = month?.getSchemaItem();
+  const daySchemaItem = day?.getSchemaItem();
+  const hourSchemaItem = hour?.getSchemaItem();
+  const minuteSchemaItem = minute?.getSchemaItem();
+  const secondSchemaItem = second?.getSchemaItem();
+  const schemaItem = (core?.getSchemaItem() ?? yearSchemaItem?.getBase())!; // NOTE: どちらか片方は必須
 
-  function getYearMode() {
-    return getModeImpl($year);
-  };
+  const label = t(core?.getLabel() as I18nTextKey);
+  const coreName = core?.getName();
+  const yearName = year?.getName();
+  const monthName = month?.getName();
+  const dayName = day?.getName();
+  const hourName = hour?.getName();
+  const minuteName = minute?.getName();
+  const secondName = second?.getName();
+  const id = `${schemaId}_${coreName || `${coreId}_${yearName}`}`;
 
-  const [yearMode, setYearMode] = useState(getYearMode);
-
-  function getMonthMode() {
-    return getModeImpl($month);
-  };
-
-  const [monthMode, setMonthMode] = useState(getMonthMode);
-
-  function getDayMode() {
-    return getModeImpl($day);
-  };
-
-  const [dayMode, setDayMode] = useState(getDayMode);
-
-  function getHourMode() {
-    return getModeImpl($hour);
-  };
-
-  const [hourMode, setHourMode] = useState(getHourMode);
-
-  function getMinuteMode() {
-    return getModeImpl($minute);
-  };
-
-  const [minuteMode, setMinuteMode] = useState(getMinuteMode);
-
-  function getSecondMode() {
-    return getModeImpl($second);
-  };
-
-  const [secondMode, setSecondMode] = useState(getSecondMode);
-
-  function joinSplitTypedDate(values: Record<Schema.SplitDateTarget, number | null | undefined>) {
-    if (values.Y == null || values.M == null) return undefined;
-    switch (type) {
-      case "date":
-        if (values.D == null) return undefined;
-        return parseDate(`${values.Y}-${values.M}-${values.D}`);
-      case "month":
-        return parseDate(`${values.Y}-${values.M}`);
-      default:
-        if (values.D == null || values.h == null || values.m == null) return undefined;
-        switch (time) {
-          case "hm":
-            return parseDate(`${values.Y}-${values.M}-${values.D}T${values.h}:${values.m}`);
-          default:
-            if (values.s == null) return undefined;
-            return parseDate(`${values.Y}-${values.M}-${values.D}T${values.h}:${values.m}:${values.s}`);
-        }
-    }
-  };
-
-  function parseTypedValue(values: Record<Schema.SplitDateTarget, number | null | undefined>) {
-    return formatDate(
-      joinSplitTypedDate(values),
-      $date._.formatPattern
-    ) as Schema.DateValueString | null | undefined;
-  };
-
-  const [value, setValue] = useState(getValue);
-
-  function getValue() {
-    return parseTypedValue({
-      Y: getYearValue(),
-      M: getMonthValue(),
-      D: getDayValue(),
-      h: getHourValue(),
-      m: getMinuteValue(),
-      s: getSecondValue(),
-    });
-  };
-
-  function getYearValue() {
-    if (!$year) return undefined;
-    return schema.data.current.get<number>($year.name);
-  };
-
-  const [yearValue, setYearValue] = useState(getYearValue);
-
-  function getMonthValue() {
-    if (!$month) return undefined;
-    return schema.data.current.get<number>($month.name);
-  };
-
-  const [monthValue, setMonthValue] = useState(getMonthValue);
-
-  function getDayValue() {
-    if (!$day) return undefined;
-    return schema.data.current.get<number>($day.name);
-  };
-
-  const [dayValue, setDayValue] = useState(getDayValue);
-
-  function getHourValue() {
-    if (!$hour) return undefined;
-    return schema.data.current.get<number>($hour.name);
-  };
-
-  const [hourValue, setHourValue] = useState(getHourValue);
-
-  function getMinuteValue() {
-    if (!$minute) return undefined;
-    return schema.data.current.get<number>($minute.name);
-  };
-
-  const [minuteValue, setMinuteValue] = useState(getMinuteValue);
-
-  function getSecondValue() {
-    if (!$second) return undefined;
-    return schema.data.current.get<number>($second.name);
-  };
-
-  const [secondValue, setSecondValue] = useState(getSecondValue);
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  function getResultImpl($: Schema.DataItem | undefined, valueGetter: () => any) {
-    if (!$) return undefined;
-    return getSchemaItemResult($, schema, valueGetter);
-  };
-
-  function getResult() {
-    return getResultImpl($date, getValue);
-  };
-
-  const [result, setResult] = useState(getResult);
-
-  function getYearResult() {
-    return getResultImpl($year, getYearValue);
-  };
-
-  const [yearResult, setYearResult] = useState(getYearResult);
-
-  function getMonthResult() {
-    return getResultImpl($month, getMonthValue);
-  };
-
-  const [monthResult, setMonthResult] = useState(getMonthResult);
-
-  function getDayResult() {
-    return getResultImpl($day, getDayValue);
-  };
-
-  const [dayResult, setDayResult] = useState(getDayResult);
-
-  function getHourResult() {
-    return getResultImpl($hour, getHourValue);
-  };
-
-  const [hourResult, setHourResult] = useState(getHourResult);
-
-  function getMinuteResult() {
-    return getResultImpl($minute, getMinuteValue);
-  };
-
-  const [minuteResult, setMinuteResult] = useState(getMinuteResult);
-
-  function getSecondResult() {
-    return getResultImpl($second, getSecondValue);
-  };
-
-  const [secondResult, setSecondResult] = useState(getSecondResult);
-
-  function getRequiredImpl($: Schema.DataItem | undefined) {
-    if (!$) return false;
-    return getSchemaItemRequired($, schema);
-  };
-
-  function getRequired() {
-    return getRequiredImpl($date);
-  };
-
-  const [_required, setRequired] = useState(getRequired);
-
-  function getYearRequired() {
-    return getRequiredImpl($year);
-  };
-
-  const [yearRequired, setYearRequired] = useState(getYearRequired);
-
-  function getMonthRequired() {
-    return getRequiredImpl($month);
-  };
-
-  const [monthRequired, setMonthRequired] = useState(getMonthRequired);
-
-  function getDayRequired() {
-    return getRequiredImpl($day);
-  };
-
-  const [dayRequired, setDayRequired] = useState(getDayRequired);
-
-  function getHourRequired() {
-    return getRequiredImpl($hour);
-  };
-
-  const [hourRequired, setHourRequired] = useState(getHourRequired);
-
-  function getMinuteRequired() {
-    return getRequiredImpl($minute);
-  };
-
-  const [minuteRequired, setMinuteRequired] = useState(getMinuteRequired);
-
-  function getSecondRequired() {
-    return getRequiredImpl($second);
-  };
-
-  const [secondRequired, setSecondRequired] = useState(getSecondRequired);
-
-  const [getCommonParams] = useState(() => {
-    return ($: Schema.DataItem | undefined
-    ) => ({
-      name: $?.name || "",
-      label: $?.label || "",
-      data: schema.data.current,
-      dep: schema.dep.current,
-      env: schema.env,
-    } as const satisfies Schema.DynamicValidationValueParams);
+  const dummySubscribes = useRef<Record<DateSeparateKeys | "core" | "coreMessage", (() => void) | undefined>>({
+    core: undefined,
+    coreMessage: undefined,
+    year: undefined,
+    month: undefined,
+    day: undefined,
+    hour: undefined,
+    minute: undefined,
+    second: undefined,
   });
 
-  function getMin() {
-    return parseTypedDate(
-      getValidationValue(getCommonParams($date), $date._.minDate),
-      type,
-      time,
-    ) ?? DEFAULT_MIN_DATE;
-  };
+  const dummyDateRef = useRef<$DateTime | $Date | $Month | null | undefined>(undefined);
 
-  const [min, setMin] = useState(getMin);
-
-  function getMax() {
-    return parseTypedDate(
-      getValidationValue(getCommonParams($date), $date._.maxDate),
-      type,
-      time,
-    ) ?? DEFAULT_MAX_DATE;
-  };
-
-  const [max, setMax] = useState(getMax);
-
-  function getMinTime() {
-    return parseTimeNums(
-      getValidationValue(getCommonParams($date), $date._.minTime)
-    );
-  };
-
-  const [minTime, setMinTime] = useState(getMinTime);
-
-  function getMaxTime() {
-    return parseTimeNums(
-      getValidationValue(getCommonParams($date), $date._.maxTime)
-    );
-  };
-
-  const [maxTime, setMaxTime] = useState(getMaxTime);
-
-  function getPair() {
-    return getValidationValue(getCommonParams($date), $date._.pair);
-  };
-
-  const [pair, setPair] = useState(getPair);
-
-  const customRefs = useRef<Array<string>>([]);
-  useLayoutEffect(() => {
-    customRefs.current = optimizeRefs($date, pair?.name ? [pair.name] : []);
+  const coreRefsValuesStringSubscribe = useCallback((callback: () => void) => {
+    if (!coreName) return () => { };
+    const cleanups = core?.getRefs().map(ref => {
+      return manager.addValuesSubscribe(ref, callback);
+    });
+    return () => {
+      cleanups?.forEach(cleanup => cleanup());
+    };
   }, [
-    pair?.name,
-    pair?.position,
-    pair?.same,
+    coreName,
+    core,
+    manager,
   ]);
 
-  function getMinYear() {
-    return getValidationValue(getCommonParams($year), $year?._.min);
+  function getCoreRefValuesString() {
+    if (!coreName) return "";
+    return core?.getRefsValuesString();
   };
 
-  const [minYear, setMinYear] = useState(getMinYear);
+  const coreRefsValuesString = useSyncExternalStore(
+    coreRefsValuesStringSubscribe,
+    getCoreRefValuesString,
+    getCoreRefValuesString
+  );
 
-  function getMaxYear() {
-    return getValidationValue(getCommonParams($year), $year?._.max);
-  };
-
-  const [maxYear, setMaxYear] = useState(getMaxYear);
-
-  function getMinMonth() {
-    return getValidationValue(getCommonParams($month), $month?._.min);
-  };
-
-  const [minMonth, setMinMonth] = useState(getMinMonth);
-
-  function getMaxMonth() {
-    return getValidationValue(getCommonParams($month), $month?._.max);
-  };
-
-  const [maxMonth, setMaxMonth] = useState(getMaxMonth);
-
-  function getMinDay() {
-    return getValidationValue(getCommonParams($day), $day?._.min);
-  };
-
-  const [minDay, setMinDay] = useState(getMinDay);
-
-  function getMaxDay() {
-    return getValidationValue(getCommonParams($day), $day?._.max);
-  };
-
-  const [maxDay, setMaxDay] = useState(getMaxDay);
-
-  function getMinHour() {
-    return getValidationValue(getCommonParams($hour), $hour?._.min) ?? 0;
-  };
-
-  const [minHour, setMinHour] = useState(getMinHour);
-
-  function getMaxHour() {
-    return getValidationValue(getCommonParams($hour), $hour?._.max) ?? 23;
-  };
-
-  const [maxHour, setMaxHour] = useState(getMaxHour);
-
-  function getMinMinute() {
-    return getValidationValue(getCommonParams($minute), $minute?._.min) ?? 0;
-  };
-
-  const [minMinute, setMinMinute] = useState(getMinMinute);
-
-  function getMaxMinute() {
-    return getValidationValue(getCommonParams($minute), $minute?._.max) ?? 59;
-  };
-
-  const [maxMinute, setMaxMinute] = useState(getMaxMinute);
-
-  function getMinSecond() {
-    return getValidationValue(getCommonParams($second), $second?._.min) ?? 0;
-  };
-
-  const [minSecond, setMinSecond] = useState(getMinSecond);
-
-  function getMaxSecond() {
-    return getValidationValue(getCommonParams($second), $second?._.max) ?? 59;
-  };
-
-  const [maxSecond, setMaxSecond] = useState(getMaxSecond);
-
-  let optionMinYear = min.getFullYear(), optionMaxYear = max.getFullYear();
-  let optionMinMonth = 0, optionMaxMonth = 11;
-  let optionMinDay = 1, optionMaxDay = 31;
-  let optionMinHour = 0, optionMaxHour = 23;
-  let optionMinMinute = 0, optionMaxMinute = 59;
-  let optionMinSecond = 0, optionMaxSecond = 59;
-
-  if (isValidScripts) {
-    // year
-    if (minYear != null) {
-      optionMinYear = Math.max(optionMinYear, minYear);
+  const coreValueSubscribe = useCallback((callback: () => void) => {
+    if (!coreName) {
+      dummySubscribes.current.core = callback;
+      return () => { };
     }
-    if (maxYear != null) {
-      optionMaxYear = Math.min(optionMaxYear, maxYear);
+    const cleanup = manager.addValuesSubscribe(coreName, () => {
+      callback();
+    });
+    return () => cleanup();
+  }, [
+    coreName,
+    manager,
+  ]);
+
+  function getCoreValue() {
+    if (!coreName) return dummyDateRef.current;
+    return manager.getValue<Schema.Nullable<$DateTime | $Date | $Month>>(coreName);
+  };
+
+  const coreValue = useSyncExternalStore(
+    coreValueSubscribe,
+    getCoreValue,
+    getCoreValue
+  );
+
+  const coreMessageSubscribe = useCallback((callback: () => void) => {
+    if (!coreName) {
+      dummySubscribes.current.coreMessage = callback;
+      return () => { };
     }
-    // month
-    if (min.getFullYear() === max.getFullYear()) {
-      optionMinMonth = min.getMonth();
-      optionMaxMonth = max.getMonth();
-    }
-    if (yearValue != null) {
-      if (min.getFullYear() === yearValue) {
-        optionMinMonth = min.getMonth();
+    const cleanup = manager.addMessageSubscribe(coreName, () => {
+      callback();
+    });
+    return () => cleanup();
+  }, [
+    coreName,
+    manager,
+  ]);
+
+  function getCoreMessage() {
+    if (!coreName) return undefined;
+    return manager.getMessage(coreName);
+  };
+
+  const coreMessage = useSyncExternalStore(
+    coreMessageSubscribe,
+    getCoreMessage,
+    getCoreMessage
+  );
+
+  const [initValue] = useState<Record<DateSeparateKeys, number | undefined>>(() => {
+    if (coreName) {
+      if (coreValue != null) {
+        const d = new $DateTime(coreValue);
+        return {
+          year: d.getYear(),
+          month: d.getMonth(),
+          day: d.getDay(),
+          hour: d.getHour(),
+          minute: d.getMinute(),
+          second: d.getSecond(),
+        };
       }
-      if (max.getFullYear() === yearValue) {
+    }
+    return {
+      year: undefined,
+      month: undefined,
+      day: undefined,
+      hour: undefined,
+      minute: undefined,
+      second: undefined,
+    };
+  });
+
+  const nums = useRef<Record<DateSeparateKeys, Schema.Nullable<number>>>(initValue);
+
+  const yearRefsValuesStringSubscribe = useCallback((callback: () => void) => {
+    if (!yearName) return () => { };
+    const cleanups = year?.getRefs().map(ref => {
+      return manager.addValuesSubscribe(ref, callback);
+    });
+    return () => {
+      cleanups?.forEach(cleanup => cleanup());
+    };
+  }, [
+    yearName,
+    year,
+    manager,
+  ]);
+
+  function getYearRefValuesString() {
+    if (!yearName) return "";
+    return year?.getRefsValuesString();
+  };
+
+  const yearRefsValuesString = useSyncExternalStore(
+    yearRefsValuesStringSubscribe,
+    getYearRefValuesString,
+    getYearRefValuesString
+  );
+
+  const yearNumSubscribe = useCallback((callback: () => void) => {
+    if (!yearName) {
+      dummySubscribes.current.year = callback;
+      return () => { };
+    }
+    const cleanup = manager.addValuesSubscribe(yearName, () => {
+      callback();
+    });
+    return () => cleanup();
+  }, [
+    yearName,
+    manager,
+  ]);
+
+  function getYearNum() {
+    if (!yearName) return nums.current.year;
+    return manager.getValue<Schema.Nullable<number>>(yearName);
+  };
+
+  const yearNum = useSyncExternalStore(
+    yearNumSubscribe,
+    getYearNum,
+    getYearNum
+  );
+
+  const yearMessageSubscribe = useCallback((callback: () => void) => {
+    if (!yearName) return () => { };
+    const cleanup = manager.addMessageSubscribe(yearName, () => {
+      callback();
+    });
+    return () => cleanup();
+  }, [
+    yearName,
+    manager,
+  ]);
+
+  function getYearMessage() {
+    if (!yearName) return undefined;
+    return manager.getMessage(yearName);
+  };
+
+  const yearMessage = useSyncExternalStore(
+    yearMessageSubscribe,
+    getYearMessage,
+    getYearMessage
+  );
+
+  const monthRefValuesStringSubscribe = useCallback((callback: () => void) => {
+    if (!monthName) return () => { };
+    const cleanups = month?.getRefs().map(ref => {
+      return manager.addValuesSubscribe(ref, callback);
+    });
+    return () => {
+      cleanups?.forEach(cleanup => cleanup());
+    };
+  }, [
+    monthName,
+    month,
+    manager,
+  ]);
+
+  function getMonthRefValuesString() {
+    if (!monthName) return "";
+    return month?.getRefsValuesString();
+  };
+
+  const monthRefsValuesString = useSyncExternalStore(
+    monthRefValuesStringSubscribe,
+    getMonthRefValuesString,
+    getMonthRefValuesString
+  );
+
+  const monthNumSubscribe = useCallback((callback: () => void) => {
+    if (!monthName) {
+      dummySubscribes.current.month = callback;
+      return () => { };
+    }
+    const cleanup = manager.addValuesSubscribe(monthName, () => {
+      callback();
+    });
+    return () => cleanup();
+  }, [
+    monthName,
+    manager,
+  ]);
+
+  function getMonthNum() {
+    if (!monthName) return nums.current.month;
+    return manager.getValue<Schema.Nullable<number>>(monthName);
+  };
+
+  const monthNum = useSyncExternalStore(
+    monthNumSubscribe,
+    getMonthNum,
+    getMonthNum
+  );
+
+  const monthMessageSubscribe = useCallback((callback: () => void) => {
+    if (!monthName) return () => { };
+    const cleanup = manager.addMessageSubscribe(monthName, () => {
+      callback();
+    });
+    return () => cleanup();
+  }, [
+    monthName,
+    manager,
+  ]);
+
+  function getMonthMessage() {
+    if (!monthName) return undefined;
+    return manager.getMessage(monthName);
+  };
+
+  const monthMessage = useSyncExternalStore(
+    monthMessageSubscribe,
+    getMonthMessage,
+    getMonthMessage
+  );
+
+  const dayRefValuesStringSubscribe = useCallback((callback: () => void) => {
+    if (!dayName) return () => { };
+    const cleanups = day?.getRefs().map(ref => {
+      return manager.addValuesSubscribe(ref, callback);
+    });
+    return () => {
+      cleanups?.forEach(cleanup => cleanup());
+    };
+  }, [
+    dayName,
+    day,
+    manager,
+  ]);
+
+  function getDayRefValuesString() {
+    if (!dayName) return "";
+    return day?.getRefsValuesString();
+  };
+
+  const dayRefsValuesString = useSyncExternalStore(
+    dayRefValuesStringSubscribe,
+    getDayRefValuesString,
+    getDayRefValuesString
+  );
+
+  const dayNumSubscribe = useCallback((callback: () => void) => {
+    if (!dayName) {
+      dummySubscribes.current.day = callback;
+      return () => { };
+    }
+    const cleanup = manager.addValuesSubscribe(dayName, () => {
+      callback();
+    });
+    return () => cleanup();
+  }, [
+    dayName,
+    manager,
+  ]);
+
+  function getDayNum() {
+    if (!dayName) return nums.current.day;
+    return manager.getValue<Schema.Nullable<number>>(dayName);
+  };
+
+  const dayNum = useSyncExternalStore(
+    dayNumSubscribe,
+    getDayNum,
+    getDayNum
+  );
+
+  const dayMessageSubscribe = useCallback((callback: () => void) => {
+    if (!dayName) return () => { };
+    const cleanup = manager.addMessageSubscribe(dayName, () => {
+      callback();
+    });
+    return () => cleanup();
+  }, [
+    dayName,
+    manager,
+  ]);
+
+  function getDayMessage() {
+    if (!dayName) return undefined;
+    return manager.getMessage(dayName);
+  };
+
+  const dayMessage = useSyncExternalStore(
+    dayMessageSubscribe,
+    getDayMessage,
+    getDayMessage
+  );
+
+  const hourRefValuesStringSubscribe = useCallback((callback: () => void) => {
+    if (!hourName) return () => { };
+    const cleanups = hour?.getRefs().map(ref => {
+      return manager.addValuesSubscribe(ref, callback);
+    });
+    return () => {
+      cleanups?.forEach(cleanup => cleanup());
+    };
+  }, [
+    hourName,
+    hour,
+    manager,
+  ]);
+
+  function getHourRefValuesString() {
+    if (!hourName) return "";
+    return hour?.getRefsValuesString();
+  };
+
+  const hourRefsValuesString = useSyncExternalStore(
+    hourRefValuesStringSubscribe,
+    getHourRefValuesString,
+    getHourRefValuesString
+  );
+
+  const hourNumSubscribe = useCallback((callback: () => void) => {
+    if (!hourName) {
+      dummySubscribes.current.hour = callback;
+      return () => { };
+    }
+    const cleanup = manager.addValuesSubscribe(hourName, () => {
+      callback();
+    });
+    return () => cleanup();
+  }, [
+    hourName,
+    manager,
+  ]);
+
+  function getHourNum() {
+    if (!hourName) return nums.current.hour;
+    return manager.getValue<Schema.Nullable<number>>(hourName);
+  };
+
+  const hourNum = useSyncExternalStore(
+    hourNumSubscribe,
+    getHourNum,
+    getHourNum
+  );
+
+  const hourMessageSubscribe = useCallback((callback: () => void) => {
+    if (!hourName) return () => { };
+    const cleanup = manager.addMessageSubscribe(hourName, () => {
+      callback();
+    });
+    return () => cleanup();
+  }, [
+    hourName,
+    manager,
+  ]);
+
+  function getHourMessage() {
+    if (!hourName) return undefined;
+    return manager.getMessage(hourName);
+  };
+
+  const hourMessage = useSyncExternalStore(
+    hourMessageSubscribe,
+    getHourMessage,
+    getHourMessage
+  );
+
+  const minuteRefValuesStringSubscribe = useCallback((callback: () => void) => {
+    if (!minuteName) return () => { };
+    const cleanups = minute?.getRefs().map(ref => {
+      return manager.addValuesSubscribe(ref, callback);
+    });
+    return () => {
+      cleanups?.forEach(cleanup => cleanup());
+    };
+  }, [
+    minuteName,
+    minute,
+    manager,
+  ]);
+
+  function getMinuteRefValuesString() {
+    if (!minuteName) return "";
+    return minute?.getRefsValuesString();
+  };
+
+  const minuteRefsValuesString = useSyncExternalStore(
+    minuteRefValuesStringSubscribe,
+    getMinuteRefValuesString,
+    getMinuteRefValuesString
+  );
+
+  const minuteNumSubscribe = useCallback((callback: () => void) => {
+    if (!minuteName) {
+      dummySubscribes.current.minute = callback;
+      return () => { };
+    }
+    const cleanup = manager.addValuesSubscribe(minuteName, () => {
+      callback();
+    });
+    return () => cleanup();
+  }, [
+    minuteName,
+    manager,
+  ]);
+
+  function getMinuteNum() {
+    if (!minuteName) return nums.current.minute;
+    return manager.getValue<Schema.Nullable<number>>(minuteName);
+  };
+
+  const minuteNum = useSyncExternalStore(
+    minuteNumSubscribe,
+    getMinuteNum,
+    getMinuteNum
+  );
+
+  const minuteMessageSubscribe = useCallback((callback: () => void) => {
+    if (!minuteName) return () => { };
+    const cleanup = manager.addMessageSubscribe(minuteName, () => {
+      callback();
+    });
+    return () => cleanup();
+  }, [
+    minuteName,
+    manager,
+  ]);
+
+  function getMinuteMessage() {
+    if (!minuteName) return undefined;
+    return manager.getMessage(minuteName);
+  };
+
+  const minuteMessage = useSyncExternalStore(
+    minuteMessageSubscribe,
+    getMinuteMessage,
+    getMinuteMessage
+  );
+
+  const secondRefValuesStringSubscribe = useCallback((callback: () => void) => {
+    if (!secondName) return () => { };
+    const cleanups = second?.getRefs().map(ref => {
+      return manager.addValuesSubscribe(ref, callback);
+    });
+    return () => {
+      cleanups?.forEach(cleanup => cleanup());
+    };
+  }, [
+    secondName,
+    second,
+    manager,
+  ]);
+
+  function getSecondRefValuesString() {
+    if (!secondName) return "";
+    return second?.getRefsValuesString();
+  };
+
+  const secondRefsValuesString = useSyncExternalStore(
+    secondRefValuesStringSubscribe,
+    getSecondRefValuesString,
+    getSecondRefValuesString
+  );
+
+  const secondNumSubscribe = useCallback((callback: () => void) => {
+    if (!secondName) {
+      dummySubscribes.current.second = callback;
+      return () => { };
+    }
+    const cleanup = manager.addValuesSubscribe(secondName, () => {
+      callback();
+    });
+    return () => cleanup();
+  }, [
+    secondName,
+    manager,
+  ]);
+
+  function getSecondNum() {
+    if (!secondName) return nums.current.second;
+    return manager.getValue<Schema.Nullable<number>>(secondName);
+  };
+
+  const secondNum = useSyncExternalStore(
+    secondNumSubscribe,
+    getSecondNum,
+    getSecondNum
+  );
+
+  const secondMessageSubscribe = useCallback((callback: () => void) => {
+    if (!secondName) return () => { };
+    const cleanup = manager.addMessageSubscribe(secondName, () => {
+      callback();
+    });
+    return () => cleanup();
+  }, [
+    secondName,
+    manager,
+  ]);
+
+  function getSecondMessage() {
+    if (!secondName) return undefined;
+    return manager.getMessage(secondName);
+  };
+
+  const secondMessage = useSyncExternalStore(
+    secondMessageSubscribe,
+    getSecondMessage,
+    getSecondMessage
+  );
+
+  const {
+    min,
+    max,
+    minTime,
+    maxTime,
+  } = useMemo(() => {
+    let min = new $DateTime("1900-01-01T00:00:00");
+    const minMonth = schemaItem.getMinMonth(injectParams);
+    if (minMonth && min.isBefore(minMonth)) {
+      min = new $DateTime(minMonth);
+    }
+    const minDate = schemaItem.getMinDate(injectParams);
+    if (minDate && min.isBefore(minDate)) {
+      min = new $DateTime(minDate);
+    }
+    const minDateTime = schemaItem.getMinDateTime(injectParams);
+    if (minDateTime && min.isBefore(minDateTime)) {
+      min = new $DateTime(minDateTime);
+    }
+
+    let max = new $DateTime("2100-12-31T23:59:59");
+    const maxMonth = schemaItem.getMaxMonth(injectParams);
+    if (maxMonth && max.isAfter(maxMonth)) {
+      max = new $DateTime(maxMonth);
+    }
+    const maxDate = schemaItem.getMaxDate(injectParams);
+    if (maxDate && max.isAfter(maxDate)) {
+      max = new $DateTime(maxDate);
+    }
+    const maxDateTime = schemaItem.getMaxDateTime(injectParams);
+    if (maxDateTime && max.isAfter(maxDateTime)) {
+      max = new $DateTime(maxDateTime);
+    }
+
+    return {
+      max,
+      min,
+      minTime: schemaItem instanceof $DateTimeSchema ? schemaItem.getMinTime(injectParams) : undefined,
+      maxTime: schemaItem instanceof $DateTimeSchema ? schemaItem.getMaxTime(injectParams) : undefined,
+    };
+  }, [
+    schemaItem,
+    injectParams,
+    coreRefsValuesString,
+  ]);
+
+  const {
+    yearRequired,
+    minYear,
+    maxYear,
+  } = useMemo(() => {
+    return {
+      yearRequired: yearSchemaItem?.getRequired(injectParams) ?? false,
+      minYear: yearSchemaItem?.getMin(injectParams) ?? min.getYear(),
+      maxYear: yearSchemaItem?.getMax(injectParams) ?? max.getYear(),
+    };
+  }, [
+    yearSchemaItem,
+    injectParams,
+    yearRefsValuesString,
+    min,
+    max,
+  ]);
+
+  const {
+    monthRequired,
+    minMonth,
+    maxMonth,
+  } = useMemo(() => {
+    return {
+      monthRequired: monthSchemaItem?.getRequired(injectParams) ?? false,
+      minMonth: monthSchemaItem?.getMin(injectParams),
+      maxMonth: monthSchemaItem?.getMax(injectParams),
+    };
+  }, [
+    monthSchemaItem,
+    injectParams,
+    monthRefsValuesString,
+  ]);
+
+  const {
+    dayRequired,
+    minDay,
+    maxDay,
+  } = useMemo(() => {
+    return {
+      dayRequired: daySchemaItem?.getRequired(injectParams) ?? false,
+      minDay: daySchemaItem?.getMin(injectParams),
+      maxDay: daySchemaItem?.getMax(injectParams),
+    };
+  }, [
+    daySchemaItem,
+    injectParams,
+    dayRefsValuesString,
+  ]);
+
+  const {
+    hourRequired,
+    minHour,
+    maxHour,
+    hourStep,
+  } = useMemo(() => {
+    return {
+      hourRequired: hourSchemaItem?.getRequired(injectParams) ?? false,
+      minHour: hourSchemaItem?.getMin(injectParams) ?? 0,
+      maxHour: hourSchemaItem?.getMax(injectParams) ?? 23,
+      hourStep: hourSchemaItem?.getStep() ?? 1,
+    };
+  }, [
+    hourSchemaItem,
+    injectParams,
+    hourRefsValuesString,
+  ]);
+
+  const {
+    minuteRequired,
+    minMinute,
+    maxMinute,
+    minuteStep,
+  } = useMemo(() => {
+    return {
+      minuteRequired: minuteSchemaItem?.getRequired(injectParams) ?? false,
+      minMinute: minuteSchemaItem?.getMin(injectParams) ?? 0,
+      maxMinute: minuteSchemaItem?.getMax(injectParams) ?? 59,
+      minuteStep: minuteSchemaItem?.getStep() ?? 1,
+    };
+  }, [
+    minuteSchemaItem,
+    injectParams,
+    minuteRefsValuesString,
+  ]);
+
+  const {
+    secondRequired,
+    minSecond,
+    maxSecond,
+    secondStep,
+  } = useMemo(() => {
+    return {
+      secondRequired: secondSchemaItem?.getRequired(injectParams) ?? false,
+      minSecond: secondSchemaItem?.getMin(injectParams) ?? 0,
+      maxSecond: secondSchemaItem?.getMax(injectParams) ?? 59,
+      secondStep: secondSchemaItem?.getStep() ?? 1,
+    };
+  }, [
+    secondSchemaItem,
+    injectParams,
+    secondRefsValuesString,
+  ]);
+
+  const {
+    type,
+    timeBasis,
+    // formatPattern,
+  } = useMemo(() => {
+    let type: "date" | "month" | "datetime-local" = "month";
+    let timeBasis: "hour" | "minute" | "second" | undefined;
+    let formatPattern = "yyyy-MM";
+    if (schemaItem) {
+      if (schemaItem instanceof $DateSchema) {
+        type = "date";
+        formatPattern = "yyyy-MM-dd";
+      } else if (schemaItem instanceof $DateTimeSchema) {
+        type = "datetime-local";
+        formatPattern = "yyyy-MM-ddThh:mm:ss";
+        timeBasis = schemaItem.getTimeBasis();
+      }
+    } else {
+      if (dayName) {
+        type = "date";
+        formatPattern = "yyyy-MM-dd";
+      }
+      if (hourName) {
+        type = "datetime-local";
+        formatPattern = "yyyy-MM-ddThh";
+        timeBasis = "hour";
+      }
+      if (minuteName) {
+        type = "datetime-local";
+        formatPattern = "yyyy-MM-ddThh:mm";
+        timeBasis = "minute";
+      }
+      if (secondName) {
+        type = "datetime-local";
+        formatPattern = "yyyy-MM-ddThh:mm:ss";
+        timeBasis = "second";
+      }
+    }
+
+    return {
+      type,
+      timeBasis,
+      formatPattern,
+    };
+  }, [
+    schemaItem,
+    dayName,
+    hourName,
+    minuteName,
+    secondName,
+  ]);
+
+  function getOptionMinMax({
+    year = yearNum,
+    month = monthNum,
+    day = dayNum,
+    hour = hourNum,
+    minute = minuteNum,
+  }: Partial<Record<Exclude<DateSeparateKeys, "second">, Schema.Nullable<number>>>) {
+    let optionMinMonth = 0, optionMaxMonth = 11;
+    let optionMinDay = 1, optionMaxDay = 31;
+    let optionMinHour = 0, optionMaxHour = 23;
+    let optionMinMinute = 0, optionMaxMinute = 59;
+    let optionMinSecond = 0, optionMaxSecond = 59;
+
+    if (validScripts) {
+      // month
+      if (minYear === maxYear) {
+        optionMinMonth = min.getMonth();
         optionMaxMonth = max.getMonth();
       }
-    }
-    if (minMonth != null) {
-      optionMinMonth = Math.max(optionMinMonth, minMonth);
-    }
-    if (maxMonth != null) {
-      optionMaxMonth = Math.min(optionMaxMonth, maxMonth);
-    }
-    if (type !== "month") {
-      // day
-      if ((min.getMonth() + 1) === monthValue && min.getFullYear() === yearValue) {
-        optionMinDay = min.getDate();
-      }
-      if ((max.getMonth() + 1) === monthValue && max.getFullYear() === yearValue) {
-        optionMaxDay = max.getDate();
-      }
-      if (yearValue != null && monthValue != null) {
-        optionMaxDay = Math.min(optionMaxDay, new Date(yearValue, monthValue, 0).getDate());
-      }
-      if (minDay != null) {
-        optionMinDay = Math.max(optionMinDay, minDay);
-      }
-      if (maxDay != null) {
-        optionMaxDay = Math.min(optionMaxDay, maxDay);
-      }
-    }
-    if (type === "datetime") {
-      // hour
-      if (yearValue != null
-        && monthValue != null
-        && dayValue != null
-      ) {
-        if (min.getDate() === dayValue
-          && (min.getMonth() + 1) === monthValue
-          && min.getFullYear() === yearValue
-        ) {
-          optionMinHour = min.getHours();
+      if (year != null) {
+        if (minYear === year) {
+          optionMinMonth = min.getMonth();
         }
-        if (max.getDate() === dayValue
-          && (max.getMonth() + 1) === monthValue
-          && max.getFullYear() === yearValue
-        ) {
-          optionMaxHour = max.getHours();
+        if (maxYear === year) {
+          optionMaxMonth = max.getMonth();
         }
       }
-      optionMinHour = Math.max(optionMinHour, minTime.h, minHour);
-      optionMaxHour = Math.min(optionMaxHour, maxTime.h, maxHour);
-      // minute
-      if (yearValue != null
-        && monthValue != null
-        && dayValue != null
-        && hourValue != null
-      ) {
-        if (min.getHours() === hourValue
-          && min.getDate() === dayValue
-          && (min.getMonth() + 1) === monthValue
-          && min.getFullYear() === yearValue
-        ) {
-          optionMinMinute = min.getMinutes();
+      if (minMonth != null) {
+        optionMinMonth = Math.max(optionMinMonth, minMonth);
+      }
+      if (maxMonth != null) {
+        optionMaxMonth = Math.min(optionMaxMonth, maxMonth);
+      }
+      if (type !== "month") {
+        // day
+        if ((min.getMonth() + 1) === month && min.getYear() === year) {
+          optionMinDay = min.getDay();
         }
-        if (max.getHours() === hourValue
-          && max.getDate() === dayValue
-          && (max.getMonth() + 1) === monthValue
-          && max.getFullYear() === yearValue
-        ) {
-          optionMaxMinute = max.getMinutes();
+        if ((max.getMonth() + 1) === month && max.getYear() === year) {
+          optionMaxDay = max.getDay();
+        }
+        if (year != null && month != null) {
+          optionMaxDay = Math.min(optionMaxDay, new Date(year, month, 0).getDate());
+        }
+        if (minDay != null) {
+          optionMinDay = Math.max(optionMinDay, minDay);
+        }
+        if (maxDay != null) {
+          optionMaxDay = Math.min(optionMaxDay, maxDay);
         }
       }
-      optionMinMinute = Math.max(optionMinMinute, minTime.m, minMinute);
-      optionMaxMinute = Math.min(optionMaxMinute, maxTime.m, maxMinute);
-      // second
-      if (time === "hms") {
-        if (minuteValue !== null
-          && yearValue != null
-          && monthValue != null
-          && dayValue != null
-          && hourValue != null
+      if (type === "datetime-local") {
+        // hour
+        if (year != null
+          && month != null
+          && day != null
         ) {
-          if (min.getMinutes() === minuteValue
-            && min.getHours() === hourValue
-            && min.getDate() === dayValue
-            && (min.getMonth() + 1) === monthValue
-            && min.getFullYear() === yearValue
+          if (min.getDay() === day
+            && (min.getMonth() + 1) === month
+            && min.getYear() === year
           ) {
-            optionMinSecond = min.getSeconds();
+            optionMinHour = min.getHour();
           }
-          if (max.getMinutes() === minuteValue
-            && max.getHours() === hourValue
-            && max.getDate() === dayValue
-            && (max.getMonth() + 1) === monthValue
-            && max.getFullYear() === yearValue
+          if (max.getDay() === day
+            && (max.getMonth() + 1) === month
+            && max.getYear() === year
           ) {
-            optionMaxSecond = max.getSeconds();
+            optionMaxHour = max.getHour();
           }
         }
-        optionMinSecond = Math.max(optionMinSecond, minTime.s, minSecond);
-        optionMaxSecond = Math.min(optionMaxSecond, maxTime.s, maxSecond);
+        optionMinHour = Math.max(optionMinHour, minTime?.getHour() ?? 0, minHour);
+        optionMaxHour = Math.min(optionMaxHour, maxTime?.getHour() ?? 23, maxHour);
+        // minute
+        if (year != null
+          && month != null
+          && day != null
+          && hour != null
+        ) {
+          if (min.getHour() === hour
+            && min.getDay() === day
+            && (min.getMonth() + 1) === month
+            && min.getYear() === year
+          ) {
+            optionMinMinute = min.getMinute();
+          }
+          if (max.getHour() === hour
+            && max.getDay() === day
+            && (max.getMonth() + 1) === month
+            && max.getYear() === year
+          ) {
+            optionMaxMinute = max.getMinute();
+          }
+        }
+        optionMinMinute = Math.max(optionMinMinute, minTime?.getMinute() ?? 0, minMinute);
+        optionMaxMinute = Math.min(optionMaxMinute, maxTime?.getMinute() ?? 59, maxMinute);
+        // second
+        if (timeBasis === "second") {
+          if (minute !== null
+            && year != null
+            && month != null
+            && day != null
+            && hour != null
+          ) {
+            if (min.getMinute() === minute
+              && min.getHour() === hour
+              && min.getDay() === day
+              && (min.getMonth() + 1) === month
+              && min.getYear() === year
+            ) {
+              optionMinSecond = min.getSecond();
+            }
+            if (max.getMinute() === minute
+              && max.getHour() === hour
+              && max.getDay() === day
+              && (max.getMonth() + 1) === month
+              && max.getYear() === year
+            ) {
+              optionMaxSecond = max.getSecond();
+            }
+          }
+          optionMinSecond = Math.max(optionMinSecond, minTime?.getSecond() ?? 0, minSecond);
+          optionMaxSecond = Math.min(optionMaxSecond, maxTime?.getSecond() ?? 59, maxSecond);
+        }
       }
     }
-  }
+
+    return {
+      optionMinMonth,
+      optionMaxMonth,
+      optionMinDay,
+      optionMaxDay,
+      optionMinHour,
+      optionMaxHour,
+      optionMinMinute,
+      optionMaxMinute,
+      optionMinSecond,
+      optionMaxSecond,
+    } as const;
+  };
+
+  const {
+    optionMinMonth,
+    optionMaxMonth,
+    optionMinDay,
+    optionMaxDay,
+    optionMinHour,
+    optionMaxHour,
+    optionMinMinute,
+    optionMaxMinute,
+    optionMinSecond,
+    optionMaxSecond,
+  } = getOptionMinMax({});
 
   const yearOptions = useMemo(() => {
     const options: Array<ReactNode> = [];
-    for (let i = optionMinYear; i <= optionMaxYear; i++) {
+    for (let i = minYear; i <= maxYear; i++) {
       options.push(
         <option
           key={i}
@@ -652,8 +1099,8 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
     }
     return options;
   }, [
-    optionMinYear,
-    optionMaxYear,
+    minYear,
+    maxYear,
   ]);
 
   const monthOptions = useMemo(() => {
@@ -696,9 +1143,9 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
 
   const hourOptions = useMemo(() => {
     const options: Array<ReactNode> = [];
-    if (type !== "datetime") return options;
-    const step = $hour?._.step ?? 1;
-    for (let i = optionMinHour; i <= optionMaxHour; i += step) {
+    if (type !== "datetime-local") return options;
+    const initAddStep = optionMinHour % hourStep;
+    for (let i = optionMinHour + initAddStep; i <= optionMaxHour; i += hourStep) {
       options.push(
         <option
           key={i}
@@ -711,16 +1158,16 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
     return options;
   }, [
     type,
-    $hour?._.step,
+    hourStep,
     optionMinHour,
     optionMaxHour,
   ]);
 
-  const minuteStep = $minute?._.step ?? 1;
   const minuteOptions = useMemo(() => {
     const options: Array<ReactNode> = [];
-    if (type !== "datetime") return options;
-    for (let i = optionMinMinute; i <= optionMaxMinute; i += minuteStep) {
+    if (type !== "datetime-local" || timeBasis === "hour") return options;
+    const initAddStep = optionMinMinute % minuteStep;
+    for (let i = optionMinMinute + initAddStep; i <= optionMaxMinute; i += minuteStep) {
       options.push(
         <option
           key={i}
@@ -733,6 +1180,7 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
     return options;
   }, [
     type,
+    timeBasis,
     minuteStep,
     optionMinMinute,
     optionMaxMinute,
@@ -740,9 +1188,9 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
 
   const secondOptions = useMemo(() => {
     const options: Array<ReactNode> = [];
-    if (type !== "datetime" || time !== "hms") return options;
-    const step = $second?._.step ?? 1;
-    for (let i = optionMinSecond; i <= optionMaxSecond; i += step) {
+    if (type !== "datetime-local" || timeBasis !== "second") return options;
+    const initAddStep = optionMinSecond % secondStep;
+    for (let i = optionMinSecond + initAddStep; i <= optionMaxSecond; i += secondStep) {
       options.push(
         <option
           key={i}
@@ -755,498 +1203,448 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
     return options;
   }, [
     type,
-    time,
-    $second?._.step,
+    timeBasis,
+    secondStep,
     optionMinSecond,
     optionMaxSecond,
   ]);
 
-  useLayoutEffect(() => {
-    const unmount = schema.addSubscribe((params) => {
-      switch (params.type) {
-        case "refresh": {
-          isEffected.current = false;
-          if ($date.name) {
-            setValue(params.data.get<Schema.DateValueString>($date.name));
-            setResult(params.results[$date.name]);
-          }
-          if ($year?.name) {
-            resetSelectValue(params.data.get<number>($year.name), setYearValue, yearSelectRef);
-            setYearResult(params.results[$year.name]);
-          }
-          if ($month?.name) {
-            resetSelectValue(params.data.get<number>($month.name), setMonthValue, monthSelectRef);
-            setMonthResult(params.results[$month.name]);
-          }
-          if ($day?.name) {
-            resetSelectValue(params.data.get<number>($day.name), setDayValue, daySelectRef);
-            setDayResult(params.results[$day.name]);
-          }
-          if ($hour?.name) {
-            resetSelectValue(params.data.get<number>($hour.name), setHourValue, hourSelectRef);
-            setHourResult(params.results[$hour.name]);
-          }
-          if ($minute?.name) {
-            resetSelectValue(params.data.get<number>($minute.name), setMinuteValue, minuteSelectRef);
-            setMinuteResult(params.results[$minute.name]);
-          }
-          if ($second?.name) {
-            resetSelectValue(params.data.get<number>($second.name), setSecondValue, secondSelectRef);
-            setSecondResult(params.results[$second.name]);
-          }
-        }
-        // eslint-disable-next-line no-fallthrough
-        case "dep":
-          setMode(getMode);
-          setYearMode(getYearMode);
-          setMonthMode(getMonthMode);
-          setDayMode(getDayMode);
-          setHourMode(getHourMode);
-          setMinuteMode(getMinuteMode);
-          setSecondMode(getSecondMode);
-          setRequired(getRequired);
-          setYearRequired(getYearRequired);
-          setMonthRequired(getMonthRequired);
-          setDayRequired(getDayRequired);
-          setHourRequired(getHourRequired);
-          setMinuteRequired(getMinuteRequired);
-          setSecondRequired(getSecondRequired);
-          setMin(getMin);
-          setMax(getMax);
-          setMinTime(getMinTime);
-          setMaxTime(getMaxTime);
-          setPair(getPair);
-          setMinYear(getMinYear);
-          setMaxYear(getMaxYear);
-          setMinMonth(getMinMonth);
-          setMaxMonth(getMaxMonth);
-          setMinDay(getMinDay);
-          setMaxDay(getMaxDay);
-          setMinHour(getMinHour);
-          setMaxHour(getMaxHour);
-          setMinMinute(getMinMinute);
-          setMaxMinute(getMaxMinute);
-          setMinSecond(getMinSecond);
-          setMaxSecond(getMaxSecond);
-          break;
-        case "value-result":
-        case "value": {
-          function update(
-            $: Schema.DataItem | undefined,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            valueSetter: Dispatch<SetStateAction<any>>,
-            resultSetter: Dispatch<SetStateAction<Schema.Result | null | undefined>>,
-            selectRef?: RefObject<SelectBox$Ref | null>
-          ) {
-            if (!$?.name) return false;
-            const item = (params as SchemaEffectParams_ValueResult)
-              .items.find(item => item.name === $.name);
-            if (!item) return false;
-            if (params.type === "value-result") {
-              resetSelectValue(item.value, valueSetter, selectRef);
-              if (schema.validationTrigger === "change") {
-                resultSetter(item.result);
-              }
-            } else {
-              const submission = schemaItemEffect($, schema, item.value);
-              resetSelectValue(submission.value, valueSetter, selectRef);
-              if (schema.validationTrigger === "change") {
-                resultSetter(submission.result);
-              }
-            }
-            isEffected.current = true;
-            return true;
-          }
-          update($date, setValue, setResult);
-          update($year, setYearValue, setYearResult, yearSelectRef);
-          update($month, setMonthValue, setMonthResult, monthSelectRef);
-          update($day, setDayValue, setDayResult, daySelectRef);
-          update($hour, setHourValue, setHourResult, hourSelectRef);
-          update($minute, setMinuteValue, setMinuteResult, minuteSelectRef);
-          update($second, setSecondValue, setSecondResult, secondSelectRef);
+  const mode = core?.getMode(injectParams) ?? "enabled";
+  let state: Schema.Mode = "enabled";
+  if (mode === "hidden") state = "hidden";
+  else if (fs.disabled || mode === "disabled") state = "disabled";
+  else if (fs.readOnly || mode === "readonly" || formState === "loading" || formState === "submitting") state = "readonly";
 
-          const results: Array<{ name: string; result: Schema.Result | null | undefined; }> = [];
-          function updateWithRefs(
-            $: Schema.DataItem | undefined,
-            refs: Array<RefObject<Array<string>>>,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            valueGetter: () => any,
-            callback: () => void,
-          ) {
-            if (!$) return false;
-            // eslint-disable-next-line @stylistic/max-len
-            if (refs.some(r => r.current.some(ref => (params as SchemaEffectParams_ValueResult).items.some(item => item.name === ref)))) {
-              callback();
-              const result = schemaItemValidation($, schema, valueGetter());
-              if ($.name) results.push({ name: $.name, result });
-              else setResult(result);
-              return true;
-            }
-            return false;
-          }
-          updateWithRefs($date, [dateRefs, customRefs], getValue, () => {
-            setMode(getMode);
-            setRequired(getRequired);
-            setMin(getMin);
-            setMax(getMax);
-            setMinTime(getMinTime);
-            setMaxTime(getMaxTime);
-            setPair(getPair);
-          });
-          updateWithRefs($year, [yearRefs], getYearValue, () => {
-            setYearMode(getYearMode);
-            setYearRequired(getYearRequired);
-            setMinYear(getMinYear);
-            setMaxYear(getMaxYear);
-          });
-          updateWithRefs($month, [monthRefs], getMonthValue, () => {
-            setMonthMode(getMonthMode);
-            setMonthRequired(getMonthRequired);
-            setMinMonth(getMinMonth);
-            setMaxMonth(getMaxMonth);
-          });
-          updateWithRefs($day, [dayRefs], getDayValue, () => {
-            setDayMode(getDayMode);
-            setDayRequired(getDayRequired);
-            setMinDay(getMinDay);
-            setMaxDay(getMaxDay);
-          });
-          updateWithRefs($hour, [hourRefs], getHourValue, () => {
-            setHourMode(getHourMode);
-            setHourRequired(getHourRequired);
-            setMinHour(getMinHour);
-            setMaxHour(getMaxHour);
-          });
-          updateWithRefs($minute, [minuteRefs], getMinuteValue, () => {
-            setMinuteMode(getMinuteMode);
-            setMinuteRequired(getMinuteRequired);
-            setMinMinute(getMinMinute);
-            setMaxMinute(getMaxMinute);
-          });
-          updateWithRefs($second, [secondRefs], getSecondValue, () => {
-            setSecondMode(getSecondMode);
-            setSecondRequired(getSecondRequired);
-            setMinSecond(getMinSecond);
-            setMaxSecond(getMaxSecond);
-          });
-          if (schema.setResults(results)) {
-            isEffected.current = true;
-          }
-          break;
-        }
-        case "result": {
-          function update(
-            $: Schema.DataItem | undefined,
-            resultSetter: Dispatch<SetStateAction<Schema.Result | null | undefined>>,
-          ) {
-            if (!$?.name) return false;
-            const item = (params as SchemaEffectParams_Result)
-              .items.find(item => item.name === $.name);
-            if (!item) return false;
-            resultSetter(item.result);
-            isEffected.current = true;
-            return true;
-          }
-          update($date, setResult);
-          update($year, setYearResult);
-          update($month, setMonthResult);
-          update($day, setDayResult);
-          update($hour, setHourResult);
-          update($minute, setMinuteResult);
-          update($second, setSecondResult);
-          break;
-        }
-        case "validation":
-          if ($date.name) setResult(params.results[$date.name]);
-          if ($year?.name) setYearResult(params.results[$year.name]);
-          if ($month?.name) setMonthResult(params.results[$month.name]);
-          if ($day?.name) setDayResult(params.results[$day.name]);
-          if ($hour?.name) setHourResult(params.results[$hour.name]);
-          if ($minute?.name) setMinuteResult(params.results[$minute.name]);
-          if ($second?.name) setSecondResult(params.results[$second.name]);
-          break;
-        default:
-          break;
-      }
-    }, {
-      id,
-      name: id,
-    });
+  const displayMessage = selectBoxDisplayMessage({
+    core: {
+      name: coreName,
+      schemaItem: schemaItem,
+      message: coreMessage,
+    },
+    year: {
+      name: yearName,
+      schemaItem: yearSchemaItem,
+      message: yearMessage,
+    },
+    month: {
+      name: monthName,
+      schemaItem: monthSchemaItem,
+      message: monthMessage,
+    },
+    day: {
+      name: dayName,
+      schemaItem: daySchemaItem,
+      message: dayMessage,
+    },
+    hour: {
+      name: hourName,
+      schemaItem: hourSchemaItem,
+      message: hourMessage,
+    },
+    minute: {
+      name: minuteName,
+      schemaItem: minuteSchemaItem,
+      message: minuteMessage,
+    },
+    second: {
+      name: secondName,
+      schemaItem: secondSchemaItem,
+      message: secondMessage,
+    },
+  });
 
-    if (!schema.isInitialize.current) {
-      const updateResults: Parameters<typeof schema.setResults>[0] = [];
-      function resetResult(
-        $: Schema.DataItem | undefined,
-        r: Schema.Result | null | undefined
-      ) {
-        if (!$?.name) return;
-        if (r !== schema.getResult($.name)) {
-          updateResults.push({ name: $.name, result: r });
-        }
-      };
-      resetResult($date, result);
-      resetResult($year, yearResult);
-      resetResult($month, monthResult);
-      resetResult($day, dayResult);
-      resetResult($hour, hourResult);
-      resetResult($minute, minuteResult);
-      resetResult($second, secondResult);
-      schema.setResults(updateResults);
-    }
-    return () => {
-      unmount();
-      const updateResults: Parameters<typeof schema.setResults>[0] = [];
-      function clearResult($: Schema.DataItem | undefined) {
-        if (!$?.name) return;
-        updateResults.push({ name: $.name, result: undefined });
-      }
-      clearResult($date);
-      clearResult($year);
-      clearResult($month);
-      clearResult($day);
-      clearResult($hour);
-      clearResult($minute);
-      clearResult($second);
-      schema.setResults(updateResults);
-    };
-  }, []);
-
-  const state = useMemo(() => {
-    if (mode === "hidden") return "hidden";
-    if (fs.disabled || mode === "disabled") return "disabled";
-    if (fs.readOnly
-      || mode === "readonly"
-      || schema.state === "loading"
-      || schema.state === "submitting"
-    ) {
-      return "readonly";
-    }
-    return "enabled";
-  }, [
-    mode,
-    fs.disabled,
-    fs.readOnly,
-  ]);
-
-  function handleChangeImpl(
-    $: Schema.DataItem<Schema.$SplitDate> | undefined,
-    v: string,
-    currentResult: Schema.Result | null | undefined
-  ) {
-    if (!$) return;
-    const submission = schemaItemEffect<Schema.DataItem<Schema.$SplitDate>>($, schema, v);
-    const num = submission.value;
-    const t = $._.type;
-    const dateValue = parseTypedValue({
-      Y: t === "sdate-Y" ? num : yearValue,
-      M: t === "sdate-M" ? num : monthValue,
-      D: t === "sdate-D" ? num : dayValue,
-      h: t === "sdate-h" ? num : hourValue,
-      m: t === "sdate-m" ? num : minuteValue,
-      s: t === "sdate-s" ? num : secondValue,
-    });
-    const dateSubmission = schemaItemEffect($date, schema, dateValue);
-    const isValidationTriggerChange = schema.validationTrigger === "change";
-    if ($date.name) {
-      schema.setValuesAndResults([
-        {
-          name: $.name,
-          value: submission.value,
-          result: isValidationTriggerChange ? submission.result : currentResult,
-        },
-        {
-          name: $date.name,
-          value: dateSubmission.value,
-          result: isValidationTriggerChange ? dateSubmission.result : result,
-        },
-      ]);
+  const isInvalid = displayMessage?.type === "e";
+  let errormMessageId: string | undefined;
+  let errormessage: string | undefined;
+  if (isInvalid) {
+    if (hideMessage) {
+      errormessage = getResultMessage(use(I18nContext).t, displayMessage);
     } else {
-      schema.setValuesAndResults([
-        {
-          name: $.name,
-          value: submission.value,
-          result: isValidationTriggerChange ? submission.result : currentResult,
-        },
-      ]);
-      setValue(dateSubmission.value);
-      setResult(dateSubmission.result);
+      errormMessageId = errormessage = `${schemaId}_${displayMessage.name}__msg`;
+    }
+  }
+
+  function commitCoreValue({
+    year = yearNum,
+    month = monthNum,
+    day = dayNum,
+    hour = hourNum,
+    minute = minuteNum,
+    second = secondNum,
+  }: Partial<Record<DateSeparateKeys, Schema.Nullable<number>>>) {
+    function set(v: $DateTime | $Date | $Month | null | undefined) {
+      if (core) {
+        core.setValue(v);
+      } else {
+        const msg = schemaItem.validate(
+          dummyDateRef.current = v as ($DateTime & $Date & $Month) | null | undefined,
+          injectParams
+        )[""]?.[0];
+        manager.setMessage(id, msg);
+      }
+    }
+
+    if (type === "month") {
+      if (year == null || month == null) {
+        set(null);
+        return;
+      }
+      set(new $Month(`${year}-${month}`));
+      return;
+    }
+    if (type === "date") {
+      if (year == null || month == null || day == null) {
+        set(null);
+        return;
+      }
+      set(new $Date(`${year}-${month}-${day}`));
+      return;
+    }
+    if (type === "datetime-local") {
+      if (year == null || month == null || day == null || hour == null) {
+        set(null);
+        return;
+      }
+      if (timeBasis === "hour") {
+        set(new $DateTime(`${year}-${month}-${day}T${hour}`));
+        return;
+      }
+      if (minute == null) {
+        set(null);
+        return;
+      }
+      if (timeBasis === "minute") {
+        set(new $DateTime(`${year}-${month}-${day}T${hour}:${minute}`));
+        return;
+      }
+      if (second == null) {
+        set(null);
+        return;
+      }
+      set(new $DateTime(`${year}-${month}-${day}T${hour}:${minute}:${second}`));
+      return;
     }
   };
 
-  function handleYearChange(v: string) {
-    handleChangeImpl($year, v, yearResult);
+  function effectOtherValue(changed: Partial<Record<Exclude<DateSeparateKeys, "second">, Schema.Nullable<number>>>) {
+    const minMax = getOptionMinMax(changed);
+    const effected: Partial<Record<DateSeparateKeys, Schema.Nullable<number>>> = {};
+    if (
+      !("month" in changed) &&
+      monthNum != null &&
+      (monthNum < minMax.optionMinMonth || minMax.optionMaxMonth < monthNum)
+    ) {
+      if (month == null) {
+        effected.month = nums.current.month = null;
+        dummySubscribes.current.month?.();
+      } else {
+        effected.month = manager.setValue(month.getName(), null).value;
+      }
+    }
+    if (
+      !("day" in changed) &&
+      dayNum != null &&
+      (dayNum < minMax.optionMinDay || minMax.optionMaxDay < dayNum)
+    ) {
+      if (day == null) {
+        effected.day = nums.current.day = null;
+        dummySubscribes.current.day?.();
+      } else {
+        effected.day = manager.setValue(day.getName(), null).value;
+      }
+    }
+    if (
+      !("hour" in changed) &&
+      hourNum != null &&
+      (hourNum < minMax.optionMinHour || minMax.optionMaxHour < hourNum)
+    ) {
+      if (hour == null) {
+        effected.hour = nums.current.hour = null;
+        dummySubscribes.current.hour?.();
+      } else {
+        effected.hour = manager.setValue(hour.getName(), null).value;
+      }
+    }
+    if (
+      !("minute" in changed) &&
+      minuteNum != null &&
+      (minuteNum < minMax.optionMinMinute || minMax.optionMaxMinute < minuteNum)
+    ) {
+      if (minute == null) {
+        effected.minute = nums.current.minute = null;
+        dummySubscribes.current.minute?.();
+      } else {
+        effected.minute = manager.setValue(minute.getName(), null).value;
+      }
+    }
+    if (
+      secondNum != null &&
+      (secondNum < minMax.optionMinSecond || minMax.optionMaxSecond < secondNum)
+    ) {
+      if (second == null) {
+        effected.second = nums.current.second = null;
+        dummySubscribes.current.second?.();
+      } else {
+        effected.second = manager.setValue(second.getName(), null).value;
+      }
+    }
+    return effected;
   };
-
-  function handleMonthChange(v: string) {
-    handleChangeImpl($month, v, monthResult);
-  };
-
-  function handleDayChange(v: string) {
-    handleChangeImpl($day, v, dayResult);
-  };
-
-  function handleHourChange(v: string) {
-    handleChangeImpl($hour, v, hourResult);
-  };
-
-  function handleMinuteChange(v: string) {
-    handleChangeImpl($minute, v, minuteResult);
-  };
-
-  function handleSecondChange(v: string) {
-    handleChangeImpl($second, v, secondResult);
-  };
-
-  const dispayResult = selectBoxDisplayResult(
-    use(I18nContext).t,
-    $date.label,
-    $date._.actionType,
-    result,
-    yearResult,
-    monthResult,
-    dayResult,
-    hourResult,
-    minuteResult,
-    secondResult,
-  );
 
   useImperativeHandle(ref, () => ({
     element: wref.current,
-    focus: () => yearSelectRef.current.focus(),
-  } as const satisfies DateSelectBoxRef));
+    focus: () => ref$.current.focus(),
+  } as const satisfies DateSelectBox$Ref));
+
+  useEffect(() => {
+    if (core?.isDirty()) {
+      core.validate();
+    }
+  }, [coreRefsValuesString]);
+
+  useEffect(() => {
+    if (hour?.isDirty()) {
+      hour.validate();
+    }
+  }, [hourRefsValuesString]);
+
+  useEffect(() => {
+    if (minute?.isDirty()) {
+      minute.validate();
+    }
+  }, [minuteRefsValuesString]);
+
+  useEffect(() => {
+    if (day?.isDirty()) {
+      day.validate();
+    }
+  }, [dayRefsValuesString]);
+
+  useEffect(() => {
+    if (hour?.isDirty()) {
+      hour.validate();
+    }
+  }, [hourRefsValuesString]);
+
+  useEffect(() => {
+    if (minute?.isDirty()) {
+      minute.validate();
+    }
+  }, [minuteRefsValuesString]);
+
+  useEffect(() => {
+    if (second?.isDirty()) {
+      second.validate();
+    }
+  }, [secondRefsValuesString]);
 
   return (
     <WithMessage
-      hide={props.hideMessage}
+      id={errormMessageId}
+      hide={hideMessage}
       state={state}
-      result={dispayResult}
+      message={displayMessage}
     >
       <InputGroupWrapper
-        {...props}
+        id={id}
+        className={className}
+        style={style}
         ref={wref}
         state={state}
       >
         {
-          $date.name &&
+          coreName &&
           <input
+            id={`${schemaId}_${coreName}`}
             type="hidden"
-            name={$date.name}
-            value={value ?? ""}
+            name={coreName}
+            value={coreValue?.toString() || ""}
           />
         }
-        <SplittedSelect
-          ref={yearSelectRef}
-          state={state}
-          coreResult={result}
-          $={$year}
-          mode={yearMode}
-          required={yearRequired}
-          value={yearValue}
-          onChange={handleYearChange}
-          result={yearResult}
-          placeholder={placeholder?.[0]}
+        <PartSelectBox
+          ref={ref$}
+          id={`${schemaId}_${yearName || `${coreName}_year`}`}
+          name={yearName}
+          label={t(yearSchemaItem?.getLabel() as I18nTextKey) || label}
+          errormessage={displayMessage?.name === yearName ? errormessage : undefined}
           omitOnSubmit={omitOnSubmit}
-          validScripts={isValidScripts}
+          required={yearRequired}
+          invalid={yearMessage?.type === "e" || coreMessage?.type === "e"}
+          coreState={state}
+          placeholder={placeholder?.[0]}
+          splitSchemaItem={yearSchemaItem}
+          injectParams={injectParams}
+          value={yearNum}
+          onChangeValue={(v) => {
+            let newVal: Schema.Nullable<number>;
+            if (year == null) {
+              newVal = nums.current.year = parseNumber(v)[0];
+              dummySubscribes.current.year?.();
+            } else {
+              newVal = manager.setValue(year.getName(), v).value;
+            }
+            const effected = effectOtherValue({ year: newVal ?? null });
+            commitCoreValue({ year: newVal ?? null, ...effected });
+          }}
           autoFocus={autoFocus}
         >
           {yearOptions}
-        </SplittedSelect>
+        </PartSelectBox>
         <SepSpan>/</SepSpan>
-        <SplittedSelect
-          ref={monthSelectRef}
-          state={state}
-          coreResult={result}
-          $={$month}
-          mode={monthMode}
-          required={monthRequired}
-          value={monthValue}
-          onChange={handleMonthChange}
-          result={monthResult}
-          placeholder={placeholder?.[1]}
+        <PartSelectBox
+          id={`${schemaId}_${monthName || `${coreName}_month`}`}
+          name={monthName}
+          label={t(monthSchemaItem?.getLabel() as I18nTextKey) || label}
+          errormessage={displayMessage?.name === monthName ? errormessage : undefined}
           omitOnSubmit={omitOnSubmit}
-          validScripts={isValidScripts}
+          required={monthRequired}
+          invalid={monthMessage?.type === "e" || coreMessage?.type === "e"}
+          coreState={state}
+          placeholder={placeholder?.[1]}
+          splitSchemaItem={monthSchemaItem}
+          injectParams={injectParams}
+          value={monthNum}
+          onChangeValue={(v) => {
+            let newVal;
+            if (month == null) {
+              newVal = nums.current.month = parseNumber(v)[0];
+              dummySubscribes.current.month?.();
+            } else {
+              newVal = manager.setValue(month.getName(), v).value;
+            }
+            const effected = effectOtherValue({ month: newVal ?? null });
+            commitCoreValue({ month: newVal ?? null, ...effected });
+          }}
         >
           {monthOptions}
-        </SplittedSelect>
+        </PartSelectBox>
         {
-          type !== "month" &&
+          (type === "datetime-local" || type === "date") &&
           <>
             <SepSpan>/</SepSpan>
-            <SplittedSelect
-              ref={daySelectRef}
-              state={state}
-              coreResult={result}
-              $={$day}
-              mode={dayMode}
-              required={dayRequired}
-              value={dayValue}
-              onChange={handleDayChange}
-              result={dayResult}
-              placeholder={placeholder?.[2]}
+            <PartSelectBox
+              id={`${schemaId}_${dayName || `${coreName}_day`}`}
+              name={dayName}
+              label={t(daySchemaItem?.getLabel() as I18nTextKey) || label}
+              errormessage={displayMessage?.name === dayName ? errormessage : undefined}
               omitOnSubmit={omitOnSubmit}
-              validScripts={isValidScripts}
+              required={dayRequired}
+              invalid={dayMessage?.type === "e" || coreMessage?.type === "e"}
+              coreState={state}
+              placeholder={placeholder?.[2]}
+              splitSchemaItem={daySchemaItem}
+              injectParams={injectParams}
+              value={dayNum}
+              onChangeValue={(v) => {
+                let newVal;
+                if (day == null) {
+                  newVal = nums.current.day = parseNumber(v)[0];
+                  dummySubscribes.current.day?.();
+                } else {
+                  newVal = manager.setValue(day.getName(), v).value;
+                }
+                const effected = effectOtherValue({ day: newVal ?? null });
+                commitCoreValue({ day: newVal ?? null, ...effected });
+              }}
             >
               {dayOptions}
-            </SplittedSelect>
+            </PartSelectBox>
           </>
         }
         {
-          type === "datetime" &&
+          type === "datetime-local" &&
           <>
-            <SepSpan>&nbsp;</SepSpan>
-            <SplittedSelect
-              ref={hourSelectRef}
-              state={state}
-              coreResult={result}
-              $={$hour}
-              mode={hourMode}
-              required={hourRequired}
-              value={hourValue}
-              onChange={handleHourChange}
-              result={hourResult}
-              placeholder={placeholder?.[3]}
+            <SepSpan> </SepSpan>
+            <PartSelectBox
+              id={`${schemaId}_${hourName || `${coreName}_hour`}`}
+              name={hourName}
+              label={t(hourSchemaItem?.getLabel() as I18nTextKey) || label}
+              errormessage={displayMessage?.name === hourName ? errormessage : undefined}
               omitOnSubmit={omitOnSubmit}
-              validScripts={isValidScripts}
+              required={hourRequired}
+              invalid={hourMessage?.type === "e" || coreMessage?.type === "e"}
+              coreState={state}
+              placeholder={placeholder?.[3]}
+              splitSchemaItem={hourSchemaItem}
+              injectParams={injectParams}
+              value={hourNum}
+              onChangeValue={(v) => {
+                let newVal;
+                if (hour == null) {
+                  newVal = nums.current.hour = parseNumber(v)[0];
+                  dummySubscribes.current.hour?.();
+                } else {
+                  newVal = manager.setValue(hour.getName(), v).value;
+                }
+                const effected = effectOtherValue({ hour: newVal ?? null });
+                commitCoreValue({ hour: newVal ?? null, ...effected });
+              }}
             >
               {hourOptions}
-            </SplittedSelect>
-            <SepSpan>:</SepSpan>
-            <SplittedSelect
-              ref={minuteSelectRef}
-              state={state}
-              coreResult={result}
-              $={$minute}
-              mode={minuteMode}
-              required={minuteRequired}
-              value={minuteValue}
-              onChange={handleMinuteChange}
-              result={minuteResult}
-              placeholder={placeholder?.[4]}
-              omitOnSubmit={omitOnSubmit}
-              validScripts={isValidScripts}
-            >
-              {minuteOptions}
-            </SplittedSelect>
+            </PartSelectBox>
             {
-              time === "hms" &&
+              timeBasis !== "hour" &&
               <>
                 <SepSpan>:</SepSpan>
-                <SplittedSelect
-                  ref={secondSelectRef}
-                  state={state}
-                  coreResult={result}
-                  $={$second}
-                  mode={secondMode}
-                  required={secondRequired}
-                  value={secondValue}
-                  onChange={handleSecondChange}
-                  result={secondResult}
-                  placeholder={placeholder?.[5]}
+                <PartSelectBox
+                  id={`${schemaId}_${minuteName || `${coreName}_minute`}`}
+                  name={minuteName}
+                  label={t(minuteSchemaItem?.getLabel() as I18nTextKey) || label}
+                  errormessage={displayMessage?.name === minuteName ? errormessage : undefined}
                   omitOnSubmit={omitOnSubmit}
-                  validScripts={isValidScripts}
+                  required={minuteRequired}
+                  invalid={minuteMessage?.type === "e" || coreMessage?.type === "e"}
+                  coreState={state}
+                  placeholder={placeholder?.[4]}
+                  splitSchemaItem={minuteSchemaItem}
+                  injectParams={injectParams}
+                  value={minuteNum}
+                  onChangeValue={(v) => {
+                    let newVal;
+                    if (minute == null) {
+                      newVal = nums.current.minute = parseNumber(v)[0];
+                      dummySubscribes.current.minute?.();
+                    } else {
+                      newVal = manager.setValue(minute.getName(), v).value;
+                    }
+                    const effected = effectOtherValue({ minute: newVal ?? null });
+                    commitCoreValue({ minute: newVal ?? null, ...effected });
+                  }}
+                >
+                  {minuteOptions}
+                </PartSelectBox>
+              </>
+            }
+            {
+              timeBasis === "second" &&
+              <>
+                <SepSpan>:</SepSpan>
+                <PartSelectBox
+                  id={`${schemaId}_${secondName || `${coreName}_second`}`}
+                  name={secondName}
+                  label={t(secondSchemaItem?.getLabel() as I18nTextKey) || label}
+                  errormessage={displayMessage?.name === secondName ? errormessage : undefined}
+                  omitOnSubmit={omitOnSubmit}
+                  required={secondRequired}
+                  invalid={secondMessage?.type === "e" || coreMessage?.type === "e"}
+                  coreState={state}
+                  placeholder={placeholder?.[5]}
+                  splitSchemaItem={secondSchemaItem}
+                  injectParams={injectParams}
+                  value={secondNum}
+                  onChangeValue={(v) => {
+                    let newVal;
+                    if (second == null) {
+                      newVal = nums.current.second = parseNumber(v)[0];
+                      dummySubscribes.current.second?.();
+                    } else {
+                      newVal = manager.setValue(second.getName(), v).value;
+                    }
+                    commitCoreValue({ second: newVal ?? null });
+                  }}
                 >
                   {secondOptions}
-                </SplittedSelect>
+                </PartSelectBox>
               </>
             }
           </>
@@ -1256,91 +1654,55 @@ export function DateSelectBox<P extends Schema.DataItem<Schema.$SplitDate>>({
   );
 };
 
-/** 日付セレクトボックス（単体） Props */
-interface SplittedSelectProps {
-  /** ref */
-  ref: RefObject<SelectBox$Ref | null>;
-  /** 状態 */
-  state: Schema.Mode;
-  /** コアリザルト */
-  coreResult: Schema.Result | null | undefined;
-  /** スキーマ */
-  $: Schema.DataItem<Schema.$SplitDate> | undefined;
-  /** モード */
-  mode: Schema.Mode;
-  /** 必須 */
+type PartSelectBoxProps = {
+  ref?: RefObject<SelectBoxRef>;
+  id: string;
+  name: string | undefined;
+  label: string | undefined;
+  errormessage: string | undefined;
+  omitOnSubmit?: boolean;
   required: boolean;
-  /** 値 */
-  value: number | null | undefined;
-  /** 変更コールバック */
-  onChange: (v: string) => void;
-  /** リザルト */
-  result: Schema.Result | null | undefined;
-  /** プレースホルダー */
-  placeholder: string | undefined;
-  /** サブミットに含めない */
-  omitOnSubmit: boolean | undefined;
-  /** javascript有効 */
-  validScripts: boolean;
-  /** autoFocus */
-  autoFocus?: boolean;
-  /** 子要素（ボタン他） */
+  invalid: boolean;
+  coreState?: Schema.Mode;
+  splitSchemaItem?: SchemaItem;
+  placeholder?: string;
+  value: Schema.Nullable<number>;
+  onChangeValue: (value: string) => void;
+  injectParams: Schema.InjectParams;
   children: ReactNode;
+  autoFocus?: boolean;
 };
 
-/**
- * 日付セレクトボックス（単体）
- * @param param {@link SplittedSelectProps}
- * @returns
- */
-function SplittedSelect({
+function PartSelectBox({
   ref,
-  coreResult,
-  $,
-  state: coreState,
-  mode,
-  required,
-  value,
-  onChange,
-  result,
-  placeholder,
-  omitOnSubmit,
-  children,
-}: SplittedSelectProps) {
-  const state = useMemo<Schema.Mode>(() => {
-    if (coreState === "hidden" || mode === "hidden") return "hidden";
-    if (coreState === "disabled" || mode === "disabled") return "disabled";
-    if (coreState === "readonly" || mode === "readonly") return "readonly";
-    return "enabled";
-  }, [
-    coreState,
-    mode,
-  ]);
-
-  function handleChange(v: string) {
-    if (state !== "enabled" || !$) return;
-    onChange(v);
-  };
-
-  const invalid = result?.type === "e" || coreResult?.type === "e";
+  ...props
+}: PartSelectBoxProps) {
+  let state: Schema.Mode = "enabled";
+  const splitMode = props.splitSchemaItem?.getMode(props.injectParams) ?? "enabled";
+  if (props.coreState === "hidden" || splitMode === "hidden") state = "hidden";
+  else if (props.coreState === "disabled" || splitMode === "disabled") state = "disabled";
+  else if (props.coreState === "readonly" || splitMode === "readonly") state = "readonly";
 
   return (
-    <SelectBox$
+    <SelectBox
       ref={ref}
-      invalid={invalid}
+      invalid={props.invalid}
       state={state}
-      placeholder={placeholder}
-      value={value}
-      onChangeValue={handleChange}
+      placeholder={props.placeholder}
+      value={props.value}
+      onChangeValue={props.onChangeValue}
       selectProps={{
-        name: omitOnSubmit ? undefined : $?.name,
-        required,
-        "aria-label": $?.label,
-        "aria-errormessage": result?.type === "e" ? result.message : undefined,
+        id: props.id,
+        name: props.omitOnSubmit ? undefined : props.name,
+        "aria-label": props.label,
+        "aria-errormessage": props.errormessage,
       }}
+      autoFocus={props.autoFocus}
     >
-      <SelectBoxEmptyOption />
-      {children}
-    </SelectBox$>
+      <SelectBoxEmptyOption
+        required={props.required}
+      />
+      {props.children}
+    </SelectBox>
   );
 };

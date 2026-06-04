@@ -1,19 +1,21 @@
-import { useEffect, useMemo, useRef, useState, type ChangeEvent, type MouseEvent, type ReactNode } from "react";
-import { FileBox$, type FileBox$Ref } from ".";
-import { useSchemaItem } from "../../../../shared/hooks/schema";
+import { use, useEffect, useImperativeHandle, useMemo, useRef, useState, type ChangeEvent, type InputHTMLAttributes, type MouseEvent, type ReactNode, type RefObject } from "react";
+import { FileBox, type FileBoxRef } from ".";
+import { useFormItem, type FormItemHookProps } from "../../../../shared/hooks/form/item";
 import { convertBase64ToFile } from "../../../../shared/objects/file";
-import { getValidationValue } from "../../../../shared/schema/utilities";
+import { ValidScriptsContext } from "../../../../shared/providers/valid-scripts";
+import type { $FileSchema } from "../../../../shared/schema/file";
+import type { FormItem } from "../../../../shared/schema/form";
 import { WithMessage } from "../message";
 
-/** ファイルボックス ref オブジェクト */
-export interface FileBoxRef extends FileBox$Ref { };
+export interface FileBox$Ref extends FileBoxRef { }
 
-/** ファイルボックス Props */
-export type FileBoxProps<D extends Schema.DataItem<Schema.$File>> = Overwrite<
-  InputPropsWithDataItem<D>,
-  {
-    /** プレースホルダー */
-    placeholder?: ReactNode;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type FileBox$Props<S extends $FileSchema<any>> =
+  & ElementStyleProps
+  & FormItemHookProps
+  & {
+    ref?: RefObject<InputRef | null>;
+    formItem: FormItem<S>;
   } & (
     | {
       /** ファイル表示方法: リンク */
@@ -28,67 +30,63 @@ export type FileBoxProps<D extends Schema.DataItem<Schema.$File>> = Overwrite<
       onViewClick?: (context: ImageContext, e: MouseEvent<HTMLImageElement>) => void;
     }
   )
->;
+  & Pick<InputHTMLAttributes<HTMLInputElement>,
+    | "placeholder"
+    | "autoFocus"
+  >;
 
-/** ファイルボックス */
-export function FileBox<D extends Schema.DataItem<Schema.$File>>({
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function FileBox$<S extends $FileSchema<any>>({
+  ref,
+  formItem,
+  hideMessage,
+  omitOnSubmit,
   className,
   style,
-  placeholder,
   viewMode,
   onViewClick,
-  autoFocus,
-  ...$props
-}: FileBoxProps<D>) {
-  const ref = useRef<FileBox$Ref>(null!);
+  ...props
+}: FileBox$Props<S>) {
+  const ref$ = useRef<FileBoxRef>(null!);
 
   const {
+    schemaItem,
+    id,
     name,
-    dataItem,
+    label,
     state,
-    required,
     value,
     setValue,
-    result,
-    label,
-    invalid,
+    message,
+    isInvalid,
+    errormMessageId,
     errormessage,
-    getCommonParams,
-    omitOnSubmit,
+    injectParams,
+    refValuesString,
+  } = useFormItem(formItem, {
     hideMessage,
-    validScripts,
-  } = useSchemaItem<Schema.DataItem<Schema.$File>>($props, {
-    effect: function ({ value }) {
-      if (!ref.current) return;
-      if (value == null) {
-        ref.current.inputElement.value = "";
-        return;
-      }
-      if (typeof value === "string") {
-        return;
-      }
-      const dt = new DataTransfer();
-      dt.items.add(value);
-      ref.current.inputElement.value = "";
-      ref.current.inputElement.files = dt.files;
-    },
-    effectContext: function () {
-      setAccept(getAccept);
-      setMaxSize(getMaxSize);
-    },
+    omitOnSubmit,
   });
 
-  function getAccept() {
-    return getValidationValue(getCommonParams(), dataItem._.accept);
-  };
+  const {
+    required,
+    accept,
+    maxSize,
+  } = useMemo(() => {
+    return {
+      required: schemaItem.getRequired(injectParams) ?? undefined,
+      accept: schemaItem.getAccept(injectParams) ?? undefined,
+      maxSize: schemaItem.getMaxSize(injectParams) ?? undefined,
+    };
+  }, [
+    schemaItem,
+    injectParams,
+    refValuesString,
+  ]);
 
-  const [accept, setAccept] = useState(getAccept);
+  useImperativeHandle(ref, () => ref$.current);
 
-  function getMaxSize() {
-    return getValidationValue(getCommonParams(), dataItem._.maxSize);
-  };
-
-  const [maxSize, setMaxSize] = useState(getMaxSize);
+  const isValidScripts = use(ValidScriptsContext).valid;
 
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
     if (state !== "enabled") return;
@@ -104,31 +102,32 @@ export function FileBox<D extends Schema.DataItem<Schema.$File>>({
   return (
     <>
       <WithMessage
+        id={errormMessageId}
         hide={hideMessage}
         state={state}
-        result={result}
+        message={message}
       >
-        <FileBox$
+        <FileBox
           className={className}
           style={style}
           ref={ref}
-          invalid={invalid}
+          invalid={isInvalid}
           state={state}
           inputProps={{
+            ...props,
+            id,
             name: omitOnSubmit ? undefined : name,
-            title: validScripts ?
+            title: isValidScripts ?
               (valueType === "url" ? (value as string) : undefined) :
               undefined,
-            placeholder,
             required,
-            "aria-required": validScripts ?
+            "aria-required": isValidScripts ?
               (required && valueType !== "url") :
               required,
             accept,
             max: maxSize,
             "aria-label": label,
             "aria-errormessage": errormessage,
-            autoFocus,
             onChange: handleChange,
           }}
         />

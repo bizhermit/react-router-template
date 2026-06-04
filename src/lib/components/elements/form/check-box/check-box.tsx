@@ -1,89 +1,110 @@
-import { useImperativeHandle, useRef, type ReactNode } from "react";
-import { CheckBox$, type CheckBox$Ref, type CheckBoxAppearance } from ".";
-import { useSchemaItem } from "../../../../shared/hooks/schema";
+import { useImperativeHandle, useMemo, useRef, type InputHTMLAttributes, type RefObject } from "react";
+import { CheckBox, type CheckBoxAppearance, type CheckBoxRef } from ".";
+import { useFormItem, type FormItemHookProps } from "../../../../shared/hooks/form/item";
+import type { $BoolSchema } from "../../../../shared/schema/boolean";
+import type { FormItem } from "../../../../shared/schema/form";
 import { WithMessage } from "../message";
 
-/** チェックボックス ref オブジェクト */
-export interface CheckBoxRef extends CheckBox$Ref { };
+export interface CheckBox$Ref extends CheckBoxRef { }
 
-/** チェックボックス Props */
-export type CheckBoxProps<D extends Schema.DataItem<Schema.$Boolean>> = Overwrite<
-  InputPropsWithDataItem<D>,
-  {
-    /** チェックボックス見た目 */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type CheckBoxProps<S extends $BoolSchema<any>> =
+  & ElementStyleProps
+  & FormItemHookProps
+  & {
+    ref?: RefObject<InputRef | null>;
+    formItem: FormItem<S>;
     appearance?: CheckBoxAppearance;
-    /** チェックボックス配色 */
     color?: StyleColor;
-    /** チェックボックステキスト */
-    children?: ReactNode;
   }
->;
+  & Pick<InputHTMLAttributes<HTMLInputElement>,
+    | "autoFocus"
+    | "children"
+  >;
 
-/**
- * チェックボックス（スキーマ対応）
- * @param param {@link CheckBoxProps}
- * @returns
- */
-export function CheckBox<D extends Schema.DataItem<Schema.$Boolean>>({
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function CheckBox$<S extends $BoolSchema<any>>({
+  ref,
+  formItem,
+  hideMessage,
+  omitOnSubmit,
   className,
   style,
-  autoFocus,
-  appearance,
+  appearance = "checkbox",
   color,
   children,
-  ...$props
-}: CheckBoxProps<D>) {
-  const ref = useRef<CheckBox$Ref>(null!);
+  ...props
+}: CheckBoxProps<S>) {
+  const ref$ = useRef<CheckBoxRef>(null!);
 
   const {
+    schemaItem,
+    id,
     name,
-    dataItem,
+    label,
     state,
-    required,
     value,
     setValue,
-    result,
-    label,
-    invalid,
+    message,
+    isInvalid,
+    errormMessageId,
     errormessage,
-    omitOnSubmit,
+    injectParams,
+    refValuesString,
+  } = useFormItem(formItem, {
     hideMessage,
-  } = useSchemaItem<Schema.DataItem<Schema.$Boolean>>($props, {});
+    omitOnSubmit,
+  });
+
+  const {
+    required,
+  } = useMemo(() => {
+    const required = schemaItem.getRequired(injectParams);
+    return {
+      required: required ? true : required,
+    };
+  }, [
+    schemaItem,
+    injectParams,
+    refValuesString,
+  ]);
 
   function handleChangeValue(checked: boolean) {
-    setValue(checked ? dataItem._.trueValue : dataItem._.falseValue);
+    setValue(checked ? schemaItem.getTrueValue() : schemaItem.getFalseValue());
   };
 
-  useImperativeHandle($props.ref, () => ref.current);
+  useImperativeHandle(ref, () => ref$.current);
 
   return (
     <WithMessage
+      id={errormMessageId}
       hide={hideMessage}
       state={state}
-      result={result}
+      message={message}
     >
-      <CheckBox$
-        ref={ref}
-        invalid={invalid}
+      <CheckBox
+        ref={ref$}
         className={className}
         style={style}
+        state={state}
+        invalid={isInvalid}
+        checked={schemaItem.getTrueValue() === value}
+        onChangeChecked={handleChangeValue}
+        trueValue={schemaItem.getTrueValue()}
+        falseValue={schemaItem.getFalseValue()}
         color={color}
         appearance={appearance}
-        state={state}
-        checked={dataItem._.trueValue === value}
-        onChangeChecked={handleChangeValue}
-        trueValue={dataItem._.trueValue}
-        falseValue={dataItem._.falseValue}
         inputProps={{
+          ...props,
+          id,
           name: omitOnSubmit ? undefined : name,
           required,
           "aria-label": label,
           "aria-errormessage": errormessage,
-          autoFocus,
         }}
       >
         {children}
-      </CheckBox$>
+      </CheckBox>
     </WithMessage>
   );
 };

@@ -5,13 +5,13 @@ import { InputDummyFocus } from "../dummy-focus";
 import { InputFieldWrapper, type InputFieldProps, type InputFieldWrapperProps } from "../wrapper/input-field";
 
 /** 日付ボックス ref オブジェクト */
-export interface DateBox$Ref extends InputRef {
+export interface DateBoxRef extends InputRef {
   /** DOM input */
   inputElement: HTMLInputElement;
 };
 
 /** 日付ボックス Props */
-export type DateBox$Props = Overwrite<
+export type DateBoxProps = Overwrite<
   InputFieldWrapperProps,
   InputFieldProps<{
     /** input Props */
@@ -28,7 +28,7 @@ export type DateBox$Props = Overwrite<
 >;
 
 /** 日付ボックス */
-export function DateBox$({
+export function DateBox({
   ref,
   invalid,
   inputProps,
@@ -37,7 +37,7 @@ export function DateBox$({
   defaultValue,
   onChangeValue,
   ...props
-}: DateBox$Props) {
+}: DateBoxProps) {
   const validScripts = use(ValidScriptsContext).valid;
   const type = inputProps?.type || "date";
 
@@ -75,7 +75,7 @@ export function DateBox$({
     element: wref.current,
     inputElement: iref.current,
     focus: () => (dref.current ?? iref.current).focus(),
-  } as const satisfies DateBox$Ref));
+  } as const satisfies DateBoxRef));
 
   return (
     <InputFieldWrapper

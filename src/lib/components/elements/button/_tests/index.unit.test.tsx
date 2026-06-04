@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { Button$ } from "..";
+import { Button } from "..";
 
 describe("Button$ (unit)", () => {
   it("配色と任意クラスを結合した className を生成する", () => {
-    const element = Button$({
+    const element = Button({
       color: "primary",
       className: "extra",
       children: "保存",
@@ -15,7 +15,7 @@ describe("Button$ (unit)", () => {
   });
 
   it("appearance 未指定時は outline を設定する", () => {
-    const element = Button$({
+    const element = Button({
       children: "保存",
     });
 
@@ -23,7 +23,7 @@ describe("Button$ (unit)", () => {
   });
 
   it("processing=true のとき disabled を true にする", () => {
-    const element = Button$({
+    const element = Button({
       processing: true,
       children: "保存",
     });

@@ -1,11 +1,12 @@
-import { Button$ } from "$/components/elements/button";
+import { Button } from "$/components/elements/button";
 import { useFormItem } from "$/components/elements/form/hooks";
 import { InputMessageSpan } from "$/components/elements/form/message";
-import { PasswordBox } from "$/components/elements/form/password-box/password-box";
-import { TextBox } from "$/components/elements/form/text-box/text-box";
+import { PasswordBox$ } from "$/components/elements/form/password-box/password-box";
+import { TextBox$ } from "$/components/elements/form/text-box/text-box";
 import { FormItem } from "$/components/elements/form/wrapper/form-item";
+import { useForm } from "$/shared/hooks/form";
 import { useText } from "$/shared/hooks/i18n";
-import { useSchema } from "$/shared/hooks/schema";
+import { SchemaProvider } from "$/shared/providers/schema";
 import { useEffect } from "react";
 import { data, redirect, useFetcher } from "react-router";
 import { signInByEmail } from "~/auth/server/sign-in";
@@ -13,30 +14,30 @@ import { authSchema } from "~/auth/shared/schema";
 import type { Route } from "./+types/sign-in";
 
 export async function action({ request }: Route.ActionArgs) {
-  const result = await signInByEmail(request);
-  if (!result.ok) {
-    return data({
-      messageKey: result.messageKey,
-    });
-  }
+  if (request.method.toUpperCase() === "POST") {
+    const result = await signInByEmail(request);
+    if (!result.ok) {
+      return data({
+        messageKey: result.messageKey,
+      });
+    }
 
-  return redirect(
-    result.redirectTo,
-    { headers: result.headers }
-  );
+    return redirect(
+      result.redirectTo,
+      { headers: result.headers }
+    );
+  }
 };
 
 export default function Page({ actionData }: Route.ComponentProps) {
   const fetcher = useFetcher<typeof actionData>();
   const t = useText();
 
-  const {
-    SchemaProvider,
-    dataItems,
-    getFormProps,
-  } = useSchema({
+  const form = useForm({
+    id: "sign-in",
     schema: authSchema,
-    state: fetcher.state,
+    values: {},
+    messages: {},
   });
 
   const userId = useFormItem();
@@ -52,31 +53,32 @@ export default function Page({ actionData }: Route.ComponentProps) {
   return (
     <div className="flex flex-col justify-center items-center grow gap-8">
       <h1>{t("signIn_title")}</h1>
-      <SchemaProvider>
+      <SchemaProvider {...form.providerProps}>
         <fetcher.Form
-          {...getFormProps("post")}
+          {...form.props}
+          method="POST"
           className="grid place-items-center gap-4"
         >
           <FormItem>
-            <TextBox
-              $={dataItems.email}
+            <TextBox$
+              formItem={form.items.email}
               hideMessage
               ref={userId}
             />
           </FormItem>
           <FormItem>
-            <PasswordBox
-              $={dataItems.password}
+            <PasswordBox$
+              formItem={form.items.password}
               hideMessage
             />
           </FormItem>
-          <Button$
+          <Button
             type="submit"
             color="primary"
             disabled={fetcher.state === "submitting"}
           >
             {t("signIn_submit")}
-          </Button$>
+          </Button>
         </fetcher.Form>
         {
           errorMessageKey &&

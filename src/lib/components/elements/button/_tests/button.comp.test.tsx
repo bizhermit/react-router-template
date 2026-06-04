@@ -1,7 +1,8 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { Button } from "../button";
+import { Button } from "..";
+import { useClickButton } from "../../../../shared/hooks/click-button";
 
 afterEach(() => {
   cleanup();
@@ -12,8 +13,13 @@ describe("Button (component)", () => {
     const onClick = vi.fn();
     const user = userEvent.setup();
 
+    const btnClickProps = useClickButton({
+      onClick,
+      disabled: true,
+    });
+
     render(
-      <Button onClick={onClick}>
+      <Button {...btnClickProps}>
         実行
       </Button>,
     );
@@ -27,11 +33,13 @@ describe("Button (component)", () => {
     const onClick = vi.fn();
     const user = userEvent.setup();
 
+    const btnClickProps = useClickButton({
+      onClick,
+      disabled: true,
+    });
+
     render(
-      <Button
-        disabled
-        onClick={onClick}
-      >
+      <Button {...btnClickProps}>
         実行
       </Button>,
     );
@@ -45,8 +53,12 @@ describe("Button (component)", () => {
     const onClick = vi.fn(() => new Promise<void>(() => { }));
     const user = userEvent.setup();
 
+    const btnClickProps = useClickButton({
+      onClick,
+    });
+
     render(
-      <Button onClick={onClick}>
+      <Button {...btnClickProps}>
         実行
       </Button>,
     );

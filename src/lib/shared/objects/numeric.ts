@@ -3,8 +3,9 @@
  * @param value
  * @returns
  */
-export function parseNumber(value: unknown): [number: number | undefined, succeeded: boolean] {
-  if (value == null || value === "") return [undefined, true];
+export function parseNumber(value: unknown): [number: number | null | undefined, succeeded: boolean] {
+  if (value == null) return [value, true];
+  if (value === "") return [null, true];
   if (typeof value === "number") {
     if (isNaN(value)) return [undefined, false];
     return [value, true];

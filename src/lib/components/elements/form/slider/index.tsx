@@ -6,13 +6,13 @@ import { InputDummyFocus } from "../dummy-focus";
 import { InputLabelWrapper, type InputLabelProps, type InputLabelWrapperProps } from "../wrapper/input-label";
 
 /** スライダー ref オブジェクト */
-export interface Slider$Ref extends InputRef {
+export interface SliderRef extends InputRef {
   /** DOM input[type="slider"] */
   inputElement: HTMLInputElement;
 };
 
 /** スライダー Props */
-export type Slider$Props = Overwrite<
+export type SliderProps = Overwrite<
   InputLabelWrapperProps,
   InputLabelProps<{
     /** input Props */
@@ -41,7 +41,7 @@ export type Slider$Props = Overwrite<
       /** id */
       id: string;
       /** 目盛りアイテム（配列） */
-      source: Schema.Source<number | null | undefined>;
+      source: Schema.SourceItem<number | null | undefined>[];
       /** 目盛り非表示 @default false */
       hideScales?: boolean;
     };
@@ -53,10 +53,10 @@ const DEFAULT_MAX = 100; // デフォルト最大値
 
 /**
  * スライダー
- * @param param {@link Slider$Props}
+ * @param param {@link SliderProps}
  * @returns
  */
-export function Slider$({
+export function Slider({
   ref,
   invalid,
   inputProps,
@@ -70,7 +70,7 @@ export function Slider$({
   defaultValue,
   onChangeValue,
   ...props
-}: Slider$Props) {
+}: SliderProps) {
   const validScripts = use(ValidScriptsContext);
 
   const isControlled = "value" in props;
@@ -125,7 +125,7 @@ export function Slider$({
     element: wref.current,
     inputElement: iref.current,
     focus: () => (dref.current ?? iref.current).focus(),
-  } as const satisfies Slider$Ref));
+  } as const satisfies SliderRef));
 
   return (
     <InputLabelWrapper
@@ -167,6 +167,11 @@ export function Slider$({
           ? { value: value ?? "" }
           : { defaultValue: defaultValue ?? "" }
         }
+        name={
+          isControlled ?
+            (value == null ? undefined : inputProps?.name) :
+            inputProps?.name
+        }
       />
       {
         showValueText &&
@@ -180,6 +185,17 @@ export function Slider$({
         >
           {value}
         </span>
+      }
+      {
+        state === "enabled" &&
+        isControlled &&
+        value == null &&
+        inputProps?.name &&
+        <input
+          type="hidden"
+          name={inputProps.name}
+          value={String(value ?? "")}
+        />
       }
       {
         state === "readonly" &&

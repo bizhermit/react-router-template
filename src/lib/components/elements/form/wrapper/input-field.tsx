@@ -8,6 +8,7 @@ export type InputFieldWrapperProps = Overwrite<
     ref?: RefObject<HTMLDivElement>;
     label?: ReactNode;
     state?: Schema.Mode;
+    inheritWidth?: boolean;
   }
 >;
 
@@ -22,6 +23,7 @@ export function InputFieldWrapper({
   ref,
   label,
   state,
+  inheritWidth,
   ...props
 }: InputFieldWrapperProps) {
   if (state === "hidden") return null;
@@ -34,6 +36,7 @@ export function InputFieldWrapper({
         "_ipt _ipt-field",
         className,
       )}
+      data-inheritwidth={inheritWidth}
     >
       <fieldset
         aria-hidden

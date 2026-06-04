@@ -1,105 +1,103 @@
-import { useImperativeHandle, useRef, type ReactNode } from "react";
-import { SelectBox$, SelectBoxEmptyOption, type SelectBox$Ref } from ".";
-import { useSource } from "../../../../shared/hooks/data-item-source";
-import { useSchemaItem } from "../../../../shared/hooks/schema";
+import { useImperativeHandle, useMemo, useRef, type RefObject, type SelectHTMLAttributes } from "react";
+import { SelectBox, SelectBoxEmptyOption, type SelectBoxRef } from ".";
+import { useFormItem, type FormItemHookProps } from "../../../../shared/hooks/form/item";
+import type { $EnumSchema } from "../../../../shared/schema/enum";
+import type { FormItem } from "../../../../shared/schema/form";
 import { WithMessage } from "../message";
 
-/** セレクトボックス対応スキーマアイテム */
-type SelectBoxSchemaProps =
-  | Schema.$String
-  | Schema.$Number
-  | Schema.$Boolean
-  ;
+export interface SelectBox$Ref extends SelectBoxRef { };
 
-/** セレクトボックス ref オブジェクト */
-export interface SelectBoxRef extends SelectBox$Ref { };
-
-/** セレクトボックス Props */
-export type SelectBoxProps<D extends Schema.DataItem<SelectBoxSchemaProps>> = Overwrite<
-  InputPropsWithDataItem<D>,
-  {
-    /** プレースホルダー */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type SelectBox$Props<S extends $EnumSchema<any, any>> =
+  & ElementStyleProps
+  & FormItemHookProps
+  & {
+    ref?: RefObject<InputRef | null>;
+    formItem: FormItem<S>;
     placeholder?: string;
-    /**
-     * 未選択項目テキスト
-     * - 表示するかどうかはrequiredを参照
-     */
     emptyText?: string;
-    /** リストアイテム（配列） */
-    source?: Schema.Source<Schema.ValueType<D["_"]>>;
-    /** 子要素（ボタン他） */
-    children?: ReactNode;
   }
->;
+  & Pick<SelectHTMLAttributes<HTMLSelectElement>,
+    | "autoFocus"
+    | "autoComplete"
+    | "autoCapitalize"
+    | "enterKeyHint"
+    | "children"
+  >;
 
-/**
- * セレクトボックス（スキーマ対応）
- * @param param {@link SelectBoxProps}
- * @returns
- */
-export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function SelectBox$<S extends $EnumSchema<any, any>>({
+  ref,
+  formItem,
+  hideMessage,
+  omitOnSubmit,
   className,
   style,
   placeholder,
   emptyText,
   children,
-  source: propsSource,
-  autoFocus,
-  ...$props
-}: SelectBoxProps<D>) {
-  const ref = useRef<SelectBox$Ref>(null!);
+  ...props
+}: SelectBox$Props<S>) {
+  const ref$ = useRef<SelectBoxRef>(null!);
 
   const {
+    schemaItem,
+    id,
     name,
-    dataItem,
+    label,
     state,
-    required,
     value,
     setValue,
-    result,
-    label,
-    invalid,
+    message,
+    isInvalid,
+    errormMessageId,
     errormessage,
-    env,
-    getCommonParams,
-    omitOnSubmit,
+    injectParams,
+    refValuesString,
+  } = useFormItem(formItem, {
     hideMessage,
-  } = useSchemaItem<Schema.DataItem<SelectBoxSchemaProps>>($props, {
-    effectContext: function () {
-      resetDataItemSource();
-    },
+    omitOnSubmit,
   });
 
-  const { source, resetDataItemSource } = useSource({
-    dataItem,
-    propsSource,
-    env,
-    getCommonParams,
-  });
+  const {
+    required,
+    items,
+  } = useMemo(() => {
+    return {
+      required: schemaItem.getRequired(injectParams) ?? undefined,
+      items: schemaItem.getItems(),
+    };
+  }, [
+    schemaItem,
+    injectParams,
+    refValuesString,
+  ]);
 
-  useImperativeHandle($props.ref, () => ref.current);
+  useImperativeHandle(ref, () => ref$.current);
 
   return (
     <WithMessage
+      id={errormMessageId}
       hide={hideMessage}
       state={state}
-      result={result}
+      message={message}
     >
-      <SelectBox$
+      <SelectBox
+        ref={ref$}
         className={className}
         style={style}
         state={state}
-        ref={ref}
-        invalid={invalid}
-        placeholder={placeholder}
+        invalid={isInvalid}
         value={value}
         onChangeValue={setValue}
+        placeholder={placeholder}
         selectProps={{
+          ...props,
+          id,
           name: omitOnSubmit ? undefined : name,
           required,
           "aria-label": label,
           "aria-errormessage": errormessage,
-          autoFocus,
         }}
       >
         {
@@ -110,7 +108,7 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
               {emptyText}
             </SelectBoxEmptyOption>
             {
-              source?.map(item => {
+              items?.map(item => {
                 const key = String(item.value);
                 return (
                   <option
@@ -124,7 +122,7 @@ export function SelectBox<D extends Schema.DataItem<SelectBoxSchemaProps>>({
             }
           </>
         }
-      </SelectBox$>
+      </SelectBox>
     </WithMessage>
   );
 };

@@ -10,12 +10,12 @@ import { InputFieldWrapper, type InputFieldProps, type InputFieldWrapperProps } 
 type AtomValueType = string | number | boolean;
 
 /** コンボボックス ref オブジェクト */
-export interface ComboBox$Ref extends InputRef {
+export interface ComboBoxRef extends InputRef {
   inputElement: HTMLInputElement;
 };
 
 /** コンボボックス Props */
-export type ComboBox$Props = Overwrite<
+export type ComboBoxProps = Overwrite<
   InputFieldWrapperProps,
   InputFieldProps<{
     /** input Props */
@@ -76,10 +76,10 @@ const CHECK_INPUT_SELECTOR_BASE = `input:is([type="checkbox"],[type="radio"])`; 
 
 /**
  * コンボボックス
- * @param param {@link ComboBox$Props}
+ * @param param {@link ComboBoxProps}
  * @returns
  */
-export function ComboBox$({
+export function ComboBox({
   ref,
   id: wrapperId,
   invalid,
@@ -97,7 +97,7 @@ export function ComboBox$({
   onChangeValue,
   onBlur,
   ...props
-}: ComboBox$Props) {
+}: ComboBoxProps) {
   const validScripts = use(ValidScriptsContext).valid;
 
   const isControlled = "value" in props;

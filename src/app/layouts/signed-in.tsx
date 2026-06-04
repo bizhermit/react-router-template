@@ -1,4 +1,4 @@
-import { Button$ } from "$/components/elements/button";
+import { Button } from "$/components/elements/button";
 import { Details } from "$/components/elements/details";
 import { useState } from "react";
 import { data, Outlet, redirect } from "react-router";
@@ -43,20 +43,20 @@ function Component() {
         method="post"
         action={SIGN_OUT_PATHNAME}
       >
-        <Button$
+        <Button
           type="submit"
           color="mute"
         >
           Sign Out
-        </Button$>
+        </Button>
       </form>
-      <Button$
+      <Button
         onClick={() => {
           setCount(c => c + 1);
         }}
       >
         count: {count}
-      </Button$>
+      </Button>
       <Outlet />
     </div>
   );

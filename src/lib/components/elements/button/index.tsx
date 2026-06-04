@@ -26,7 +26,7 @@ export type Button$Props = Overwrite<
  * @param props {@link Button$Props}
  * @returns
  */
-export function Button$({
+export function Button({
   className,
   color,
   appearance = "outline",

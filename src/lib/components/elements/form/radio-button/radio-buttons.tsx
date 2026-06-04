@@ -1,77 +1,74 @@
-import { useImperativeHandle, useRef, type MouseEvent } from "react";
-import { RadioButton$, type RadioButton$Ref, type RadioButtonAppearance } from ".";
-import { useSource } from "../../../../shared/hooks/data-item-source";
-import { useSchemaItem } from "../../../../shared/hooks/schema";
+import { useImperativeHandle, useMemo, useRef, type MouseEvent, type RefObject, type SelectHTMLAttributes } from "react";
+import { RadioButton, type RadioButtonAppearance, type RadioButtonRef } from ".";
+import { useFormItem, type FormItemHookProps } from "../../../../shared/hooks/form/item";
+import type { $EnumSchema } from "../../../../shared/schema/enum";
+import type { FormItem } from "../../../../shared/schema/form";
 import { WithMessage } from "../message";
 import { InputGroupWrapper } from "../wrapper/input-group";
 
-/** ラジオボタン対応スキーマアイテム */
-type RadioButtonsSchemaProps =
-  | Schema.$String
-  | Schema.$Number
-  | Schema.$Boolean;
-;
+export interface RadioButtons$Ref extends InputRef { };
 
-/** ラジオボタン ref オブジェクト */
-export interface RadioButtonsRef extends InputRef { };
-
-/** ラジオボタン Props */
-export type RadioButtonsProps<D extends Schema.DataItem<RadioButtonsSchemaProps>> = Overwrite<
-  InputPropsWithDataItem<D>,
-  {
-    /** 見た目 */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type RadioButtons$Props<S extends $EnumSchema<any, any>> =
+  & ElementStyleProps
+  & FormItemHookProps
+  & {
+    ref?: RefObject<InputRef | null>;
+    formItem: FormItem<S>;
     appearance?: RadioButtonAppearance;
-    /** 配色 */
     color?: StyleColor;
-    /** ラジオアイテム（配列） */
-    source?: Schema.Source<Schema.ValueType<D["_"]>>;
   }
->;
+  & Pick<SelectHTMLAttributes<HTMLSelectElement>,
+    | "autoFocus"
+  >;
 
-/**
- * ラジオボタン（スキーマ対応）
- * @param param {@link RadioButtonsProps}
- * @returns
- */
-export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>({
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function RadioButtons$<S extends $EnumSchema<any, any>>({
+  ref,
+  formItem,
+  hideMessage,
+  omitOnSubmit,
   className,
   style,
   appearance = "radio",
   color,
-  source: propsSource,
   autoFocus,
-  ...$props
-}: RadioButtonsProps<D>) {
+}: RadioButtons$Props<S>) {
   const wref = useRef<HTMLDivElement>(null!);
-  const firstRef = useRef<RadioButton$Ref | null>(null);
+  const firstRef = useRef<RadioButtonRef | null>(null);
 
   const {
+    schemaItem,
+    id,
     name,
-    dataItem,
+    label,
     state,
-    required,
     value,
     setValue,
-    result,
-    label,
-    invalid,
+    message,
+    isInvalid,
+    errormMessageId,
     errormessage,
-    env,
-    getCommonParams,
-    omitOnSubmit,
+    injectParams,
+    refValuesString,
+  } = useFormItem(formItem, {
     hideMessage,
-  } = useSchemaItem<Schema.DataItem<RadioButtonsSchemaProps>>($props, {
-    effectContext: function () {
-      resetDataItemSource();
-    },
+    omitOnSubmit,
   });
 
-  const { source, resetDataItemSource } = useSource({
-    dataItem,
-    propsSource,
-    env,
-    getCommonParams,
-  });
+  const {
+    required,
+    items,
+  } = useMemo(() => {
+    return {
+      required: schemaItem.getRequired(injectParams) ?? undefined,
+      items: schemaItem.getItems(),
+    };
+  }, [
+    schemaItem,
+    injectParams,
+    refValuesString,
+  ]);
 
   function handleClick(e: MouseEvent<HTMLInputElement>) {
     if (state !== "enabled") return;
@@ -82,32 +79,34 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
 
   const hasValue = value != null;
 
-  useImperativeHandle($props.ref, () => ({
+  useImperativeHandle(ref, () => ({
     element: wref.current,
     focus: () => firstRef.current?.focus(),
-  } as const satisfies RadioButtonsRef));
+  } as const satisfies RadioButtons$Ref));
 
   return (
     <WithMessage
+      id={errormMessageId}
       hide={hideMessage}
       state={state}
-      result={result}
+      message={message}
     >
       <InputGroupWrapper
+        id={id}
         className={className}
         style={style}
         ref={wref}
         state={state}
       >
-        {source?.map((item, index) => {
+        {items?.map((item, index) => {
           const key = String(item.value);
           const isSelected = item.value === value;
 
           return (
-            <RadioButton$
+            <RadioButton
               key={key}
               ref={index === 0 ? firstRef : undefined}
-              invalid={invalid}
+              invalid={isInvalid}
               state={state}
               color={color}
               appearance={appearance}
@@ -126,7 +125,7 @@ export function RadioButtons<D extends Schema.DataItem<RadioButtonsSchemaProps>>
               }}
             >
               {item.node ?? item.text}
-            </RadioButton$>
+            </RadioButton>
           );
         })}
         {

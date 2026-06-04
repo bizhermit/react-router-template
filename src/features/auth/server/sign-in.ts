@@ -26,7 +26,7 @@ export async function signInByEmail(request: Request): Promise<SignInByEmailResu
       request,
       schema: authSchema,
     });
-    if (submission.hasError) {
+    if (!submission.ok) {
       // 入力不正はユーザー向け失敗メッセージへ寄せる
       return {
         ok: false,
@@ -36,8 +36,8 @@ export async function signInByEmail(request: Request): Promise<SignInByEmailResu
 
     const { headers } = await auth.api.signInEmail({
       body: {
-        email: submission.data.email,
-        password: submission.data.password,
+        email: submission.values.email,
+        password: submission.values.password,
       },
       returnHeaders: true,
     });

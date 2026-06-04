@@ -1,103 +1,107 @@
-import { useState, type InputHTMLAttributes } from "react";
-import { PasswordBox$, type PasswordBox$Ref } from ".";
-import { useSchemaItem } from "../../../../shared/hooks/schema";
-import { getValidationValue } from "../../../../shared/schema/utilities";
+import { useImperativeHandle, useMemo, useRef, type InputHTMLAttributes, type RefObject } from "react";
+import { PasswordBox, type PasswordBoxRef } from ".";
+import { useFormItem, type FormItemHookProps } from "../../../../shared/hooks/form/item";
+import type { FormItem } from "../../../../shared/schema/form";
+import type { $StrSchema } from "../../../../shared/schema/string";
 import { WithMessage } from "../message";
 
-/** パスワードボックス ref オブジェクト */
-export interface PasswordBoxRef extends PasswordBox$Ref { };
+export interface PasswordBox$Ref extends PasswordBoxRef { }
 
-/** パスワードボックス Props */
-export type PasswordBoxProps<D extends Schema.DataItem<Schema.$String>> = Overwrite<
-  InputPropsWithDataItem<D>,
-  {
-    /** プレースホルダー */
-    placeholder?: string;
-  } & Pick<InputHTMLAttributes<HTMLInputElement>,
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type PasswordBox$Props<S extends $StrSchema<any>> =
+  & ElementStyleProps
+  & FormItemHookProps
+  & {
+    ref?: RefObject<InputRef | null>;
+    formItem: FormItem<S>;
+  }
+  & Pick<InputHTMLAttributes<HTMLInputElement>,
+    | "placeholder"
+    | "autoFocus"
     | "autoComplete"
     | "autoCapitalize"
-  >
->;
+    | "enterKeyHint"
+    | "children"
+  >;
 
-/**
- * パスワードボックス（スキーマ対応）
- * @param param {@link PasswordBoxProps}
- * @returns
- */
-export function PasswordBox<D extends Schema.DataItem<Schema.$String>>({
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function PasswordBox$<S extends $StrSchema<any>>({
+  ref,
+  formItem,
+  hideMessage,
+  omitOnSubmit,
   className,
   style,
-  placeholder,
-  autoFocus,
-  autoComplete = "off",
-  autoCapitalize,
-  ref,
-  ...$props
-}: PasswordBoxProps<D>) {
+  children,
+  ...props
+}: PasswordBox$Props<S>) {
+  const ref$ = useRef<PasswordBoxRef>(null!);
+
   const {
+    schemaItem,
+    id,
     name,
-    dataItem,
+    label,
     state,
-    required,
     value,
     setValue,
-    result,
-    label,
-    invalid,
+    message,
+    isInvalid,
+    errormMessageId,
     errormessage,
-    getCommonParams,
-    omitOnSubmit,
+    injectParams,
+    refValuesString,
+  } = useFormItem(formItem, {
     hideMessage,
-  } = useSchemaItem<Schema.DataItem<Schema.$String>>($props, {
-    effectContext: function () {
-      setMinLen(getMinLen);
-      setMaxLen(getMaxLen);
-    },
+    omitOnSubmit,
   });
 
-  function getMinLen() {
-    return getValidationValue(getCommonParams(), dataItem._.minLength);
-  };
+  const {
+    required,
+    minLength,
+    maxLength,
+  } = useMemo(() => {
+    return {
+      required: schemaItem.getRequired(injectParams) ?? undefined,
+      minLength: schemaItem.getMinLength(injectParams) ?? undefined,
+      maxLength: schemaItem.getMaxLength(injectParams) ?? undefined,
+    };
+  }, [
+    schemaItem,
+    injectParams,
+    refValuesString,
+  ]);
 
-  const [minLen, setMinLen] = useState<number | undefined>(getMinLen);
-
-  function getMaxLen() {
-    const params = getCommonParams();
-    const len = getValidationValue(params, dataItem._.length);
-    if (len != null) return len;
-    return getValidationValue(params, dataItem._.maxLength);
-  };
-
-  const [maxLen, setMaxLen] = useState<number | undefined>(getMaxLen);
+  useImperativeHandle(ref, () => ref$.current);
 
   return (
     <WithMessage
+      id={errormMessageId}
       hide={hideMessage}
       state={state}
-      result={result}
+      message={message}
     >
-      <PasswordBox$
+      <PasswordBox
+        ref={ref$}
         className={className}
         style={style}
-        ref={ref}
-        invalid={invalid}
         state={state}
+        invalid={isInvalid}
         value={value}
         onChangeValue={setValue}
         inputProps={{
+          ...props,
+          id,
           name: omitOnSubmit ? undefined : name,
           required,
-          minLength: minLen,
-          maxLength: maxLen,
-          placeholder,
-          inputMode: "url",
+          minLength,
+          maxLength,
           "aria-label": label,
           "aria-errormessage": errormessage,
-          autoFocus,
-          autoComplete,
-          autoCapitalize,
         }}
-      />
+      >
+        {children}
+      </PasswordBox>
     </WithMessage>
   );
 };

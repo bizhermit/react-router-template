@@ -1,12 +1,8 @@
-import { Button$ } from "$/components/elements/button";
+import { Button } from "$/components/elements/button";
 import { Link } from "$/components/elements/link";
-import { $schema } from "$/shared/schema";
-import { getPayload } from "$/shared/schema/server";
 import { useFetcher } from "react-router";
 import { auth } from "~/auth/server/auth";
 import type { Route } from "./+types/home";
-
-const schema = $schema({});
 
 export const action = async ({ request }: Route.ActionArgs) => {
   try {
@@ -15,12 +11,12 @@ export const action = async ({ request }: Route.ActionArgs) => {
     });
     // eslint-disable-next-line no-console
     console.log(session);
-    const submission = await getPayload({
-      request,
-      schema,
-    });
-    // eslint-disable-next-line no-console
-    console.log(submission);
+    // const submission = await getPayload({
+    //   request,
+    //   schema,
+    // });
+    // // eslint-disable-next-line no-console
+    // console.log(submission);
   } catch {
     // ignore
   }
@@ -40,11 +36,11 @@ export default function Page() {
       <fetcher.Form
         method="post"
       >
-        <Button$
+        <Button
           type="submit"
         >
           submit
-        </Button$>
+        </Button>
       </fetcher.Form>
     </div>
   );

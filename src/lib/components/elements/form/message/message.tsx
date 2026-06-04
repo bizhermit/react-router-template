@@ -1,67 +1,70 @@
-import { use, useLayoutEffect, useState, type HTMLAttributes } from "react";
+import { use, useSyncExternalStore, type HTMLAttributes } from "react";
 import { InputMessageSpan } from ".";
+import { FormContext } from "../../../../shared/hooks/form/context";
+import { useFormMessage } from "../../../../shared/hooks/form/message";
 import { I18nContext } from "../../../../shared/hooks/i18n";
-import { SchemaContext } from "../../../../shared/hooks/schema";
+import type { FormItem } from "../../../../shared/schema/form";
 import { getResultMessage } from "../../../../shared/schema/message";
 
-/** メッセージ Props */
-export type InputMessageProps = Overwrite<
+export type FormItemMessageProps = Overwrite<
   HTMLAttributes<HTMLSpanElement>,
   {
-    /** スキーマ */
-    $: Schema.DataItem;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    formItem: FormItem<any>;
   }
 >;
 
-/**
- * メッセージ（スキーマ対応）
- * @param param {@link InputMessageProps}
- * @returns
- */
-export function InputMessage({
-  $,
+export function FormItemMessage({
+  formItem,
   ...props
-}: InputMessageProps) {
-  const schema = use(SchemaContext);
+}: FormItemMessageProps) {
+  const message = useFormMessage(formItem);
 
-  const [result, setResult] = useState(() => {
-    return schema.getResult($.name);
-  });
-
-  useLayoutEffect(() => {
-    const unmount = schema.addSubscribe((params) => {
-      switch (params.type) {
-        case "refresh":
-          setResult(params.results[$.name]);
-          break;
-        case "value-result":
-        case "result": {
-          const item = params.items.find(item => item.name === $.name);
-          if (item) {
-            setResult(item.result);
-          }
-          break;
-        }
-        default:
-          break;
-      }
-    });
-    return () => unmount();
-  }, []);
-
-  if (!result || result.type !== "e") return null;
-
-  const t = use(I18nContext).t;
-  const message = getResultMessage(t, result);
+  if (!message) return null;
 
   return (
     <InputMessageSpan
-      id={`${schema.id}_${$.name}__msg`}
-      type={result.type}
-      code={result.code}
+      type={message?.type}
       {...props}
     >
-      {message}
+      {getResultMessage(use(I18nContext).t, message)}
+    </InputMessageSpan>
+  );
+};
+
+export type FormMessageProps = Overwrite<
+  HTMLAttributes<HTMLSpanElement>,
+  {
+    name?: string | null;
+  }
+>;
+
+export function FormMessage({
+  name = "",
+  ...props
+}: FormMessageProps) {
+  const { manager } = use(FormContext);
+
+  function getMessage() {
+    return manager.getMessage(name || "");
+  };
+
+  const message = useSyncExternalStore(
+    (callback) => {
+      const cleanup = manager.addMessageSubscribe(name || "", callback);
+      return () => cleanup();
+    },
+    getMessage,
+    getMessage
+  );
+
+  if (!message) return null;
+  return (
+    <InputMessageSpan
+      type={message.type}
+      {...props}
+    >
+      {getResultMessage(use(I18nContext).t, message)}
     </InputMessageSpan>
   );
 };

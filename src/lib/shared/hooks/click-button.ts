@@ -1,5 +1,4 @@
 import { useRef, useState, type MouseEvent } from "react";
-import { Button$, type Button$Props } from ".";
 
 /** ボタンクリックイベント引数 */
 export interface ButtonClickParams {
@@ -30,7 +29,7 @@ export interface ButtonActionProps {
  * @param props {@link ButtonActionProps}
  * @returns
  */
-export function useButtonClickHandler(props: ButtonActionProps) {
+export function useClickButton(props: ButtonActionProps) {
   const [processing, setProcessing] = useState(false);
   const processingRef = useRef(processing);
   const revRef = useRef(0);
@@ -55,44 +54,10 @@ export function useButtonClickHandler(props: ButtonActionProps) {
   };
 
   return {
-    handleClick,
+    onClick: handleClick,
     disabled: props.disabled ?? false,
     processing,
-    processingRef,
   } as const;
 };
 
-/** ボタン Props */
-export type ButtonProps = Overwrite<
-  Omit<Button$Props, "type">,
-  ButtonActionProps
->;
-
-/**
- * ボタン（多重クリック防止制御あり）
- * - 純粋なsubmit/resetの場合は{@link Button$}を使用する
- * @param props {@link ButtonProps}
- * @returns
- */
-export function Button({
-  disabled,
-  onClick,
-  ...props
-}: ButtonProps) {
-  const {
-    handleClick,
-    processing,
-  } = useButtonClickHandler({
-    disabled,
-    onClick,
-  });
-
-  return (
-    <Button$
-      {...props}
-      disabled={disabled || processing}
-      processing={processing}
-      onClick={handleClick}
-    />
-  );
-};
+export type ClickButtonProps = ReturnType<typeof useClickButton>;

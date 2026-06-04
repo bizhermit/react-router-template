@@ -1,7 +1,7 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { Button$ } from "..";
+import { Button } from "..";
 
 afterEach(() => {
   cleanup();
@@ -13,9 +13,9 @@ describe("Button$ (component)", () => {
     const user = userEvent.setup();
 
     render(
-      <Button$ onClick={onClick}>
+      <Button onClick={onClick}>
         保存
-      </Button$>,
+      </Button>,
     );
 
     await user.click(screen.getByRole("button", { name: "保存" }));
@@ -28,12 +28,12 @@ describe("Button$ (component)", () => {
     const user = userEvent.setup();
 
     render(
-      <Button$
+      <Button
         disabled
         onClick={onClick}
       >
         保存
-      </Button$>,
+      </Button>,
     );
 
     await user.click(screen.getByRole("button", { name: "保存" }));
@@ -45,9 +45,9 @@ describe("Button$ (component)", () => {
 
   it("processing=true のとき disabled 属性と data-processing が反映される", () => {
     render(
-      <Button$ processing>
+      <Button processing>
         保存
-      </Button$>,
+      </Button>,
     );
 
     const button = screen.getByRole("button", { name: "保存" });

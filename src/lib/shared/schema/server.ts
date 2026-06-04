@@ -1,37 +1,47 @@
 import { parseWithSchema } from ".";
+import { convertEntriesToStruct, convertFormDataToStruct } from "../objects/form-data";
+import type { $ObjSchema } from "./object";
 
-interface Params<$Schema extends Record<string, Schema.$Any>> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+interface PayloadParams<S extends $ObjSchema<any, any>> {
   request: Request;
-  schema: $Schema;
-  data?: FormData | Record<string, unknown>;
-  dep?: Record<string, unknown>;
-  skipCsrfCheck?: boolean;
-}
+  schema: S;
+  values?: FormData | Record<string, unknown>;
+  data?: Record<string, unknown>;
+};
 
-export async function getPayload<$Schema extends Record<string, Schema.$Any>>({
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function getPayload<S extends $ObjSchema<any, any>>({
   request,
   schema,
-  data,
-  dep,
-}: Params<$Schema>) {
-  const formData = data ?? await request.formData();
-  const submission = parseWithSchema({
-    data: formData,
-    env: {
-      isServer: true,
-    },
-    schema,
-    dep,
-  });
-  delete (submission as Partial<typeof submission>).dataItems;
+  values,
+  data = {},
+}: PayloadParams<S>) {
+  const method = request.method.toUpperCase();
 
-  return submission as ({
-    hasError: true;
-    data: Schema.SchemaValue<$Schema, true>;
-    results: Record<string, Schema.Result>;
-  } | {
-    hasError: false;
-    data: Schema.SchemaValue<$Schema>;
-    results: Record<string, Schema.Result>;
+  return parseWithSchema({
+    schema,
+    values: await (async () => {
+      if (values) {
+        if (values instanceof FormData) {
+          return convertFormDataToStruct(values);
+        }
+        return values;
+      }
+      if (method === "GET") {
+        return convertEntriesToStruct(
+          Object.entries(
+            Object.fromEntries(
+              new URL(request.url).searchParams
+            )
+          )
+        );
+      }
+      return convertFormDataToStruct(
+        await request.formData()
+      );
+    })(),
+    data,
+    isServer: true,
   });
-};
+}

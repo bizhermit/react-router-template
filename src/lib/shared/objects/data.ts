@@ -25,7 +25,7 @@ export function getArrayIndexOrName(name: string) {
  * @param name
  * @returns
  */
-export function splitName(name: string) {
+export function splitName(name: string = "") {
   return name.split(/\.|(\[\d*\])/).filter(s => s);
 };
 
@@ -35,7 +35,7 @@ export function splitName(name: string) {
  * @param relativeName
  * @returns
  */
-export function getRelativeName(baseName: string, relativeName: string) {
+export function getRelativeName(baseName: string | undefined, relativeName: string) {
   const relative = relativeName.match(/^(\.+)(.*)/);
   if (!relative) return relativeName;
   const name = relative[2];
@@ -48,6 +48,113 @@ export function getRelativeName(baseName: string, relativeName: string) {
     relativeBaseName += splittedName[i];
   };
   return `${relativeBaseName}.${name}`.replace(/^\.|\.(?=\[)/g, "");
+};
+
+export function getValue<V>(
+  data: Record<string, unknown>,
+  name: string | undefined,
+  relativeName?: string
+): [vlaue: V | null | undefined, hasProperty: boolean] {
+  let has = false;
+  const names = splitName(relativeName ? getRelativeName(name, relativeName) : name);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let v: any = data;
+  for (const n of names) {
+    if (v == null) return [undefined, false];
+    const r = getArrayIndex(n);
+    if (r) {
+      let i = Number(r[1]);
+      if (isNaN(i)) i = 0;
+      has = i in v;
+      v = v[i];
+      continue;
+    }
+    has = n in v;
+    v = v[n];
+  }
+  return [v, has];
+}
+
+export function setValue(
+  data: Record<string, unknown>,
+  name: string,
+  value: unknown
+): boolean {
+  let d = data, change = false;
+  const names = splitName(name);
+  for (let i = 0, il = names.length - 1; i < il; i++) {
+    let n: string | number = names[i];
+    const r = getArrayIndex(n);
+    if (r) n = Number(r[1] || "NaN");
+    if (d[n] == null) {
+      d[n] = getArrayIndex(names[i + 1]) ? [] : {};
+      change = true;
+    }
+    d = d[n] as Record<string | number, unknown>;
+  }
+  const n = names[names.length - 1];
+  const r = getArrayIndex(n);
+  if (r) {
+    if (!Array.isArray(d)) throw new Error(`set value failed. object is no array. "${name}"`);
+    const i = Number(r[1]);
+    if (isNaN(i)) {
+      d.push(value);
+      return true;
+    }
+    change = !Object.is(d[i], value);
+    d[i] = value;
+  } else {
+    change = !Object.is(d[n], value);
+    d[n] = value;
+  }
+  return change;
+};
+
+export function setValueReturnContexts(
+  data: Record<string, unknown>,
+  name: string,
+  value: unknown
+): {
+  before: unknown;
+  after: unknown;
+  change: boolean;
+} {
+  let d = data, change = false, before = undefined;
+  const names = splitName(name);
+  for (let i = 0, il = names.length - 1; i < il; i++) {
+    let n: string | number = names[i];
+    const r = getArrayIndex(n);
+    if (r) n = Number(r[1] || "NaN");
+    if (d[n] == null) {
+      d[n] = getArrayIndex(names[i + 1]) ? [] : {};
+      change = true;
+    }
+    d = d[n] as Record<string | number, unknown>;
+  }
+  const n = names[names.length - 1];
+  const r = getArrayIndex(n);
+  if (r) {
+    if (!Array.isArray(d)) throw new Error(`set value failed. object is no array. "${name}"`);
+    const i = Number(r[1]);
+    if (isNaN(i)) {
+      d.push(value);
+      return {
+        before,
+        after: value,
+        change: true,
+      };
+    }
+    change = !Object.is(before = d[i], value);
+    d[i] = value;
+  } else {
+    change = !Object.is(before = d[n], value);
+    d[n] = value;
+  }
+  return {
+    before,
+    after: value,
+    change,
+  } as const;
 };
 
 type Item = {
@@ -94,25 +201,8 @@ export class ProxyData {
   public _get<V>(
     name: string,
     relativeName?: string
-  ): [vlaue: V | null | undefined, hasProperty: boolean] {
-    let has = false;
-    const names = splitName(relativeName ? getRelativeName(name, relativeName) : name);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let v: any = this.data;
-    for (const n of names) {
-      if (v == null) return [undefined, false];
-      const r = getArrayIndex(n);
-      if (r) {
-        let i = Number(r[1]);
-        if (isNaN(i)) i = 0;
-        has = i in v;
-        v = v[i];
-        continue;
-      }
-      has = n in v;
-      v = v[n];
-    }
-    return [v, has];
+  ) {
+    return getValue<V>(this.data, name, relativeName);
   };
 
   public get<V>(name: string, relativeName?: string): V | null | undefined {
@@ -128,34 +218,7 @@ export class ProxyData {
   };
 
   public _set(name: string, value: unknown): boolean {
-    let d = this.data, change = false;
-    const names = splitName(name);
-    for (let i = 0, il = names.length - 1; i < il; i++) {
-      let n: string | number = names[i];
-      const r = getArrayIndex(n);
-      if (r) n = Number(r[1] || "NaN");
-      if (d[n] == null) {
-        d[n] = getArrayIndex(names[i + 1]) ? [] : {};
-        change = true;
-      }
-      d = d[n] as Record<string | number, unknown>;
-    }
-    const n = names[names.length - 1];
-    const r = getArrayIndex(n);
-    if (r) {
-      if (!Array.isArray(d)) throw new Error(`set value failed. object is no array. "${name}"`);
-      const i = Number(r[1]);
-      if (isNaN(i)) {
-        d.push(value);
-        return true;
-      }
-      change = !Object.is(d[i], value);
-      d[i] = value;
-    } else {
-      change = !Object.is(d[n], value);
-      d[n] = value;
-    }
-    return change;
+    return setValue(this.data, name, value);
   };
 
   public set(name: string, value: unknown): boolean {

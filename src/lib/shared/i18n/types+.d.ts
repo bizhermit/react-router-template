@@ -102,4 +102,11 @@ interface I18N_Texts {
   "signIn_submit": null;
   "signIn_failed": null;
   "signIn_fatal": null;
+  "year": null;
+  "month": null;
+  "day": null;
+  "hour": null;
+  "minute": null;
+  "second": null;
+  "millisecond": null;
 };

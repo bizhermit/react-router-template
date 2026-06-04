@@ -38,39 +38,38 @@ export function InputMessageSpan({
   );
 };
 
-/** ＋メッセージ Props */
-export interface WithMessage {
+type WithMessageProps = {
+  /** id */
+  id?: string;
   /** 非表示 @default false */
   hide?: boolean;
   /** 状態 @default "enabled" */
   state: Schema.Mode;
-  /** リザルト */
-  result: Schema.Result | null | undefined;
+  /** メッセージ */
+  message: Schema.Message | null | undefined;
   /** メッセージ表示対象要素 */
   children?: ReactNode;
 };
 
-/** ＋メッセージ */
 export function WithMessage({
-  hide = false,
-  state = "enabled",
-  result,
+  id,
+  hide,
+  state,
+  message,
   children,
-}: WithMessage) {
-  const t = use(I18nContext).t;
-  const message = getResultMessage(t, result);
-
+}: WithMessageProps) {
   return (
     <>
       {children}
       {
         !hide &&
         state === "enabled" &&
-        result &&
+        message &&
         <InputMessageSpan
-          type={result.type}
+          id={id}
+          type={message.type}
         >
-          {message}
+          {getResultMessage(use(I18nContext).t, message)}
         </InputMessageSpan>
       }
     </>

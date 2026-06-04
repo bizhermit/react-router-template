@@ -5,7 +5,7 @@ import { InputLabelText } from "../input-label-text";
 import { InputLabelWrapper, type InputLabelProps, type InputLabelWrapperProps } from "../wrapper/input-label";
 
 /** チェックボックス ref オブジェクト */
-export interface CheckBox$Ref extends InputRef {
+export interface CheckBoxRef extends InputRef {
   /** DOM input[type="checkbox"] */
   inputElement: HTMLInputElement;
 };
@@ -18,7 +18,7 @@ export type CheckBoxAppearance =
   ;
 
 /** チェックボックス Props */
-export type CheckBox$Props = Overwrite<
+export type CheckBoxProps = Overwrite<
   InputLabelWrapperProps,
   InputLabelProps<{
     /** input Props */
@@ -39,10 +39,10 @@ export type CheckBox$Props = Overwrite<
 
 /**
  * チェックボックス
- * @param param {@link CheckBox$Props}
+ * @param param {@link CheckBoxProps}
  * @returns
  */
-export function CheckBox$({
+export function CheckBox({
   className,
   children,
   inputProps,
@@ -56,7 +56,7 @@ export function CheckBox$({
   trueValue,
   falseValue,
   ...props
-}: CheckBox$Props) {
+}: CheckBoxProps) {
   const isControlled = "checked" in props;
   const { checked, ...wrapperProps } = props;
 
@@ -77,7 +77,7 @@ export function CheckBox$({
     element: wref.current,
     inputElement: iref.current,
     focus: () => (dref.current ?? iref.current).focus(),
-  } as const satisfies CheckBox$Ref));
+  } as const satisfies CheckBoxRef));
 
   return (
     <InputLabelWrapper
