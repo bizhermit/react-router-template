@@ -6,7 +6,6 @@ export async function parseWithSchema<const S extends $ObjSchema<any, any>>(para
   values: Record<string, unknown> | null | undefined;
   data?: Record<string, unknown> | null | undefined;
   isServer?: boolean;
-  preventValidate?: boolean;
 }) {
   const injectParams = {
     values: params.values ?? {},
@@ -18,10 +17,8 @@ export async function parseWithSchema<const S extends $ObjSchema<any, any>>(para
 
   const parsed = params.schema.parse(injectParams.values, injectParams);
   let messages = parsed.messages ?? {};
-  if (!params.preventValidate) {
-    const validated = params.schema.validate(parsed.value, injectParams);
-    messages = mergeRecordMessages(parsed.messages, validated);
-  }
+  const validated = params.schema.validate(parsed.value, injectParams);
+  messages = mergeRecordMessages(parsed.messages, validated);
   const hasError = getHasError(messages);
 
   if (hasError) {

@@ -128,6 +128,10 @@ export class FormManager<S extends $ObjSchema<any, any>> {
     };
   }
 
+  public getMessages() {
+    return clone(this.messages);
+  }
+
   public setMessages(
     messages: Schema.RecordMessages | null | undefined,
     options?: {

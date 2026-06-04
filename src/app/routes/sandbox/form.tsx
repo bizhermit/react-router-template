@@ -67,7 +67,7 @@ const schemaObj = $obj({
       required: ({ values }) => {
         return !!values.text;
       },
-      minLength: 120,
+      minLength: 10,
     }),
     num: $num({
       label: "num",
@@ -81,7 +81,7 @@ const schemaObj = $obj({
     }),
     file: $file({
       label: "file",
-      required: true,
+      // required: true,
     }),
     select: $enum({
       label: "select",
@@ -122,7 +122,7 @@ const schemaObj = $obj({
     }),
     toggle: $bool({
       label: "toggle",
-      required: true,
+      // required: true,
     }),
     radio: $enum({
       label: "radio",
@@ -162,24 +162,21 @@ const schemaObj = $obj({
     }),
     date: $date({
       label: "date",
-      required: true,
+      // required: true,
       minDate: new $Date("2026-05-27"),
     }),
     month: $month({
       label: "month",
-      required: true,
+      // required: true,
     }),
     datetime: $datetime({
       label: "datetime",
-      required: true,
+      // required: true,
     }),
     // dateselect: $datetime({
     //   label: "dateselect",
     //   required: true,
     // }),
-    split_date: date.overwrite({
-      splits: [".date_year", ".date_month", ".date_day"],
-    }),
     date_year: date.getSplitYear({
       // required: true,
     }),
@@ -187,6 +184,13 @@ const schemaObj = $obj({
       // required: true,
     }),
     date_day: date.getSplitDay(),
+    split_date: date.overwrite({
+      splits: [
+        ".date_year",
+        ".date_month",
+        ".date_day",
+      ],
+    }),
     arr: $arr({
       prop: $str({}),
       // required: true,
@@ -207,7 +211,7 @@ const schemaObj = $obj({
     // enum2: enum2,
   },
 }).overwrite({
-  required: true,
+  // required: true,
 });
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -540,8 +544,9 @@ function FormContent() {
               <DateSelectBox$
                 // formItem={form.items.dateselect}
                 formItem={{
-                  id: form.items.split_date.getName(),
+                  // id: form.items.split_date.getName(),
                   // id: "_dateselect",
+                  core: form.items.split_date,
                   year: form.items.date_year,
                   month: form.items.date_month,
                   day: form.items.date_day,

@@ -8,7 +8,6 @@ interface PayloadParams<S extends $ObjSchema<any, any>> {
   schema: S;
   values?: FormData | Record<string, unknown>;
   data?: Record<string, unknown>;
-  preventValidate?: boolean;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -17,7 +16,6 @@ export async function getPayload<S extends $ObjSchema<any, any>>({
   schema,
   values,
   data = {},
-  preventValidate,
 }: PayloadParams<S>) {
   const method = request.method.toUpperCase();
 
@@ -45,6 +43,5 @@ export async function getPayload<S extends $ObjSchema<any, any>>({
     })(),
     data,
     isServer: true,
-    preventValidate: preventValidate ?? method === "GET", // TODO: バリデーションを禁止ではなく、存在するプロパティのみバリデーションするモードを用意
   });
 }

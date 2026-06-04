@@ -194,7 +194,7 @@ export function Slider({
         <input
           type="hidden"
           name={inputProps.name}
-          value={String(value)}
+          value={String(value ?? "")}
         />
       }
       {

@@ -89,12 +89,12 @@ export class $DateTimeSchema<const P extends DateTimeProps> extends SchemaItem<$
 
     try {
       if (this.props.splits) {
-        const y = getValue(params.values, params.name, this.props.splits[0]);
-        const m = getValue(params.values, params.name, this.props.splits[1]);
-        const d = getValue(params.values, params.name, this.props.splits[2]);
-        const hour = getValue(params.values, params.name, this.props.splits[3]) ?? 0;
-        const minute = getValue(params.values, params.name, this.props.splits[4]) ?? 0;
-        const second = getValue(params.values, params.name, this.props.splits[5]) ?? 0;
+        const y = getValue(params.values, params.name, this.props.splits[0])[0];
+        const m = getValue(params.values, params.name, this.props.splits[1])[0];
+        const d = getValue(params.values, params.name, this.props.splits[2])[0];
+        const hour = getValue(params.values, params.name, this.props.splits[3])[0] ?? 0;
+        const minute = getValue(params.values, params.name, this.props.splits[4])[0] ?? 0;
+        const second = getValue(params.values, params.name, this.props.splits[5])[0] ?? 0;
         if (y != null && m != null && d != null) {
           const date = new $DateTime(`${y}-${m}-${d}T${hour}:${minute}:${second}`);
           return { value: date.lock() };

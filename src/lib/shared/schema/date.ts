@@ -78,9 +78,9 @@ export class $DateSchema<const P extends DateProps> extends SchemaItem<$Date> {
 
     try {
       if (this.props.splits) {
-        const y = getValue(params.values, params.name, this.props.splits[0]);
-        const m = getValue(params.values, params.name, this.props.splits[1]);
-        const d = getValue(params.values, params.name, this.props.splits[2]);
+        const y = getValue(params.values, params.name, this.props.splits[0])[0];
+        const m = getValue(params.values, params.name, this.props.splits[1])[0];
+        const d = getValue(params.values, params.name, this.props.splits[2])[0];
         if (y != null && m != null && d != null) {
           const date = new $Date(`${y}-${m}-${d}`);
           return { value: date.lock() };

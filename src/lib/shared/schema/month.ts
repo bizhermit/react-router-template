@@ -79,8 +79,8 @@ export class $MonthSchema<const P extends MonthProps> extends SchemaItem<$Month>
 
     try {
       if (this.props.splits) {
-        const y = getValue(params.values, params.name, this.props.splits[0]);
-        const m = getValue(params.values, params.name, this.props.splits[1]);
+        const y = getValue(params.values, params.name, this.props.splits[0])[0];
+        const m = getValue(params.values, params.name, this.props.splits[1])[0];
         if (y != null && m != null) {
           const date = new $Month(`${y}-${m}`);
           return { value: date.lock() };
