@@ -1,17 +1,71 @@
+import { existsSync } from "node:fs";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import serialize from "serialize-javascript";
-import en from "../../../../public/locales/en.json";
-import ja from "../../../../public/locales/ja.json";
 import { DEFAULT_LOCALE, I18N_PROP_NAME, LOCALE_KEY, SUPPORTED_LOCALES } from "../../shared/i18n/consts";
-
-/** 言語リソース */
-const I18N_RESOURCES = {
-  [DEFAULT_LOCALE]: ja,
-  en,
-} satisfies Record<string, I18nResource>;
 
 const COOKIE_PATTERN = `${encodeURIComponent(LOCALE_KEY)}=`; // Cookie取得キーワード
 const IS_DEV = process.env.NODE_ENV === "development"; // 開発モード
+const RESOURCE_CACHE = new Map<string, Map<string, I18nResource>>();
 const SERIALIZED_CACHE = new Map<string, string>(); // シリアライズキャッシュ
+
+async function getI18nResource(locale: Locales, addon: string = "") {
+  if (!RESOURCE_CACHE.has(locale)) {
+    RESOURCE_CACHE.set(locale, new Map());
+  }
+  const cache = RESOURCE_CACHE.get(locale)!;
+  if (cache.has(addon)) {
+    return cache.get(addon)!;
+  }
+
+  const langPath = path.join(
+    process.cwd(),
+    "public/locales",
+    !addon ? `${locale}.json` : `${locale}.${addon}.json`
+  );
+  if (!existsSync(langPath)) {
+    process.stderr.write(`\n[warning] not found lang file: ${langPath}\n`);
+    cache.set(addon, {});
+    return {} as I18nResource;
+  }
+
+  const langBuf = await readFile(langPath);
+  const langStr = langBuf.toString();
+  const langJson = JSON.parse(langStr) as I18nResource;
+
+  if (!addon) {
+    cache.set(addon, langJson);
+    return langJson;
+  }
+
+  const prefixed = Object.entries(langJson).reduce((ret, [key, lang]) => {
+    ret[`${addon}.${key}`] = lang as string;
+    return ret;
+  }, {} as I18nResource);
+  cache.set(addon, prefixed);
+  return prefixed;
+};
+
+/**
+ * 追加言語リソースを取得する
+ * @param request
+ * @param addons
+ * @returns
+ */
+export async function getI18nAddonResource(
+  request: Request,
+  addons: string[]
+) {
+  const locale = getLocale(request);
+  let ret: I18nResource = {};
+  await Promise.all(
+    addons.map(async addon => {
+      const res = await getI18nResource(locale, addon);
+      ret = { ...ret, ...res };
+    })
+  );
+  return ret;
+};
 
 /**
  * 言語リソースをシリアライズ化する
@@ -36,12 +90,7 @@ const getSerializedData: ((locale: Locales, resource: Record<string, unknown>) =
       return data;
     };
 
-/**
- * クライアントに送信する言語リソースオブジェクトを取得する
- * @param request {@link Request}
- * @returns
- */
-export function getI18nPayload(request: Request) {
+export function getLocale(request: Request) {
   let locale: Locales = DEFAULT_LOCALE;
   /* URL */
   // const url = new URL(request.url);
@@ -67,8 +116,18 @@ export function getI18nPayload(request: Request) {
   } else {
     locale = findBrowserLocaleAsServer(request);
   }
+  return locale;
+};
 
-  const resource = I18N_RESOURCES[locale];
+/**
+ * クライアントに送信する言語リソースオブジェクトを取得する
+ * @param request {@link Request}
+ * @returns
+ */
+export async function getI18nPayload(request: Request) {
+  const locale = getLocale(request);
+
+  const resource = await getI18nResource(locale);
 
   return {
     locale,
@@ -110,48 +169,4 @@ export function findBrowserLocaleAsServer(request: Request): Locales {
     .find(({ locale }) => SUPPORTED_LOCALES.includes(locale))?.locale;
 
   return preferredLocale || DEFAULT_LOCALE;
-}
-
-/** i18nテキスト置換用正規表現キャッシュ */
-const regexCache = new Map<string, RegExp>();
-
-/**
- * i18nテキストのキーから置換用正規表現を取得する
- * @param key
- * @returns
- */
-function getOrCreateRegex(key: string): RegExp {
-  if (!regexCache.has(key)) {
-    regexCache.set(key, new RegExp(`{{${key}}}`, "g"));
-  }
-  return regexCache.get(key)!;
-}
-
-/**
- * i18nアクセサーを取得する
- * @param request {@link Request}
- * @returns
- */
-export function getI18n(request: Request) {
-  const { locale, resource } = getI18nPayload(request);
-  const t: I18nGetter = <K extends I18nTextKey>(
-    /** i18nキー */
-    key: K,
-    /** 置換値 */
-    params?: I18nReplaceParams<K>
-  ) => {
-    if (!key) return key;
-    let text = (resource as Record<string, string>)[key];
-    if (text == null) return key;
-    if (params) {
-      Object.entries(params).forEach(([k, v]) => {
-        if (v != null) {
-          text = text!.replace(getOrCreateRegex(k), String(v));
-        }
-      });
-    }
-    return text;
-  };
-  t.locale = locale;
-  return { locale, t };
-}
+};

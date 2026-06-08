@@ -109,4 +109,6 @@ interface I18N_Texts {
   "minute": null;
   "second": null;
   "millisecond": null;
+  "sandbox.title": null;
+  "sandbox.description": null;
 };

@@ -7,6 +7,7 @@ import { Details } from "$/components/elements/details";
 import { Dialog, useDialog } from "$/components/elements/dialog";
 import { CheckBox } from "$/components/elements/form/check-box";
 import { NumberBox } from "$/components/elements/form/number-box";
+import { Text } from "$/components/elements/i18n-text";
 import { $alert, $confirm, $toast } from "$/components/elements/message-box";
 import { Style } from "$/components/elements/style";
 import { clsx } from "$/components/elements/utilities";
@@ -33,6 +34,9 @@ export default function Page() {
       <CarouselComponent />
       <SubWindowComponent />
       <HooksComponent />
+      <div>
+        <Text i18nKey="sandbox.title" />
+      </div>
     </div>
   );
 };

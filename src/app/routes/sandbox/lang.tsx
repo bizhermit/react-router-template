@@ -3,7 +3,6 @@ import { Text } from "$/components/elements/i18n-text";
 import { useLocale, useText } from "$/shared/hooks/i18n";
 import type { ReactNode } from "react";
 import { data } from "react-router";
-import type { Route } from "./+types/lang";
 
 export async function loader() {
   return data({
@@ -11,8 +10,7 @@ export async function loader() {
   });
 }
 
-export default function Page({ loaderData }: Route.ComponentProps) {
-  console.log(loaderData);
+export default function Page() {
   const t = useText();
   const locale = useLocale();
 
@@ -33,6 +31,11 @@ export default function Page({ loaderData }: Route.ComponentProps) {
             ),
           }}
         />
+      </div>
+      <div>
+        <Text i18nKey="sandbox.title" />
+        <br />
+        <Text i18nKey="sandbox.description" />
       </div>
       {/* <p>
           <span>dangerouslySetInnerHTML</span>

@@ -1,4 +1,4 @@
-import { createContext, use } from "react";
+import { createContext, use, useMemo } from "react";
 import { DEFAULT_LOCALE } from "../i18n/consts";
 
 /** i18nコンテキスト Props */
@@ -13,6 +13,7 @@ interface I18nContextProps {
    * @returns
    */
   switch: (locale: Locales) => Promise<boolean>;
+  append: (langs: I18nResource) => void;
 };
 
 /** i18nアクセサー */
@@ -24,6 +25,7 @@ export const I18nContext = createContext<I18nContextProps>({
   locale: DEFAULT_LOCALE,
   t: DUMMY_TEXT_GETTER,
   switch: async () => false,
+  append: () => { },
 });
 
 /**
@@ -62,4 +64,15 @@ export function useLocale() {
     lang: i18n.locale,
     switch: i18n.switch,
   } as const;
+};
+
+/**
+ * 言語リソースを追加する
+ * @param addonLangs
+ */
+export function useAddonLangs(addonLangs: I18nResource) {
+  const ctx = use(I18nContext);
+  useMemo(() => {
+    ctx.append(addonLangs);
+  }, []);
 };

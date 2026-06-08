@@ -36,7 +36,7 @@ export default async function handleRequest(
     callbackName = "onAllReady";
   }
 
-  const i18n = getI18nPayload(request);
+  const i18n = await getI18nPayload(request);
 
   return new Promise((resolve, reject) => {
     let didError = false;

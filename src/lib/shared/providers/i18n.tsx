@@ -38,12 +38,20 @@ export function I18nProvider(props: {
     return true;
   };
 
+  function appendLangs(addonLangs: I18nResource) {
+    resourceRef.current = {
+      ...resourceRef.current,
+      ...addonLangs,
+    };
+  };
+
   return (
     <I18nContext
       value={{
         t: t as I18nGetter,
         locale,
         switch: switchLocale,
+        append: appendLangs,
       }}
     >
       {props.children}
