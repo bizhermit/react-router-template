@@ -2,13 +2,6 @@ import { Button } from "$/components/elements/button";
 import { Text } from "$/components/elements/i18n-text";
 import { useLocale, useText } from "$/shared/hooks/i18n";
 import type { ReactNode } from "react";
-import { data } from "react-router";
-
-export async function loader() {
-  return data({
-    hoge: 1,
-  });
-}
 
 export default function Page() {
   const t = useText();
