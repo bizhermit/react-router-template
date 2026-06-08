@@ -4,9 +4,9 @@ interface I18N_Texts { };
 
 type I18nTextKey = keyof I18N_Texts;
 
-type I18nResource = Partial<Record<I18nTextKey, string>>;
-
 type I18nReplaceValue = string | number | boolean | null | undefined;
+
+type I18nResource = Record<string, string>;
 
 type I18nReplaceParams<K extends I18nTextKey> =
   I18N_Texts[K] extends null ? undefined :
