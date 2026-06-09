@@ -2,7 +2,7 @@ import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import serialize from "serialize-javascript";
-import { DEFAULT_LOCALE, I18N_PROP_NAME, LOCALE_KEY, SUPPORTED_LOCALES } from "../../shared/i18n/consts";
+import { DEFAULT_LOCALE, I18N_PATHNAME, I18N_PROP_NAME, LOCALE_KEY, SUPPORTED_LOCALES } from "../../shared/i18n/consts";
 
 const COOKIE_PATTERN = `${encodeURIComponent(LOCALE_KEY)}=`; // Cookie取得キーワード
 const IS_DEV = process.env.NODE_ENV === "development"; // 開発モード
@@ -20,7 +20,7 @@ async function getI18nResource(locale: Locales, addon: string = "") {
 
   const langPath = path.join(
     process.cwd(),
-    "public/locales",
+    I18N_PATHNAME,
     !addon ? `${locale}.json` : `${locale}.${addon}.json`
   );
   if (!existsSync(langPath)) {
