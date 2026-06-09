@@ -13,7 +13,7 @@ interface I18nContextProps {
    * @returns
    */
   switch: (locale: Locales) => Promise<boolean>;
-  append: (langs: I18nResource) => void;
+  append: (langs: I18nAddonResources) => void;
 };
 
 /** i18nアクセサー */
@@ -70,7 +70,7 @@ export function useLocale() {
  * 言語リソースを追加する
  * @param addonLangs
  */
-export function useAddonLangs(addonLangs: I18nResource) {
+export function useAddonLangs(addonLangs: I18nAddonResources) {
   const ctx = use(I18nContext);
   useMemo(() => {
     ctx.append(addonLangs);

@@ -2,7 +2,21 @@ import { use, useEffect, useRef, useState, type ReactNode } from "react";
 import { useLocation, useNavigate, useRevalidator } from "react-router";
 import { LoadingBar } from "../../components/elements/loading";
 import { I18nContext, I18nLangContext, type SwitchLocaleOptions } from "../hooks/i18n";
-import { DEFAULT_LOCALE, LOCALE_KEY } from "../i18n/consts";
+import { DEFAULT_LOCALE, LOCALE_KEY, SUPPORTED_LOCALES } from "../i18n/consts";
+
+function appendAddonResource(
+  currentResource: I18nResource,
+  addon: string,
+  addonResource: I18nResource
+) {
+  Object.entries(addonResource).forEach(([key, text]) => {
+    currentResource[`${addon}.${key}`] = text;
+  });
+};
+
+function isValidLocale(locale: string): locale is typeof SUPPORTED_LOCALES[number] {
+  return SUPPORTED_LOCALES.some(l => l === locale);
+};
 
 export function I18nProvider(props: {
   locale: Locales;
@@ -12,6 +26,7 @@ export function I18nProvider(props: {
   const [locale, setLocale] = useState(props.locale);
   const switchRef = useRef(locale);
   const resourceRef = useRef(props.resource);
+  const addonsRef = useRef<Set<string>>(new Set());
 
   function t<K extends I18nTextKey>(key: K, params?: I18nReplaceParams<K>) {
     if (!key) return key;
@@ -28,21 +43,63 @@ export function I18nProvider(props: {
   (t as I18nGetter).locale = locale;
 
   async function switchLocale(locale: Locales) {
+    if (!isValidLocale(locale)) {
+      console.warn(`not support locale: ${locale}`);
+      return false;
+    }
+    let newResource: I18nResource = {};
     switchRef.current = locale;
-    const res = await fetch(`/locales/${locale}.json`);
-    if (!res.ok) return false;
+    try {
+      await Promise.all([
+        (async () => {
+          const file = `${locale}.json`;
+          const res = await fetch(`/locales/${file}`);
+          if (!res.ok) {
+            console.warn(`not found lang file: ${file}`);
+            return;
+          }
+          const json = await res.json();
+          newResource = {
+            ...newResource,
+            ...json,
+          };
+        })(),
+        ...(Array.from(addonsRef.current).map(addon => {
+          return (async () => {
+            const file = `${locale}.${addon}.json`;
+            const res = await fetch(`/locales/${file}`);
+            if (!res.ok) {
+              console.warn(`not found lang file: ${file}`);
+              return;
+            }
+            const json = await res.json();
+            appendAddonResource(
+              newResource,
+              addon,
+              json,
+            );
+          })();
+        })),
+      ]);
+    } catch {
+      return false;
+    }
     if (switchRef.current !== locale) return false;
-    const resource = await res.json();
     setLocale(locale);
-    resourceRef.current = resource;
+    resourceRef.current = newResource;
     return true;
   };
 
-  function appendLangs(addonLangs: I18nResource) {
-    resourceRef.current = {
-      ...resourceRef.current,
-      ...addonLangs,
-    };
+  function appendLangs(addonLangs: I18nAddonResources) {
+    Object.entries(addonLangs).forEach(([addon, resource]) => {
+      if (addonsRef.current.has(addon)) return;
+      addonsRef.current.add(addon);
+      appendAddonResource(
+        resourceRef.current,
+        addon,
+        resource
+      );
+    });
   };
 
   return (
@@ -70,7 +127,11 @@ export function I18nUrlLocator(props: {
   const currentLocale = (location.pathname.match(/^\/([^/]+)/)?.[1]?.toLowerCase() as Locales | undefined) || DEFAULT_LOCALE;
   const needRefresh = !isIndex && i18n.locale !== currentLocale;
 
-  async function switchLocale(locale: Locales, options?: SwitchLocaleOptions) {
+  async function switchLocale(
+    locale: Locales,
+    options?: SwitchLocaleOptions
+  ) {
+    if (!isValidLocale(locale)) return;
     const pathname = window.location.pathname.replace(/^\/([^/]+)/, `/${locale}`);
     if (!options?.preventRefresh) {
       await navigate(
@@ -114,21 +175,28 @@ export function I18nCookieLocator(props: {
   children: ReactNode;
 }) {
   const i18n = use(I18nContext);
-  const { revalidate } = useRevalidator();
+  const { revalidate, state } = useRevalidator();
   const [isSwitching, setSwitch] = useState(false);
 
-  async function switchLocale(locale: Locales, options?: SwitchLocaleOptions) {
+  async function switchLocale(
+    locale: Locales,
+    options?: SwitchLocaleOptions
+  ) {
     setSwitch(true);
-    document.cookie = `${LOCALE_KEY}=${encodeURIComponent(locale)};${cookieOption}`;
-    if (await i18n.switch(locale)) {
-      if (!options?.preventRefresh) await revalidate();
+    if (isValidLocale(locale)) {
+      document.cookie = `${LOCALE_KEY}=${encodeURIComponent(locale)};${cookieOption}`;
+      if (await i18n.switch(locale)) {
+        if (!options?.preventRefresh) {
+          await revalidate();
+        }
+      }
     }
     setSwitch(false);
   };
 
   return (
     <>
-      {isSwitching && <LoadingBar />}
+      {(isSwitching || state === "loading") && <LoadingBar />}
       <I18nLangContext
         value={{
           locale: i18n.locale,

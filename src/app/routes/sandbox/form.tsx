@@ -24,7 +24,6 @@ import { useFormContext } from "$/shared/hooks/form/context";
 import { useFormDirty } from "$/shared/hooks/form/dirty";
 import { useFormHasError } from "$/shared/hooks/form/error";
 import { I18nContext, useText } from "$/shared/hooks/i18n";
-import { usePageExitPrompt } from "$/shared/hooks/page-exit-prompt";
 import { $Date } from "$/shared/objects/timestamp";
 import { SchemaProvider } from "$/shared/providers/schema";
 import { $arr } from "$/shared/schema/array";
@@ -256,8 +255,6 @@ export default function Page({ loaderData, actionData }: Route.ComponentProps) {
     },
     state: fetcher.state,
   });
-
-  const handleConfirmEnabled = usePageExitPrompt();
 
   return (
     <fetcher.Form

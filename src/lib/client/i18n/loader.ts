@@ -24,12 +24,16 @@ export async function loadI18nAsClient(): Promise<{
     return i18n;
   }
   const locale = await findLocaleAsClient();
-  const resource = await (await (() => {
-    switch (locale) {
-      case "en": return fetch(`${I18N_PATHNAME}/en.json`);
-      default: return fetch(`${I18N_PATHNAME}/ja.json`);
-    }
-  })()).json();
+  const file = `${locale}.json`;
+  const res = await fetch(`${I18N_PATHNAME}/${file}`);
+  if (!res.ok) {
+    console.warn(`not found lang file: ${file}`);
+    return {
+      locale,
+      resource: {},
+    };
+  }
+  const resource = await res.json();
   return {
     locale,
     resource,
