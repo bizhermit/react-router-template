@@ -1,14 +1,19 @@
 import { Button } from "$/components/elements/button";
 import { Text } from "$/components/elements/i18n-text";
 import { useLocale, useText } from "$/shared/hooks/i18n";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 
 export default function Page() {
   const t = useText();
   const locale = useLocale();
+  const [count, setCount] = useState(0);
 
   return (
     <div className="flex flex-col gap-4 p-8">
+      <div className="flex flex-row gap-2">
+        <Button onClick={() => setCount(c => c + 1)}>count up</Button>
+        <span>{count}</span>
+      </div>
       <div>{t("halloWorld")}</div>
       <div>{t("replaceText", { hoge: "人民", fuga: 1000 })}</div>
       <div>{t("htmlText")}</div>

@@ -33,17 +33,8 @@ async function getI18nResource(locale: Locales, addon: string = "") {
   const langStr = langBuf.toString();
   const langJson = JSON.parse(langStr) as I18nResource;
 
-  if (!addon) {
-    cache.set(addon, langJson);
-    return langJson;
-  }
-
-  const prefixed = Object.entries(langJson).reduce((ret, [key, lang]) => {
-    ret[`${addon}.${key}`] = lang as string;
-    return ret;
-  }, {} as I18nResource);
-  cache.set(addon, prefixed);
-  return prefixed;
+  cache.set(addon, langJson);
+  return langJson;
 };
 
 /**
@@ -57,12 +48,12 @@ export async function getI18nAddonResource(
   addons: string[]
 ) {
   const locale = getLocale(request);
-  let ret: I18nResource = {};
+  const ret: I18nAddonResources = {};
   await Promise.all(
-    addons.map(async addon => {
+    addons.map(async (addon) => {
       const res = await getI18nResource(locale, addon);
-      ret = { ...ret, ...res };
-    })
+      ret[addon] = res;
+    }),
   );
   return ret;
 };

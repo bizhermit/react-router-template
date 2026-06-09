@@ -4,6 +4,16 @@ import { LoadingBar } from "../../components/elements/loading";
 import { I18nContext, I18nLangContext, type SwitchLocaleOptions } from "../hooks/i18n";
 import { DEFAULT_LOCALE, LOCALE_KEY } from "../i18n/consts";
 
+function appendAddonResource(
+  currentResource: I18nResource,
+  addon: string,
+  addonResource: I18nResource
+) {
+  Object.entries(addonResource).forEach(([key, text]) => {
+    currentResource[`${addon}.${key}`] = text;
+  });
+};
+
 export function I18nProvider(props: {
   locale: Locales;
   resource: I18nResource;
@@ -12,6 +22,7 @@ export function I18nProvider(props: {
   const [locale, setLocale] = useState(props.locale);
   const switchRef = useRef(locale);
   const resourceRef = useRef(props.resource);
+  const addonsRef = useRef<Set<string>>(new Set());
 
   function t<K extends I18nTextKey>(key: K, params?: I18nReplaceParams<K>) {
     if (!key) return key;
@@ -28,21 +39,57 @@ export function I18nProvider(props: {
   (t as I18nGetter).locale = locale;
 
   async function switchLocale(locale: Locales) {
+    let newResource: I18nResource = {};
     switchRef.current = locale;
-    const res = await fetch(`/locales/${locale}.json`);
-    if (!res.ok) return false;
+    try {
+      await Promise.all([
+        (async () => {
+          const res = await fetch(`/locales/${locale}.json`);
+          if (!res.ok) {
+            console.warn(`not found lang file: ${locale}.json`);
+            return;
+          }
+          const json = await res.json();
+          newResource = {
+            ...newResource,
+            ...json,
+          };
+        })(),
+        ...(Array.from(addonsRef.current).map(addon => {
+          return (async () => {
+            const res = await fetch(`/locales/${locale}.${addon}.json`);
+            if (!res.ok) {
+              console.warn(`not found lang file: ${locale}.${addon}.json`);
+              return;
+            }
+            const json = await res.json();
+            appendAddonResource(
+              newResource,
+              addon,
+              json,
+            );
+          })();
+        })),
+      ]);
+    } catch {
+      return false;
+    }
     if (switchRef.current !== locale) return false;
-    const resource = await res.json();
     setLocale(locale);
-    resourceRef.current = resource;
+    resourceRef.current = newResource;
     return true;
   };
 
-  function appendLangs(addonLangs: I18nResource) {
-    resourceRef.current = {
-      ...resourceRef.current,
-      ...addonLangs,
-    };
+  function appendLangs(addonLangs: I18nAddonResources) {
+    Object.entries(addonLangs).forEach(([addon, resource]) => {
+      if (addonsRef.current.has(addon)) return;
+      addonsRef.current.add(addon);
+      appendAddonResource(
+        resourceRef.current,
+        addon,
+        resource
+      );
+    });
   };
 
   return (
@@ -114,21 +161,23 @@ export function I18nCookieLocator(props: {
   children: ReactNode;
 }) {
   const i18n = use(I18nContext);
-  const { revalidate } = useRevalidator();
+  const { revalidate, state } = useRevalidator();
   const [isSwitching, setSwitch] = useState(false);
 
   async function switchLocale(locale: Locales, options?: SwitchLocaleOptions) {
     setSwitch(true);
     document.cookie = `${LOCALE_KEY}=${encodeURIComponent(locale)};${cookieOption}`;
     if (await i18n.switch(locale)) {
-      if (!options?.preventRefresh) await revalidate();
+      if (!options?.preventRefresh) {
+        await revalidate();
+      }
     }
     setSwitch(false);
   };
 
   return (
     <>
-      {isSwitching && <LoadingBar />}
+      {(isSwitching || state === "loading") && <LoadingBar />}
       <I18nLangContext
         value={{
           locale: i18n.locale,
