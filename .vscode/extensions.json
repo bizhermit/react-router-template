@@ -20,6 +20,7 @@
     "bradlc.vscode-tailwindcss",
     "ms-playwright.playwright",
     "42Crunch.vscode-openapi",
-    "ritwickdey.LiveServer"
+    "ritwickdey.LiveServer",
+    "Anthropic.claude-code"
   ]
 }
