@@ -1,4 +1,4 @@
-FROM node:24-bookworm-slim AS builder
+FROM node:26-bookworm-slim AS builder
 
 WORKDIR /app
 
@@ -22,7 +22,7 @@ COPY . .
 RUN npm run build
 RUN npm run build:scripts
 
-FROM node:24-bookworm-slim AS runner-dep
+FROM node:26-bookworm-slim AS runner-dep
 
 WORKDIR /app
 
@@ -32,7 +32,7 @@ COPY --from=builder /app/.npmrc.build ./.npmrc.build
 RUN NPM_CONFIG_USERCONFIG=.npmrc.build npm ci --omit=dev
 RUN NPM_CONFIG_USERCONFIG=.npmrc.build npm audit --omit=dev
 
-FROM node:24-bookworm-slim AS runner
+FROM node:26-bookworm-slim AS runner
 
 WORKDIR /app
 
