@@ -7,20 +7,20 @@
 
 - 環境変数ファイルは`./docker/.env`のみを使用する
 - `vite`標準の`.env.*`（例: `.env.local`, `.env.development`）は使用しない
-- 開発コンテナ起動時は`./docker/.env`ファイルが必須（中身が空でも可）
+- コンテナ起動時に`./docker/.env`ファイルが存在しなければエラーとする
 
 ## 初期セットアップ
-
-PowerShell:
-
-```powershell
-Copy-Item ./docker/.env.example ./docker/.env
-```
 
 bash:
 
 ```bash
 cp ./docker/.env.example ./docker/.env
+```
+
+PowerShell:
+
+```powershell
+Copy-Item ./docker/.env.example ./docker/.env
 ```
 
 ## 設定値
@@ -47,7 +47,7 @@ cp ./docker/.env.example ./docker/.env
 |   o   |   o   | POSTGRES_DB          | `template`                        | PostgreSQLデータベース名                                            |
 |   o   |   o   | POSTGRES_LOG_LEVEL   | `WARNING`（dev）/ `FATAL`（prod） | PostgreSQLログレベル                                                |
 |   o   |   -   | MIGRATE              | `true`                            | 起動時マイグレーション実行有無（本番コンテナ起動時）                |
-|   r   |   o   | BETTER_AUTH_SECRET   | -                                 | Better Auth用シークレット（変更すると既存セッションは無効化される） |
+|   r   |   o   | BETTER_AUTH_SECRET   | -                                 | Better Auth用シークレット（変更すると既存セッションは無効化される）<br>生成コマンド: `openssl rand -base64 32` |
 
 ## セキュリティ注意事項
 
