@@ -13,6 +13,8 @@ ARG WORKSPACE_DIRS="node_modules .react-router .artifacts"
 #   && apt-get -y clean \
 #   && rm -rf /var/lib/apt/lists/*
 
+RUN npm install -g @anthropic-ai/claude-code
+
 RUN groupmod -og $HOST_GID node \
   && usermod -ou $HOST_UID node
 
