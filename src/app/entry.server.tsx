@@ -6,7 +6,7 @@ import { ValidScriptsProvider } from "$/shared/providers/valid-scripts";
 import { createReadableStreamFromReadable } from "@react-router/node";
 import { isbot } from "isbot";
 import { renderToPipeableStream } from "react-dom/server";
-import { ServerRouter, type AppLoadContext, type EntryContext } from "react-router";
+import { ServerRouter, type EntryContext } from "react-router";
 import { PassThrough } from "stream";
 import { setPageResponseHeaders } from "~/auth/server/http/page-headers";
 
@@ -28,8 +28,6 @@ export default async function handleRequest(
   statusCode: number,
   headers: Headers,
   reactRouterContext: EntryContext,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  loadContext: AppLoadContext,
 ) {
   let callbackName = "onShellReady";
   if (isbot(request.headers.get("user-agent"))) {

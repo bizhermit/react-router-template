@@ -344,8 +344,7 @@ await Promise.all(
     const openApi = parse(mod.default);
     const apiName = path.parse(file).name;
     const yamlStr = yaml.dump(openApi, {
-      forceQuotes: true,
-      quotingType: "\"",
+      quoteStyle: "double",
     });
     writeFileSync(
       path.join(distDirPath, `${apiName}.yaml`),
